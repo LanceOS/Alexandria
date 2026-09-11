@@ -40,6 +40,10 @@ Each feature groups the code that changes with that feature:
 
 The library entry exports its page, navigation component, loading hook, and public prop types. The curriculum entry exports its page and public props. Components such as a code block or a topic card remain internal unless another consumer needs them.
 
+The curriculum overview composes `LearningPath`, `LearningPathNavigation`, and `UnitBranch`. Subunit headers toggle their module lists and show a count that includes nested modules. The jump picker offers subunit overviews and individual modules; selecting an option does not navigate until the user chooses Go. Jumping to a subunit opens its ancestors, scrolls to its header, and moves keyboard focus there. `useLearningPath` keeps expansion preferences per topic in tab-scoped session storage so returning from a module preserves the view. Without a saved preference, only the branch containing the first module starts open. The hierarchy and preference helpers live in `utils/learningPath.ts`, and the path styles live in `styles/learning-path.css`.
+
+`ExtraReading` sits below the learning path, with a shortcut beside Start learning. It uses the outline API's aggregated references and previews four cards, with an option to show the full list. Each reference retains its authors, edition, and expandable reading notes linking back to the relevant modules and chapter/page locators. The section stays available when subunits are collapsed and shows a simple empty state until published modules provide references. Its styles live in `styles/extra-reading.css`; reference text remains in the curriculum JSON and database.
+
 ## Import boundaries
 
 - Global pages compose features through their public entries, such as `../modules/library` and `../modules/curriculum`.

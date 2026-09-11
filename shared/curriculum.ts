@@ -28,6 +28,24 @@ export interface CurriculumUnit {
 export interface TopicOutline {
   topic: CurriculumTopic;
   units: CurriculumUnit[];
+  extraReading: ExtraReadingReference[];
+}
+
+export interface SourceReference {
+  id: string;
+  title: string;
+  authors: string[];
+  edition: string | null;
+  publicationYear: number | null;
+  url: string | null;
+}
+
+export interface ModuleSource extends SourceReference {
+  locator: string;
+}
+
+export interface ExtraReadingReference extends SourceReference {
+  citations: Array<{ moduleId: string; locator: string }>;
 }
 
 // Plain text blocks are rendered as text by the client, never as stored HTML.
@@ -44,13 +62,5 @@ export interface ModuleDetail {
   units: Array<{ id: string; name: string; slug: string }>;
   version: { id: string; number: number; objectives: string[] };
   parts: Array<{ id: string; title: string; position: number; blocks: LessonBlock[] }>;
-  sources: Array<{
-    id: string;
-    title: string;
-    authors: string[];
-    edition: string | null;
-    publicationYear: number | null;
-    locator: string;
-    url: string | null;
-  }>;
+  sources: ModuleSource[];
 }

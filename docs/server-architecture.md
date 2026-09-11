@@ -42,7 +42,7 @@ Request bodies are bounded to 16 KiB, validated without type coercion, and rejec
 | `GET /health/live` | Public | Process liveness |
 | `GET /health/ready` | Public | Migration compatibility and library read check |
 | `GET /api/library` | Public | Published categories and placed published topics |
-| `GET /api/topics/:slug/outline` | Public | Published unit hierarchy and module summaries; every ancestor must be visible |
+| `GET /api/topics/:slug/outline` | Public | Published unit hierarchy, module summaries, and extra-reading references; every ancestor must be visible |
 | `GET /api/modules/:id` | Public | Latest published module version, structured lesson parts, objectives, and bibliographic citations |
 | `POST /api/auth/login` | Public | Authenticate username/password; set session cookie; return user and CSRF token |
 | `GET /api/auth/session` | Public | Current user and CSRF token, or `{ "user": null }` |
@@ -94,6 +94,8 @@ Settings support `theme: system | light | dark`, `textSize: small | medium | lar
 SQLite runs with WAL, foreign keys, recursive triggers, FULL synchronous durability, and a five-second busy timeout. Startup checks the existing database, integrity, and checksummed migration history; it never initializes or silently upgrades storage. Runtime writes require a fully migrated schema. `db:migrate` creates a verified pre-upgrade backup and applies each pending migration transactionally. See [Getting started](getting-started.md) for setup, upgrades, and account commands, and [Database schema](database-schema.md) for constraints and relationships.
 
 Public curriculum repositories return only published content belonging to a published topic with a published category placement. Every ancestor unit must be published. Lesson JSON is validated against bounded, explicit paragraph, code, list, callout, and reflection shapes. The client renders plain text without stored HTML or executable content. Protected exercise tables are not queried or serialized.
+
+The outline's `extraReading` array combines citations from the latest published versions of its visible modules. References sharing a normalized URL, authors, edition, and publication year appear once, with each module's locator retained in `citations`. References without a URL are matched by title and the same bibliographic fields. Different editions remain separate. The repository validates source authors and web URLs using the same rules as the module reader. This is derived from the existing source and citation tables; it needs no schema migration or separate content import.
 
 The content loader recursively discovers `unit.json` metadata, child unit folders, and module JSON under `content/units/`. It validates file shapes with Ajv against the checked-in JSON schemas, then checks semantic rules such as stable identities, ownership, and ordering. `content:check` validates all roots by default, or a named root, without opening the database.
 

@@ -7,7 +7,7 @@ export function readerFixture() {
   });
   const current = module('z-first', 'basics');
   const following = module('a-second', 'basics');
-  const outline: TopicOutline = { topic, units: [
+  const outline: TopicOutline = { topic, extraReading: [], units: [
     { id: 'basics', parentUnitId: null, name: 'Basics', slug: 'basics', description: '', position: 0, modules: [current, following] },
     { id: 'other', parentUnitId: null, name: 'Other', slug: 'other', description: '', position: 1, modules: [module('other-module', 'other')] },
   ] };

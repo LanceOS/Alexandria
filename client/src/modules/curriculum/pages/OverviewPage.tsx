@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
-import { EmptyState, Icon } from '../../../components/ui';
+import { Icon } from '../../../components/ui';
 import type { HeadingRef, Navigate, TopicOutline } from '../types';
 import { CurriculumLink } from '../components/CurriculumLink';
-import { UnitBranch } from '../components/UnitBranch';
+import { LearningPath } from '../components/LearningPath';
+import { ExtraReading } from '../components/ExtraReading';
 
 export function OverviewPage({ outline, topicSlug, onNavigate, headingRef, backLink }: {
   outline: TopicOutline; topicSlug: string; onNavigate: Navigate; headingRef: HeadingRef; backLink: ReactNode;
@@ -18,15 +19,15 @@ export function OverviewPage({ outline, topicSlug, onNavigate, headingRef, backL
         <h1 ref={headingRef} tabIndex={-1}>{outline.topic.name}</h1>
         <p>{outline.topic.description}</p>
         <div className="curriculum-hero-meta"><span><Icon name="grid" size={15} />{roots.length} {roots.length === 1 ? 'unit' : 'units'}</span><span><Icon name="book" size={15} />{modules.length} {modules.length === 1 ? 'module' : 'modules'}</span></div>
-        {firstModule && <CurriculumLink destination={{ topicSlug, moduleId: firstModule.id }} navigate={onNavigate} className="ui-button ui-button--primary curriculum-start">Start learning<Icon name="arrow-right" size={17} /></CurriculumLink>}
+        <div className="curriculum-overview-actions">
+          {firstModule && <CurriculumLink destination={{ topicSlug, moduleId: firstModule.id }} navigate={onNavigate} className="ui-button ui-button--primary curriculum-start">Start learning<Icon name="arrow-right" size={17} /></CurriculumLink>}
+          <a href="#extra-reading-heading" className="curriculum-reading-shortcut"><Icon name="book" size={16} />Extra Reading<Icon name="arrow-right" size={15} /></a>
+        </div>
       </div>
       <div className="curriculum-hero-art" aria-hidden="true"><span className="curriculum-art-orbit" /><span className="curriculum-art-square"><Icon name="code" size={63} /></span><span className="curriculum-art-star">✳</span><span className="curriculum-art-caption">A LITTLE FURTHER, EVERY DAY.</span></div>
     </header>
-    <section className="curriculum-path" aria-labelledby="curriculum-path-heading">
-      <div className="curriculum-path-heading"><h2 id="curriculum-path-heading">Your learning path</h2><span>A foundation, one idea at a time</span></div>
-      {roots.length ? roots.map((unit, index) => <UnitBranch key={unit.id} unit={unit} units={outline.units} depth={0} index={index} topicSlug={topicSlug} navigate={onNavigate} />)
-        : <EmptyState icon={<Icon name="book" size={26} />} title="A little room to grow" description="Units will appear here when they’re ready to explore." />}
-    </section>
+    <LearningPath key={topicSlug} units={outline.units} topicSlug={topicSlug} navigate={onNavigate} />
+    <ExtraReading key={`reading-${topicSlug}`} references={outline.extraReading} modules={modules} topicSlug={topicSlug} navigate={onNavigate} />
     <footer className="curriculum-footer"><Icon name="bookmark" size={15} /><span>Make room for understanding. Take it at your own pace.</span></footer>
   </div>;
 }

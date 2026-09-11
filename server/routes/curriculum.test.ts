@@ -37,7 +37,8 @@ function addModule(database: DatabaseSync, id = 'module', unit = 'basics') {
 }
 
 function addVersion(database: DatabaseSync, moduleId: string, version: number, content: unknown, options: {
-  objectives?: unknown; schema?: number; authors?: unknown; url?: string; privateExercise?: boolean; publish?: boolean;
+  objectives?: unknown; schema?: number; authors?: unknown; url?: string | null; privateExercise?: boolean; publish?: boolean;
+  sourceTitle?: string; edition?: string; locator?: string;
 } = {}) {
   const versionId = `${moduleId}-v${version}`;
   const partId = `${moduleId}-part${version}`;
@@ -48,10 +49,10 @@ function addVersion(database: DatabaseSync, moduleId: string, version: number, c
   database.prepare(`INSERT INTO lesson_part_versions(lesson_part_id, module_version_id, module_id, title, position, content_json)
     VALUES (?, ?, ?, 'First section', 0, ?)`).run(partId, versionId, moduleId, JSON.stringify(content));
   database.prepare(`INSERT INTO source_references(id, title, authors_json, edition, publication_year, url)
-    VALUES (?, 'Original test source', ?, 'First', 2026, ?)`).run(`${versionId}-source`, JSON.stringify(options.authors ?? ['Test Author']),
-    options.url ?? 'https://example.com/reference');
+    VALUES (?, ?, ?, ?, 2026, ?)`).run(`${versionId}-source`, options.sourceTitle ?? 'Original test source', JSON.stringify(options.authors ?? ['Test Author']),
+    options.edition ?? 'First', options.url === undefined ? 'https://example.com/reference' : options.url);
   database.prepare(`INSERT INTO module_version_sources(module_version_id, source_reference_id, locator)
-    VALUES (?, ?, 'Section 1')`).run(versionId, `${versionId}-source`);
+    VALUES (?, ?, ?)`).run(versionId, `${versionId}-source`, options.locator ?? 'Section 1');
   if (options.privateExercise) {
     database.prepare('INSERT INTO exercises(id, module_id) VALUES (?, ?)').run(`${versionId}-exercise`, moduleId);
     database.prepare(`INSERT INTO exercise_versions(id, exercise_id, module_version_id, module_id, lesson_part_id,
@@ -103,8 +104,45 @@ test('public curriculum returns the latest published version, its structured blo
   assert.deepEqual(lesson.parts, [{ id: 'module-part2', title: 'First section', position: 0, blocks }]);
   assert.deepEqual(lesson.sources, [{ id: 'module-v2-source', title: 'Original test source', authors: ['Test Author'],
     edition: 'First', publicationYear: 2026, locator: 'Section 1', url: 'https://example.com/reference' }]);
+  assert.deepEqual(outline.extraReading, [{ id: 'module-v2-source', title: 'Original test source', authors: ['Test Author'],
+    edition: 'First', publicationYear: 2026, url: 'https://example.com/reference', citations: [{ moduleId: 'module', locator: 'Section 1' }] }]);
   assert.deepEqual(Object.keys(lesson).sort(), ['module', 'parts', 'sources', 'topic', 'units', 'version']);
   assert.doesNotMatch(lessonResponse.body, /never expose|private_key|grading|solution|credentials|Unpublished/);
+  assert.doesNotMatch(response.body, /never expose|private_key|grading|solution|credentials|Unpublished/);
+});
+
+test('overview extra reading combines repeated resources, retains reading locations, and separates editions', async (t) => {
+  const { app, database } = await fixture(t);
+  assert.deepEqual((await app.inject('/api/topics/test-cpp/outline')).json<TopicOutline>().extraReading, []);
+  addModule(database);
+  addVersion(database, 'module', 1, paragraph, { url: 'https://example.com/obsolete-reference' });
+  addVersion(database, 'module', 2, paragraph);
+  addVersion(database, 'module', 3, paragraph, { publish: false, url: 'https://example.com/draft-reference' });
+  addModule(database, 'z-second');
+  addVersion(database, 'z-second', 1, paragraph, { sourceTitle: 'Another chapter of the same resource', locator: 'Chapter 2, pages 40–42' });
+  addModule(database, 'z-third');
+  addVersion(database, 'z-third', 1, paragraph, { edition: 'Second' });
+  addModule(database, 'draft-only');
+  addVersion(database, 'draft-only', 1, paragraph, { publish: false });
+  database.exec(`
+    INSERT INTO topics(id, slug, name, status) VALUES ('other-topic', 'other-topic', 'Another topic', 'published');
+    INSERT INTO topic_categories(topic_id, category_id) VALUES ('other-topic', 'category_software');
+    INSERT INTO units(id, topic_id, name, slug, status) VALUES ('other-root', 'other-topic', 'Other', 'other', 'published');
+  `);
+  addModule(database, 'foreign-module', 'other-root');
+  addVersion(database, 'foreign-module', 1, paragraph, { url: 'https://example.com/foreign-reference' });
+  const response = await app.inject('/api/topics/test-cpp/outline');
+  assert.equal(response.statusCode, 200, response.body);
+  const references = response.json<TopicOutline>().extraReading;
+  assert.equal(references.length, 2);
+  assert.deepEqual(references[0]?.citations, [
+    { moduleId: 'module', locator: 'Section 1' },
+    { moduleId: 'z-second', locator: 'Chapter 2, pages 40–42' },
+  ]);
+  assert.equal(references[0]?.title, 'Original test source');
+  assert.equal(references[1]?.edition, 'Second');
+  assert.deepEqual(references[1]?.citations, [{ moduleId: 'z-third', locator: 'Section 1' }]);
+  assert.doesNotMatch(response.body, /obsolete-reference|draft-reference|foreign-reference|draft-only|foreign-module/);
 });
 
 test('public curriculum hides unpublished ancestors, modules, topics, and category placements', async (t) => {
@@ -119,12 +157,14 @@ test('public curriculum hides unpublished ancestors, modules, topics, and catego
       assert.equal((await app.inject('/api/modules/module')).statusCode, 404);
       const outline = (await app.inject('/api/topics/test-cpp/outline')).json<TopicOutline>();
       assert.equal(outline.units.some((unit) => unit.id === 'nested' || unit.id === ancestor), false);
+      assert.deepEqual(outline.extraReading, []);
       database.prepare("UPDATE units SET status = 'published' WHERE id = ?").run(ancestor);
     }
   }
   database.exec("UPDATE modules SET status = 'archived' WHERE id = 'module'");
   assert.equal((await app.inject('/api/modules/module')).statusCode, 404);
   assert.ok((await app.inject('/api/topics/test-cpp/outline')).json<TopicOutline>().units.every((unit) => unit.modules.length === 0));
+  assert.deepEqual((await app.inject('/api/topics/test-cpp/outline')).json<TopicOutline>().extraReading, []);
   database.exec("UPDATE modules SET status = 'published' WHERE id = 'module'");
   for (const table of ['topics', 'categories']) {
     database.exec(`UPDATE ${table} SET status = 'archived'`);
@@ -135,6 +175,20 @@ test('public curriculum hides unpublished ancestors, modules, topics, and catego
   database.exec('DELETE FROM topic_categories');
   assert.equal((await app.inject('/api/topics/test-cpp/outline')).statusCode, 404);
   assert.equal((await app.inject('/api/modules/module')).statusCode, 404);
+});
+
+test('overview reading validates stored source data without exposing malformed authors or credential-bearing URLs', async (t) => {
+  const { app, database } = await fixture(t);
+  for (const [index, options] of [{ authors: [{ private_key: 'private payload' }] }, { url: 'https://user:private-payload@example.com/' }].entries()) {
+    const id = `bad-source-${index}`;
+    addModule(database, id);
+    addVersion(database, id, 1, paragraph, options);
+    const response = await app.inject('/api/topics/test-cpp/outline');
+    assert.equal(response.statusCode, 500, response.body);
+    assert.equal(response.json().code, 'CONTENT_UNAVAILABLE');
+    assert.doesNotMatch(response.body, /private payload|private_key|private-payload|https:/);
+    database.prepare("UPDATE modules SET status = 'archived' WHERE id = ?").run(id);
+  }
 });
 
 test('public curriculum rejects malformed stored blocks, objectives, citations, and unsupported schemas without leaking them', async (t) => {

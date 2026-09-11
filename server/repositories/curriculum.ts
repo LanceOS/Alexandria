@@ -1,5 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
-import type { CurriculumTopic, CurriculumUnit, LessonBlock, ModuleDetail, ModuleSummary, TopicOutline } from '../../shared/curriculum.js';
+import type { CurriculumTopic, CurriculumUnit, ExtraReadingReference, LessonBlock, ModuleDetail, ModuleSource, ModuleSummary, TopicOutline } from '../../shared/curriculum.js';
 import { AppError } from '../http/errors.js';
 
 interface UnitRow {
@@ -133,6 +133,40 @@ function readVisibleUnits(database: DatabaseSync, topicId: string): UnitRow[] {
     FROM visible_units ORDER BY position, id`).all(topicId) as unknown as UnitRow[];
 }
 
+function moduleSource(source: SourceRow): ModuleSource {
+  return { id: source.id, title: source.title,
+    authors: strings(parseJson(source.authorsJson), 30, 300), edition: source.edition,
+    publicationYear: source.publicationYear, locator: source.locator, url: sourceUrl(source.url) };
+}
+
+function readExtraReading(database: DatabaseSync, topicId: string): ExtraReadingReference[] {
+  const rows = database.prepare(`${visibleUnits}
+    SELECT s.id, s.title, s.authors_json AS authorsJson, s.edition,
+      s.publication_year AS publicationYear, link.locator, s.url, m.id AS moduleId
+    FROM modules m JOIN visible_units u ON u.id = m.unit_id
+    JOIN module_versions v ON ${latestPublishedVersion}
+    JOIN module_version_sources link ON link.module_version_id = v.id
+    JOIN source_references s ON s.id = link.source_reference_id
+    WHERE m.status = 'published' ORDER BY m.position, m.id, link.position, s.id`)
+    .all(topicId) as unknown as Array<SourceRow & { moduleId: string }>;
+  const references = new Map<string, ExtraReadingReference>();
+  for (const row of rows) {
+    const { locator, ...source } = moduleSource(row);
+    // Module-specific titles can describe different parts of the same resource.
+    // Keep different editions/authorship distinct, and retain every reading locator.
+    const key = JSON.stringify([source.url ?? source.title, source.authors, source.edition, source.publicationYear]);
+    let reference = references.get(key);
+    if (!reference) {
+      reference = { ...source, citations: [] };
+      references.set(key, reference);
+    }
+    if (!reference.citations.some((citation) => citation.moduleId === row.moduleId && citation.locator === locator)) {
+      reference.citations.push({ moduleId: row.moduleId, locator });
+    }
+  }
+  return [...references.values()];
+}
+
 export function readTopicOutline(database: DatabaseSync, slug: string): TopicOutline {
   const topic = database.prepare(`SELECT t.id, t.slug, t.name, t.description FROM topics t
     WHERE t.slug = ? AND ${visibleTopic}`).get(slug) as unknown as CurriculumTopic | undefined;
@@ -144,7 +178,7 @@ export function readTopicOutline(database: DatabaseSync, slug: string): TopicOut
     JOIN visible_units u ON u.id = m.unit_id JOIN module_versions v ON ${latestPublishedVersion}
     WHERE m.status = 'published' ORDER BY m.position, m.id`).all(topic.id) as unknown as VersionRow[];
   for (const module of modules) byId.get(module.unitId)?.modules.push(summary(module));
-  return { topic, units };
+  return { topic, units, extraReading: readExtraReading(database, topic.id) };
 }
 
 export function readModuleDetail(database: DatabaseSync, id: string): ModuleDetail {
@@ -179,8 +213,6 @@ export function readModuleDetail(database: DatabaseSync, id: string): ModuleDeta
     module: summary(row), topic, units: ancestors,
     version: { id: row.versionId, number: row.version, objectives: strings(parseJson(row.objectivesJson), 20, 1_000) },
     parts: parts.map((part) => ({ id: part.id, title: part.title, position: part.position, blocks: lessonBlocks(part.contentJson) })),
-    sources: sources.map((source) => ({ id: source.id, title: source.title,
-      authors: strings(parseJson(source.authorsJson), 30, 300), edition: source.edition,
-      publicationYear: source.publicationYear, locator: source.locator, url: sourceUrl(source.url) })),
+    sources: sources.map(moduleSource),
   };
 }
