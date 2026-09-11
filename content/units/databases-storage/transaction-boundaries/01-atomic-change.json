@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "databases_storage_transaction_boundaries_module",
+  "versionId": "databases_storage_transaction_boundaries_version_1",
+  "slug": "atomic-change",
+  "title": "Keep a multi-step database change within one transaction",
+  "summary": "Define a data invariant and trace commit versus rollback.",
+  "position": 0,
+  "objectives": [
+    "Identify a multi-statement invariant.",
+    "Predict state after commit and explicit rollback.",
+    "Distinguish transaction failure from C++ resource cleanup."
+  ],
+  "parts": [
+    {
+      "id": "databases_storage_transaction_boundaries_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: basic SQL; C++ errors and resource ownership. Database transactions belong here; RAII can manage a connection but does not itself define database atomicity."
+        },
+        {
+          "type": "paragraph",
+          "text": "A transaction groups database operations under a commit or rollback boundary. SQLite supports explicit transactions and has only one simultaneous writer, while readers have their own transaction behavior. An application must examine errors rather than assume every statement failure automatically rolls back all prior work. Different errors can leave different transaction states. Treat transaction completion as an explicit operation with a result. A C++ connection object going out of scope and a successful business operation are not interchangeable events. Start by writing the invariant the transaction is intended to preserve, then locate every statement that participates in it."
+        }
+      ]
+    },
+    {
+      "id": "databases_storage_transaction_boundaries_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original inventory example moves three identical items from bin A to bin B. Initial quantities are A=8 and B=2, so the invariant total is ten. Assume an isolated writer, sufficient stock, and successful execution of the listed operations unless an error is stated. The trace is conceptual SQL behavior; it does not execute against a real database."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Initial committed state: A=8, B=2, total=10\nBegin transaction\nDecrease A by 3: transaction sees A=5, B=2\nIncrease B by 3: transaction sees A=5, B=5\nCommit succeeds: committed state A=5, B=5, total=10\nAlternative: second update fails, explicit rollback succeeds\nAlternative final state: A=8, B=2, total=10"
+        },
+        {
+          "type": "paragraph",
+          "text": "The intermediate total of seven is an unfinished transaction state, not a valid completed transfer. If each update were committed independently, a failure between them could leave that invalid state permanently visible. The rollback branch is explicit because a failed statement alone does not uniformly tell the application which earlier changes survived. Quantity checks and constraints should also prevent an attempted transfer larger than the available stock."
+        }
+      ]
+    },
+    {
+      "id": "databases_storage_transaction_boundaries_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Add a validation step for an attempted transfer of nine items and define the error result before changing quantities. Then identify what must happen if commit reports a busy condition instead of success. Keep the transaction short and avoid unrelated network calls while holding writer access. If retrying an entire operation is possible, assign it an application identity so that an uncertain response does not accidentally move the items twice."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If the second statement fails, is it enough for the caller to print an error and continue using the same connection?",
+          "explanation": "No. It must establish the transaction state and handle it deliberately, commonly by rolling back the intended operation and checking the outcome. Earlier changes may still be part of an active transaction. Continuing without resolving that state can mix an abandoned transfer with unrelated work and obscure the invariant."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "databases_storage_transaction_boundaries_source_transaction",
+      "title": "SQLite: Transaction",
+      "authors": [
+        "SQLite developers"
+      ],
+      "url": "https://sqlite.org/lang_transaction.html",
+      "locator": "Primary documentation: Sections 2, 2.1 and 3; explicit transactions, one writer, error handling; consulted 2026-09-11"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_core_unit_error_handling",
+  "name": "Error Handling",
+  "slug": "error-handling",
+  "description": "Represent unsuccessful results and preserve state when operations fail.",
+  "position": 7
+}

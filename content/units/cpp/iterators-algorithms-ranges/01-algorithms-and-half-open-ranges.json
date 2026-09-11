@@ -1,0 +1,110 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges",
+  "versionId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_v1",
+  "slug": "algorithms-and-half-open-ranges",
+  "title": "Algorithms and half-open ranges",
+  "summary": "Search and sort with explicit boundaries and valid ordering requirements.",
+  "position": 0,
+  "objectives": [
+    "Interpret the range from begin to end without dereferencing end.",
+    "Check a search result before accessing an element.",
+    "Explain the comparator contract required by sorting."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_part_1",
+      "title": "A range has a beginning and a stopping point",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "An iterator identifies a position in a sequence and supports operations appropriate to its iterator category. A range commonly uses a beginning iterator and a stopping iterator. The interval includes the beginning and excludes the stopping position, conventionally written [begin, end). For an empty container, begin equals end. The end value represents a boundary; it is not an additional element that may be read."
+        },
+        {
+          "type": "paragraph",
+          "text": "Standard algorithms express common operations such as searching, sorting, transforming, and counting. Their interfaces and complexity guarantees let a reader recognize the intended operation without tracing a handwritten loop. Different algorithms require different iterator capabilities. A forward traversal is enough for many searches, while std::sort requires random-access iterators. A vector supplies those iterators, but a linked list has different capabilities and offers its own sorting member."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_part_2",
+      "title": "Compose established operations",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <algorithm>\n#include <iostream>\n#include <vector>\n\nint main()\n{\n    std::vector<int> pages{9, 2, 6, 4};\n    std::sort(pages.begin(), pages.end());\n    for (int value : pages) std::cout << value << '\\n';\n    const auto found = std::find(pages.begin(), pages.end(), 6);\n    if (found != pages.end()) std::cout << \"Found: \" << *found << '\\n';\n    const auto even = std::count_if(pages.begin(), pages.end(),\n                                   [](int value) { return value % 2 == 0; });\n    std::cout << \"Even: \" << even << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "2\n4\n6\n9\nFound: 6\nEven: 3\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The example sorts the vector in ascending order and then searches for the value 6. Sorting changes element order in the existing vector; find locates the first matching element in the supplied range. If the search fails, find returns the stopping iterator. The program checks this condition before dereferencing the result. That check makes the success assumption explicit at the exact point where element access occurs."
+        },
+        {
+          "type": "paragraph",
+          "text": "count_if applies its predicate to each element and counts those for which the result is true. The lambda identifies even integers without changing them. This is a useful division of responsibility: the algorithm handles traversal while the predicate states the selection rule. Each individual search or count is linear in the number of visited elements. Sorting has a different comparison bound, so combining familiar functions still requires understanding their costs."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_part_3",
+      "title": "Preserve algorithm preconditions",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A sorting comparator must establish a strict weak ordering. For a simple less-than ordering, comparing a value with itself is false, and the relation must be consistent and transitive. Returning a <= b instead of a < b violates the strictness requirement. Changing external state during comparisons can also make the relation inconsistent. A callable that compiles is not automatically a valid comparator for the algorithm."
+        },
+        {
+          "type": "paragraph",
+          "text": "Sorting does not resize this vector, but it changes which value occupies a position. That distinction matters when an iterator is treated as if it permanently identifies an application record. Storage validity and logical identity are different concerns. More generally, establish the algorithm’s input range, know whether it modifies elements, and decide how long any returned iterator may be used before a later container operation invalidates it."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why must the search result be compared with end even though the sample contains 6?",
+          "explanation": "The algorithm’s interface represents failure with the end iterator. Keeping the check makes the use correct when the input changes, and prevents dereferencing a boundary that does not represent an element."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_source_1",
+      "title": "C++20 working draft N4861: iterator.requirements.general",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/iterator.requirements.general",
+      "locator": "N4861, [iterator.requirements.general]; consulted 2026-09-11. Half-open ranges, sentinels, and dereferenceability."
+    },
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_source_2",
+      "title": "C++20 working draft N4861: alg.find",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/alg.find",
+      "locator": "N4861, [alg.find]; consulted 2026-09-11. Search returns the first match or the end iterator."
+    },
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_source_3",
+      "title": "C++20 working draft N4861: alg.sorting",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/alg.sorting",
+      "locator": "N4861, [alg.sorting]; consulted 2026-09-11. Ordering requirements and sorting complexity."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "textdata_unit_interchange_contracts",
+  "name": "Interchange Contracts",
+  "slug": "interchange-contracts",
+  "description": "Define syntax, semantics, numeric representation, and parser limits.",
+  "position": 1
+}

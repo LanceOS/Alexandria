@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "build_unit_release_reproducibility",
+  "name": "Release Reproducibility",
+  "slug": "release-reproducibility",
+  "description": "Define artifact identity, declared build inputs, and reproducibility checks.",
+  "position": 1
+}

@@ -1,0 +1,112 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_feature_compatibility_module",
+  "versionId": "cpp_feature_compatibility_v1",
+  "slug": "feature-compatibility",
+  "title": "Declare and check a library’s feature baseline",
+  "summary": "Treat a language mode, standard-library feature, and supported binary configuration as separate compatibility questions.",
+  "position": 1,
+  "objectives": [
+    "Check a library feature with its documented feature-test macro.",
+    "State a minimum language and library baseline.",
+    "Explain why a successful compilation is only one part of portability validation."
+  ],
+  "parts": [
+    {
+      "id": "cpp_feature_compatibility_part_1",
+      "title": "A version flag is only one input",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Selecting C++20 tells the compiler which language mode to use. The chosen compiler and standard-library implementation must also provide the facilities used by a program. A library can document a minimum baseline and reject configurations that do not satisfy it. This lesson assumes familiarity with preprocessing and compilation."
+        },
+        {
+          "type": "paragraph",
+          "text": "The <version> header exposes standard-library feature-test macros. Their values identify feature revisions, so a threshold check is usually more useful than equality with one historical value. Checking a specific macro states what the code needs more precisely than inferring every library capability from a compiler’s marketing version."
+        }
+      ]
+    },
+    {
+      "id": "cpp_feature_compatibility_part_2",
+      "title": "Check the facility that is used",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <version>\n#if !defined(__cpp_lib_span) || __cpp_lib_span < 202002L\n#error \"This example requires the C++20 span facility\"\n#endif\n#include <array>\n#include <iostream>\n#include <span>\n\nint sum(std::span<const int> values)\n{\n    int total{};\n    for (int value : values) total += value;\n    return total;\n}\n\nint main()\n{\n    const std::array<int, 3> pages{2, 3, 4};\n    std::cout << sum(pages) << '\\n';\n}\n",
+          "caption": "main.cpp — C++20"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "9\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The array remains alive throughout the call, and the span borrows that array without retaining it. The sum is deliberately small. The preprocessing check gives an unsupported configuration an intentional diagnostic before the example attempts to use the facility. A higher macro value remains accepted, but accepting it is not a substitute for running the library’s compatibility checks."
+        },
+        {
+          "type": "paragraph",
+          "text": "Keep separate records for the language standard, standard library, target platform, and ABI-affecting options. A source-compatible update can still change runtime behavior or binary compatibility. Conversely, a compiler supporting a new feature does not make that feature part of the project’s declared baseline."
+        }
+      ]
+    },
+    {
+      "id": "cpp_feature_compatibility_part_3",
+      "title": "Review a proposed upgrade",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Can an author add std::expected to this C++20 lesson just because a local compiler accepts it in a newer mode?",
+          "explanation": "No. std::expected is a C++23 library facility. Raising the baseline requires an explicit curriculum and support decision; otherwise retain an appropriate C++20 interface."
+        },
+        {
+          "type": "paragraph",
+          "text": "A release should state which configurations were actually built and tested. Keep historical draft references labeled by edition, check evolving documentation when updating content, and do not treat proposals as adopted features. Portability work can then add another compiler or library deliberately. One successful GCC run verifies the example in that environment; it does not establish conformance on every supported platform."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_feature_compatibility_source_1",
+      "title": "C++20 working draft N4861: version.syn",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/version.syn",
+      "locator": "Primary standards draft, [version.syn]: feature-test macro definitions, including __cpp_lib_span. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_feature_compatibility_source_2",
+      "title": "C++20 working draft N4861: views.span",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/views.span",
+      "locator": "Primary standards draft, [views.span]: non-owning views over contiguous objects. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_feature_compatibility_source_3",
+      "title": "GNU libstdc++ ABI Policy and Guidelines",
+      "authors": [
+        "GNU Project"
+      ],
+      "url": "https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html",
+      "locator": "Official toolchain documentation; distinction between API and ABI and compatibility inputs; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_feature_compatibility_source_4",
+      "title": "C++ working draft N4950: expected",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2023,
+      "url": "https://timsong-cpp.github.io/cppwp/n4950/expected",
+      "locator": "Primary standards draft: C++23 expected objects and header synopsis; minimum-edition distinction. Consulted 2026-09-11; not the published ISO edition."
+    }
+  ]
+}

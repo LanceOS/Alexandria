@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "network_distributed_systems_replicated_state_unit",
+  "name": "Replicated State",
+  "slug": "replicated-state",
+  "description": "Trace current-term majority commitment without confusing copies with agreement.",
+  "position": 1
+}

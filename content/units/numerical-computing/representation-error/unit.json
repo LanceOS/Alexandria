@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "numerical_unit_representation_error",
+  "name": "Representation and Error",
+  "slug": "representation-error",
+  "description": "Understand rounding, scale, and the limits of finite precision.",
+  "position": 0
+}

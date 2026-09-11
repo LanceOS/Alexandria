@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "foundations_unit_state_correctness",
+  "name": "State and Correctness",
+  "slug": "state-correctness",
+  "description": "Use invariants and decreasing measures to explain repeated computation.",
+  "position": 1
+}

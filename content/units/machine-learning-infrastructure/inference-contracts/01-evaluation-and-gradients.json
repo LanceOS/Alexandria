@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "machine_learning_infrastructure_inference_contracts_module",
+  "versionId": "machine_learning_infrastructure_inference_contracts_version_1",
+  "slug": "evaluation-and-gradients",
+  "title": "Separate model evaluation behavior from gradient recording",
+  "summary": "Choose execution controls for inference without confusing their purposes.",
+  "position": 0,
+  "objectives": [
+    "Distinguish evaluation mode from disabling gradient recording.",
+    "Trace a controlled training and inference configuration.",
+    "Identify preprocessing and state assumptions required for repeatable comparisons."
+  ],
+  "parts": [
+    {
+      "id": "machine_learning_infrastructure_inference_contracts_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: elementary neural-network training and C++ resource concepts. This unit owns inference infrastructure; differentiation mathematics and learning theory belong to separate ML study."
+        },
+        {
+          "type": "paragraph",
+          "text": "PyTorch distinguishes module evaluation mode from gradient modes. Calling eval changes behavior only for modules that define training-specific behavior; it does not itself disable autograd. No-grad and inference modes control gradient recording and associated bookkeeping in different ways, and inference mode imposes additional restrictions on tensors used later with autograd. A correct inference boundary therefore states both the model behavior and the gradient requirements. It also defines input representation and output interpretation. Do not infer these contracts from a function name such as predict, and do not assume that skipping gradients automatically changes dropout or batch-normalization behavior."
+        }
+      ]
+    },
+    {
+      "id": "machine_learning_infrastructure_inference_contracts_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original conceptual model has a training-sensitive component and differentiable operations that use at least one parameter with requires_grad enabled. Parameter values stay fixed during this example. We compare configurations rather than inventing numerical outputs for stochastic layers. There are no parameter updates during the finite trace, all inputs have the same preprocessing, and the application needs only output values for its inference requests. Behavior labels below are conceptual and not a partial executable PyTorch program."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Case A: training mode + gradients enabled -> training behavior, graph recorded\nCase B: evaluation mode + gradients enabled -> evaluation behavior, graph recorded\nCase C: training mode + no-grad -> training behavior, no graph recording\nCase D: evaluation mode + no-grad -> evaluation behavior, no graph recording"
+        },
+        {
+          "type": "paragraph",
+          "text": "Case B demonstrates why eval alone does not express all inference requirements. Case C demonstrates the converse mistake: removing gradient recording leaves training-sensitive behavior selected. Case D matches this example’s need for evaluation behavior and output-only computation. This is a configuration argument, not a guarantee of identical outputs on every platform. Operators, randomness, device libraries and preprocessing can introduce additional differences that need separate controls."
+        }
+      ]
+    },
+    {
+      "id": "machine_learning_infrastructure_inference_contracts_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Write an inference checklist for this model containing input shape, data type, scaling, parameter version, module mode, gradient needs and output meaning. Use it to compare a reference path with a deployment path on a fixed finite dataset. If considering inference mode for performance, first check whether its outputs must later participate in autograd and validate the documented restrictions. Measure peak memory as well as latency under representative batch sizes."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Can no-grad mode replace eval when a model contains modules whose behavior changes between training and evaluation?",
+          "explanation": "No. No-grad controls graph recording, while eval selects module evaluation behavior. The controls are independent. The appropriate combination depends on whether the task needs gradients and whether it intends training or evaluation semantics. Treating either one as shorthand for the other can produce the wrong behavior or unnecessary bookkeeping."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "machine_learning_infrastructure_inference_contracts_source_autograd",
+      "title": "PyTorch: Autograd mechanics",
+      "authors": [
+        "PyTorch contributors"
+      ],
+      "url": "https://docs.pytorch.org/docs/2.14/notes/autograd.html",
+      "locator": "Primary documentation: Locally disabling gradient computation and Evaluation Mode; eval, no-grad and inference distinctions; consulted 2026-09-11"
+    }
+  ]
+}

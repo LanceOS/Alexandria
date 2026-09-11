@@ -1,0 +1,81 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "textdata_count_the_right_text_unit_module",
+  "versionId": "textdata_count_the_right_text_unit_v1",
+  "slug": "count-the-right-text-unit",
+  "title": "Count the right unit of text",
+  "summary": "Trace two Unicode representations of an accented letter without confusing bytes with user-visible characters.",
+  "position": 0,
+  "objectives": [
+    "Distinguish UTF-8 bytes from Unicode code points.",
+    "Explain why a grapheme cluster can contain multiple code points.",
+    "Choose explicit policies for normalization and truncation."
+  ],
+  "parts": [
+    {
+      "id": "textdata_count_the_right_text_unit_part_1",
+      "title": "Specify what a character means",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: bytes, hexadecimal notation, and basic strings. This unit uses Unicode 16.0.0. C++ string containers and views are taught separately; they do not automatically supply Unicode segmentation or normalization."
+        },
+        {
+          "type": "paragraph",
+          "text": "A text field may have several different lengths. The byte length describes encoded storage. The code-point count describes the sequence of Unicode values. Grapheme clusters group sequences that should usually remain together during editing. None of these is universally interchangeable with display width, because fonts, shaping, language conventions, and terminal behavior affect presentation. State the intended unit whenever specifying a text limit."
+        },
+        {
+          "type": "paragraph",
+          "text": "UTF-8 represents Unicode scalar values using variable-length byte sequences. An arbitrary byte offset can land inside one encoded value. Even an offset at a code-point boundary can split a base letter from its combining mark. Unicode’s general-structure chapter distinguishes encoding forms, code points, and grapheme clusters; this lesson uses those distinctions to design an original text-field example."
+        }
+      ]
+    },
+    {
+      "id": "textdata_count_the_right_text_unit_part_2",
+      "title": "Trace equivalent spellings",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Displayed example: an e with an acute accent\n\nRepresentation A:\n  code points: U+00E9\n  UTF-8 bytes: C3 A9\n  length: 2 bytes, 1 code point\n\nRepresentation B:\n  code points: U+0065 U+0301\n  UTF-8 bytes: 65 CC 81\n  length: 3 bytes, 2 code points\n\nFor this example, each sequence forms one grapheme cluster.\nThe sequences are canonically equivalent, but their bytes differ.",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "A byte-for-byte comparison sees different sequences. If the application intends canonical equivalence to compare equal, choose and apply a documented normalization policy before that comparison. Do not assume every visually similar string is canonically equivalent. Compatibility normalization can erase distinctions that matter for some domains, so it is a product and data-contract decision rather than a universal cleanup step."
+        },
+        {
+          "type": "paragraph",
+          "text": "Truncating representation B after its first byte preserves valid UTF-8 but removes the accent. Truncating representation A after its first byte creates an incomplete encoding. A storage limit in bytes and an editing limit in grapheme clusters therefore need different operations. Use a tested Unicode implementation for decoding and segmentation instead of incrementing a byte pointer and calling each step a character."
+        }
+      ]
+    },
+    {
+      "id": "textdata_count_the_right_text_unit_part_3",
+      "title": "Make text rules observable",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "If a username field allows ten user-perceived characters, is a ten-byte storage limit an equivalent implementation?",
+          "explanation": "No. UTF-8 length varies, and a single grapheme cluster may contain multiple code points. Define the user-facing limit using a segmentation policy and apply a separate byte limit for bounded storage or transport."
+        },
+        {
+          "type": "paragraph",
+          "text": "Decide how malformed input is handled: reject it or replace invalid sequences according to an explicit policy. Keep original text when the application needs faithful display or audit history, while deriving normalized keys for matching if required. Test accented text, combining sequences, empty input, and multi-byte values. Version the Unicode-dependent behavior when compatibility matters, because text processing is part of the data contract."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "textdata_count_the_right_text_unit_source_unicode",
+      "title": "The Unicode Standard, Version 16.0: General Structure",
+      "authors": [
+        "The Unicode Consortium"
+      ],
+      "url": "https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-2/",
+      "locator": "Official standard exposition, Unicode 16.0.0: §2.5 Encoding Forms, §2.11.5 Characters and Grapheme Clusters, §2.12 Equivalent Sequences; consulted 2026-09-11."
+    }
+  ]
+}

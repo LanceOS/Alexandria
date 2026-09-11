@@ -1,0 +1,95 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "graphics_gpu_resource_dependencies_module",
+  "versionId": "graphics_gpu_resource_dependencies_version_1",
+  "slug": "producer-consumer",
+  "title": "Make GPU producer and consumer dependencies explicit",
+  "summary": "Identify execution and memory dependencies before selecting synchronization.",
+  "position": 0,
+  "objectives": [
+    "Identify a write-to-read resource hazard.",
+    "Draw the required producer-to-consumer ordering.",
+    "Distinguish host object lifetime from completion of GPU use."
+  ],
+  "parts": [
+    {
+      "id": "graphics_gpu_resource_dependencies_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ ownership and concurrency vocabulary. GPU execution and visibility rules belong here; a C++ mutex or destructor does not define a Vulkan device dependency."
+        },
+        {
+          "type": "paragraph",
+          "text": "Vulkan makes application synchronization an explicit responsibility. Pipeline barriers constrain relevant earlier and later stages, while synchronization validation can help identify mistakes. Begin with the resource dependency rather than memorizing a blanket wait command. Name the producer operation, the bytes or image subresource it writes, and the consumer access that requires those writes. An execution order alone is not a complete explanation of when data becomes available and visible. Resource lifetime is another obligation: a host-side wrapper must keep an allocation valid while submitted work can still use it. Avoid assuming that the end of a C++ scope means a GPU command has finished."
+        }
+      ]
+    },
+    {
+      "id": "graphics_gpu_resource_dependencies_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our finite conceptual schedule uses one device queue and one buffer region R. A compute dispatch writes four values, and a later draw reads those same values as vertex data. Host upload and allocation have already completed correctly; no other queue or host access participates. The trace labels the dependency without pretending to supply complete Vulkan API parameters."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Dispatch W: write R = four vertex records\nDependency: W compute writes -> D vertex-input reads of R\nDraw D: consume the completed, visible records in R\nCompletion evidence: all submitted users of R have finished\nOnly after that evidence: reuse or destroy R"
+        },
+        {
+          "type": "paragraph",
+          "text": "The arrow names both access roles. A barrier aimed at unrelated stages or the wrong resource range would not express this dependency. The host can submit commands long before their device work completes, so returning from a recording function is insufficient evidence for deletion. This example has one queue to isolate the write/read hazard. Adding queue transfers or host mapping introduces additional contracts that must be checked against the specification."
+        }
+      ]
+    },
+    {
+      "id": "graphics_gpu_resource_dependencies_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Make a small resource table with the last writer, next reader, access types and expected lifetime for each buffer or image. Enable the appropriate validation checks while developing, then inspect warnings against that table. Validation is supporting evidence and does not replace reasoning about all accesses. Optimize only after the dependency is correct: unnecessarily broad waits can serialize unrelated work, while missing dependencies can expose stale or incomplete data."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Would putting a C++ mutex around the two host submission calls automatically make the GPU buffer safe to read and destroy?",
+          "explanation": "No. The mutex controls participating host threads. It does not replace the device execution, memory-visibility or completion requirements. The application still needs Vulkan synchronization that covers the intended accesses and evidence that all device users have finished before recycling the resource."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "graphics_gpu_resource_dependencies_source_sync",
+      "title": "Vulkan Guide: Synchronization",
+      "authors": [
+        "Khronos Group"
+      ],
+      "url": "https://docs.vulkan.org/guide/latest/synchronization.html",
+      "locator": "Primary documentation: Synchronization, Validation and Pipeline Barriers; application-managed synchronization; consulted 2026-09-11"
+    },
+    {
+      "id": "graphics_gpu_resource_dependencies_source_syncspec",
+      "title": "Vulkan specification: Synchronization and Cache Control",
+      "authors": [
+        "Khronos Group"
+      ],
+      "url": "https://docs.vulkan.org/spec/latest/chapters/synchronization.html",
+      "locator": "Primary specification: Execution and memory dependencies, availability, visibility and access scopes; consulted 2026-09-11"
+    },
+    {
+      "id": "graphics_gpu_resource_dependencies_source_bufferlife",
+      "title": "Vulkan reference: vkDestroyBuffer",
+      "authors": [
+        "Khronos Group"
+      ],
+      "url": "https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyBuffer.html",
+      "locator": "Primary specification: Valid Usage VUID-vkDestroyBuffer-buffer-00922; completion of submitted buffer users; consulted 2026-09-11"
+    }
+  ]
+}

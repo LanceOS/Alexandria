@@ -8,8 +8,10 @@ import test, { type TestContext } from 'node:test';
 import { loadConfig } from '../config.js';
 import { assertDatabaseIntegrity, initializeDatabase, openDatabase } from '../db/database.js';
 import { readModuleDetail, readTopicOutline } from '../repositories/curriculum.js';
-import { cppBasicsIds, installCppBasics } from './cpp-basics.js';
+import { cppBasicsIds, installCppBasics, loadCppBasicsBundle } from './cpp-basics.js';
 import { cppBasicsModules, installCppBasicsPath } from './cpp-basics-path.js';
+
+import { installContentBundle } from './install-content.js';
 
 async function fixture(t: TestContext) {
   const directory = await mkdtemp(join(tmpdir(), 'alexandria-cpp-path-'));
@@ -43,16 +45,16 @@ function snapshot(database: DatabaseSync) {
 test('the complete Basics path is published in order and every lesson and reading link can be served', async (t) => {
   const database = await fixture(t);
   assert.deepEqual(installCppBasicsPath(database), {
-    created: true, addedModules: 6, topicId: cppBasicsIds.topic, topics: 1, units: 2, modules: 6, parts: 18,
+    created: true, addedModules: 7, topicId: cppBasicsIds.topic, topics: 1, units: 2, modules: 7, parts: 21,
   });
   const outline = readTopicOutline(database, 'cpp');
   assert.equal(outline.units.length, 2);
   const moduleIds = outline.units.find((unit) => unit.id === cppBasicsIds.basics)!.modules.map((module) => module.id);
   assert.deepEqual(moduleIds, [cppBasicsIds.module, 'cpp_basics_module_variables', 'cpp_basics_module_expressions',
-    'cpp_basics_module_decisions', 'cpp_basics_module_loops', 'cpp_basics_module_functions']);
+    'cpp_basics_module_decisions', 'cpp_basics_module_loops', 'cpp_basics_module_functions', 'cpp_basics_module_output']);
   for (const id of moduleIds) {
     const detail = readModuleDetail(database, id);
-    assert.equal(createHash('sha256').update(JSON.stringify(detail)).digest('hex'), publishedHashes[id], `Published content changed: ${id}`);
+    if (publishedHashes[id]) assert.equal(createHash('sha256').update(JSON.stringify(detail)).digest('hex'), publishedHashes[id], `Published content changed: ${id}`);
     assert.equal(detail.parts.length, 3);
     assert.ok(detail.version.objectives.length > 0);
     assert.ok(detail.sources.some((source) => source.url === 'https://www.stroustrup.com/4th.html' && source.authors.includes('Bjarne Stroustrup')));
@@ -73,7 +75,7 @@ test('upgrading preserves every starter record and unrelated curriculum; reruns 
   database.prepare("INSERT INTO modules(id, unit_id, title, slug) VALUES ('custom', ?, 'My lesson', 'my-lesson')")
     .run(cppBasicsIds.basics);
   const before = snapshot(database);
-  assert.equal(installCppBasicsPath(database).addedModules, 5);
+  assert.equal(installCppBasicsPath(database).addedModules, 6);
   for (const { table, rows } of before) {
     const after = new Set(database.prepare(`SELECT * FROM ${table}`).all().map((row) => JSON.stringify(row)));
     for (const row of rows) assert.ok(after.has(JSON.stringify(row)), `Existing ${table} row must stay identical`);
@@ -127,9 +129,23 @@ test('a failure publishing the last new module rolls back all additions and pres
   installCppBasics(database);
   const before = snapshot(database);
   database.exec(`CREATE TRIGGER reject_last_module BEFORE UPDATE OF status ON modules
-    WHEN NEW.id = 'cpp_basics_module_functions'
+    WHEN NEW.id = 'cpp_basics_module_output'
     BEGIN SELECT RAISE(ABORT, 'simulated final publication failure'); END`);
   assert.throws(() => installCppBasicsPath(database), /simulated final publication failure/);
   assert.deepEqual(snapshot(database), before);
   assertDatabaseIntegrity(database);
+});
+
+test('adding output nuances preserves the previously published six-module path', async (t) => {
+  const database = await fixture(t);
+  const bundle = loadCppBasicsBundle();
+  for (const unit of bundle.units) unit.modules = unit.modules.filter((module) => module.id !== 'cpp_basics_module_output');
+  installContentBundle(database, bundle);
+  const before = snapshot(database);
+  assert.equal(installCppBasicsPath(database).addedModules, 1);
+  for (const { table, rows } of before) {
+    const after = new Set(database.prepare(`SELECT * FROM ${table}`).all().map((row) => JSON.stringify(row)));
+    for (const row of rows) assert.ok(after.has(JSON.stringify(row)), `Existing ${table} row must stay identical`);
+  }
+  assert.equal(readModuleDetail(database, 'cpp_basics_module_output').parts.length, 3);
 });

@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_core_unit_templates_generic_programming",
+  "name": "Templates and Generic Programming",
+  "slug": "templates-generic-programming",
+  "description": "Write reusable typed algorithms and state their requirements.",
+  "position": 9
+}

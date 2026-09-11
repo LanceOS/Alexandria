@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "game_development_simulation_time_module",
+  "versionId": "game_development_simulation_time_version_1",
+  "slug": "fixed-updates",
+  "title": "Separate simulation updates from rendered frames",
+  "summary": "Trace a fixed-step simulation across uneven render intervals.",
+  "position": 0,
+  "objectives": [
+    "Compute accumulated simulation time and update counts.",
+    "Predict position using speed and elapsed time.",
+    "Explain why a fixed step alone does not guarantee deterministic replay."
+  ],
+  "parts": [
+    {
+      "id": "game_development_simulation_time_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ loops and state; speed-times-time arithmetic. Simulation timing belongs to game development; C++ syntax and standard clocks are supporting mechanisms."
+        },
+        {
+          "type": "paragraph",
+          "text": "An engine can update presentation whenever it renders while running physics on a separate cadence. Godot exposes variable-frequency processing and fixed-rate physics processing for these roles. A duration argument converts speed into displacement: units per second multiplied by seconds yields units. Applying a fixed displacement each rendered frame makes motion depend on frame rate. A fixed simulation step provides a consistent integration interval, but does not by itself solve collision accuracy, input ordering or replay differences. Choose one authority for gameplay state and let rendering display it. Treat pauses and large delays deliberately instead of allowing an unlimited backlog of catch-up work."
+        }
+      ]
+    },
+    {
+      "id": "game_development_simulation_time_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Use an original toy simulation with an exact ten-millisecond step and constant speed of two units per second. Position begins at zero. Render intervals are sixteen, seven and twelve milliseconds. At each frame, add elapsed time to an accumulator and execute complete simulation steps while at least ten milliseconds remain. We ignore floating-point rounding and collision behavior to focus on scheduling arithmetic."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Frame 1: add 16 ms -> 1 update; remainder 6 ms; position 0.02\nFrame 2: add  7 ms -> 1 update; remainder 3 ms; position 0.04\nFrame 3: add 12 ms -> 1 update; remainder 5 ms; position 0.06\nWall time 35 ms; simulated time 30 ms; pending time 5 ms."
+        },
+        {
+          "type": "paragraph",
+          "text": "Each update moves the object by two times 0.010, or 0.02 units. Rendering happened three times, but that count is incidental: another sequence of frames with the same total elapsed time could execute different numbers of updates on individual frames. The remaining five milliseconds are retained rather than discarded. Interpolating a presentation between known simulation states is a separate policy; it should not mutate the authoritative physics state."
+        }
+      ]
+    },
+    {
+      "id": "game_development_simulation_time_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Repeat the accumulator calculation with a single thirty-five-millisecond frame and verify the same three updates and remainder. Then imagine a two-second pause. Define a maximum catch-up budget and explain whether excess elapsed time is dropped, slowed or handled by pausing the simulation. Record input per simulation step if replay matters, and account for numerical and engine-specific behavior before promising identical results across machines."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If a game multiplies every movement by frame duration, is its physics necessarily stable at any frame rate?",
+          "explanation": "No. Scaling a constant velocity fixes the units of displacement, but numerical integration and collision handling can still behave differently with large or changing steps. This example uses constant motion with no collisions. More complicated dynamics require an appropriate integration method, timestep policy and validation."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "game_development_simulation_time_source_gameloop",
+      "title": "Godot: Idle and Physics Processing",
+      "authors": [
+        "Godot Engine contributors"
+      ],
+      "url": "https://docs.godotengine.org/en/stable/tutorials/scripting/idle_and_physics_processing.html",
+      "locator": "Primary documentation: Processing types and delta; variable rendering frequency and fixed physics updates; consulted 2026-09-11"
+    }
+  ]
+}

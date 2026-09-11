@@ -11,7 +11,7 @@ await runCommand('content:cpp-basics', (config) => {
     try {
       const backupPath = await createBackup(config, database);
       const result = installContentBundle(database, bundle);
-      return { message: result.created ? 'C++ Basics content installed.' : 'C++ Basics content already matches this release.', ...result, backupPath };
+      return { message: result.created ? 'C++ curriculum content installed.' : 'C++ curriculum content already matches these files.', ...result, backupPath };
     } finally {
       database.close();
     }

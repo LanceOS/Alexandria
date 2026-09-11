@@ -1,0 +1,120 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership",
+  "versionId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_v1",
+  "slug": "raii-and-unique-ownership",
+  "title": "RAII and exclusive ownership",
+  "summary": "Let object destruction release resources and move ownership when responsibility changes.",
+  "position": 1,
+  "objectives": [
+    "Explain automatic cleanup as a lifetime rule.",
+    "Use make_unique without manual new or delete.",
+    "Distinguish moving an owner from borrowing its object."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_part_1",
+      "title": "Attach cleanup to an owner’s lifetime",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Resource Acquisition Is Initialization, usually shortened to RAII, ties responsibility for a resource to an object’s lifetime. A vector already applies this idea to its element storage: its destructor releases the storage it owns. The same approach works for file handles, locks, and other resources through suitable owner types. Cleanup becomes part of normal scope exit instead of an extra statement that each successful and unsuccessful path must remember."
+        },
+        {
+          "type": "paragraph",
+          "text": "The C++ language specifies when destructors run; choosing RAII owners is a programming recommendation built on that mechanism. For a constructed local object, leaving its block normally invokes its destructor. Constructed members are also destroyed when their containing object is destroyed. These rules are the foundation of deterministic resource management. Later exception handling extends this reasoning to stack unwinding when control transfers to a handler."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_part_2",
+      "title": "Transfer responsibility explicitly",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <memory>\n#include <string>\n#include <utility>\n\nint main()\n{\n    auto first = std::make_unique<std::string>(\"Atlas\");\n    {\n        auto second = std::move(first);\n        std::cout << std::boolalpha << static_cast<bool>(first) << ' '\n                  << static_cast<bool>(second) << '\\n';\n        std::cout << *second << '\\n';\n    }\n    std::cout << \"Owner empty: \" << !first << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "false true\nAtlas\nOwner empty: true\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "make_unique constructs a string and returns a unique_ptr that owns it. unique_ptr represents exclusive responsibility for that object: it cannot be copied into another independent owner. The program creates a second owner object by moving from first. The string is then owned by second, while first becomes empty. Printing the two Boolean states makes this transfer observable without relying on memory addresses or implementation-specific layouts."
+        },
+        {
+          "type": "paragraph",
+          "text": "std::move is a cast that makes an expression eligible for move operations. It does not independently relocate an object or release its storage. Here unique_ptr’s move constructor performs the ownership transfer. When the inner block ends, second is destroyed and releases the string automatically. first is still a valid, empty unique_ptr afterward, so testing its state remains safe even though the previously owned string no longer exists."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_part_3",
+      "title": "Prefer ordinary values when ownership is simple",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A plain local std::string would be the simpler choice if no dynamic lifetime or ownership transfer were needed. The pointer example exists to demonstrate a responsibility that can move independently of the original scope. A raw pointer obtained from an owner can borrow access, but it must not be treated as another owner or deleted independently. Two owners for the same raw allocation can cause duplicate destruction."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use shared_ptr only when the application genuinely requires shared ownership, and recognize that cycles of shared owners need a different relationship, often involving weak_ptr. These additional facilities do not replace lifetime reasoning. Start with values and exclusive ownership; introduce more complicated ownership only when the application has a concrete need. This keeps resource responsibilities visible and reduces the number of relationships a reviewer must follow."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why is dereferencing first immediately after the move invalid?",
+          "explanation": "The move leaves first empty. Its Boolean state can be tested, but dereference requires an actual object. second is the owner that provides access to the string until the inner block ends."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_source_1",
+      "title": "C++20 working draft N4861: class.dtor",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.dtor",
+      "locator": "N4861, [class.dtor]; consulted 2026-09-11. Implicit destructor invocation and reverse destruction order."
+    },
+    {
+      "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_source_2",
+      "title": "C++20 working draft N4861: unique.ptr",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr",
+      "locator": "N4861, [unique.ptr]; consulted 2026-09-11. Exclusive ownership and move-only unique_ptr operations."
+    },
+    {
+      "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_source_3",
+      "title": "C++20 working draft N4861: forward",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/forward",
+      "locator": "N4861, [forward]; consulted 2026-09-11. std::move and std::forward are casts with specified reference results."
+    },
+    {
+      "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_source_guidelines",
+      "title": "C++ Core Guidelines: R.1",
+      "authors": [
+        "Bjarne Stroustrup",
+        "Herb Sutter"
+      ],
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-raii",
+      "locator": "R.1; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII or the Rule of Zero, distinct from normative C++ language requirements."
+    }
+  ]
+}

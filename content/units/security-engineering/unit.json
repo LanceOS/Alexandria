@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "security_unit",
+  "name": "Security Engineering",
+  "slug": "security-engineering",
+  "description": "Validate trust boundaries and bound resource consumption after functions, error handling, and basic tests. C++ memory safety is one component of wider secure system design.",
+  "position": 0,
+  "topic": {
+    "id": "security_topic",
+    "slug": "security-engineering",
+    "name": "Security Engineering",
+    "description": "Validate trust boundaries and bound resource consumption after functions, error handling, and basic tests. C++ memory safety is one component of wider secure system design.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 11
+      }
+    ]
+  }
+}

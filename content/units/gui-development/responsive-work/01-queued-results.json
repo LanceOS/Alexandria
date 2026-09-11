@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "gui_development_responsive_work_module",
+  "versionId": "gui_development_responsive_work_version_1",
+  "slug": "queued-results",
+  "title": "Return background results to the GUI thread",
+  "summary": "Trace worker completion without unsafe widget access or stale results.",
+  "position": 0,
+  "objectives": [
+    "Identify which thread may update a Qt widget.",
+    "Trace a queued result back to the GUI event loop.",
+    "Reject an outdated result using an explicit request identity."
+  ],
+  "parts": [
+    {
+      "id": "gui_development_responsive_work_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ threads, ownership and event-driven state. This unit owns GUI responsiveness and framework thread affinity; language-level data-race rules remain a prerequisite."
+        },
+        {
+          "type": "paragraph",
+          "text": "Qt GUI objects such as QWidget must be used from the main thread. Time-consuming work can run in a worker and deliver results for the GUI thread to display. QObject instances have thread affinity, and queued signal delivery runs the receiver’s slot through the receiver thread’s event loop. Moving work elsewhere does not automatically solve object lifetime or stale results. A user may change their request while an earlier calculation is still running. Carry enough context with each result to decide whether it still belongs to the current interface state. Do not use a C++ mutex as permission to call a widget from an unsupported thread."
+        }
+      ]
+    },
+    {
+      "id": "gui_development_responsive_work_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original search interface assigns increasing request numbers. Request 41 searches for alpha, followed immediately by request 42 for beta. Two worker jobs finish in reverse order. The GUI remains alive for the whole trace, connections use supported queued delivery, and workers return owned result values rather than pointers to temporary memory."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "GUI: submit request 41 (alpha); current request=41\nGUI: submit request 42 (beta);  current request=42\nWorker 42 finishes -> queue result(42, beta matches)\nGUI handles result 42 -> display beta matches\nWorker 41 finishes -> queue result(41, alpha matches)\nGUI handles result 41 -> discard because current request is 42"
+        },
+        {
+          "type": "paragraph",
+          "text": "Completion order differs from submission order, so simply displaying the latest arriving result would show alpha after the user asked for beta. The request identity lets the receiver enforce the application rule. The queue transfers notification to the appropriate event loop, while the owned result value solves a distinct lifetime concern. The GUI thread must continue processing events; blocking it while waiting for a worker would defeat the responsiveness this arrangement is meant to provide."
+        }
+      ]
+    },
+    {
+      "id": "gui_development_responsive_work_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Add cancellation when request 42 starts, but retain the identity check because cancellation and completion can race. Then describe what should happen if the window closes before either result arrives. Use connection context and lifecycle handling appropriate to the framework so that callbacks do not dereference a destroyed view. Separate computation from presentation sufficiently to test the worker’s result independently of event timing."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If a worker holds a mutex shared with the main thread, may it directly change a QWidget label?",
+          "explanation": "No. A mutex can coordinate participating memory accesses, but it does not remove the framework’s GUI-thread requirement. Deliver the result to the GUI thread through an appropriate queued mechanism and update the widget there. Thread affinity and mutual exclusion are different contracts."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "gui_development_responsive_work_source_qtthreads",
+      "title": "Qt: Threads and QObjects",
+      "authors": [
+        "The Qt Company"
+      ],
+      "url": "https://doc.qt.io/qt-6/threads-qobject.html",
+      "locator": "Primary documentation: QObject Reentrancy, Per-Thread Event Loop, Signals and Slots Across Threads; GUI affinity and queued delivery; consulted 2026-09-11"
+    }
+  ]
+}

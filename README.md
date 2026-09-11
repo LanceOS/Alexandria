@@ -2,7 +2,7 @@
 
 A local, self-hosted learning library. This first implementation provides the application home page, library browsing shell, shared UI components, and a small server with SQLite persistence.
 
-The catalog starts with Software, AI, and Mathematics categories and no topics. The server includes local accounts, sessions, per-user settings, and administrator catalog APIs. An optional C++ → Basics path contains six short modules, from a first program through variables, expressions, decisions, loops, and functions. The unit overview and section-based reader support both themes, next-module navigation, and further-reading links; learner progress and grading remain future work. Source books stay outside the application.
+The catalog starts with Software, AI, and Mathematics categories and no topics. The server includes local accounts, sessions, per-user settings, and administrator catalog APIs. The optional curriculum contains C++ core and advanced units, supporting computing subjects, and application tracks, all using the established three-section lesson format. The original seven C++ Basics lessons retain their content and identities. The unit overview and section-based reader support both themes, next-module navigation, and further-reading links; learner progress and grading remain future work. Source books stay outside the application.
 
 ## Start locally
 
@@ -13,7 +13,7 @@ npm ci
 cp .env.example .env
 npm run db:init
 npm run content:check
-npm run content:import -- cpp
+npm run content:import -- --all
 npm run dev
 ```
 
@@ -49,6 +49,8 @@ See [Getting started](docs/getting-started.md) for configuration, accounts, and 
 
 For an existing installation, stop the server and run `npm run db:migrate` before restarting. The command creates a verified backup before applying pending migrations.
 
-The lesson content is optional and backed by verified C++ references. See [C++ Basics content](docs/cpp-basics-content.md) for its sources and scope. Add curriculum through unit folders and one JSON file per module; [Content authoring](content/README.md) explains the format and import workflow. `content:check` validates files without opening the database. `content:import -- cpp` adds matching C++ content transactionally after a verified backup; existing published lessons remain unchanged. The original `content:cpp-basics` command remains an alias for importing C++.
+The lesson content is optional. See the [curriculum map](docs/curriculum-map.md) for the subject boundaries and lessons, the [evidence policy](docs/curriculum-evidence.md) for documentation and research standards, and [C++ Basics content](docs/cpp-basics-content.md) for the original sources. Add curriculum through unit folders and one JSON file per module; [Content authoring](content/README.md) explains the format and import workflow. `content:check` validates files and cross-topic identities without opening the database. `content:import -- --all` imports the complete catalog after one verified backup, rolling back all additions if any topic fails. Use `content:import -- cpp` for C++ alone. Existing published lessons remain unchanged; the original `content:cpp-basics` command remains an alias for importing C++.
+
+Authors can run `npm run content:test-examples` to compile and execute reviewed C++ examples with GCC (or the compiler executable selected by `CXX`) and compare their documented output. This requires a C++20 compiler and is separate from the server, importer, and ordinary application tests.
 
 The build validates curriculum and copies it to `dist/content/` for operator commands. The browser receives published lessons through the API; curriculum files are not bundled into the frontend.

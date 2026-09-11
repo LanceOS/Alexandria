@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "machine_learning_infrastructure_unit_root",
+  "name": "Machine learning infrastructure",
+  "slug": "machine-learning-infrastructure",
+  "description": "Tensor computation, execution modes and deployment boundaries. Prerequisites: C++ containers and resource ownership; linear algebra and elementary machine learning. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_machine_learning_infrastructure",
+    "slug": "machine-learning-infrastructure",
+    "name": "Machine learning infrastructure",
+    "description": "Tensor computation, execution modes and deployment boundaries. Prerequisites: C++ containers and resource ownership; linear algebra and elementary machine learning. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 23
+      },
+      {
+        "id": "category_ai",
+        "position": 0
+      }
+    ]
+  }
+}

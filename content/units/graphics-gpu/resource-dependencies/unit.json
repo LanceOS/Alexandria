@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "graphics_gpu_resource_dependencies_unit",
+  "name": "GPU Resource Dependencies",
+  "slug": "resource-dependencies",
+  "description": "Identify execution and memory dependencies before selecting synchronization.",
+  "position": 1
+}

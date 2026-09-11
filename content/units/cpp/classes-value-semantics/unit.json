@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_core_unit_classes_value_semantics",
+  "name": "Classes and Value Semantics",
+  "slug": "classes-value-semantics",
+  "description": "Build useful value types with coherent copying and moving.",
+  "position": 4
+}

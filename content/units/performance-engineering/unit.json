@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "performance_unit",
+  "name": "Performance Engineering",
+  "slug": "performance-engineering",
+  "description": "Design measurements and explain locality after algorithm complexity and basic architecture. C++ operation costs are prerequisites; measurement methodology belongs here.",
+  "position": 0,
+  "topic": {
+    "id": "performance_topic",
+    "slug": "performance-engineering",
+    "name": "Performance Engineering",
+    "description": "Design measurements and explain locality after algorithm complexity and basic architecture. C++ operation costs are prerequisites; measurement methodology belongs here.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 7
+      }
+    ]
+  }
+}

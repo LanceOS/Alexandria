@@ -1,0 +1,119 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_program_organization_declarations_and_linkage",
+  "versionId": "cpp_core_program_organization_declarations_and_linkage_v1",
+  "slug": "declarations-and-linkage",
+  "title": "Declarations, definitions, and linkage",
+  "summary": "Understand what a caller needs to compile and what a complete program needs to link.",
+  "position": 0,
+  "objectives": [
+    "Distinguish a function declaration from its definition.",
+    "Explain translation units and internal linkage.",
+    "Separate compiler diagnostics from link-time resolution."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_program_organization_declarations_and_linkage_part_1",
+      "title": "Give the compiler an interface before a call",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A declaration introduces information about a name, such as a function’s parameter and return types. A definition also supplies the entity’s defining content, such as a function body. A caller needs a suitable declaration when the call is compiled; the complete program also needs the required definition. This separation allows several source files to use one implementation through a shared interface."
+        },
+        {
+          "type": "paragraph",
+          "text": "A translation unit is the source processed as one unit of translation, including the effects of included material. A project can contain many translation units that are compiled separately and then linked. The compiler checks what the current unit declares and defines. The linker resolves references among the resulting object files and libraries. Build tools coordinate these steps, but the language’s definition and linkage rules explain which combinations are valid."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_program_organization_declarations_and_linkage_part_2",
+      "title": "Keep one complete program easy to build",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n\nnamespace library {\n    int pages_after(int current, int added);\n}\nnamespace {\n    int bonus() { return 2; }\n}\n\nint main()\n{\n    std::cout << library::pages_after(10, bonus()) << '\\n';\n}\n\nnamespace library {\n    int pages_after(int current, int added)\n    {\n        return current + added;\n    }\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "12\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The example declares pages_after in namespace library before main uses it. The body appears later in the same file, so this remains a complete program that needs only main.cpp. The declaration gives the compiler the necessary interface at the call, and the definition supplies the computation. Placing the same interface in a header and the body in one implementation file would apply the same basic separation across a project."
+        },
+        {
+          "type": "paragraph",
+          "text": "The helper bonus is defined in an unnamed namespace. Its name has internal linkage, so it denotes a helper local to this translation unit rather than a public function that another implementation file should use. The library namespace groups the public operation’s name but does not by itself hide an implementation from the linker. Scope and linkage answer related but different questions about names."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_program_organization_declarations_and_linkage_part_3",
+      "title": "Separate language rules from tool behavior",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The One Definition Rule governs which definitions may appear within and across translation units. An ordinary non-inline function normally has one program definition. Class definitions, templates, and inline entities can have permitted repeated definitions under specific consistency conditions. Copying an arbitrary function body into a widely included header can therefore create a multiple-definition problem. Conversely, declaring a function without supplying a needed definition can leave an unresolved reference."
+        },
+        {
+          "type": "paragraph",
+          "text": "With GCC, compiling main.cpp normally also links an executable; adding -c stops before linking and produces an object file. These are documented tool behaviors, not universal command syntax required by the C++ standard. If a larger build fails, identify whether the problem concerns parsing and types, missing definitions, duplicate definitions, or missing runtime dependencies. That classification helps choose the relevant source or build setting instead of randomly changing include directives."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Would moving the declaration below main be sufficient if no earlier declaration remained?",
+          "explanation": "No. The call must encounter a declaration that supplies the function interface. The compiler does not generally scan later declarations to repair an unknown function name at an earlier call."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_program_organization_declarations_and_linkage_source_1",
+      "title": "C++20 working draft N4861: basic.def.odr",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.def.odr",
+      "locator": "N4861, [basic.def.odr]; consulted 2026-09-11. Definitions within and across translation units."
+    },
+    {
+      "id": "cpp_core_program_organization_declarations_and_linkage_source_2",
+      "title": "C++20 working draft N4861: basic.link",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.link",
+      "locator": "N4861, [basic.link]; consulted 2026-09-11. Internal, external, and module linkage."
+    },
+    {
+      "id": "cpp_core_program_organization_declarations_and_linkage_source_3",
+      "title": "C++20 working draft N4861: namespace.def",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/namespace.def",
+      "locator": "N4861, [namespace.def]; consulted 2026-09-11. Namespace definitions, extension, and nesting."
+    },
+    {
+      "id": "cpp_core_program_organization_declarations_and_linkage_source_4",
+      "title": "GCC manual: Options Controlling the Kind of Output",
+      "authors": [
+        "GNU Compiler Collection contributors"
+      ],
+      "url": "https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html",
+      "locator": "GCC online manual, §3.2: compilation stages, -c, and output kinds; consulted 2026-09-11. Implementation documentation, not a C++ language requirement."
+    }
+  ]
+}

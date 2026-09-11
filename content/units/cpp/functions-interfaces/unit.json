@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_core_unit_functions_interfaces",
+  "name": "Functions and Interfaces",
+  "slug": "functions-interfaces",
+  "description": "Express inputs, results, and callable behavior clearly.",
+  "position": 2
+}

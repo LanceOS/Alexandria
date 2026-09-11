@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "audio_signal_processing_unit_root",
+  "name": "Audio and signal processing",
+  "slug": "audio-signal-processing",
+  "description": "Audio deadlines, sampled signals and discrete transforms. Prerequisites: C++ arrays and callbacks; algebra, complex numbers and sampling vocabulary. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_audio_signal_processing",
+    "slug": "audio-signal-processing",
+    "name": "Audio and signal processing",
+    "description": "Audio deadlines, sampled signals and discrete transforms. Prerequisites: C++ arrays and callbacks; algebra, complex numbers and sampling vocabulary. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 21
+      }
+    ]
+  }
+}

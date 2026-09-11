@@ -1,0 +1,121 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_library_services_text_streams_and_extraction",
+  "versionId": "cpp_core_library_services_text_streams_and_extraction_v1",
+  "slug": "text-streams-and-extraction",
+  "title": "Text streams and extraction state",
+  "summary": "Parse an in-memory record while checking whether each requested field was obtained.",
+  "position": 0,
+  "objectives": [
+    "Use istringstream and ostringstream for text processing.",
+    "Check extraction before using parsed fields.",
+    "Distinguish formatted extraction, stream state, and a complete format policy."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_library_services_text_streams_and_extraction_part_1",
+      "title": "Separate text storage from interpretation",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A string stores characters, while a parser decides what those characters mean. String streams connect ordinary strings to the same formatted input and output interface used by console streams. istringstream reads from text in memory; ostringstream accumulates formatted output into a string. This makes a small parsing example repeatable without relying on interactive input, external files, or the timing of a user’s keystrokes."
+        },
+        {
+          "type": "paragraph",
+          "text": "Formatted extraction attempts to interpret the next input according to the destination type. Extracting a string token normally stops at whitespace, and extracting an integer interprets a numeric field. These rules describe a simple whitespace-separated record, not a universal document format. A title containing spaces needs another convention, such as explicit quoting, a delimiter, or a separate line. Choose the format before deciding which extraction operations implement it."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_library_services_text_streams_and_extraction_part_2",
+      "title": "Use successful extraction as the condition",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <locale>\n#include <sstream>\n#include <string>\n\nint main()\n{\n    std::istringstream input{\"Atlas 120   \"};\n    input.imbue(std::locale::classic());\n    std::string title;\n    int pages{};\n    if (!(input >> title >> pages)) {\n        std::cout << \"Malformed record\\n\";\n        return 0;\n    }\n    input >> std::ws;\n    if (!input.eof() || pages < 0) {\n        std::cout << \"Unexpected record data\\n\";\n        return 0;\n    }\n    std::ostringstream output;\n    output.imbue(std::locale::classic());\n    output << title << \" has \" << pages << \" pages\";\n    std::cout << output.str() << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Atlas has 120 pages\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The example reads a title token followed by a page count. It tests the chained extraction expression before using the pair. If either extraction fails, the program prints a failure message and stops normally. This is safer than reading fields first and assuming that every input supplied valid values. Local initialization gives variables a defined starting state, but that alone does not turn unsuccessful parsing into valid application data."
+        },
+        {
+          "type": "paragraph",
+          "text": "The input stream then consumes trailing whitespace with std::ws. Checking eof afterward enforces that no unexpected trailing field remains in this demonstration. This is a deliberate whole-record policy; another application might allow comments or multiple records. The negative-value check is separate because syntactically valid integer text can still violate the domain’s rule that a page count be nonnegative."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_library_services_text_streams_and_extraction_part_3",
+      "title": "Define the format beyond the happy path",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The output stream combines the parsed values into a label, and str returns the resulting owning string. That value remains usable independently of the stream’s subsequent lifetime. The example uses the classic locale for both streams to keep its interpretation and formatting predictable. Stream formatting is stateful, so manipulators and locale settings belong to the stream rather than automatically applying to every output object."
+        },
+        {
+          "type": "paragraph",
+          "text": "File streams extend the same broad interface to external files, with additional open, read, write, and close failures to consider. For an actual saved file, successful formatting does not by itself prove the data reached storage. Unicode decoding and structured formats also require their own policies and libraries; string and stream do not automatically validate all human text. C++23 adds standard print facilities with appropriate library support, but this C++20 example uses established stream interfaces."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why would the input Atlas 120 extra be rejected even though the first two extractions succeed?",
+          "explanation": "After reading the title and count, std::ws stops before the non-whitespace word extra. The stream is not at end of input, so the complete-record check rejects the unexpected trailing data."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_library_services_text_streams_and_extraction_source_1",
+      "title": "C++20 working draft N4861: string.streams",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/string.streams",
+      "locator": "N4861, [string.streams]; consulted 2026-09-11. String-backed stream classes and their interfaces."
+    },
+    {
+      "id": "cpp_core_library_services_text_streams_and_extraction_source_2",
+      "title": "C++20 working draft N4861: istream.formatted.reqmts",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/istream.formatted.reqmts",
+      "locator": "N4861, [istream.formatted.reqmts]; consulted 2026-09-11. Formatted extraction and stream error state."
+    },
+    {
+      "id": "cpp_core_library_services_text_streams_and_extraction_source_3",
+      "title": "C++20 working draft N4861: istream.manip",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/istream.manip",
+      "locator": "N4861, [istream.manip], ws consumes whitespace and sets eofbit without failbit at exhausted input; consulted 2026-09-11."
+    },
+    {
+      "id": "cpp_core_library_services_text_streams_and_extraction_source_cpp23",
+      "title": "C++23 working draft N4950: print.fun",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2023,
+      "edition": "N4950 (C++23 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4950/print.fun",
+      "locator": "N4950, [print.fun]; consulted 2026-09-11. Supports the explicitly marked C++23 facility discussion only; not used in the C++20 program."
+    }
+  ]
+}

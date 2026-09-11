@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "machine_learning_infrastructure_inference_contracts_unit",
+  "name": "Inference Contracts",
+  "slug": "inference-contracts",
+  "description": "Choose execution controls for inference without confusing their purposes.",
+  "position": 1
+}

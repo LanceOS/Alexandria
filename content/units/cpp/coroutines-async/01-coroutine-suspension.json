@@ -1,0 +1,104 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_coroutine_suspension_module",
+  "versionId": "cpp_coroutine_suspension_v1",
+  "slug": "coroutine-suspension",
+  "title": "Trace a coroutine’s suspension points",
+  "summary": "Observe a coroutine pause and resume on one thread while an owning object controls its frame.",
+  "position": 0,
+  "objectives": [
+    "Distinguish calling a coroutine from resuming its suspended body.",
+    "Trace initial, explicit, and final suspension.",
+    "Explain why a coroutine does not imply a background thread."
+  ],
+  "parts": [
+    {
+      "id": "cpp_coroutine_suspension_part_1",
+      "title": "Execution can pause without returning the final result",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A coroutine can suspend evaluation and later continue with its preserved state. The return type’s promise interface and the awaiter objects help determine what happens at these boundaries. C++20 supplies the language mechanism, not a universal task runtime. In the example, the caller manually resumes all work on the same thread."
+        },
+        {
+          "type": "paragraph",
+          "text": "Stepper is deliberately small. Its initial_suspend pauses before the body starts, and final_suspend keeps the completed frame suspended so its owner can destroy it. The wrapper forbids copying, transfers ownership on move construction, and checks done before resuming. Its exception policy is explicit termination; a production task abstraction would normally define an appropriate propagation policy instead."
+        }
+      ]
+    },
+    {
+      "id": "cpp_coroutine_suspension_part_2",
+      "title": "Read the event sequence",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <coroutine>\n#include <exception>\n#include <iostream>\n#include <utility>\n\nclass Stepper {\npublic:\n    struct promise_type;\n    using Handle = std::coroutine_handle<promise_type>;\n    struct promise_type {\n        Stepper get_return_object() { return Stepper{Handle::from_promise(*this)}; }\n        std::suspend_always initial_suspend() noexcept { return {}; }\n        std::suspend_always final_suspend() noexcept { return {}; }\n        void return_void() noexcept {}\n        void unhandled_exception() { std::terminate(); }\n    };\n    explicit Stepper(Handle handle) : handle_{handle} {}\n    Stepper(const Stepper&) = delete;\n    Stepper& operator=(const Stepper&) = delete;\n    Stepper(Stepper&& other) noexcept : handle_{std::exchange(other.handle_, {})} {}\n    Stepper& operator=(Stepper&&) = delete;\n    ~Stepper() { if (handle_) handle_.destroy(); }\n    void resume() { if (handle_ && !handle_.done()) handle_.resume(); }\nprivate:\n    Handle handle_;\n};\n\nStepper chapters()\n{\n    std::cout << \"first\\n\";\n    co_await std::suspend_always{};\n    std::cout << \"second\\n\";\n}\n\nint main()\n{\n    auto task = chapters();\n    std::cout << \"created\\n\";\n    task.resume();\n    std::cout << \"paused\\n\";\n    task.resume();\n    task.resume();\n}\n",
+          "caption": "main.cpp — C++20"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "created\nfirst\npaused\nsecond\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "Creating task returns an owner of a frame at initial suspension. The first resume prints first and reaches the explicit co_await. The caller prints paused. The second resume prints second and finishes the body, reaching final suspension. The third wrapper call does nothing because done is true. Destruction releases the still-suspended frame exactly once."
+        },
+        {
+          "type": "callout",
+          "title": "A teaching owner, not an asynchronous runtime",
+          "text": "This wrapper is only used by one caller on one thread. It has no scheduler, I/O integration, cancellation, result channel, or protection against concurrent resume and destruction. Its invariant is that owned frames are suspended whenever the wrapper is called from outside the coroutine."
+        }
+      ]
+    },
+    {
+      "id": "cpp_coroutine_suspension_part_3",
+      "title": "Locate the policy boundary",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "What starts a new operating-system thread in this example?",
+          "explanation": "Nothing. co_await marks a possible suspension operation; it does not create a worker thread. The caller’s resume calls run the coroutine body here."
+        },
+        {
+          "type": "paragraph",
+          "text": "Real awaiters may register an operation and arrange for a runtime to resume the coroutine when a result is ready. Their await_ready, await_suspend, and await_resume methods serve distinct roles. Learn that protocol separately from the scheduler’s guarantees. Avoid holding a mutex across suspension unless the surrounding runtime and lock protocol explicitly make that valid; resumption might otherwise occur on a different thread."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_coroutine_suspension_source_1",
+      "title": "C++20 working draft N4861: dcl.fct.def.coroutine",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.fct.def.coroutine",
+      "locator": "Primary standards draft, [dcl.fct.def.coroutine]: promise interface, initial and final suspension. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_coroutine_suspension_source_2",
+      "title": "C++20 working draft N4861: expr.await",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.await",
+      "locator": "Primary standards draft, [expr.await]: awaiter protocol. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_coroutine_suspension_source_3",
+      "title": "C++20 working draft N4861: coroutine.handle.resumption",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/coroutine.handle.resumption",
+      "locator": "Primary standards draft, [coroutine.handle.resumption]: resume/destroy preconditions and thread identity. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    }
+  ]
+}

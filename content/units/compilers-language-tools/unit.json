@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "compilers_language_tools_unit_root",
+  "name": "Compilers and language tools",
+  "slug": "compilers-language-tools",
+  "description": "Tokenization, parsing and representations of program meaning. Prerequisites: C++ strings, containers and classes; recursion and tree structures. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_compilers_language_tools",
+    "slug": "compilers-language-tools",
+    "name": "Compilers and language tools",
+    "description": "Tokenization, parsing and representations of program meaning. Prerequisites: C++ strings, containers and classes; recursion and tree structures. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 18
+      }
+    ]
+  }
+}

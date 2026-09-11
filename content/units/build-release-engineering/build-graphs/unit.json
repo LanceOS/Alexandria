@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "build_unit_build_graphs",
+  "name": "Build Graphs",
+  "slug": "build-graphs",
+  "description": "Model targets and transitive requirements with explicit dependency edges.",
+  "position": 0
+}

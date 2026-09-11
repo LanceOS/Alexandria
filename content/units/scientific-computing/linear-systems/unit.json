@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "scientific_computing_linear_systems_unit",
+  "name": "Linear Systems",
+  "slug": "linear-systems",
+  "description": "Connect a matrix solver result to the equations it is meant to satisfy.",
+  "position": 1
+}

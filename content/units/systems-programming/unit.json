@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "systems_programming_unit_root",
+  "name": "Systems programming",
+  "slug": "systems-programming",
+  "description": "Operating-system interfaces, process resources and robust I/O. Prerequisites: C++ functions, ownership and error handling; operating-system fundamentals. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_systems_programming",
+    "slug": "systems-programming",
+    "name": "Systems programming",
+    "description": "Operating-system interfaces, process resources and robust I/O. Prerequisites: C++ functions, ownership and error handling; operating-system fundamentals. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 12
+      }
+    ]
+  }
+}

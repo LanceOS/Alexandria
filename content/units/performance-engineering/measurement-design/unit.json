@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "performance_unit_measurement_design",
+  "name": "Measurement Design",
+  "slug": "measurement-design",
+  "description": "Define workloads, timing boundaries, repetition, and comparison criteria.",
+  "position": 0
+}

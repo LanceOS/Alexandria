@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_core_unit_library_data_containers",
+  "name": "Library Data and Containers",
+  "slug": "library-data-containers",
+  "description": "Select standard containers and represent relationships between values.",
+  "position": 5
+}

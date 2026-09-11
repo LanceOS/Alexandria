@@ -1,0 +1,93 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "foundations_decompose_a_task_module",
+  "versionId": "foundations_decompose_a_task_v1",
+  "slug": "decompose-a-task",
+  "title": "Decompose a task before choosing syntax",
+  "summary": "Translate a small requirement into a testable sequence of responsibilities.",
+  "position": 0,
+  "objectives": [
+    "Distinguish an input assumption from a required result.",
+    "Separate calculation from input and presentation.",
+    "Trace ordinary and boundary cases before implementing a program."
+  ],
+  "parts": [
+    {
+      "id": "foundations_decompose_a_task_part_1",
+      "title": "Describe the result",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Start with arithmetic and the ability to follow a sequence of steps. This lesson can precede C++ Basics: it teaches problem solving. Variables, functions, and control-flow syntax are introduced in the C++ course."
+        },
+        {
+          "type": "paragraph",
+          "text": "A reading planner accepts a book length, a completed page count, and a positive daily target. Its job is to report how many whole reading days remain. Before selecting a loop or writing a function, decide what each input means. Completed pages cannot exceed the book length; a daily target of zero must produce a validation error. These decisions form the problem specification, not implementation details."
+        },
+        {
+          "type": "paragraph",
+          "text": "Separate three responsibilities: validate the inputs, calculate a result, and present it. The calculation should consume accepted values and return a day count. It should not quietly ask for replacement input halfway through. That division gives a person reading the program a clear place to check each requirement and makes the arithmetic reusable in a terminal or graphical interface."
+        }
+      ]
+    },
+    {
+      "id": "foundations_decompose_a_task_part_2",
+      "title": "Work through one case",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Input: total = 94, completed = 31, target = 15\nValidate: 0 <= 31 <= 94 and 15 > 0\nRemaining pages: 94 - 31 = 63\nComplete target-sized days: 63 divided by 15 = 4, remainder 3\nOne additional day is needed for the remainder\nResult: 5 days",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The remainder tells us whether a partially filled final day exists. For these small nonnegative numbers, the required day count is the integer quotient plus one when the remainder is nonzero. This avoids inventing a floating-point rounding policy for a problem expressed entirely in whole pages. The displayed trace uses mathematical arithmetic; an implementation must also keep its intermediate results representable."
+        },
+        {
+          "type": "paragraph",
+          "text": "Each responsibility has its own promise. Validation either produces accepted inputs or a reason for rejection. Calculation receives accepted inputs and returns a nonnegative number. Presentation labels that number with its unit. If calculation assumes a positive target, validation must establish that fact before calling it. Hoare’s composition rule provides a formal foundation for connecting such assumptions and results; this particular planner is an original teaching example."
+        }
+      ]
+    },
+    {
+      "id": "foundations_decompose_a_task_part_3",
+      "title": "Check the boundaries",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "What should the planner report for total = 94, completed = 94, target = 15? What if the target is zero?",
+          "explanation": "The completed book requires zero days: the quotient and remainder are both zero. A zero target violates the input rule and should be rejected before division. An error is a different outcome from a valid zero-day result."
+        },
+        {
+          "type": "paragraph",
+          "text": "Write these examples beside the requirement before coding. Include an exact multiple, a remainder of one, and an invalid completed count. A few traces do not prove every implementation correct, but they make ambiguous requirements visible. If someone instead wants only full days, that is a different specification and should be resolved before implementation. Naming a small calculation helps only when its promised behavior is equally clear."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "foundations_decompose_a_task_source_hoare",
+      "title": "An Axiomatic Basis for Computer Programming",
+      "authors": [
+        "C. A. R. Hoare"
+      ],
+      "url": "https://sites.cs.ucsb.edu/~kemm/courses/cs266/acmhoare69.pdf",
+      "locator": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11.",
+      "publisher": "Association for Computing Machinery",
+      "publicationYear": 1969
+    },
+    {
+      "id": "foundations_decompose_a_task_source_guidelines",
+      "title": "C++ Core Guidelines",
+      "authors": [
+        "Bjarne Stroustrup",
+        "Herb Sutter"
+      ],
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
+      "locator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
+    }
+  ]
+}

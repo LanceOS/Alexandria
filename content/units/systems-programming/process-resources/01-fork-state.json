@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "systems_programming_process_resources_module",
+  "versionId": "systems_programming_process_resources_version_1",
+  "slug": "fork-state",
+  "title": "Separate process memory from shared resources",
+  "summary": "Trace what process creation duplicates and what remains connected.",
+  "position": 0,
+  "objectives": [
+    "Predict parent and child values after separate writes.",
+    "Trace the shared offset of an inherited open file description.",
+    "Distinguish a process from a C++ thread."
+  ],
+  "parts": [
+    {
+      "id": "systems_programming_process_resources_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ variables and ownership; process and thread vocabulary. This unit teaches Linux process creation, which is outside the C++ language and standard library."
+        },
+        {
+          "type": "paragraph",
+          "text": "On successful fork, execution continues in both a parent and a child process. The parent receives the child process identifier and the child receives zero; failure creates no child. Ordinary private memory starts with the same contents but subsequent writes are separate. File descriptors require a different model: each process has its own descriptor entries, while inherited entries refer to the same open file description and can share a file offset. Copying a local integer and inheriting a kernel resource therefore do not have identical effects. Process creation in a multithreaded program also has important restrictions before the child executes another program. This lesson uses a single-threaded parent and does not provide a general fork wrapper."
+        }
+      ]
+    },
+    {
+      "id": "systems_programming_process_resources_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Assume a successful fork, one private integer initialized to seven, and a seekable file containing ABCDEF. Before the fork the file offset is zero. We prescribe the order of reads and assume each read succeeds with exactly two bytes. This schedule makes the example deterministic; a real scheduler is free to choose another order."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Before fork: private value = 7; shared file offset = 0\nParent writes its private value = 9\nChild writes its private value = 4\nParent reads 2 -> AB; shared file offset = 2\nChild reads 2  -> CD; shared file offset = 4\nFinal private values: parent 9, child 4"
+        },
+        {
+          "type": "paragraph",
+          "text": "The child does not observe nine merely because the parent assigned it first. Conversely, the child does not start reading at byte zero merely because its descriptor number was copied. The shared open file description connects the two reads. Draw separate boxes for parent memory and child memory, then arrows from both descriptor entries to a single offset box. This picture predicts both outcomes without treating every resource as either entirely shared or entirely copied."
+        }
+      ]
+    },
+    {
+      "id": "systems_programming_process_resources_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Reverse the read order and predict the two byte pairs: the child gets AB and the parent gets CD. Next specify how an application would communicate the child result deliberately, rather than expecting a local variable update to reach the parent. Include child completion and resource cleanup in the design. An operating-system process lifecycle is larger than the lifetime of a C++ object."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Would making the private integer a C++ atomic automatically share it between these processes?",
+          "explanation": "No. Atomic operations do not change the backing storage of an ordinary private object. This example still has separate process memory. Interprocess communication or explicitly shared storage requires an operating-system design and its own synchronization contract; a type qualifier cannot create that connection."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "systems_programming_process_resources_source_fork",
+      "title": "Linux manual: fork(2)",
+      "authors": [
+        "Linux man-pages project"
+      ],
+      "url": "https://man7.org/linux/man-pages/man2/fork.2.html",
+      "locator": "Primary documentation: DESCRIPTION and RETURN VALUE; separate address spaces and shared open file descriptions; consulted 2026-09-11"
+    }
+  ]
+}

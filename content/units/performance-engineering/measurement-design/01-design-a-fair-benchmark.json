@@ -1,0 +1,93 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "performance_design_a_fair_benchmark_module",
+  "versionId": "performance_design_a_fair_benchmark_v1",
+  "slug": "design-a-fair-benchmark",
+  "title": "Design a fair benchmark",
+  "summary": "Plan a comparison that measures the intended operation and records uncertainty.",
+  "position": 0,
+  "objectives": [
+    "Define a workload and a meaningful timing boundary.",
+    "Identify optimization and environmental threats to a benchmark.",
+    "Report a comparison without confusing a sample with a universal result."
+  ],
+  "parts": [
+    {
+      "id": "performance_design_a_fair_benchmark_part_1",
+      "title": "Ask a measurable question",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: algorithm complexity, optimized builds, and basic descriptive statistics. This subject owns experimental method. C++ move operations and container costs belong in the language track; their practical impact must be measured here."
+        },
+        {
+          "type": "paragraph",
+          "text": "A useful benchmark starts with a specific question: does a new title lookup reduce elapsed time for this library size and query distribution? State the number of records, hit rate, key lengths, and whether setup is part of the operation. A test of one successful lookup into a tiny warm table may answer a different question from a user’s cold search through a large catalog."
+        },
+        {
+          "type": "paragraph",
+          "text": "Both implementations must produce the same required result on the same input. Verify correctness outside the timed region before interpreting speed. Ensure the compiler cannot remove unused work, and avoid placing logging or unrelated allocation inside the measurement unless those activities are intentionally part of the workload. Google Benchmark documents tools for controlling these details, but a framework cannot choose the right experiment for you."
+        }
+      ]
+    },
+    {
+      "id": "performance_design_a_fair_benchmark_part_2",
+      "title": "Interpret an illustrative sample",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical elapsed times for the same workload, in milliseconds\nBaseline: 10.0, 10.4, 9.8\nCandidate: 9.7, 10.1, 9.6\nBaseline arithmetic mean: 10.0667 ms\nCandidate arithmetic mean: 9.8000 ms\nRatio of sample means: about 1.0272\nThese invented values demonstrate arithmetic only; no experiment was run.",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The candidate’s sample mean is smaller, but three invented values establish no real performance result. In a real study, repeated timings are affected by scheduling, frequency changes, cache state, and other activity. Repeating an inner loop within one process may not capture variation introduced when the process starts or the binary is built. The relevant repetition level depends on where variability enters."
+        },
+        {
+          "type": "paragraph",
+          "text": "Kalibera and Jones’s peer-reviewed methodology addresses this distinction and reporting uncertainty in performance ratios. A point estimate without its variation can overstate a small improvement. A statistically meaningful change may also be too small to matter to users, so define a practical improvement threshold before collecting data. Use an analysis method appropriate to the experiment’s independence and sampling assumptions."
+        }
+      ]
+    },
+    {
+      "id": "performance_design_a_fair_benchmark_part_3",
+      "title": "Preserve enough context to repeat it",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Why can running all baseline trials first and all candidate trials later bias a comparison?",
+          "explanation": "Machine temperature, background load, or other conditions may drift over time. The implementation choice then becomes entangled with the time of measurement. Controlled or randomized interleaving can reduce that confounding, while the full run order should remain recorded."
+        },
+        {
+          "type": "paragraph",
+          "text": "Keep raw results, compiler flags, dependency versions, hardware details, workload generation rules, and timing boundaries. Explain whether setup and warm-up are excluded and why. If profiling suggests a different bottleneck after the change, revise the hypothesis and run a new planned comparison. Benchmarking is evidence about a defined workload and environment, so report that scope alongside any performance claim."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "performance_design_a_fair_benchmark_source_benchmark",
+      "title": "Google Benchmark User Guide",
+      "authors": [
+        "Google Benchmark contributors"
+      ],
+      "url": "https://google.github.io/benchmark/user_guide.html",
+      "locator": "Official project documentation: Runtime and Reporting Considerations, Preventing Optimization, Reporting Statistics, and Random Interleaving; consulted 2026-09-11."
+    },
+    {
+      "id": "performance_design_a_fair_benchmark_source_benchpaper",
+      "title": "Rigorous Benchmarking in Reasonable Time",
+      "authors": [
+        "Tomas Kalibera",
+        "Richard Jones"
+      ],
+      "url": "https://doi.org/10.1145/2464157.2464160",
+      "locator": "Peer-reviewed research: ISMM 2013, pp. 63–74; §§3–4 and §12 on repetition, sources of variation, and effect-size confidence intervals. Paper text inspected through ResearchGate 2026-09-11; ledger records access URL. Historical experiments are not reproduced here.",
+      "publisher": "Association for Computing Machinery",
+      "publicationYear": 2013
+    }
+  ]
+}

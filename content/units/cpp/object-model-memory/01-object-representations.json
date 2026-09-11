@@ -1,0 +1,103 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_object_representations_module",
+  "versionId": "cpp_object_representations_v1",
+  "slug": "object-representations",
+  "title": "Objects, storage, and representation",
+  "summary": "Reason about an object’s value separately from the bytes that represent it.",
+  "position": 0,
+  "objectives": [
+    "Distinguish an object representation from a value representation.",
+    "Explain the limits of copying bytes from a trivially copyable object.",
+    "Recognize why dumping a C++ object is not a portable file format."
+  ],
+  "parts": [
+    {
+      "id": "cpp_object_representations_part_1",
+      "title": "Bytes have a type-dependent meaning",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "An object’s representation occupies sizeof(T) C++ bytes. Some bits describe its value; others may be padding. sizeof counts bytes, but the number of bits in a byte and the representation of larger types are implementation properties. A stored address or a reference to an object also does not by itself establish that the object is alive and accessible."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a complete trivially copyable object, the language permits saving its underlying bytes into a suitable byte array and copying them back to restore its value. That narrow rule is useful for understanding representations. It does not authorize byte-copying ownership-bearing objects such as std::string, nor does it define a representation shared by different machines or program versions."
+        }
+      ]
+    },
+    {
+      "id": "cpp_object_representations_part_2",
+      "title": "Restore one local integer",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <array>\n#include <cstddef>\n#include <cstring>\n#include <iostream>\n#include <type_traits>\n\nint main()\n{\n    int count{42};\n    static_assert(std::is_trivially_copyable_v<int>);\n    std::array<std::byte, sizeof(count)> saved{};\n    std::memcpy(saved.data(), &count, sizeof(count));\n    count = 9;\n    std::memcpy(&count, saved.data(), sizeof(count));\n    std::cout << count << '\\n';\n}\n",
+          "caption": "main.cpp — C++20"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "42\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The same live int receives exactly the bytes taken from it. No byte pattern is invented, and the lesson never inspects padding or assumes a byte order. The output therefore describes the restored value, not a platform-specific hexadecimal layout. Ordinary assignment would be clearer for application code; the copy here isolates a precise language guarantee."
+        },
+        {
+          "type": "paragraph",
+          "text": "Storage must have appropriate size and alignment, and an object’s lifetime must have begun before ordinary object operations are valid. Explicit construction and destruction require matching those transitions. Casting an arbitrary buffer to T* does not generally satisfy all of them. std::bit_cast is another constrained tool for representation conversion: equal size and trivially copyable types are necessary, but a produced representation must still be valid for its destination type."
+        }
+      ]
+    },
+    {
+      "id": "cpp_object_representations_part_3",
+      "title": "Separate representation from serialization",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Could the saved array be treated as a permanent, portable encoding for this number?",
+          "explanation": "No. This experiment restores a local object under the same representation rules. A portable format must define field widths, byte order, valid values, and versioning independently of sizeof(int)."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use this material when implementing low-level libraries whose contracts require representation access. Prefer values, standard containers, and explicit serialization in ordinary code. Deeper work on unions, implicit object creation, placement construction, and pointer reuse belongs here, with a standards reference for each operation; it should not be inferred from an example that happens to work in one compiler."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_object_representations_source_1",
+      "title": "C++20 working draft N4861: basic.types",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.types",
+      "locator": "Primary standards draft, [basic.types]: trivially copyable byte round trips and representations. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_object_representations_source_2",
+      "title": "C++20 working draft N4861: basic.life",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+      "locator": "Primary standards draft, [basic.life]: lifetime start and end conditions. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_object_representations_source_3",
+      "title": "C++20 working draft N4861: bit.cast",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/bit.cast",
+      "locator": "Primary standards draft, [bit.cast]: constraints and valid result representations. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    }
+  ]
+}

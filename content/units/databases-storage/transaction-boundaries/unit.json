@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "databases_storage_transaction_boundaries_unit",
+  "name": "Transaction Boundaries",
+  "slug": "transaction-boundaries",
+  "description": "Define a data invariant and trace commit versus rollback.",
+  "position": 0
+}

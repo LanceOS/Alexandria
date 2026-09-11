@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "security_unit_trust_boundaries",
+  "name": "Trust Boundaries",
+  "slug": "trust-boundaries",
+  "description": "Validate external data before it becomes trusted application state.",
+  "position": 0
+}

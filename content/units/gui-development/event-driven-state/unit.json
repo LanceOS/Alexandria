@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "gui_development_event_driven_state_unit",
+  "name": "Event-driven State",
+  "slug": "event-driven-state",
+  "description": "Trace a small interface without making display text the source of truth.",
+  "position": 0
+}

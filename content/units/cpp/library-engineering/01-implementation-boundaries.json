@@ -1,0 +1,112 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_implementation_boundaries_module",
+  "versionId": "cpp_implementation_boundaries_v1",
+  "slug": "implementation-boundaries",
+  "title": "Separate a public interface from its implementation",
+  "summary": "Use an implementation pointer to reason about dependencies without assuming universal binary compatibility.",
+  "position": 0,
+  "objectives": [
+    "Distinguish a public class declaration from an implementation detail.",
+    "Explain why destruction of an incomplete implementation type is defined out of line.",
+    "Identify the costs and limits of the Pimpl idiom."
+  ],
+  "parts": [
+    {
+      "id": "cpp_implementation_boundaries_part_1",
+      "title": "Choose the boundary deliberately",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A library’s clients depend on its public declarations. If a public header exposes every private representation type, changes to those details can trigger rebuilding clients. The Pimpl idiom stores an owning pointer to an implementation object and defines that object in the library’s implementation file. This narrows the details that clients must compile against."
+        },
+        {
+          "type": "paragraph",
+          "text": "This is a design technique, not a promise that any pair of compilers produces compatible binaries. An ABI also involves calling conventions, object layout, symbol names, runtime libraries, and build options. The GCC ABI documentation describes its toolchain’s compatibility policy; those details cannot be generalized to all C++ implementations."
+        }
+      ]
+    },
+    {
+      "id": "cpp_implementation_boundaries_part_2",
+      "title": "Put destruction where the type is complete",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <memory>\n\n// Public declaration: normally Counter.hpp.\nclass Counter {\npublic:\n    Counter();\n    ~Counter();\n    Counter(const Counter&) = delete;\n    Counter& operator=(const Counter&) = delete;\n    void increment();\n    int value() const;\nprivate:\n    struct Impl;\n    std::unique_ptr<Impl> impl_;\n};\n\n// Implementation: normally Counter.cpp.\nstruct Counter::Impl { int count{}; };\nCounter::Counter() : impl_{std::make_unique<Impl>()} {}\nCounter::~Counter() = default;\nvoid Counter::increment() { ++impl_->count; }\nint Counter::value() const { return impl_->count; }\n\nint main()\n{\n    Counter counter;\n    counter.increment();\n    std::cout << counter.value() << '\\n';\n}\n",
+          "caption": "main.cpp — C++20"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "1\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The destructor definition appears after Impl is complete, where deletion through the unique pointer can be instantiated with the required type information. The listing is combined into one file so the example is runnable; splitting it at the marked boundary is the dependency-management exercise. The single increment fits in int; a production unbounded counter would need an overflow policy."
+        },
+        {
+          "type": "paragraph",
+          "text": "Copying is intentionally disabled. This class also does not promise move support; adding it requires an explicit decision about operations on moved-from objects. The indirection and allocation are real costs. Small value types often benefit from exposing a simple representation rather than allocating an implementation object."
+        }
+      ]
+    },
+    {
+      "id": "cpp_implementation_boundaries_part_3",
+      "title": "Specify what compatibility means",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Would changing only Impl prove that all old executables can load a new library build?",
+          "explanation": "No. Hiding the representation removes one source of public-layout changes, but compatibility still depends on the complete ABI contract, toolchain settings, exported symbols, runtime, and behavior."
+        },
+        {
+          "type": "paragraph",
+          "text": "Document ownership, valid states, exception behavior, and supported build configurations alongside the API. Test a representative client across the library boundary when claiming binary compatibility. Template definitions, inline functions, and exported data introduce different client dependencies. Use release engineering for packaging and distribution, and keep this unit focused on the C++ interface mechanisms that those releases must preserve."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_implementation_boundaries_source_1",
+      "title": "C++ Core Guidelines: I.27, consider Pimpl for a stable library ABI",
+      "authors": [
+        "Bjarne Stroustrup",
+        "Herb Sutter"
+      ],
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Ri-pimpl",
+      "locator": "Expert guidance, I.27; an idiom with allocation/indirection tradeoffs, not normative language wording; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_implementation_boundaries_source_2",
+      "title": "GNU libstdc++ ABI Policy and Guidelines",
+      "authors": [
+        "GNU Project"
+      ],
+      "url": "https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html",
+      "locator": "Official toolchain documentation, ABI definition and compatibility policy; GNU-specific scope; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_implementation_boundaries_source_3",
+      "title": "C++20 working draft N4861: unique.ptr.single.dtor",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr.single.dtor",
+      "locator": "Primary standards draft, [unique.ptr.single.dtor]: unique_ptr destructor and deleter requirements. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_implementation_boundaries_source_4",
+      "title": "C++20 working draft N4861: unique.ptr.dltr.dflt",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr.dltr.dflt",
+      "locator": "Primary standards draft, [unique.ptr.dltr.dflt]: default deletion requires a complete type. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    }
+  ]
+}

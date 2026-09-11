@@ -1,0 +1,132 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_types_initialization_conversions_and_domain_types",
+  "versionId": "cpp_core_types_initialization_conversions_and_domain_types_v1",
+  "slug": "conversions-and-domain-types",
+  "title": "Conversions and domain types",
+  "summary": "Use conversion rules and distinct types to keep different kinds of values from being confused.",
+  "position": 1,
+  "objectives": [
+    "Identify where an arithmetic conversion happens.",
+    "Distinguish a type alias from a distinct enumeration type.",
+    "Choose explicit conversions only after checking meaning and range."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_types_initialization_conversions_and_domain_types_part_1",
+      "title": "A number needs a meaning and a representation",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A value has both a representation and an application meaning. An integer might represent pages, seconds, or a database identifier. The compiler knows the declared type, but it does not infer that two int variables use different units. Converting between integer and floating-point representations can also discard information. Good declarations therefore answer two questions: what values can this representation hold, and what do those values mean to the application?"
+        },
+        {
+          "type": "paragraph",
+          "text": "An alias introduced with using gives an existing type another name. It can make a declaration easier to read, but it does not stop arguments of the underlying type from being passed. A scoped enumeration introduced with enum class creates a distinct type and keeps its enumerators inside that type’s scope. It is appropriate for a small set of named choices, such as whether a reading item is queued or finished."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_types_initialization_conversions_and_domain_types_part_2",
+      "title": "Keep the conversion visible",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n\nusing BookId = unsigned int;\nenum class Status { queued, finished };\n\nint main()\n{\n    const int pages{5};\n    const int sessions{2};\n    const double average = static_cast<double>(pages) / sessions;\n    const BookId id{42};\n    const Status status{Status::queued};\n    std::cout << \"Average: \" << average << '\\n';\n    std::cout << \"Book \" << id << \": \"\n              << (status == Status::queued ? \"queued\" : \"finished\") << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Average: 2.5\nBook 42: queued\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The calculation converts pages to double before division. Both operands then participate in floating-point division, producing 2.5 for this exact example. Dividing the two integers first would produce 2, and converting that result afterward would not recover the discarded fraction. The placement of the conversion is therefore part of the algorithm. The example deliberately uses small nonnegative inputs and a nonzero divisor so those assumptions remain visible."
+        },
+        {
+          "type": "paragraph",
+          "text": "The BookId alias documents the intent of id, but its type is still unsigned int. Status, by contrast, is a separate enumeration type. The program tests a named enumerator instead of relying on a magic integer. No conversion to an integer is needed to choose a label. This keeps the output decision connected to the application meaning instead of an incidental numeric encoding."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_types_initialization_conversions_and_domain_types_part_3",
+      "title": "Use types to preserve distinctions",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "static_cast expresses a requested conversion; it is not an automatic range check. Before converting a floating-point value to an integer, decide whether truncation is appropriate and ensure the result is representable. Before converting a negative value to an unsigned type, decide whether that change is meaningful. C++20 integral conversion rules specify a destination value, but a specified conversion can still violate the application’s expectations."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use signed and unsigned arithmetic deliberately, particularly when comparing counts with library sizes. Do not assume int has a particular byte width on every implementation. Scoped enumerations help with choices, while small classes are a better next step when a numeric domain needs validation or its own permitted operations. A future duration type, for example, can represent time units without treating every integer as interchangeable."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Does BookId prevent passing an ordinary unsigned int where a BookId is expected?",
+          "explanation": "No. It is an alias for unsigned int, so both names denote the same type. A separate class would be needed to enforce a distinct identifier type while providing suitable validation and operations."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_types_initialization_conversions_and_domain_types_source_1",
+      "title": "C++20 working draft N4861: conv.integral",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/conv.integral",
+      "locator": "N4861, [conv.integral]; consulted 2026-09-11. Integral conversions and representable destination values."
+    },
+    {
+      "id": "cpp_core_types_initialization_conversions_and_domain_types_source_2",
+      "title": "C++20 working draft N4861: dcl.enum",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.enum",
+      "locator": "N4861, [dcl.enum]; consulted 2026-09-11. Scoped enumeration types and underlying types."
+    },
+    {
+      "id": "cpp_core_types_initialization_conversions_and_domain_types_source_3",
+      "title": "C++20 working draft N4861: dcl.typedef",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.typedef",
+      "locator": "N4861, [dcl.typedef]; consulted 2026-09-11. An alias declaration does not introduce a distinct type."
+    },
+    {
+      "id": "cpp_core_types_initialization_conversions_and_domain_types_source_4",
+      "title": "C++20 working draft N4861: conv.fpint",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/conv.fpint",
+      "locator": "N4861, [conv.fpint]; consulted 2026-09-11. Floating-integral conversion, truncation, and representability requirements."
+    },
+    {
+      "id": "cpp_core_types_initialization_conversions_and_domain_types_source_5",
+      "title": "C++20 working draft N4861: expr.mul",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.mul",
+      "locator": "N4861, [expr.mul]; consulted 2026-09-11. Usual arithmetic conversions and integer division truncation."
+    }
+  ]
+}

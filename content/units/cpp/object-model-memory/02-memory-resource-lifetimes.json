@@ -1,0 +1,103 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_memory_resource_lifetimes_module",
+  "versionId": "cpp_memory_resource_lifetimes_v1",
+  "slug": "memory-resource-lifetimes",
+  "title": "Give a memory resource an explicit lifetime",
+  "summary": "Use a polymorphic memory resource without letting its clients outlive the storage they need.",
+  "position": 1,
+  "objectives": [
+    "Describe the relationship between a pmr container and its memory resource.",
+    "Explain why a monotonic resource suits a bounded phase of work.",
+    "Order buffer, resource, and container destruction correctly."
+  ],
+  "parts": [
+    {
+      "id": "cpp_memory_resource_lifetimes_part_1",
+      "title": "Group allocations by a phase",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A workload such as parsing one document may create several containers and discard them together. A polymorphic memory resource lets allocator-aware containers request storage through a runtime interface. A monotonic_buffer_resource can satisfy requests from an initial buffer and obtain more memory from an upstream resource when needed."
+        },
+        {
+          "type": "paragraph",
+          "text": "Individual deallocation calls do not reclaim that resource’s storage for general reuse. Releasing or destroying the resource releases its upstream allocations as a group. This makes the lifetime of the resource part of every client’s contract. It is not a universal replacement for the default allocator, and it does not make the contained objects immortal or automatically run their destructors."
+        }
+      ]
+    },
+    {
+      "id": "cpp_memory_resource_lifetimes_part_2",
+      "title": "Destroy clients before their resource",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <array>\n#include <cstddef>\n#include <iostream>\n#include <memory_resource>\n#include <numeric>\n#include <vector>\n\nint main()\n{\n    alignas(std::max_align_t) std::array<std::byte, 1024> buffer{};\n    std::pmr::monotonic_buffer_resource arena{buffer.data(), buffer.size()};\n    {\n        std::pmr::vector<int> counts{&arena};\n        counts.reserve(3);\n        counts.push_back(2);\n        counts.push_back(3);\n        counts.push_back(4);\n        std::cout << std::accumulate(counts.begin(), counts.end(), 0) << '\\n';\n    }\n    arena.release();\n}\n",
+          "caption": "main.cpp — C++20"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "9\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The vector finishes first. Only then does release occur; later, the arena and the supplied buffer leave scope in reverse declaration order. reserve states the intended small capacity before insertion. The example permits upstream allocation, so it makes no universal promise that the local buffer alone is sufficient on every implementation. Its observable result is the sum of three small integers."
+        },
+        {
+          "type": "paragraph",
+          "text": "A container refers to a resource; it does not extend the resource’s lifetime through shared ownership. Returning this vector while arena is local would leave a client pointing at an expired resource. Releasing an arena while a client can still use its allocations similarly breaks the design. Avoid treating a container move as proof that its resource relationship has disappeared."
+        }
+      ]
+    },
+    {
+      "id": "cpp_memory_resource_lifetimes_part_3",
+      "title": "Match the resource to measured needs",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Would clear() on the vector make it safe to release the arena and keep using that vector?",
+          "explanation": "No. A cleared vector can retain capacity and a relationship to the resource. Destroy the client before releasing its storage, or use a carefully specified reconstruction workflow."
+        },
+        {
+          "type": "paragraph",
+          "text": "This resource does not synchronize simultaneous allocations. Keep it within one thread of control at a time or provide an appropriate external discipline. Measure memory use and workload behavior before choosing a resource strategy. Architecture courses explain caches and virtual memory; this C++ unit owns the allocator interface and the lifetimes required to use it correctly."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_memory_resource_lifetimes_source_1",
+      "title": "C++20 working draft N4861: mem.res.monotonic.buffer",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/mem.res.monotonic.buffer",
+      "locator": "Primary standards draft, [mem.res.monotonic.buffer]: allocation, deallocation, release, and synchronization limits. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_memory_resource_lifetimes_source_2",
+      "title": "C++20 working draft N4861: mem.poly.allocator.class",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/mem.poly.allocator.class",
+      "locator": "Primary standards draft, [mem.poly.allocator.class]: polymorphic allocator resource relationship. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_memory_resource_lifetimes_source_3",
+      "title": "C++20 working draft N4861: vector.capacity",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity",
+      "locator": "Primary standards draft, [vector.capacity]: reserve and invalidation. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    }
+  ]
+}

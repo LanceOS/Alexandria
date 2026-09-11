@@ -1,0 +1,110 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding",
+  "versionId": "cpp_core_runtime_polymorphism_interfaces_and_overriding_v1",
+  "slug": "interfaces-and-overriding",
+  "title": "Interfaces and virtual dispatch",
+  "summary": "Call a common operation through a reference while selecting behavior from the actual object.",
+  "position": 0,
+  "objectives": [
+    "Define an abstract interface with a pure virtual function.",
+    "Explain overriding and the role of override.",
+    "Distinguish a base reference from a sliced base value."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding_part_1",
+      "title": "Choose a runtime variation point",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Value types and templates cover many forms of reuse, but sometimes an application must choose behavior using the kind of object available at runtime. A virtual function provides a common operation whose implementation can vary in a derived class. The caller can work through a base-class reference or pointer while the actual object supplies the final overriding implementation. This is runtime polymorphism."
+        },
+        {
+          "type": "paragraph",
+          "text": "The Notice interface promises a text query. Its pure virtual declaration makes the interface abstract, so the program cannot create a standalone Notice object. Derived classes supply the operation. A public virtual destructor permits appropriate destruction through the interface when ownership later uses a base pointer. The first example keeps its objects as local values, so the dispatch mechanism can be understood before adding dynamic allocation."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding_part_2",
+      "title": "Call through the shared interface",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <string_view>\n\nclass Notice {\npublic:\n    virtual ~Notice() = default;\n    virtual std::string_view text() const = 0;\n};\n\nclass Welcome final : public Notice {\npublic:\n    std::string_view text() const override { return \"Welcome to the library\"; }\n};\n\nclass Reminder final : public Notice {\npublic:\n    std::string_view text() const override { return \"Return books on Friday\"; }\n};\n\nvoid show(const Notice& notice)\n{\n    std::cout << notice.text() << '\\n';\n}\n\nint main()\n{\n    const Welcome welcome;\n    const Reminder reminder;\n    show(welcome);\n    show(reminder);\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Welcome to the library\nReturn books on Friday\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Welcome and Reminder each override text and return a string_view into a string literal. Those character arrays have static storage duration, so the returned views remain valid for the caller. The override specifier asks the compiler to verify that the declaration really overrides a base virtual function. Accidentally changing the parameter list or omitting a necessary const qualifier would then be diagnosed instead of silently declaring an unrelated function."
+        },
+        {
+          "type": "paragraph",
+          "text": "show accepts a reference to Notice and calls text without naming either derived class. Binding the reference does not copy or transform the actual object; the underlying Welcome or Reminder remains intact. The virtual call selects that object’s implementation. This differs from function overloading, which uses the call expression’s types to choose among declarations during compilation."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding_part_3",
+      "title": "Keep the substitutability promise small",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Passing a concrete derived object by value as a nonabstract base can copy only its base subobject, a problem called slicing. A base reference avoids that loss. Notice itself is abstract, so passing it by value is not a usable alternative here. Keep ownership and dispatch as separate decisions: a borrowed base reference supplies access for the call, while some other object remains responsible for keeping the implementation alive."
+        },
+        {
+          "type": "paragraph",
+          "text": "A useful interface specifies a small behavior that every implementation can honor. Derived classes should preserve the caller’s expectations about results, errors, and lifetime rather than merely reuse member names. Composition is often simpler when there is no need for substitution. During base construction and destruction, virtual dispatch also follows special rules and does not behave as a normal call on a fully constructed most-derived object. Avoid invoking overridable behavior there as a shortcut for initialization."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Does binding const Notice& to a Reminder create a separate Notice object?",
+          "explanation": "No. The reference refers to the base subobject inside the existing Reminder. The complete derived object remains alive, so the virtual call selects Reminder’s text implementation."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding_source_1",
+      "title": "C++20 working draft N4861: class.virtual",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.virtual",
+      "locator": "N4861, [class.virtual]; consulted 2026-09-11. Overriding, final overriders, and polymorphic class types."
+    },
+    {
+      "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding_source_2",
+      "title": "C++20 working draft N4861: class.abstract",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.abstract",
+      "locator": "N4861, [class.abstract]; consulted 2026-09-11. Pure virtual functions and abstract classes."
+    },
+    {
+      "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding_source_3",
+      "title": "C++20 working draft N4861: class.dtor",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.dtor",
+      "locator": "N4861, [class.dtor]; consulted 2026-09-11. Implicit destructor invocation and reverse destruction order."
+    }
+  ]
+}

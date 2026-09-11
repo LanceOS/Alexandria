@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "robotics_coordinate_frames_unit",
+  "name": "Coordinate Frames",
+  "slug": "coordinate-frames",
+  "description": "Track direction, units and timestamps when combining sensor coordinates.",
+  "position": 0
+}

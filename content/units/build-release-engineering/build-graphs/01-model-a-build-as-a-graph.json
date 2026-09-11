@@ -1,0 +1,81 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "build_model_a_build_as_a_graph_module",
+  "versionId": "build_model_a_build_as_a_graph_v1",
+  "slug": "model-a-build-as-a-graph",
+  "title": "Model a build as a dependency graph",
+  "summary": "Explain why a library requirement must reach the targets that consume it.",
+  "position": 0,
+  "objectives": [
+    "Distinguish configuration, compilation, and linking.",
+    "Read a directed target dependency graph.",
+    "Explain public, private, and interface usage requirements in CMake."
+  ],
+  "parts": [
+    {
+      "id": "build_model_a_build_as_a_graph_part_1",
+      "title": "Represent outputs and prerequisites",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: C++ source files, headers, compilation, and linking. C++ translation and linkage rules belong in the language course. This unit uses CMake 3.31 documentation to teach build dependencies and propagation."
+        },
+        {
+          "type": "paragraph",
+          "text": "A build is a graph of outputs and the inputs needed to produce them. An executable may need object files and a library; an object file depends on source text, included headers, compiler options, and generated inputs. A build tool can schedule independent work only when those dependencies are known. Adding a delay or relying on an accidental build order does not describe a missing dependency."
+        },
+        {
+          "type": "paragraph",
+          "text": "CMake first configures and generates a buildsystem. The chosen backend then executes compilation and linking commands. Keep the source tree distinct from a build directory so different configurations can coexist. Debug and optimized builds are different artifacts with different settings, not just alternative names for the same executable. Generated files also need declared producers and consumers."
+        }
+      ]
+    },
+    {
+      "id": "build_model_a_build_as_a_graph_part_2",
+      "title": "Trace a transitive requirement",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Target graph:\n  reader-app -> reading-library -> text-codec\n\nreading-library public header includes a text-codec header:\n  reader-app must also receive the required codec include path\n\nreading-library implementation alone uses a diagnostic helper:\n  its private compile requirement need not affect reader-app\n\nMeaning in CMake:\n  PRIVATE   -> requirement for this target\n  INTERFACE -> requirement for consumers\n  PUBLIC    -> both",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The dependency should carry the requirement that actually follows from using the target. If a public library header requires a codec type, a consumer cannot compile without access to that type’s headers. CMake’s target usage requirements provide a way to propagate such information. Setting one global include path may make the local project compile while concealing that the exported library is incomplete."
+        },
+        {
+          "type": "paragraph",
+          "text": "Link requirements have additional details, especially for static libraries whose consumers may need implementation dependencies at final link time. Do not infer all link behavior from the simple compile-requirement labels alone; follow the versioned buildsystem documentation. The main principle is to express dependencies on targets and their requirements instead of scattering copied flags across unrelated directories."
+        }
+      ]
+    },
+    {
+      "id": "build_model_a_build_as_a_graph_part_3",
+      "title": "Check from a clean consumer",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Why might an incremental build succeed while a fresh build fails to find a generated header?",
+          "explanation": "An old generated file can hide a missing dependency or generation step. A fresh build lacks that leftover output, exposing the incomplete graph. The fix is to declare how the file is produced and which target requires it."
+        },
+        {
+          "type": "paragraph",
+          "text": "Validate the build from an empty build directory and, for a reusable library, from a small separate consumer project. Record the toolchain, configuration, and dependency versions used. These checks support the build graph’s completeness; they do not replace application tests. A portable build description should make required inputs discoverable to both the build tool and the next developer."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "build_model_a_build_as_a_graph_source_cmake",
+      "title": "cmake-buildsystem(7)",
+      "authors": [
+        "Kitware and CMake contributors"
+      ],
+      "url": "https://cmake.org/cmake/help/v3.31/manual/cmake-buildsystem.7.html",
+      "locator": "Official versioned documentation: CMake 3.31, Binary Targets, Build Specification and Usage Requirements, and Transitive Usage Requirements; consulted 2026-09-11."
+    }
+  ]
+}

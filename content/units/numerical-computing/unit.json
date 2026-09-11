@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "numerical_unit",
+  "name": "Numerical Computing",
+  "slug": "numerical-computing",
+  "description": "Study approximation and stable computation with basic algebra. C++ numeric types are prerequisites; error analysis and numerical algorithms are the focus here.",
+  "position": 0,
+  "topic": {
+    "id": "numerical_topic",
+    "slug": "numerical-computing",
+    "name": "Numerical Computing",
+    "description": "Study approximation and stable computation with basic algebra. C++ numeric types are prerequisites; error analysis and numerical algorithms are the focus here.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 9
+      },
+      {
+        "id": "category_mathematics",
+        "position": 0
+      }
+    ]
+  }
+}

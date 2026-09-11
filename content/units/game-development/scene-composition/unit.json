@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "game_development_scene_composition_unit",
+  "name": "Scene Composition",
+  "slug": "scene-composition",
+  "description": "Reason about scene instances, paths and lifecycle boundaries.",
+  "position": 1
+}

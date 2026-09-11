@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "game_development_unit_root",
+  "name": "Game development",
+  "slug": "game-development",
+  "description": "Simulation timing and composition of interactive worlds. Prerequisites: C++ control flow, classes and containers; basic coordinate arithmetic. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_game_development",
+    "slug": "game-development",
+    "name": "Game development",
+    "description": "Simulation timing and composition of interactive worlds. Prerequisites: C++ control flow, classes and containers; basic coordinate arithmetic. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 14
+      }
+    ]
+  }
+}

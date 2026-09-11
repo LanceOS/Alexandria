@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "compilers_language_tools_syntax_trees_module",
+  "versionId": "compilers_language_tools_syntax_trees_version_1",
+  "slug": "precedence-tree",
+  "title": "Build an expression tree that preserves precedence",
+  "summary": "Connect grammar decisions to the structure and evaluation of an AST.",
+  "position": 0,
+  "objectives": [
+    "Draw different trees for unparenthesized and parenthesized expressions.",
+    "Evaluate both trees in child-before-parent order.",
+    "Distinguish parsing success from semantic validity."
+  ],
+  "parts": [
+    {
+      "id": "compilers_language_tools_syntax_trees_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: lexical analysis, recursion and tree structures; C++ ownership. This unit teaches expression grammar and AST design rather than C++ operator syntax itself."
+        },
+        {
+          "type": "paragraph",
+          "text": "A parser consumes tokens according to grammar rules and builds a structured representation. LLVM’s tutorial combines recursive descent with operator-precedence parsing and gives each expression form an AST representation. The tree captures relationships that a flat token list does not: which operands belong to which operation, and which operation is nested inside another. Parentheses can change those relationships without needing to survive as separate nodes in a minimal expression AST. Preserve source information elsewhere if diagnostics or exact source rewriting need it. An AST designed for execution is not automatically a lossless document model."
+        }
+      ]
+    },
+    {
+      "id": "compilers_language_tools_syntax_trees_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original language has integer literals, addition, multiplication and parentheses. Multiplication binds more tightly than addition, both operators associate to the left, and all values in this finite example fit exactly in an ordinary integer. Compare 4 + 2 * 3 with (4 + 2) * 3. The traces describe conceptual trees, not a parser implementation."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "4 + 2 * 3:\n  Add(Number(4), Multiply(Number(2), Number(3)))\n  Evaluate Multiply -> 6; then Add -> 10\n(4 + 2) * 3:\n  Multiply(Add(Number(4), Number(2)), Number(3))\n  Evaluate Add -> 6; then Multiply -> 18"
+        },
+        {
+          "type": "paragraph",
+          "text": "Both inputs contain the same three numbers and two operators. Their nesting changes the result, showing why a token list alone does not encode expression meaning. In the first tree, the multiplication subtree becomes the right child of addition. In the second, addition becomes the left child of multiplication. A recursive evaluator can therefore follow the tree without repeatedly looking up precedence; the parser already recorded that decision in the structure."
+        }
+      ]
+    },
+    {
+      "id": "compilers_language_tools_syntax_trees_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Draw the tree for 8 + 2 + 1 using the specified left associativity. Then add a source-range annotation to each number and operation, and explain which range should be highlighted for an incomplete expression such as 4 +. Finally introduce a name token and identify the new semantic task of resolving it. Parsing should report a structured error rather than returning a partly valid tree as though the entire input succeeded."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Does a successfully parsed tree prove that every operation in a richer language can execute correctly?",
+          "explanation": "No. Parsing establishes grammatical structure. Name resolution, type checking, resource constraints and runtime conditions remain separate questions. An AST containing a call to an unknown function can be syntactically well formed even though semantic analysis must reject it. Keeping those phases distinct improves both reasoning and diagnostics."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "compilers_language_tools_syntax_trees_source_parser",
+      "title": "LLVM Kaleidoscope: Implementing a Parser and AST",
+      "authors": [
+        "LLVM Project contributors"
+      ],
+      "url": "https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl02.html",
+      "locator": "Primary documentation: Sections 2.2, 2.4 and 2.5; AST representation and expression precedence; consulted 2026-09-11"
+    }
+  ]
+}

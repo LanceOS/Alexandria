@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "graphics_gpu_unit_root",
+  "name": "Graphics and GPU programming",
+  "slug": "graphics-gpu",
+  "description": "Graphics pipelines, resource dependencies and GPU execution. Prerequisites: C++ resource ownership; vectors and matrices; concurrency fundamentals. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_graphics_gpu",
+    "slug": "graphics-gpu",
+    "name": "Graphics and GPU programming",
+    "description": "Graphics pipelines, resource dependencies and GPU execution. Prerequisites: C++ resource ownership; vectors and matrices; concurrency fundamentals. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 15
+      }
+    ]
+  }
+}

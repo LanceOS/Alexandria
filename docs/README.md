@@ -4,7 +4,9 @@
 - [Client architecture](client-architecture.md): application composition, shared UI, feature modules, import boundaries, and client tests.
 - [Server architecture](server-architecture.md): implemented routes, services, repositories, authentication, and API conventions.
 - [Content authoring](../content/README.md): unit folders, JSON modules, validation, and explicit imports.
-- [C++ Basics content](cpp-basics-content.md): six original introductory modules, documentation/book references, and explicit installation.
+- [Curriculum map](curriculum-map.md): C++ core and advanced units, supporting subjects, application tracks, and the modules available in each.
+- [Curriculum evidence](curriculum-evidence.md): shared lesson pattern, primary documentation, peer-reviewed research, review records, and verification limits.
+- [C++ Basics content](cpp-basics-content.md): seven original introductory modules, documentation/book references, and explicit installation.
 - [Database schema](database-schema.md): migrations, curriculum versioning, learner progress, and integrity rules.
 - [Direct service example](../deploy/README.md): optional Linux systemd setup for the compiled application.
 - [Self-hosting implementation plan](self-hosting-plan.md): cloud-free architecture, local SQLite storage, deployment, operations, and phased acceptance criteria.

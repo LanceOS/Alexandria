@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "compilers_language_tools_lexical_analysis_module",
+  "versionId": "compilers_language_tools_lexical_analysis_version_1",
+  "slug": "token-boundaries",
+  "title": "Turn characters into a token stream",
+  "summary": "Separate lexical recognition from expression meaning.",
+  "position": 0,
+  "objectives": [
+    "Tokenize a small expression using explicit lexical rules.",
+    "Distinguish token category, spelling and source location.",
+    "Identify the lexer-parser boundary."
+  ],
+  "parts": [
+    {
+      "id": "compilers_language_tools_lexical_analysis_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ strings and loops; character encodings. Compiler construction owns lexical rules; C++ is one language in which a lexer can be implemented."
+        },
+        {
+          "type": "paragraph",
+          "text": "A lexer groups input characters into tokens that later stages can interpret. LLVM’s Kaleidoscope tutorial illustrates returning a token category while preserving information such as an identifier name or numeric value. Tokenization answers where an identifier or literal begins and ends; it does not establish whether a variable exists or whether addition is valid for its type. A useful token can retain both interpreted information and its source range for diagnostics. Define the accepted character set and literal grammar explicitly. A tutorial language with decimal integers and ASCII names is much smaller than C++ lexical syntax, including its preprocessing rules."
+        }
+      ]
+    },
+    {
+      "id": "compilers_language_tools_lexical_analysis_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original tiny language accepts identifiers beginning with an ASCII letter followed by letters or digits, decimal nonnegative integer literals, plus, star and parentheses. Spaces are skipped. We use zero-based, half-open character ranges. The finite input is rate2 + 12*3. The lexer uses the longest sequence matching each identifier or integer rule."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Characters: rate2 + 12*3\n[0,5)   Identifier  spelling rate2\n[6,7)   Plus        spelling +\n[8,10)  Integer     spelling 12, value 12\n[10,11) Star        spelling *\n[11,12) Integer     spelling 3, value 3\n[12,12) End"
+        },
+        {
+          "type": "paragraph",
+          "text": "The digit in rate2 belongs to the identifier under these rules, while the separate sequence 12 is a numeric token. The star is recognized without deciding that multiplication has higher precedence than addition. That decision belongs to the parser’s expression grammar. Source ranges let a later error point back to the exact token even after spaces have been discarded. Numeric conversion should report out-of-range values rather than silently accepting a truncated result."
+        }
+      ]
+    },
+    {
+      "id": "compilers_language_tools_lexical_analysis_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Tokenize rate2+12 * 3 and compare categories and values with the original. Whitespace changes positions but not this expression’s token sequence. Next try rate_2: underscore is not accepted by the stated rules, so report a lexical error at its position. Do not silently broaden the language just because a host-language identifier would permit it. A compiler’s grammar is an explicit contract with its source programs."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Can the lexer determine that rate2 is an undeclared variable simply from recognizing an identifier token?",
+          "explanation": "No. Recognition establishes that the spelling has the shape of an identifier. Declaration checking needs a symbol environment and language rules, normally handled during later semantic analysis. Separating these concerns lets the same lexer handle identifiers used in declarations and references without guessing their meaning."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "compilers_language_tools_lexical_analysis_source_lexer",
+      "title": "LLVM Kaleidoscope: Introduction and the Lexer",
+      "authors": [
+        "LLVM Project contributors"
+      ],
+      "url": "https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl01.html",
+      "locator": "Primary documentation: Section 1.2 The Lexer; tokenization and lexical information; consulted 2026-09-11"
+    }
+  ]
+}

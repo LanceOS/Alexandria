@@ -1,0 +1,121 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects",
+  "versionId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_v1",
+  "slug": "owning-polymorphic-objects",
+  "title": "Owning a collection of implementations",
+  "summary": "Combine virtual interfaces with exclusive ownership without losing derived behavior.",
+  "position": 1,
+  "objectives": [
+    "Store different implementations in unique_ptr owners.",
+    "Explain why deletion through a base requires the right destructor contract.",
+    "Treat runtime type inspection as a deliberate optional operation."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_part_1",
+      "title": "A collection can own different implementations",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A vector has one element type, but that element type can be an owner of a common interface. vector<unique_ptr<Notice>> can own several concrete kinds of Notice while preserving each complete object. The unique_ptr values share a static type; their owned objects may have different dynamic types. This separates the container’s uniform representation from the runtime behavior chosen through the interface."
+        },
+        {
+          "type": "paragraph",
+          "text": "Exclusive ownership makes responsibility straightforward. Each element owns one implementation, and the vector owns its elements. Destroying the vector destroys those owners, which destroy their corresponding objects. The base class’s virtual destructor is essential for the ordinary deletion through a base pointer used here. A nonvirtual public destructor would not provide the correct contract for deleting derived objects in this way."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_part_2",
+      "title": "Preserve dynamic type across ownership transfer",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <memory>\n#include <string_view>\n#include <vector>\n\nclass Notice {\npublic:\n    virtual ~Notice() = default;\n    virtual std::string_view text() const = 0;\n};\nclass Welcome final : public Notice {\npublic:\n    std::string_view text() const override { return \"Welcome\"; }\n};\nclass Reminder final : public Notice {\npublic:\n    std::string_view text() const override { return \"Return soon\"; }\n    int days() const { return 3; }\n};\n\nint main()\n{\n    std::vector<std::unique_ptr<Notice>> notices;\n    notices.push_back(std::make_unique<Welcome>());\n    notices.push_back(std::make_unique<Reminder>());\n    for (const auto& notice : notices) {\n        std::cout << notice->text() << '\\n';\n        if (const auto* reminder = dynamic_cast<const Reminder*>(notice.get()))\n            std::cout << \"Days: \" << reminder->days() << '\\n';\n    }\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Welcome\nReturn soon\nDays: 3\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "make_unique creates each concrete object, and push_back transfers the resulting owner into the vector. No owning raw pointer escapes and no manual delete is needed. During the loop, the const reference refers to the unique_ptr element; using its arrow operator reaches the owned object. The virtual text call prints the implementation-specific message while ownership stays in the collection."
+        },
+        {
+          "type": "paragraph",
+          "text": "The program also demonstrates a checked pointer dynamic_cast to Reminder. Because Notice is polymorphic, the runtime check can determine whether the object supports that derived type. A successful result borrows the Reminder object, allowing the days query. A failed pointer cast returns nullptr, which the condition handles without dereferencing it. The cast neither copies the object nor creates a second owner."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_part_3",
+      "title": "Use inspection only when the interface requires it",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Repeated casts can reveal that an interface is missing a useful operation, but type inspection is not inherently an error. Use it when the caller truly needs an optional capability or must integrate an existing hierarchy. A failed reference dynamic_cast instead reports failure through an exception, so choose the form that matches the caller’s failure policy. Do not replace a checked downcast with an unchecked cast merely to shorten the syntax."
+        },
+        {
+          "type": "paragraph",
+          "text": "Moving a unique_ptr transfers responsibility while the allocated object itself can remain at the same address. Reallocating this vector moves owner elements, so references to the unique_ptr elements may be invalidated even while the separately allocated objects remain alive. References to those objects still depend on an owner continuing to hold them. Erasing the relevant owner destroys its object and ends that borrowing relationship, regardless of whether another raw pointer still contains the old address."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Does the pointer returned by dynamic_cast keep the Reminder alive after its owning element is erased?",
+          "explanation": "No. The pointer borrows the object and has no ownership effect. Erasing the owning unique_ptr destroys the Reminder, so the borrowed pointer must not be used afterward."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_source_1",
+      "title": "C++20 working draft N4861: unique.ptr",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr",
+      "locator": "N4861, [unique.ptr]; consulted 2026-09-11. Exclusive ownership and move-only unique_ptr operations."
+    },
+    {
+      "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_source_2",
+      "title": "C++20 working draft N4861: expr.dynamic.cast",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.dynamic.cast",
+      "locator": "N4861, [expr.dynamic.cast]; consulted 2026-09-11. Runtime casts; pointer-cast failure returns a null pointer."
+    },
+    {
+      "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_source_3",
+      "title": "C++20 working draft N4861: class.virtual",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.virtual",
+      "locator": "N4861, [class.virtual]; consulted 2026-09-11. Overriding, final overriders, and polymorphic class types."
+    },
+    {
+      "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_source_4",
+      "title": "C++20 working draft N4861: class.dtor",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.dtor",
+      "locator": "N4861, [class.dtor]; consulted 2026-09-11. Implicit destructor invocation and reverse destruction order."
+    }
+  ]
+}

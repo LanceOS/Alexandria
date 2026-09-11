@@ -1,0 +1,91 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "parallel_estimate_a_parallel_speedup_limit_module",
+  "versionId": "parallel_estimate_a_parallel_speedup_limit_v1",
+  "slug": "estimate-a-parallel-speedup-limit",
+  "title": "Estimate the limit of parallel speedup",
+  "summary": "Derive a fixed-workload bound before deciding how many workers to use.",
+  "position": 0,
+  "objectives": [
+    "Distinguish concurrency from parallel execution.",
+    "Compute an ideal speedup from serial and parallel portions.",
+    "Explain why task overhead and imbalance reduce useful scaling."
+  ],
+  "parts": [
+    {
+      "id": "parallel_estimate_a_parallel_speedup_limit_part_1",
+      "title": "Separate overlap from independent work",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: functions, fractions, and elapsed time. This subject owns work decomposition and scaling models. C++ thread pools, execution policies, and coroutines implement particular execution strategies but do not guarantee speedup."
+        },
+        {
+          "type": "paragraph",
+          "text": "Concurrency concerns managing activities whose lifetimes overlap. Parallel execution performs work at the same time on multiple processing resources. A single-core system can be concurrent by switching between activities. Conversely, a parallel computation requires useful independent work and enough resources to perform it. An asynchronous interface alone does not establish either a speedup or a particular thread count."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a fixed batch with 200 milliseconds of unavoidable serial work and 800 milliseconds that can be divided evenly among workers. Assume no scheduling, communication, or synchronization overhead and identical worker performance. The total time with p workers is 200 plus 800 divided by p. This is an idealized model, not a measured property of an implementation."
+        }
+      ]
+    },
+    {
+      "id": "parallel_estimate_a_parallel_speedup_limit_part_2",
+      "title": "Calculate the bound",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Fixed workload: serial portion 200 ms; parallel portion 800 ms\n1 worker: 200 + 800/1 = 1,000 ms; speedup 1.0\n2 workers: 200 + 800/2 = 600 ms; speedup about 1.67\n4 workers: 200 + 800/4 = 400 ms; speedup 2.5\nUnlimited workers: time approaches 200 ms; speedup approaches 5\nIf four-worker overhead adds 40 ms: total 440 ms; speedup about 2.27",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The unaccelerated portion limits the result. Expressing the serial fraction as s gives the fixed-workload ideal speedup 1 divided by s plus (1 minus s) divided by p. LLNL’s tutorial presents this reasoning as Amdahl’s Law. The assumptions matter: changing the problem size, algorithm, memory behavior, or serial fraction changes what comparison the formula describes."
+        },
+        {
+          "type": "paragraph",
+          "text": "Real task graphs also contain dependencies and imbalance. One worker with a much longer task can determine completion time while others sit idle. Smaller tasks may distribute work better, but too many tiny tasks spend more time on scheduling and communication. Shared memory bandwidth or a contended resource can become a limit even when the arithmetic work is independent."
+        }
+      ]
+    },
+    {
+      "id": "parallel_estimate_a_parallel_speedup_limit_part_3",
+      "title": "Choose a useful decomposition",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Would launching one task for every integer addition necessarily improve a large sum?",
+          "explanation": "No. Individual additions may be far cheaper than task creation and coordination. Grouping work into larger chunks usually gives the scheduler more useful computation per task. The appropriate size depends on the runtime, hardware, and workload."
+        },
+        {
+          "type": "paragraph",
+          "text": "Create a dependency graph, identify the longest dependent path, and record what data each task reads and writes. Preserve a sequential reference implementation for correctness comparisons. For floating-point reductions, changing the grouping can change the result because addition is not generally associative in finite precision. Report both the workload size and the worker count in scaling experiments, so a fixed-workload speedup is not confused with throughput on a growing workload."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "parallel_estimate_a_parallel_speedup_limit_source_llnl",
+      "title": "Introduction to Parallel Computing Tutorial",
+      "authors": [
+        "Blaise Barney",
+        "Lawrence Livermore National Laboratory"
+      ],
+      "url": "https://hpc.llnl.gov/documentation/tutorials/introduction-parallel-computing-tutorial",
+      "locator": "Official institutional tutorial: task decomposition, communication, granularity, and Amdahl’s Law; consulted 2026-09-11. Teaching timing values are explicitly hypothetical."
+    },
+    {
+      "id": "parallel_estimate_a_parallel_speedup_limit_source_openmp",
+      "title": "OpenMP Application Programming Interface 5.2: Execution Model",
+      "authors": [
+        "OpenMP Architecture Review Board"
+      ],
+      "url": "https://www.openmp.org/spec-html/5.2/openmpse3.html",
+      "locator": "Normative API specification for OpenMP 5.2, §1.3 Execution Model; task execution and fork-join model, not a specification of std::thread; consulted 2026-09-11."
+    }
+  ]
+}

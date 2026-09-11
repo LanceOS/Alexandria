@@ -1,0 +1,142 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_classes_value_semantics_copy_move_and_comparison",
+  "versionId": "cpp_core_classes_value_semantics_copy_move_and_comparison_v1",
+  "slug": "copy-move-and-comparison",
+  "title": "Copying, moving, and comparing values",
+  "summary": "Let owning members provide useful special-member behavior and define equality deliberately.",
+  "position": 1,
+  "objectives": [
+    "Distinguish copy construction from copy assignment.",
+    "Explain memberwise moving without assuming a moved-from string is empty.",
+    "Use C++20 defaulted equality for a suitable value type."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_part_1",
+      "title": "Decide what it means to copy a value",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A value type supports reasoning about independent values rather than shared identity. Copying a notebook label should normally produce another label whose later edits do not change the first. C++ provides special member functions for copy construction, move construction, copy assignment, move assignment, and destruction. These operations have different triggers: construction creates a new object, while assignment replaces the state of an existing object."
+        },
+        {
+          "type": "paragraph",
+          "text": "The Book record contains a string title and an integer page count. Both members already know how to copy, move, assign, and clean up their own state. Without manually declaring special members, the class can receive useful memberwise operations from the compiler. This style is commonly called the Rule of Zero: use members that manage their resources so the surrounding value type does not need to write resource-management functions itself."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_part_2",
+      "title": "Let members implement their own ownership",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <string>\n#include <utility>\n\nstruct Book {\n    std::string title;\n    int pages{};\n    bool operator==(const Book&) const = default;\n};\n\nint main()\n{\n    const Book original{\"Atlas\", 120};\n    Book copy = original;\n    copy.title = \"Revised\";\n    Book assigned{\"Draft\", 1};\n    assigned = original;\n    Book moved = std::move(copy);\n    std::cout << original.title << ' ' << moved.title << '\\n';\n    std::cout << std::boolalpha << (assigned == original) << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Atlas Revised\ntrue\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The initialization of copy from original performs copy construction. Changing copy.title afterward affects only the copied string, leaving original.title unchanged. The later assignment to assigned invokes copy assignment on an already existing Book. The distinction matters when a type has initialization requirements or owns an existing resource that must be replaced safely. Here the standard string member handles those responsibilities."
+        },
+        {
+          "type": "paragraph",
+          "text": "The initialization of moved uses std::move(copy) to permit move construction. The destination receives the copied book’s current title, Revised. A moved-from standard string remains valid but has an unspecified value unless a more specific operation guarantee applies. The program therefore does not assume copy.title becomes empty. It can assign a new title or destroy copy safely without inspecting a guessed old state."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_part_3",
+      "title": "Keep comparison aligned with meaning",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The defaulted equality operator is available in C++20. It compares the corresponding members, so both title and pages contribute to equality. That is appropriate only if those fields represent the value’s intended meaning. If a future cache member is added, automatically including it in equality may be wrong. The convenience of defaulting does not replace a decision about which observable values should compare equal."
+        },
+        {
+          "type": "paragraph",
+          "text": "Writing a destructor or a copy operation can change which move operations are implicitly declared. A class that owns a raw resource may therefore require a coordinated set of special members, traditionally described by the Rule of Three or Rule of Five. Prefer the simpler composition shown here when it fits. The complete special-member rules belong in deeper study, but the practical question remains: does copying or moving preserve a coherent, independently usable value?"
+        },
+        {
+          "type": "reflection",
+          "prompt": "Would defaulted equality still match the intended meaning if Book gained an internal cache counter?",
+          "explanation": "Not necessarily. Defaulted equality would include the new member. If the cache is an implementation detail rather than part of the book value, equality should instead compare only the members that define that value."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_1",
+      "title": "C++20 working draft N4861: class.copy.ctor",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.copy.ctor",
+      "locator": "N4861, [class.copy.ctor]; consulted 2026-09-11. Implicit memberwise copy/move and special-member declaration conditions."
+    },
+    {
+      "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_2",
+      "title": "C++20 working draft N4861: class.copy.assign",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.copy.assign",
+      "locator": "N4861, [class.copy.assign]; consulted 2026-09-11. Memberwise copy/move assignment of bases and members."
+    },
+    {
+      "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_3",
+      "title": "C++20 working draft N4861: class.compare.default",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.compare.default",
+      "locator": "N4861, [class.compare.default]; consulted 2026-09-11. C++20 defaulted comparison declarations and restrictions."
+    },
+    {
+      "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_4",
+      "title": "C++20 working draft N4861: forward",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/forward",
+      "locator": "N4861, [forward]; consulted 2026-09-11. std::move and std::forward are casts with specified reference results."
+    },
+    {
+      "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_5",
+      "title": "C++20 working draft N4861: lib.types.movedfrom",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/lib.types.movedfrom",
+      "locator": "N4861, [lib.types.movedfrom]; consulted 2026-09-11. Valid but unspecified states of moved-from standard-library objects."
+    },
+    {
+      "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_guidelines",
+      "title": "C++ Core Guidelines: C.20",
+      "authors": [
+        "Bjarne Stroustrup",
+        "Herb Sutter"
+      ],
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero",
+      "locator": "C.20; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII or the Rule of Zero, distinct from normative C++ language requirements."
+    }
+  ]
+}

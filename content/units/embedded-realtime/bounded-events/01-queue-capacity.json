@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "embedded_realtime_bounded_events_module",
+  "versionId": "embedded_realtime_bounded_events_version_1",
+  "slug": "queue-capacity",
+  "title": "Design a bounded interrupt-to-worker queue",
+  "summary": "Account for capacity, copied data and overload behavior.",
+  "position": 0,
+  "objectives": [
+    "Trace queue occupancy through a burst.",
+    "Calculate the storage required for fixed-size records.",
+    "Choose and explain an explicit overflow response."
+  ],
+  "parts": [
+    {
+      "id": "embedded_realtime_bounded_events_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ buffers and ownership; interrupt and worker terminology. This unit owns embedded event flow; language-level synchronization is a prerequisite."
+        },
+        {
+          "type": "paragraph",
+          "text": "A message queue decouples event production from later processing, but finite capacity remains a design constraint. Zephyr message queues copy fixed-size data items into a waiting receiver or queue storage. They can serve threads and interrupt handlers, subject to restrictions on waiting in interrupt context. Copying a record containing a pointer copies the address, not the pointed-to object. Consequently a queue is not automatically an ownership-transfer mechanism. Prefer a small self-contained event record when that fits the application. Decide what happens on a full queue before deployment: losing the newest event, retaining only the latest measurement, reporting a fault and applying backpressure have different meanings."
+        }
+      ]
+    },
+    {
+      "id": "embedded_realtime_bounded_events_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Assume a queue with capacity three, a single producer, one worker, and eight-byte self-contained measurement records. Every enqueue and dequeue is atomic under the queue API. At the start the queue is empty. The worker does not run until four events have arrived. Our chosen policy rejects a new event if the queue is full and increments a diagnostic counter."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Arrival A -> [A]       occupancy 1, rejected 0\nArrival B -> [A,B]     occupancy 2, rejected 0\nArrival C -> [A,B,C]   occupancy 3, rejected 0\nArrival D -> [A,B,C]   occupancy 3, rejected 1\nWorker takes A -> [B,C]\nRecord storage: 3 * 8 = 24 bytes, excluding queue metadata."
+        },
+        {
+          "type": "paragraph",
+          "text": "The trace makes the lost event visible: D was never accepted. Treating enqueue as infallible would silently remove this information. The capacity calculation concerns record storage only; kernel metadata, stack use and alignment must be budgeted separately. If records instead contain pointers to a reused producer buffer, all three entries could describe the same changing bytes. Such a design needs a buffer pool and a clear rule for when each buffer may be reused."
+        }
+      ]
+    },
+    {
+      "id": "embedded_realtime_bounded_events_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Change the requirement to a current-temperature display, where the freshest reading matters more than every intermediate sample. Explain why a replace-oldest policy may fit that purpose, then compare it with an event counter where discarding individual events would corrupt the total. Estimate the largest burst to absorb and the worker service rate. A larger queue delays overflow but cannot fix sustained production faster than consumption."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Can an interrupt handler wait indefinitely for the worker to create space in this queue?",
+          "explanation": "No. Interrupt-context operations must follow the platform API restrictions; a design that waits for lower-priority worker progress can prevent the very work required to free space. Use the supported nonwaiting operation and handle failure explicitly. The overflow policy is part of the application contract, not an accidental consequence of queue size."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "embedded_realtime_bounded_events_source_queue",
+      "title": "Zephyr: Message Queues",
+      "authors": [
+        "Zephyr Project"
+      ],
+      "url": "https://docs.zephyrproject.org/latest/kernel/services/data_passing/message_queues.html",
+      "locator": "Primary documentation: Concepts; fixed-size copied messages, capacity and ISR restrictions; consulted 2026-09-11"
+    }
+  ]
+}

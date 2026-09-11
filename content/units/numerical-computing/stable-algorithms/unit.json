@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "numerical_unit_stable_algorithms",
+  "name": "Stable Algorithms",
+  "slug": "stable-algorithms",
+  "description": "Use algebra and error reasoning to avoid avoidable numerical information loss.",
+  "position": 1
+}

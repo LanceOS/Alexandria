@@ -1,0 +1,90 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "security_bound_resource_consumption_module",
+  "versionId": "security_bound_resource_consumption_v1",
+  "slug": "bound-resource-consumption",
+  "title": "Bound resource consumption at every stage",
+  "summary": "Trace a budgeted import before allocation and preserve a clear failure outcome.",
+  "position": 0,
+  "objectives": [
+    "Identify resource limits beyond the original input size.",
+    "Check a size request before performing multiplication or allocation.",
+    "Design a rejection path that avoids partial committed state."
+  ],
+  "parts": [
+    {
+      "id": "security_bound_resource_consumption_part_1",
+      "title": "Treat resource use as part of the contract",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: integer ranges, error handling, and basic parsing. This subject owns resource abuse and resilience. C++ allocation failure, RAII, and overflow rules provide mechanisms but do not choose suitable service budgets."
+        },
+        {
+          "type": "paragraph",
+          "text": "An import service can receive a small request that causes large work: a compressed archive expands, a nested structure requires deep recursion, or a declared record count drives allocation. Limiting only network bytes leaves these later stages unbounded. MITRE’s CWE-400 describes uncontrolled resource consumption and mitigation through limits. Apply limits to the resources the operation actually consumes, not just its first representation."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a teaching import, allow at most 1000 records and at most 64000 bytes of fixed-size record storage. Each record needs 64 bytes in this model. There are separate limits for decoded text bytes, nesting depth, elapsed work, and concurrent imports. These values are illustrative application choices; a real service must choose budgets from its capacity and requirements."
+        }
+      ]
+    },
+    {
+      "id": "security_bound_resource_consumption_part_2",
+      "title": "Check before calculating or committing",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Storage budget = 64,000 bytes; bytes per record = 64\nAllowed record count = budget divided by bytes per record = 1,000\n\nDeclared count 1,001 -> reject before allocation\nDeclared count 800 -> requested record storage 51,200 bytes\nDecode records while enforcing separate text and nesting limits\nIf any record fails: discard staged results; publish no partial import\nIf all checks pass: commit the complete accepted batch",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "Compare a nonnegative count against budget divided by element size before multiplying, provided element size is positive. This avoids overflowing the product used for the limit check. The trace assumes fixed record storage only; dynamic strings, container overhead, and temporary buffers require separate accounting. A stated budget should include the resources that remain live together, not just one allocation in isolation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Stage accepted records until the import is ready to commit, but ensure the staging itself stays within a limit. A transaction or explicit rollback policy can protect persistent state. Cleanup must release temporary files, memory, and acquired handles on both rejection and success. C++ RAII is useful for ownership cleanup, while an application-level transaction decides which data changes become visible."
+        }
+      ]
+    },
+    {
+      "id": "security_bound_resource_consumption_part_3",
+      "title": "Bound aggregate pressure and failure behavior",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "If every import is below 64,000 bytes, can unlimited simultaneous imports still exhaust the service?",
+          "explanation": "Yes. Per-request limits do not bound aggregate consumption. Use a concurrency cap or shared admission budget, account for pending requests, and define what happens when capacity is unavailable."
+        },
+        {
+          "type": "paragraph",
+          "text": "Reject or defer work with a documented response when budgets are exhausted. Avoid unbounded retries, which can amplify overload, and avoid accumulating rejected payloads indefinitely in logs. Test cancellation and errors at intermediate stages, verifying that resources are released and committed state remains consistent. Resource resilience is a design property across parsing, scheduling, storage, and cleanup; it cannot be added by checking only one field at the edge."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "security_bound_resource_consumption_source_cwe400",
+      "title": "CWE-400: Uncontrolled Resource Consumption",
+      "authors": [
+        "MITRE"
+      ],
+      "url": "https://cwe.mitre.org/data/definitions/400.html",
+      "locator": "Official weakness reference, CWE 4.20: Description, Common Consequences, and Potential Mitigations on limiting resource allocation; consulted 2026-09-11. Guidance is not a proof that a system is secure."
+    },
+    {
+      "id": "security_bound_resource_consumption_source_owasp",
+      "title": "OWASP Input Validation Cheat Sheet",
+      "authors": [
+        "OWASP Cheat Sheet Series contributors"
+      ],
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+      "locator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
+    }
+  ]
+}

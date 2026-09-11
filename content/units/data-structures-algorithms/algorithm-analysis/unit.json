@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "dsa_unit_algorithm_analysis",
+  "name": "Algorithm Analysis",
+  "slug": "algorithm-analysis",
+  "description": "Compare algorithm growth using explicit cost models and input assumptions.",
+  "position": 0
+}

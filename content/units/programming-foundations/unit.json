@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "foundations_unit",
+  "name": "Programming Foundations",
+  "slug": "programming-foundations",
+  "description": "Problem solving, decomposition, state, and correctness reasoning. No previous programming course is required; take alongside C++ Basics.",
+  "position": 0,
+  "topic": {
+    "id": "foundations_topic",
+    "slug": "programming-foundations",
+    "name": "Programming Foundations",
+    "description": "Problem solving, decomposition, state, and correctness reasoning. No previous programming course is required; take alongside C++ Basics.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 1
+      }
+    ]
+  }
+}

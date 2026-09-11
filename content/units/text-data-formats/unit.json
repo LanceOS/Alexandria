@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "textdata_unit",
+  "name": "Text Processing and Data Formats",
+  "slug": "text-data-formats",
+  "description": "Interpret Unicode and design interoperable records after basic strings and file input. C++ string APIs are separate from encoding and interchange contracts.",
+  "position": 0,
+  "topic": {
+    "id": "textdata_topic",
+    "slug": "text-data-formats",
+    "name": "Text Processing and Data Formats",
+    "description": "Interpret Unicode and design interoperable records after basic strings and file input. C++ string APIs are separate from encoding and interchange contracts.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 10
+      }
+    ]
+  }
+}

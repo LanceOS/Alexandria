@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "parallel_unit_parallel_work",
+  "name": "Parallel Work and Scalability",
+  "slug": "parallel-work",
+  "description": "Analyze dependencies, serial work, overhead, and useful task granularity.",
+  "position": 1
+}

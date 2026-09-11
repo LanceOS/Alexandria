@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "language_interoperability_unit_root",
+  "name": "Language interoperability",
+  "slug": "language-interoperability",
+  "description": "Ownership and runtime coordination across C++ and Python. Prerequisites: C++ lifetime, references and threads; basic Python functions and objects. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_language_interoperability",
+    "slug": "language-interoperability",
+    "name": "Language interoperability",
+    "description": "Ownership and runtime coordination across C++ and Python. Prerequisites: C++ lifetime, references and threads; basic Python functions and objects. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 24
+      }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_unit_compile_time_programming",
+  "name": "Compile-time programming",
+  "slug": "compile-time-programming",
+  "description": "After templates: calculate constants, validate compile-time inputs, and select type-dependent implementations. Numerical algorithm analysis belongs in Numerical computing.",
+  "position": 13
+}

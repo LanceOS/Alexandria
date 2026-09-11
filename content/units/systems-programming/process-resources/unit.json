@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "systems_programming_process_resources_unit",
+  "name": "Processes and Resources",
+  "slug": "process-resources",
+  "description": "Trace what process creation duplicates and what remains connected.",
+  "position": 1
+}

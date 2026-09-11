@@ -1,0 +1,110 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_templates_generic_programming_concepts_and_requirements",
+  "versionId": "cpp_core_templates_generic_programming_concepts_and_requirements_v1",
+  "slug": "concepts-and-requirements",
+  "title": "Concepts and explicit requirements",
+  "summary": "State the expressions a generic interface needs and separate syntax from semantics.",
+  "position": 1,
+  "objectives": [
+    "Define a C++20 concept using a requires expression.",
+    "Explain when a constrained overload participates in a call.",
+    "Recognize semantic promises that constraints cannot prove."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_templates_generic_programming_concepts_and_requirements_part_1",
+      "title": "Name the supported operation",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A template body can produce a long error when an unsupported type reaches an expression deep inside it. C++20 concepts let an interface name requirements on its template arguments. A constrained function can participate in overload resolution only when its associated constraints are satisfied. This places an important part of the contract near the declaration instead of leaving every limitation to emerge from an implementation error."
+        },
+        {
+          "type": "paragraph",
+          "text": "A requires expression asks whether specified types and expressions are valid in the relevant substitution context. Its local parameter names are notation for the checks; they do not create runtime objects. A compound requirement can also examine an expression’s result type. In this lesson, HasSize requires a size member whose result can convert to std::size_t. The name explains the small capability the interface actually uses."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_templates_generic_programming_concepts_and_requirements_part_2",
+      "title": "Check expressions without executing them",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <concepts>\n#include <cstddef>\n#include <iostream>\n#include <string>\n#include <vector>\n\ntemplate<class T>\nconcept HasSize = requires(const T& value) {\n    { value.size() } -> std::convertible_to<std::size_t>;\n};\n\ntemplate<HasSize T>\nvoid print_size(const T& value)\n{\n    std::cout << static_cast<std::size_t>(value.size()) << '\\n';\n}\n\nint main()\n{\n    static_assert(HasSize<std::string>);\n    static_assert(!HasSize<int>);\n    print_size(std::string{\"Atlas\"});\n    print_size(std::vector<int>{2, 4, 6});\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "5\n3\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "print_size accepts any type satisfying HasSize and calls its size member through a const reference. Both the string and vector meet the requirement, so the same template supplies the output for their different concrete types. int does not have that member. The static_assert checks this fact during compilation rather than making an intentionally failing program part of the lesson’s runnable example."
+        },
+        {
+          "type": "paragraph",
+          "text": "The requirement checks size on a const object, matching the function’s parameter. Requiring it only on a mutable object would be too weak for this implementation. The convertible_to requirement describes a permitted result conversion, but the printed value should also make sense as a count. A malicious or poorly designed class could return a changing or misleading value while satisfying the expression-level checks."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_templates_generic_programming_concepts_and_requirements_part_3",
+      "title": "Keep requirements honest",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "This distinction between syntactic satisfaction and semantic modeling is central to generic programming. Ordering concepts, for example, can require comparison expressions without proving transitivity for all runtime values. Document any additional mathematical or behavioral promises. The compiler can check many structural properties, but it cannot generally establish every law an algorithm assumes merely from an operator’s signature."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use standard concepts where their documented meaning matches the operation, and define small domain concepts when a library’s needs are different. Avoid overconstraining an interface with unrelated capabilities because a convenient existing concept happens to be available. This example needs size, not sorting, allocation, or random access. Specialization, SFINAE, and detection idioms remain useful for understanding older libraries, but concepts provide a direct starting point for new C++20 generic interfaces."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Would HasSize prove that a user-defined size member always reports the true number of stored elements?",
+          "explanation": "No. The requirement checks that the expression exists with an appropriate result conversion. The meaning of that result is a semantic contract that the type’s implementation and documentation must uphold."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_templates_generic_programming_concepts_and_requirements_source_1",
+      "title": "C++20 working draft N4861: temp.constr",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.constr",
+      "locator": "N4861, [temp.constr]; consulted 2026-09-11. Satisfaction of associated template constraints."
+    },
+    {
+      "id": "cpp_core_templates_generic_programming_concepts_and_requirements_source_2",
+      "title": "C++20 working draft N4861: expr.prim.req",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.prim.req",
+      "locator": "N4861, [expr.prim.req]; consulted 2026-09-11. Requires expressions and unevaluated requirements."
+    },
+    {
+      "id": "cpp_core_templates_generic_programming_concepts_and_requirements_source_3",
+      "title": "C++20 working draft N4861: concept.convertible",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/concept.convertible",
+      "locator": "N4861, [concept.convertible], explicit and implicit conversion requirements and equality of their results; consulted 2026-09-11."
+    }
+  ]
+}

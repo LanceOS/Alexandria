@@ -1,0 +1,141 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_program_organization_headers_and_modules",
+  "versionId": "cpp_core_program_organization_headers_and_modules_v1",
+  "slug": "headers-and-modules",
+  "title": "Headers, namespaces, and module boundaries",
+  "summary": "Design an interface boundary while distinguishing textual inclusion from C++20 modules.",
+  "position": 1,
+  "objectives": [
+    "Explain the purpose and limits of include guards.",
+    "Recognize inline entities suitable for consistent header definitions.",
+    "Distinguish C++20 module interfaces from a build-system target."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_program_organization_headers_and_modules_part_1",
+      "title": "Expose the declarations clients need",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A public interface should expose the declarations clients need while keeping unrelated implementation details out of their path. Traditionally, C++ projects distribute those declarations through headers. An include directive makes header contents available according to preprocessing rules and implementation search paths. Headers should include what their own declarations require instead of depending on a particular accidental order of includes in every client."
+        },
+        {
+          "type": "paragraph",
+          "text": "An include guard uses a project-specific macro to prevent the same header contents from being processed repeatedly within one translation unit. It does not make a non-inline function definition safe to duplicate across different translation units. Many implementations also support pragma once, but that spelling is not the portable standard mechanism. Understanding the guard’s scope prevents confusing repeated inclusion with program-wide definition consistency."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_program_organization_headers_and_modules_part_2",
+      "title": "Keep a conventional interface self-contained",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <string>\n#include <string_view>\n\nnamespace library {\n    inline constexpr int shelf_capacity{3};\n}\nnamespace library::labels {\n    inline std::string describe(std::string_view name)\n    {\n        return std::string{name} + \": \" + std::to_string(shelf_capacity) + \" places\";\n    }\n}\n\nint main()\n{\n    namespace labels = library::labels;\n    std::cout << labels::describe(\"Science\") << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Science: 3 places\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The complete example uses an inline constexpr configuration value and an inline function in namespace library. These declarations illustrate entities that can belong in a conventional header when their repeated definitions satisfy the One Definition Rule. inline here concerns definition rules; it does not order the optimizer to replace each call with a copy of the function body. The program is kept in one file so its behavior can be checked without a project generator."
+        },
+        {
+          "type": "paragraph",
+          "text": "The nested namespace name library::labels groups the operation into a more specific vocabulary. A namespace alias in main shortens that qualified name locally. This avoids a broad using directive that could change unqualified lookup throughout a header’s clients. Named boundaries help readers understand ownership of declarations even though namespaces themselves do not create separate compiled libraries or enforce an ABI policy."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_program_organization_headers_and_modules_part_3",
+      "title": "Understand what modules change",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "C++20 named modules introduce interface and implementation units with explicit import and export relationships. A primary module interface contains an exported module declaration, optionally preceded by a global module fragment, and identifies which declarations are exported to importers. Module partitions divide a module internally. These are language-level organization facilities; the build still needs to arrange dependencies and invoke a supporting compiler and library configuration appropriately."
+        },
+        {
+          "type": "paragraph",
+          "text": "A header unit, a named module, and a build-system target are different concepts. Importing a module is not merely a portable promise to make every project compile faster, and a module boundary alone does not guarantee a stable binary interface. Existing headers remain relevant for many libraries and toolchains. This lesson’s runnable program uses conventional includes, while module syntax and compiler-specific build workflows should be practiced in a dedicated project exercise with the chosen toolchain documented."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Does an include guard fix duplicate ordinary function definitions in two separately compiled source files?",
+          "explanation": "No. It prevents repeated header processing within each translation unit. Across translation units, definitions must still satisfy the One Definition Rule, for example by providing one non-inline definition or using suitable consistent inline definitions."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_program_organization_headers_and_modules_source_1",
+      "title": "C++20 working draft N4861: cpp.include",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/cpp.include",
+      "locator": "N4861, [cpp.include]; consulted 2026-09-11. Header inclusion and implementation-defined search behavior."
+    },
+    {
+      "id": "cpp_core_program_organization_headers_and_modules_source_2",
+      "title": "C++20 working draft N4861: basic.def.odr",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.def.odr",
+      "locator": "N4861, [basic.def.odr]; consulted 2026-09-11. Definitions within and across translation units."
+    },
+    {
+      "id": "cpp_core_program_organization_headers_and_modules_source_3",
+      "title": "C++20 working draft N4861: module.unit",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/module.unit",
+      "locator": "N4861, [module.unit]; consulted 2026-09-11. Module interface units, implementation units, and partitions."
+    },
+    {
+      "id": "cpp_core_program_organization_headers_and_modules_source_4",
+      "title": "C++20 working draft N4861: namespace.def",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/namespace.def",
+      "locator": "N4861, [namespace.def]; consulted 2026-09-11. Namespace definitions, extension, and nesting."
+    },
+    {
+      "id": "cpp_core_program_organization_headers_and_modules_source_5",
+      "title": "C++20 working draft N4861: dcl.inline",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.inline",
+      "locator": "N4861, [dcl.inline]; consulted 2026-09-11. Inline function and variable declarations and definition-domain rules."
+    },
+    {
+      "id": "cpp_core_program_organization_headers_and_modules_source_6",
+      "title": "C++20 working draft N4861: module.global.frag",
+      "authors": ["ISO/IEC JTC1/SC22/WG21"],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/module.global.frag",
+      "locator": "N4861, [module.global.frag], especially paragraph 6; consulted 2026-09-11. Optional global module fragment before the exported module declaration."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "language_interoperability_cross_runtime_ownership_unit",
+  "name": "Cross-runtime Ownership",
+  "slug": "cross-runtime-ownership",
+  "description": "Trace an object and its wrapper as separate lifetime responsibilities.",
+  "position": 0
+}

@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_core_unit_library_services",
+  "name": "Standard Library Services",
+  "slug": "library-services",
+  "description": "Work with text streams, time durations, and filesystem paths.",
+  "position": 8
+}

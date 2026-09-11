@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "robotics_sensor_communication_unit",
+  "name": "Sensor Communication",
+  "slug": "sensor-communication",
+  "description": "Compare queue history, reliability and age of robotic observations.",
+  "position": 1
+}

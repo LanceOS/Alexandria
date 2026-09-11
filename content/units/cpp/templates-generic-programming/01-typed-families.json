@@ -1,0 +1,110 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_templates_generic_programming_typed_families",
+  "versionId": "cpp_core_templates_generic_programming_typed_families_v1",
+  "slug": "typed-families",
+  "title": "Templates as families of typed operations",
+  "summary": "Write a small function and class template without giving up static type checking.",
+  "position": 0,
+  "objectives": [
+    "Explain how a template parameter stands for a type.",
+    "Predict deduction for matching and mismatched call arguments.",
+    "Distinguish template instantiation from runtime dispatch."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_templates_generic_programming_typed_families_part_1",
+      "title": "Describe the operation independently of one type",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A template describes a family of declarations parameterized by types or certain compile-time values. A function template can express an operation once and let the compiler form suitable specializations for different argument types. This does not mean a single untyped function inspects arbitrary objects at runtime. Each specialization still has concrete parameter and result types, and its required expressions must be valid for those types."
+        },
+        {
+          "type": "paragraph",
+          "text": "The template parameter T in larger names the type used for both inputs and the returned value. The function requires that the two values can be compared and that the selected value can initialize the result. These requirements are implicit in its body. The example uses int and std::string because both support the intended comparison and value operations. A later lesson adds constraints to state such requirements directly at the interface."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_templates_generic_programming_typed_families_part_2",
+      "title": "Instantiate a function and a value wrapper",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <string>\n\ntemplate<class T>\nT larger(const T& left, const T& right)\n{\n    return left < right ? right : left;\n}\n\ntemplate<class T>\nstruct Box {\n    T value;\n};\n\nint main()\n{\n    const Box<int> pages{larger(4, 9)};\n    const Box<std::string> title{larger(std::string{\"Atlas\"}, std::string{\"Orbits\"})};\n    std::cout << pages.value << '\\n' << title.value << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "9\nOrbits\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Calling larger(4, 9) deduces T as int from the argument types. The string call deduces T as std::string and selects the lexically larger title. Deduction is not a general search for a type that every argument could convert into: larger(4, 9.0) would propose conflicting types for T and fail deduction. An explicit template argument can request a chosen specialization, but the resulting conversions must still match the intended computation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Box is a class template that stores one value of its parameter type. Box<int> and Box<std::string> are distinct class types. The objects in main own their members, so their values do not borrow data from the calls that produced them. This simple wrapper is deliberately small; a production abstraction should add a meaningful domain contract rather than wrap a type solely to demonstrate template syntax."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_templates_generic_programming_typed_families_part_3",
+      "title": "Make hidden requirements visible",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Returning the selected value by value avoids returning a reference that could outlive a temporary argument. It can involve copying a value, which is part of this function’s straightforward contract. Generic code must consider lifetime as well as syntax. A clever-looking reference return is not an improvement if callers can accidentally retain access to destroyed input objects."
+        },
+        {
+          "type": "paragraph",
+          "text": "Template definitions normally need to be reachable where implicit instantiation requires them, which is why library templates commonly appear in headers. Compilation costs and diagnostics become practical considerations as generic libraries grow. Non-type template parameters, such as an array’s extent, also describe a family at compile time. Specialization, deduction guides, and advanced lookup rules build on this foundation, but the first task is to identify the operation’s genuine requirements and preserve its meaning for every supported type."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why does larger(4, 9.0) fail ordinary deduction even though int can convert to double?",
+          "explanation": "The same parameter T is deduced from both arguments, producing int and double. Ordinary deduction does not first pick a common type by applying that conversion. The caller must choose consistent argument types or deliberately request a suitable specialization."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_templates_generic_programming_typed_families_source_1",
+      "title": "C++20 working draft N4861: temp.param",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.param",
+      "locator": "N4861, [temp.param]; consulted 2026-09-11. Type and non-type template parameters."
+    },
+    {
+      "id": "cpp_core_templates_generic_programming_typed_families_source_2",
+      "title": "C++20 working draft N4861: temp.deduct.call",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.deduct.call",
+      "locator": "N4861, [temp.deduct.call]; consulted 2026-09-11. Deduction of template arguments from call arguments."
+    },
+    {
+      "id": "cpp_core_templates_generic_programming_typed_families_source_3",
+      "title": "C++20 working draft N4861: temp.inst",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.inst",
+      "locator": "N4861, [temp.inst], implicit instantiation and required reachable definitions; consulted 2026-09-11."
+    }
+  ]
+}

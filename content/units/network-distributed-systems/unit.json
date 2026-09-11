@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "network_distributed_systems_unit_root",
+  "name": "Network and distributed systems",
+  "slug": "network-distributed-systems",
+  "description": "Message framing, replicated state and failure-aware protocols. Prerequisites: C++ I/O and errors; basic networks and concurrency. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_network_distributed_systems",
+    "slug": "network-distributed-systems",
+    "name": "Network and distributed systems",
+    "description": "Message framing, replicated state and failure-aware protocols. Prerequisites: C++ I/O and errors; basic networks and concurrency. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 17
+      }
+    ]
+  }
+}

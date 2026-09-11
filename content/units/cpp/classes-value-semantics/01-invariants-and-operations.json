@@ -1,0 +1,110 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_classes_value_semantics_invariants_and_operations",
+  "versionId": "cpp_core_classes_value_semantics_invariants_and_operations_v1",
+  "slug": "invariants-and-operations",
+  "title": "Classes that maintain a useful invariant",
+  "summary": "Put related state behind operations that preserve its meaning.",
+  "position": 0,
+  "objectives": [
+    "Identify a class invariant and the operations that preserve it.",
+    "Explain member initialization before the constructor body.",
+    "Use const member functions to inspect a value."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_classes_value_semantics_invariants_and_operations_part_1",
+      "title": "Make invalid updates difficult to express",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A class groups representation and operations into a type. Its most useful purpose is often to preserve a relationship between values. A reading-progress value, for example, can require a nonnegative total and a completed count between zero and that total. This relationship is an invariant: it should hold after construction and after every successful public operation. Users of the class should not have to reconstruct that argument every time they inspect it."
+        },
+        {
+          "type": "paragraph",
+          "text": "Private data members prevent ordinary callers from assigning arbitrary values directly. That alone does not establish an invariant; the constructor and public operations must still be correct. The example defines a clear input policy: a negative requested total is normalized to zero. A different application might reject that input instead. The important design step is to choose and communicate the policy rather than leave the resulting state accidental."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_classes_value_semantics_invariants_and_operations_part_2",
+      "title": "Build a small value with a narrow interface",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n\nclass Progress {\n    int total_;\n    int completed_{};\npublic:\n    explicit Progress(int total) : total_{total < 0 ? 0 : total} {}\n    bool advance(int pages)\n    {\n        if (pages < 0 || pages > total_ - completed_) return false;\n        completed_ += pages;\n        return true;\n    }\n    int completed() const { return completed_; }\n    int remaining() const { return total_ - completed_; }\n};\n\nint main()\n{\n    Progress progress{10};\n    std::cout << std::boolalpha << progress.advance(4) << ' '\n              << progress.advance(8) << '\\n';\n    std::cout << progress.completed() << ' ' << progress.remaining() << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "true false\n4 6\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The constructor initializes total_ before its body runs, and completed_ uses its default member initializer of zero. Member initialization follows the order of member declarations in the class, regardless of the order written in a constructor’s initializer list. Here that order is uncomplicated, but it becomes important when one member’s initialization depends on another. An explicit constructor also prevents an ordinary integer from silently becoming a Progress value through implicit conversion."
+        },
+        {
+          "type": "paragraph",
+          "text": "advance rejects negative additions and additions larger than the remaining amount. It checks before adding, so accepted arithmetic stays within the already representable total. A rejected operation leaves the object unchanged and reports false. The output therefore records a successful advance of four pages, an unsuccessful attempt to add eight more, and a remaining amount of six. This small contract makes the update easy to test."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_classes_value_semantics_invariants_and_operations_part_3",
+      "title": "Reason about each operation locally",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The completed and remaining member functions have a trailing const. They can inspect the object through this interface without changing its ordinary data members. A caller holding a const Progress can use these queries. Returning int values also avoids exposing references into the representation, so callers receive independent results instead of a lifetime dependency on internal storage."
+        },
+        {
+          "type": "paragraph",
+          "text": "This type uses composition and value operations; it needs no base class or virtual function. The compiler can copy its two integers, producing a separate progress value with the same invariant. Start class design from the values and operations the application needs. Inheritance is a later technique for substitutable runtime behavior, not a requirement for useful classes or encapsulation. A small, coherent interface usually gives a stronger teaching example than a large hierarchy."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why check pages against total_ - completed_ before adding it?",
+          "explanation": "The invariant makes the remaining amount nonnegative and representable. Checking the addition against that amount avoids overshooting the total and prevents the accepted sum from overflowing int."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_classes_value_semantics_invariants_and_operations_source_1",
+      "title": "C++20 working draft N4861: class.base.init",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.base.init",
+      "locator": "N4861, [class.base.init]; consulted 2026-09-11. Member initialization order precedes the constructor body."
+    },
+    {
+      "id": "cpp_core_classes_value_semantics_invariants_and_operations_source_2",
+      "title": "C++20 working draft N4861: class.ctor",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.ctor",
+      "locator": "N4861, [class.ctor], constructor declaration and initialization of class objects; consulted 2026-09-11."
+    },
+    {
+      "id": "cpp_core_classes_value_semantics_invariants_and_operations_source_3",
+      "title": "C++20 working draft N4861: class.copy.ctor",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.copy.ctor",
+      "locator": "N4861, [class.copy.ctor]; consulted 2026-09-11. Implicit memberwise copy/move and special-member declaration conditions."
+    }
+  ]
+}

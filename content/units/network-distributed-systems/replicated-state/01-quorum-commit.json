@@ -1,0 +1,79 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "network_distributed_systems_replicated_state_module",
+  "versionId": "network_distributed_systems_replicated_state_version_1",
+  "slug": "quorum-commit",
+  "title": "Reason about a replicated log commitment",
+  "summary": "Trace current-term majority commitment without confusing copies with agreement.",
+  "position": 0,
+  "objectives": [
+    "Calculate a majority for a fixed three-server cluster.",
+    "Trace replication of a current-term entry.",
+    "Identify why an older-term entry needs the full Raft commitment rule."
+  ],
+  "parts": [
+    {
+      "id": "network_distributed_systems_replicated_state_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: message passing, failures and ordered logs. Distributed consensus belongs here; C++ atomics address shared-memory operations, not agreement between machines."
+        },
+        {
+          "type": "paragraph",
+          "text": "Raft organizes replicated-log consensus around leader election, replication and safety rules. With a fixed membership, a leader can commit an entry from its current term once the required majority stores it. The term restriction matters: an older-term entry is not committed merely by counting its replicas. Election rules also restrict candidates according to log history. These rules work together; a majority diagram alone is not a consensus implementation. The paper addresses crash failures and message disruption, rather than arbitrary malicious behavior. Distinguish an entry being stored, committed and applied to the state machine when reading a trace."
+        }
+      ]
+    },
+    {
+      "id": "network_distributed_systems_replicated_state_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our finite example assumes a correctly elected leader A in term seven, followers B and C, fixed membership and durable storage behavior satisfying the protocol. The logs already agree through index four. A proposes an entry at index five in term seven. No new election or membership change occurs during the trace."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "A stores entry (index 5, term 7) -> copies {A}, count 1\nB acknowledges durable append   -> copies {A,B}, count 2\nMajority of three = two         -> current-term entry can commit\nA applies committed index 5     -> local state advances in log order\nC catches up later              -> lag did not prevent this commitment"
+        },
+        {
+          "type": "paragraph",
+          "text": "Waiting for all three servers would unnecessarily make C part of this particular progress condition. Accepting one server would fail the majority requirement. The example deliberately identifies the current term, because removing that detail would make the conclusion too broad. Application execution follows the committed sequence; a client response policy should account for when its operation has been applied and what happens if the response itself is lost."
+        }
+      ]
+    },
+    {
+      "id": "network_distributed_systems_replicated_state_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Partition A away from both followers before either acknowledges the new entry. Under the stated membership, A cannot establish a majority for that proposal. Then inspect the paper’s example of older-term entries and explain why simply adding another stored copy does not authorize the same conclusion. Use an established implementation for production and validate its assumptions about persistence, timeouts and recovery rather than implementing a protocol from this trace."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If an entry from term six is present on A and B while A leads term seven, may A apply the simple current-term counting argument directly?",
+          "explanation": "No. The argument was explicitly limited to an entry from the current term. Raft commits earlier entries indirectly when its current-term commitment and log-matching rules establish safety. This qualification prevents the misleading claim that any two matching copies in a three-server cluster are automatically committed."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "network_distributed_systems_replicated_state_source_raft",
+      "title": "In Search of an Understandable Consensus Algorithm",
+      "authors": [
+        "Diego Ongaro",
+        "John Ousterhout"
+      ],
+      "url": "https://www.usenix.org/system/files/conference/atc14/atc14-paper-ongaro.pdf",
+      "locator": "Peer-reviewed research: USENIX ATC 2014, sections 5.3 and 5.4, especially 5.4.2; current-term commitment and election restrictions; consulted 2026-09-11",
+      "publicationYear": 2014
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_basics_module_output",
+  "versionId": "cpp_basics_output_v1",
+  "slug": "output-and-buffering",
+  "title": "Output and buffering",
+  "summary": "Understand the small differences between newlines, flushing, and prompts before input.",
+  "position": 6,
+  "objectives": [
+    "Distinguish a newline from an explicit request to flush output.",
+    "Choose between '\\n', std::endl, and std::flush based on the intended behavior.",
+    "Explain how the default connection between std::cin and std::cout helps display prompts."
+  ],
+  "parts": [
+    {
+      "id": "cpp_basics_output_part_newlines",
+      "title": "Same lines, different operations",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Earlier examples end output with \"\\n\". You may also have seen std::endl in books. Both can finish a line, but std::endl does additional work: it inserts a newline and then requests a flush of the stream. A newline by itself does not explicitly request that flush."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "main.cpp — three ways to end a line",
+          "code": "#include <iostream>\n\nint main()\n{\n    std::cout << \"First\" << '\\n';\n    std::cout << \"Second\" << \"\\n\";\n    std::cout << \"Third\" << std::endl;\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "First\nSecond\nThird\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The single quotes in '\\n' describe one character. The double quotes in \"\\n\" describe a string literal containing a newline followed by its terminating null character. Inserting that string into std::cout writes the newline, not the terminator. Either spelling works for the ordinary output in these lessons."
+        },
+        {
+          "type": "callout",
+          "title": "Appearance does not reveal every operation",
+          "text": "The three lines look alike in a terminal. That does not mean each statement requested the same stream operations. In particular, a screenshot of the result cannot tell you whether an explicit flush occurred."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Which spelling makes the intention clearest when you only want to end an ordinary output line?",
+          "explanation": "Use '\\n', or include \\n in a longer string. Reserve std::endl for a situation where you also intend to request a flush."
+        }
+      ]
+    },
+    {
+      "id": "cpp_basics_output_part_flushing",
+      "title": "What flushing asks the stream to do",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Output can pass through a buffer: storage that lets the system collect characters before forwarding them. This allows several small writes to be handled together. Requesting a flush asks the stream to synchronize its buffer with the destination. It does not add text by itself."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "main.cpp — explicitly flush without ending the line",
+          "code": "#include <iostream>\n\nint main()\n{\n    std::cout << \"Preparing...\" << std::flush;\n    int total{};\n    for (int value{1}; value <= 3; ++value)\n    {\n        total += value;\n    }\n    std::cout << \" total: \" << total << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Preparing... total: 6\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Here std::flush expresses the intention to forward the status message before the calculation. This calculation is tiny; the example demonstrates where the request happens, not a visible delay or a speed improvement. std::endl would also add a newline, changing the layout."
+        },
+        {
+          "type": "callout",
+          "title": "A newline may still coincide with a flush",
+          "text": "The destination and stream settings affect buffering. Terminal output may already be forwarded at a newline. The precise claim is that '\\n' does not itself ask the C++ stream to flush; it is not a promise that the characters will remain buffered."
+        },
+        {
+          "type": "paragraph",
+          "text": "Unnecessary flushes can reduce the benefit of batching output, especially in a loop that prints many lines. How much this matters depends on the program and its environment. Choose the operation for its meaning before trying to measure performance."
+        },
+        {
+          "type": "callout",
+          "title": "Flushing has limits",
+          "text": "A flush is not a guarantee that data is physically saved on a disk, and output operations can fail. Reliable file storage and error handling require more than replacing every newline with std::endl."
+        }
+      ]
+    },
+    {
+      "id": "cpp_basics_output_part_prompts",
+      "title": "Why a prompt can work without a newline",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "std::cin reads standard input. By default, it is tied to std::cout: input preparation flushes the tied output as needed before obtaining more input. This lets an ordinary prompt appear before the program waits for a response, even when the prompt has no newline."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "main.cpp — a prompt using the default stream tie",
+          "code": "#include <iostream>\n\nint main()\n{\n    int chapter{};\n    std::cout << \"Chapter number? \";\n    if (std::cin >> chapter)\n    {\n        std::cout << \"Selected: \" << chapter << '\\n';\n    }\n    else\n    {\n        std::cout << \"Could not read an integer.\\n\";\n        return 1;\n    }\n}\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The extraction expression std::cin >> chapter attempts to read an integer. Used as the if condition, its stream result reports whether extraction succeeded. This small example checks that operation; it does not validate an entire input line or whether the number names an existing chapter."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Program output when standard input supplies 3 followed by a newline",
+          "code": "Chapter number? Selected: 3\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "When you type in a terminal, the terminal will usually echo your input and show the newline you entered. Those echoed characters are not output from this program, so they are omitted above. Supplying a nonnumeric word instead takes the error branch."
+        },
+        {
+          "type": "callout",
+          "title": "Keep the default settings while learning",
+          "text": "This explanation assumes the standard stream tie has not been changed. Adding std::flush to this prompt is normally unnecessary with the default tie. Changing stream configuration can change the behavior you are relying on."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A status message must be forwarded now, but the next message should continue on the same line. Which operation expresses that?",
+          "explanation": "std::flush requests flushing without inserting a newline. std::endl would also end the line. For ordinary line formatting without that request, use a newline."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_basics_output_source_book",
+      "title": "The C++ Programming Language",
+      "authors": [
+        "Bjarne Stroustrup"
+      ],
+      "publisher": "Addison-Wesley",
+      "publicationYear": 2013,
+      "edition": "4th edition",
+      "isbn": "9780321563842",
+      "url": "https://www.stroustrup.com/4th.html",
+      "locator": "Further reading: §38.4.3 Manipulators and §38.6 Buffering; section titles verified against the author’s extended table of contents"
+    },
+    {
+      "id": "cpp_basics_output_source_manip",
+      "title": "C++ working draft: output manipulators",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/ostream.manip",
+      "locator": "[ostream.manip], std::endl and std::flush effects; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_basics_output_source_buffer",
+      "title": "C++ working draft: unformatted output",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/ostream.unformatted",
+      "locator": "[ostream.unformatted], basic_ostream::flush and error handling; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_basics_output_source_objects",
+      "title": "C++ working draft: standard narrow streams",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/narrow.stream.objects",
+      "locator": "[narrow.stream.objects], the default connection between cin and cout; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_basics_output_source_sentry",
+      "title": "C++ working draft: input preparation",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/istream.sentry",
+      "locator": "[istream.sentry], tied stream flushing and permitted optimizations; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_basics_output_source_literal",
+      "title": "C++ working draft: string literals",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/lex.string",
+      "locator": "[lex.string], string literal contents and terminating null character; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_basics_output_source_guidelines",
+      "title": "C++ Core Guidelines: avoid endl",
+      "authors": [
+        "Bjarne Stroustrup",
+        "Herb Sutter"
+      ],
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rio-endl",
+      "locator": "SL.io.50: Avoid endl; unnecessary flushing and buffering caveats; consulted 2026-09-11"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_functions_interfaces_overloads_and_lambdas",
+  "versionId": "cpp_core_functions_interfaces_overloads_and_lambdas_v1",
+  "slug": "overloads-and-lambdas",
+  "title": "Overloads and local callable objects",
+  "summary": "Predict simple overload selection and use a lambda with a deliberate capture.",
+  "position": 1,
+  "objectives": [
+    "Explain why argument types select different overloads.",
+    "Describe a lambda’s parameters and captured state.",
+    "Recognize when a reference capture could outlive its owner."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_functions_interfaces_overloads_and_lambdas_part_1",
+      "title": "One operation can accept different types",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Overloading allows several functions to share a name when their parameter lists distinguish the calls. The compiler considers the available declarations and the conversions needed for each argument. In a simple overload set, an exact match is preferred to a numeric conversion. Return types alone do not provide an ordinary way to overload a function, because a call must select which function supplies its result."
+        },
+        {
+          "type": "paragraph",
+          "text": "The two label overloads represent the same broad operation for two numeric types. label(4) selects the int overload, while label(4.5) selects the double overload. This is selection based on the argument expressions’ types, not a runtime test of the values. Real overload sets can become ambiguous when different candidates require competing conversions. Keep related overloads easy to distinguish instead of relying on surprising conversion chains."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_functions_interfaces_overloads_and_lambdas_part_2",
+      "title": "Capture a value when constructing a callable",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <string_view>\n\nstd::string_view label(int) { return \"whole pages\"; }\nstd::string_view label(double) { return \"fractional estimate\"; }\n\nint main()\n{\n    std::cout << label(4) << '\\n' << label(4.5) << '\\n';\n    int limit{10};\n    const auto allowed = [limit](int pages) { return pages <= limit; };\n    limit = 20;\n    std::cout << std::boolalpha << allowed(12) << ' ' << allowed(8) << '\\n';\n    std::cout << \"Current limit: \" << limit << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "whole pages\nfractional estimate\nfalse true\nCurrent limit: 20\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The lambda expression constructs a callable object and stores it in allowed. Its parameter pages is an input supplied each time the callable is invoked. Its capture limit comes from the surrounding scope when the lambda object is created. The brackets describe captured state; the parentheses describe call-time inputs. These are separate channels of information, which explains why changing the outer limit afterward does not change this lambda’s saved value."
+        },
+        {
+          "type": "paragraph",
+          "text": "Capturing limit by value gives the closure its own copy of the integer. The later assignment changes the original limit to 20, but allowed still compares each argument with 10. Both output lines therefore follow from the closure’s stored state. auto is convenient because every lambda expression has its own closure type, and the caller normally needs to invoke that type without spelling its implementation-specific name."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_functions_interfaces_overloads_and_lambdas_part_3",
+      "title": "Keep callable state predictable",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A reference capture such as [&limit] would read the current outer value when called. That can be useful during an immediate local calculation, but the lambda must not outlive the object it refers to. Returning or storing a callable makes this distinction especially important. Copying a lambda with reference captures copies its access to the same owners; it does not turn the borrowed objects into owned state."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use explicit captures while learning so a reader can see each dependency. Callable objects become useful with sorting, filtering, callbacks, and other higher-order operations later in the course. A lambda does not inherently create a thread or run asynchronously. Here it executes only when allowed is called, synchronously in main, with no hidden scheduling. Simple bodies without external mutation are particularly easy to reason about and reuse. The returned string views refer to string literals whose characters persist for the program’s lifetime."
+        },
+        {
+          "type": "reflection",
+          "prompt": "What would allowed(12) return if the lambda captured &limit instead?",
+          "explanation": "It would return true because the call occurs after the original limit becomes 20. That reference capture would be safe in this program because the lambda is called while limit is alive, but it would require more care if retained beyond main’s scope."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_functions_interfaces_overloads_and_lambdas_source_1",
+      "title": "C++20 working draft N4861: over.ics.rank",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/over.ics.rank",
+      "locator": "N4861, [over.ics.rank]; consulted 2026-09-11. Ranking exact matches, promotions, and other conversions."
+    },
+    {
+      "id": "cpp_core_functions_interfaces_overloads_and_lambdas_source_2",
+      "title": "C++20 working draft N4861: expr.prim.lambda.capture",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.prim.lambda.capture",
+      "locator": "N4861, [expr.prim.lambda.capture]; consulted 2026-09-11. Value and reference captures and their relationship to object lifetime."
+    },
+    {
+      "id": "cpp_core_functions_interfaces_overloads_and_lambdas_source_3",
+      "title": "C++20 working draft N4861: dcl.spec.auto",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.spec.auto",
+      "locator": "N4861, [dcl.spec.auto]; consulted 2026-09-11. Placeholder type deduction from initializers."
+    }
+  ]
+}

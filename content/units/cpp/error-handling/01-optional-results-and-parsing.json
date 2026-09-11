@@ -1,0 +1,121 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_error_handling_optional_results_and_parsing",
+  "versionId": "cpp_core_error_handling_optional_results_and_parsing_v1",
+  "slug": "optional-results-and-parsing",
+  "title": "Optional results and complete parsing",
+  "summary": "Represent an unsuccessful conversion without inventing a sentinel value.",
+  "position": 0,
+  "objectives": [
+    "Distinguish an absent result from a valid zero.",
+    "Check both the error code and consumed input from from_chars.",
+    "Access an optional only after establishing that it contains a value."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_error_handling_optional_results_and_parsing_part_1",
+      "title": "Make ordinary failure part of the result type",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Some unsuccessful operations are expected possibilities, such as a user entering text that is not a page count. Returning an arbitrary number to signal failure can confuse that signal with a valid result. std::optional<int> represents either an integer or no integer. It keeps presence separate from the contained value, so zero can remain a meaningful successful result rather than a hidden error code."
+        },
+        {
+          "type": "paragraph",
+          "text": "optional manages storage and lifetime for its contained value when present. Its Boolean conversion reports whether that value exists. Dereferencing an empty optional violates the access precondition; it does not provide an automatic fallback. value can instead report an empty access by throwing bad_optional_access, and value_or can supply a chosen fallback. The appropriate operation depends on the caller’s intended policy for absence."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_error_handling_optional_results_and_parsing_part_2",
+      "title": "Reject partially consumed input",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <charconv>\n#include <iostream>\n#include <optional>\n#include <string_view>\n#include <system_error>\n\nstd::optional<int> parse_pages(std::string_view text)\n{\n    if (text.empty()) return std::nullopt;\n    int value{};\n    const char* end = text.data() + text.size();\n    const auto result = std::from_chars(text.data(), end, value);\n    if (result.ec != std::errc{} || result.ptr != end || value < 0)\n        return std::nullopt;\n    return value;\n}\n\nint main()\n{\n    for (std::string_view text : {\"24\", \"12x\"}) {\n        if (const auto pages = parse_pages(text))\n            std::cout << \"Pages: \" << *pages << '\\n';\n        else\n            std::cout << \"Invalid page count\\n\";\n    }\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Pages: 24\nInvalid page count\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "parse_pages rejects empty input before creating a character range, then uses from_chars to parse an integer. The result includes both an error code and a pointer to the first unconsumed character. A successful numeric prefix is insufficient for this interface: 12x must fail rather than silently become 12. Requiring the returned pointer to equal the input end enforces consumption of the entire field."
+        },
+        {
+          "type": "paragraph",
+          "text": "The function also rejects negative values because a page count must be nonnegative in this application. from_chars reports values outside the int range through its error code. Integer parsing here does not skip leading whitespace, so a space-prefixed number is also rejected. These decisions define a strict field format. If surrounding whitespace should be accepted, trimming would be a separate, explicit part of the interface."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_error_handling_optional_results_and_parsing_part_3",
+      "title": "Choose how much failure information to return",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The caller uses the optional in a condition before dereferencing it. For the first input, the contained integer is 24. For the second input, the trailing character causes the function to return nullopt. This representation keeps parsing, domain validation, and output separate: the parser reports whether it has a usable value, while main chooses the human-readable response."
+        },
+        {
+          "type": "paragraph",
+          "text": "optional records absence but does not explain its cause. An interface needing distinct messages for malformed text, overflow, and negative values should return a richer result, perhaps a named struct or a variant containing an error type. std::expected is a standard option beginning in C++23 and requires corresponding library support; it is not available under this lesson’s C++20 baseline. The important design choice is how much information a caller needs to respond correctly."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Would parse_pages(\"0\") return an empty optional?",
+          "explanation": "No. Parsing succeeds, consumes the full input, and produces a nonnegative value. The optional contains zero, and its Boolean test is true because it tests presence rather than the numeric value."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_error_handling_optional_results_and_parsing_source_1",
+      "title": "C++20 working draft N4861: optional",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/optional",
+      "locator": "N4861, [optional], optional owns storage for a contained value and tracks its initialization state; consulted 2026-09-11."
+    },
+    {
+      "id": "cpp_core_error_handling_optional_results_and_parsing_source_2",
+      "title": "C++20 working draft N4861: optional.observe",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/optional.observe",
+      "locator": "N4861, [optional.observe]; consulted 2026-09-11. Engagement tests, dereference preconditions, and value access."
+    },
+    {
+      "id": "cpp_core_error_handling_optional_results_and_parsing_source_3",
+      "title": "C++20 working draft N4861: charconv.from.chars",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/charconv.from.chars",
+      "locator": "N4861, [charconv.from.chars]; consulted 2026-09-11. Error codes, the stopping pointer, and integer conversion behavior."
+    },
+    {
+      "id": "cpp_core_error_handling_optional_results_and_parsing_source_cpp23",
+      "title": "C++23 working draft N4950: expected",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2023,
+      "edition": "N4950 (C++23 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4950/expected",
+      "locator": "N4950, [expected]; consulted 2026-09-11. Supports the explicitly marked C++23 facility discussion only; not used in the C++20 program."
+    }
+  ]
+}

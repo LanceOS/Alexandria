@@ -1,0 +1,121 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_library_data_containers_keys_and_vocabulary_types",
+  "versionId": "cpp_core_library_data_containers_keys_and_vocabulary_types_v1",
+  "slug": "keys-and-vocabulary-types",
+  "title": "Keys, records, and alternative values",
+  "summary": "Use maps and vocabulary types to express relationships without parallel containers.",
+  "position": 1,
+  "objectives": [
+    "Use a map when each key identifies one associated value.",
+    "Explain why map indexing can modify the container.",
+    "Represent a closed set of alternatives with variant."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_part_1",
+      "title": "Represent relationships in one place",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A sequence is useful when position matters, but many applications identify information by a key. A map connects each unique key with an associated value. This avoids maintaining two separate vectors whose matching positions must stay synchronized. The map owns both keys and values. With the default ordering for strings, iteration visits keys in lexical order, so its printed order can be predicted from the keys rather than insertion history."
+        },
+        {
+          "type": "paragraph",
+          "text": "An ordered map uses its comparison relation to decide whether keys are equivalent. This relation must satisfy the ordering requirements of the container. Unordered maps instead combine hashing with a compatible equality relation and do not promise a lexical iteration order. Container selection therefore affects more than the spelling of insertion: it changes ordering, performance guarantees, and the requirements imposed on keys."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_part_2",
+      "title": "Observe a keyed collection deliberately",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <map>\n#include <string>\n#include <variant>\n#include <vector>\n\nusing Reading = std::variant<int, std::string>;\n\nint main()\n{\n    const std::vector<std::string> titles{\"Orbits\", \"Atlas\", \"Atlas\"};\n    std::map<std::string, int> counts;\n    for (const auto& title : titles) ++counts[title];\n    for (const auto& [title, count] : counts)\n        std::cout << title << \": \" << count << '\\n';\n    const Reading reading{24};\n    if (const int* pages = std::get_if<int>(&reading))\n        std::cout << \"Pages: \" << *pages << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Atlas: 2\nOrbits: 1\nPages: 24\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The example counts titles by using a map from string to int. counts[title] finds the associated count; if the key is missing, it inserts a value-initialized integer, which is zero. Incrementing then records the occurrence. This behavior is convenient for counting, but it also means indexing is not a read-only lookup. To inspect without inserting, use a lookup operation such as find or contains."
+        },
+        {
+          "type": "paragraph",
+          "text": "The structured binding in the loop gives names to the key and count stored in each map element. The const reference avoids copying the strings and prevents modifications through this loop. The original input contains Atlas twice and Orbits once, so the output reflects both aggregation and key order. The sample is tiny enough that all counts fit in int; an unbounded counting service would need a deliberate overflow policy."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_part_3",
+      "title": "Give different states different types",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A vocabulary type supplies a common relationship between values. pair and tuple group several values; a named struct can explain their roles more clearly when those roles matter. optional represents the presence or absence of a value. variant represents one value chosen from a declared set of alternative types. Here Reading stores either a page count or a textual status, keeping those two meanings distinguishable."
+        },
+        {
+          "type": "paragraph",
+          "text": "get_if asks whether a variant currently holds a particular alternative and returns a pointer when it does. The pointer borrows the contained value and must not survive operations that replace that value. The explicit check is preferable to guessing the active alternative. More advanced code can use visit to handle every alternative through a callable. These types improve representation, but they do not automatically validate the application’s interpretation of every stored value."
+        },
+        {
+          "type": "reflection",
+          "prompt": "What happens if counts[\"New\"] is used only to check whether that title exists?",
+          "explanation": "It inserts New with a zero count when the key is missing, changing the container during the supposed check. contains or find expresses a lookup without that insertion side effect."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_source_1",
+      "title": "C++20 working draft N4861: associative.reqmts",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/associative.reqmts",
+      "locator": "N4861, [associative.reqmts]; consulted 2026-09-11. Unique keys, comparison ordering, and operation complexity."
+    },
+    {
+      "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_source_2",
+      "title": "C++20 working draft N4861: variant",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/variant",
+      "locator": "N4861, [variant]; consulted 2026-09-11. A variant manages a value of one of its declared alternative types."
+    },
+    {
+      "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_source_3",
+      "title": "C++20 working draft N4861: dcl.struct.bind",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.struct.bind",
+      "locator": "N4861, [dcl.struct.bind], structured binding of tuple-like values, hidden object, and reference qualification; consulted 2026-09-11."
+    },
+    {
+      "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_source_4",
+      "title": "C++20 working draft N4861: map.access",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/map.access",
+      "locator": "N4861, [map.access]; consulted 2026-09-11. map indexing delegates to try_emplace; at reports missing keys."
+    }
+  ]
+}

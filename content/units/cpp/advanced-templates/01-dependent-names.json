@@ -1,0 +1,103 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_dependent_names_module",
+  "versionId": "cpp_dependent_names_v1",
+  "slug": "dependent-names",
+  "title": "Reading dependent names",
+  "summary": "Separate template parsing from the type-specific checks performed when a specialization is instantiated.",
+  "position": 0,
+  "objectives": [
+    "Identify a name whose meaning depends on a template argument.",
+    "Use typename to identify a dependent nested type.",
+    "Explain why successful parsing does not guarantee a valid specialization."
+  ],
+  "parts": [
+    {
+      "id": "cpp_dependent_names_part_1",
+      "title": "What can the compiler know now?",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A template describes a family of declarations. When its definition mentions a particular name such as std::cout, that name is already available. A name such as C::value_type depends on the future argument C. Parsing the template and checking a particular specialization are therefore related but distinct tasks. This lesson assumes that you can already use a class template and read a range-based loop."
+        },
+        {
+          "type": "paragraph",
+          "text": "In a local declaration inside the template, typename C::value_type explicitly tells the parser that the qualified name denotes a type. It does not manufacture that member or check that every possible C has it. A later attempt to instantiate the template with an unsuitable type still fails. C++20 also has contexts where a dependent name is assumed to denote a type; learning the explicit spelling is useful without treating it as mandatory everywhere."
+        }
+      ]
+    },
+    {
+      "id": "cpp_dependent_names_part_2",
+      "title": "Follow one specialization",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <vector>\n\ntemplate<class C>\nauto total(const C& values)\n{\n    typename C::value_type result{};\n    for (const auto& value : values) result += value;\n    return result;\n}\n\nint main()\n{\n    const std::vector<int> pages{3, 5, 8};\n    std::cout << total(pages) << '\\n';\n}\n",
+          "caption": "main.cpp — C++20"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "16\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "For this call C is std::vector<int>, so the nested type names int. The accumulator starts at zero and visits three small values whose sum fits in int. The example requires more than a nested type: iteration, value initialization, addition assignment, and a usable return value must also work. Naming those requirements is part of designing an interface; a concept can make suitable requirements visible to callers."
+        },
+        {
+          "type": "paragraph",
+          "text": "The separate template disambiguator solves a similar parsing problem for a dependent member template, such as object.template convert<int>(). Lookup in a dependent base class may need this->member to express the dependency. These spellings guide interpretation; neither changes access control or makes an invalid operation valid."
+        }
+      ]
+    },
+    {
+      "id": "cpp_dependent_names_part_3",
+      "title": "Diagnose the requirement",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Would adding typename make total(42) a valid call?",
+          "explanation": "No. int has no nested value_type and is not the iterable container required by the body. The disambiguator addresses parsing, not the semantic requirements on an argument."
+        },
+        {
+          "type": "paragraph",
+          "text": "When a template diagnostic grows long, first identify the specialization requested by the caller, then locate the first unmet requirement. Keep a small instantiation that demonstrates the issue. Reading templates this way is more useful than memorizing a compiler-specific error message. Advanced follow-up work includes argument-dependent lookup, two-phase lookup, explicit instantiation, SFINAE, and constraints; each should be tied to a real interface problem."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_dependent_names_source_1",
+      "title": "C++20 working draft N4861: temp.res",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.res",
+      "locator": "Primary standards draft, [temp.res]: dependent type names and typename. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_dependent_names_source_2",
+      "title": "C++20 working draft N4861: temp.dep",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.dep",
+      "locator": "Primary standards draft, [temp.dep]: dependent names and dependent base classes. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_dependent_names_source_3",
+      "title": "C++20 working draft N4861: temp.names",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.names",
+      "locator": "Primary standards draft, [temp.names]: the template disambiguator. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    }
+  ]
+}

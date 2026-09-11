@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_unit_advanced_templates",
+  "name": "Advanced templates and library construction",
+  "slug": "advanced-templates",
+  "description": "After templates and value semantics: resolve dependent names and preserve argument categories in generic library interfaces. Algorithm design belongs in Data structures and algorithms.",
+  "position": 12
+}

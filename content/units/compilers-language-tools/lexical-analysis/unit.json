@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "compilers_language_tools_lexical_analysis_unit",
+  "name": "Lexical Analysis",
+  "slug": "lexical-analysis",
+  "description": "Separate lexical recognition from expression meaning.",
+  "position": 0
+}

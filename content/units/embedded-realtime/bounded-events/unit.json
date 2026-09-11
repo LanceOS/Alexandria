@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "embedded_realtime_bounded_events_unit",
+  "name": "Bounded Event Handling",
+  "slug": "bounded-events",
+  "description": "Account for capacity, copied data and overload behavior.",
+  "position": 1
+}

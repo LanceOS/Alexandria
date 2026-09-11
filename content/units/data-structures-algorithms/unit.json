@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "dsa_unit",
+  "name": "Data Structures and Algorithms",
+  "slug": "data-structures-algorithms",
+  "description": "Study algorithm cost and abstract data structures after functions and loops. C++ supplies container APIs; this subject owns algorithm reasoning and representation choices.",
+  "position": 0,
+  "topic": {
+    "id": "dsa_topic",
+    "slug": "data-structures-algorithms",
+    "name": "Data Structures and Algorithms",
+    "description": "Study algorithm cost and abstract data structures after functions and loops. C++ supplies container APIs; this subject owns algorithm reasoning and representation choices.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 2
+      }
+    ]
+  }
+}

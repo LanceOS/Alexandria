@@ -1,0 +1,84 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "systems_programming_descriptor_io_module",
+  "versionId": "systems_programming_descriptor_io_version_1",
+  "slug": "short-reads",
+  "title": "Read the bytes that actually arrived",
+  "summary": "Interpret I/O results and preserve progress across partial transfers.",
+  "position": 0,
+  "objectives": [
+    "Classify a read result as progress, end of file or failure.",
+    "Trace a bounded accumulator through two short reads.",
+    "Identify the operating-system contract that a C++ wrapper must preserve."
+  ],
+  "parts": [
+    {
+      "id": "systems_programming_descriptor_io_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ buffers, integer types and error handling. This unit teaches Linux read semantics for regular files and pipes; C++ ownership and container syntax belong to the C++ course."
+        },
+        {
+          "type": "paragraph",
+          "text": "A request to read eight bytes describes a maximum transfer, not a promise that eight bytes will arrive. Linux read reports the number transferred; a positive short result is successful progress. For a positive request on a regular file or pipe, zero indicates end of file, while minus one reports a failure through errno. Other descriptor types need their own rules: a noncanonical terminal can return zero for no available data or a timeout. EINTR means interruption before data was read; nonblocking descriptors can report that data is not currently available. A wrapper therefore needs a state machine, not a single success Boolean. Keep the requested capacity distinct from the amount of valid data. Never process the unwritten remainder of a buffer as though it came from the input. Decide separately whether the application accepts a partial record or requires an exact number of bytes."
+        }
+      ]
+    },
+    {
+      "id": "systems_programming_descriptor_io_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Consider a finite input record arriving through a pipe whose protocol requires exactly five bytes. Our modeled reads return the prescribed results below. The caller has a five-byte buffer and requests only the remaining capacity. No concurrent caller reads this descriptor, and no cancellation or timeout occurs in this trace."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Needed total: 5 bytes\nRequest 5 -> receive 2: A B     accumulated = 2\nRequest 3 -> receive 1: C       accumulated = 3\nRequest 2 -> receive 2: D E     accumulated = 5\nResult: complete record ABCDE\nAlternative last result 0 -> truncated record ABC, not success"
+        },
+        {
+          "type": "paragraph",
+          "text": "After the first call the next destination begins at offset two, so a later transfer cannot overwrite A and B. Accumulated progress grows only after a positive result. The alternative zero result is meaningful because the request size is positive and the protocol still needs two bytes. This application distinguishes clean end of input between records from truncation inside a record. That distinction belongs to the record reader, rather than the operating system."
+        }
+      ]
+    },
+    {
+      "id": "systems_programming_descriptor_io_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Extend the trace by inserting EINTR before C arrives. The accumulated count remains two. Then describe a deadline policy for repeated interruptions: blindly retrying forever does not establish bounded response time. For nonblocking I/O, integrate readiness notification instead of a busy retry loop. A production wrapper should preserve the original error and make descriptor ownership explicit."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If the first request returns two bytes, should the caller retry the original five-byte request into the beginning of the buffer?",
+          "explanation": "No. The two bytes are already valid progress. The next request belongs at offset two and must fit the remaining three-byte capacity. Restarting at the beginning loses the earlier bytes; appending five bytes would exceed the available space. Progress, capacity and protocol completeness are three separate facts."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "systems_programming_descriptor_io_source_read",
+      "title": "Linux manual: read(2)",
+      "authors": [
+        "Linux man-pages project"
+      ],
+      "url": "https://man7.org/linux/man-pages/man2/read.2.html",
+      "locator": "Primary documentation: DESCRIPTION, RETURN VALUE, ERRORS; short reads, EOF and interrupted calls; consulted 2026-09-11"
+    },
+    {
+      "id": "systems_programming_descriptor_io_source_termios",
+      "title": "Linux manual: termios(3)",
+      "authors": ["Linux man-pages project"],
+      "url": "https://man7.org/linux/man-pages/man3/termios.3.html",
+      "locator": "Primary documentation: Canonical and noncanonical mode, VMIN=0 cases; zero-byte terminal reads may indicate unavailable data or timeout; consulted 2026-09-11"
+    }
+  ]
+}

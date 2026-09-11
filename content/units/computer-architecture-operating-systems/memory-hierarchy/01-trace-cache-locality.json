@@ -1,0 +1,81 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "archos_trace_cache_locality_module",
+  "versionId": "archos_trace_cache_locality_v1",
+  "slug": "trace-cache-locality",
+  "title": "Trace locality with a tiny cache",
+  "summary": "Use an explicit cache model to explain why access order can change memory traffic.",
+  "position": 0,
+  "objectives": [
+    "Distinguish temporal locality from spatial locality.",
+    "Count hits and misses under a stated cache model.",
+    "Explain why a simplified trace cannot predict real runtime."
+  ],
+  "parts": [
+    {
+      "id": "archos_trace_cache_locality_part_1",
+      "title": "State the hardware model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: bytes, addresses, and arrays. Architecture owns caches and memory traffic. C++ guarantees about object layout and lifetime are separate: a cache model cannot authorize invalid pointer accesses."
+        },
+        {
+          "type": "paragraph",
+          "text": "Processors commonly access memory through caches that retain recently used blocks. Temporal locality means revisiting data soon; spatial locality means accessing nearby data. These are properties of an access pattern relative to a storage system. A cache line contains more than the individual value requested, so neighboring accesses may reuse one fetched line. Actual line sizes, replacement behavior, and prefetching depend on the machine."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a trace we will invent a deliberately tiny model: two fully associative cache lines, two numbered elements per line, initially empty, and least-recently-used replacement. Reading an absent line counts one miss and brings that entire line into the cache. The model has no prefetching, writes, other threads, or instruction cache. Stating these assumptions makes the calculation reproducible without pretending to simulate a particular processor."
+        }
+      ]
+    },
+    {
+      "id": "archos_trace_cache_locality_part_2",
+      "title": "Compare two traversals",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Line mapping: elements 0,1 -> A; 2,3 -> B; 4,5 -> C\nTraversal 1: 0  1  2  3  4  5\nLines:       A  A  B  B  C  C\nOutcome:     M  H  M  H  M  H  -> 3 misses\n\nTraversal 2: 0  2  4  1  3  5\nLines:       A  B  C  A  B  C\nOutcome:     M  M  M  M  M  M  -> 6 misses",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "Both traversals read every element once, yet the second repeatedly needs a line that has already been evicted. When C arrives after A and B, it replaces A. The next access needs A again. Counting only six element reads hides this difference in line traffic. A different cache capacity or mapping could produce different totals; the result belongs to the stated model."
+        },
+        {
+          "type": "paragraph",
+          "text": "This is why data layout and traversal order are worth investigating together. A collection of records may include fields that an operation never uses. Separating frequently read fields can sometimes increase useful data per fetched line. It can also complicate updates that need whole records. The appropriate layout follows the actual workload rather than a universal rule about arrays or objects."
+        }
+      ]
+    },
+    {
+      "id": "archos_trace_cache_locality_part_3",
+      "title": "Connect explanation to evidence",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "If the model held three lines instead of two, how many misses would traversal 2 have?",
+          "explanation": "Three. A, B, and C would each miss on first access, then all remain available for the second access. The access order has not changed; capacity has changed the reuse outcome."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use a cache simulator to examine a specified model and hardware counters or profiling to investigate a real system. Cachegrind documents approximation limits, so simulated misses should not be equated with measured processor cycles. Keep correctness tests unchanged while comparing layouts, record the hardware and workload, and measure total application impact. This lesson’s miss counts are hand-worked examples, not benchmark results."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "archos_trace_cache_locality_source_cachegrind",
+      "title": "Valgrind User Manual: Cachegrind",
+      "authors": [
+        "Valgrind Developers"
+      ],
+      "url": "https://valgrind.org/docs/manual/cg-manual.html",
+      "locator": "Official tool documentation: §5.7 cache simulation and §5.8.1–5.8.3 simulation model and accuracy limits; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
+    }
+  ]
+}

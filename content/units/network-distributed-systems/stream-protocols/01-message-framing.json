@@ -1,0 +1,78 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "network_distributed_systems_stream_protocols_module",
+  "versionId": "network_distributed_systems_stream_protocols_version_1",
+  "slug": "message-framing",
+  "title": "Recover messages from a byte stream",
+  "summary": "Design a bounded parser that handles arbitrary receive chunk boundaries.",
+  "position": 0,
+  "objectives": [
+    "Distinguish TCP byte order from application message boundaries.",
+    "Trace a length-prefixed record split across receives.",
+    "Reject an oversized length before allocating its payload."
+  ],
+  "parts": [
+    {
+      "id": "network_distributed_systems_stream_protocols_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ buffers, I/O and error handling. This unit owns network protocols; C++ streams and containers are implementation tools."
+        },
+        {
+          "type": "paragraph",
+          "text": "TCP specifies a reliable, ordered byte-stream service. An application therefore needs its own rule for finding messages within that stream. A send call and a receive call are not a shared record boundary. A length prefix is one possible framing rule: collect the header, validate its length, then collect exactly that many payload bytes. Delimiters and fixed-size records are alternatives with different escaping or size requirements. The protocol should also define encoding, maximum length and what an incomplete record means when the connection ends. Transport delivery does not by itself prove that a remote application has processed a request."
+        }
+      ]
+    },
+    {
+      "id": "network_distributed_systems_stream_protocols_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original toy protocol uses a single unsigned octet for payload length, permits lengths from one through eight, and carries ASCII text. The complete stream contains two records: length three with CAT, followed by length two with OK. We prescribe three arbitrary receive chunks and maintain parser state across them. No bytes are lost or reordered in this trace."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Chunk 1: [03, C]       header says 3; payload so far C\nChunk 2: [A, T, 02]    complete CAT; next header says 2\nChunk 3: [O, K]        complete OK\nEmitted records: CAT, OK\nIf next header is 200: reject immediately; do not reserve 200 bytes."
+        },
+        {
+          "type": "paragraph",
+          "text": "The second receive both completes one record and begins another. A correct parser may emit zero, one or several messages for a chunk; it must keep consuming until the available bytes no longer complete its current state. Interpreting each chunk as one message would turn CAT into unrelated fragments. The toy one-byte header avoids endianness details, which a multi-byte length field would need to specify explicitly."
+        }
+      ]
+    },
+    {
+      "id": "network_distributed_systems_stream_protocols_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Repartition the same byte sequence into one-byte chunks and then into a single chunk. The emitted records should remain CAT and OK. Add tests for a zero length, an oversized length and EOF after O. Specify whether malformed input closes the connection or reports a recoverable protocol error. Maintain a total buffer limit even when individually valid records arrive faster than the application consumes them."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If the peer closes after sending the length two and the byte O, can the parser emit O as a complete record?",
+          "explanation": "No. The header promised two payload bytes, so the record is truncated. Emitting O changes the protocol and hides an incomplete message. The parser may report earlier complete records, but must report this unfinished record according to its explicit EOF policy."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "network_distributed_systems_stream_protocols_source_tcp",
+      "title": "RFC 9293: Transmission Control Protocol (TCP)",
+      "authors": [
+        "Wesley Eddy (editor)"
+      ],
+      "url": "https://www.rfc-editor.org/rfc/rfc9293.html",
+      "locator": "Primary specification: Section 2.2 Key TCP Concepts and section 3.9 interfaces; reliable ordered byte-stream semantics; consulted 2026-09-11",
+      "publicationYear": 2022
+    }
+  ]
+}

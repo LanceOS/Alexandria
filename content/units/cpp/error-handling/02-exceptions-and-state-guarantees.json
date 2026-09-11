@@ -1,0 +1,110 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_error_handling_exceptions_and_state_guarantees",
+  "versionId": "cpp_core_error_handling_exceptions_and_state_guarantees_v1",
+  "slug": "exceptions-and-state-guarantees",
+  "title": "Exceptions and state guarantees",
+  "summary": "Separate the path to a handler from the promise about state after failure.",
+  "position": 1,
+  "objectives": [
+    "Trace stack unwinding through RAII-owned local objects.",
+    "Explain a prepare-then-commit update with the strong guarantee.",
+    "Describe what noexcept promises when an exception escapes."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_error_handling_exceptions_and_state_guarantees_part_1",
+      "title": "An exception transfers control to a handler",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "An exception transfers control from a failing operation to a matching handler. While that transfer unwinds intervening scopes, destructors run for constructed automatic objects that must leave those scopes. This is where RAII becomes particularly valuable: a local vector still releases its storage without a separate cleanup branch. Exceptions and resource ownership therefore work together, but exception syntax alone does not restore every application variable to its previous value."
+        },
+        {
+          "type": "paragraph",
+          "text": "An error-handling contract should explain both how failure is reported and what state remains afterward. The basic guarantee preserves valid invariants and avoids resource leaks. The strong guarantee leaves the protected operation’s observable state unchanged on failure. A non-throwing guarantee promises the operation will not let an exception escape. These are design descriptions; each function’s implementation and component contracts must justify the particular promise."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_error_handling_exceptions_and_state_guarantees_part_2",
+      "title": "Prepare replacement state before committing",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <stdexcept>\n#include <vector>\n\nvoid replace_pages(std::vector<int>& target, const std::vector<int>& input)\n{\n    std::vector<int> prepared = input;\n    for (int value : prepared)\n        if (value < 0) throw std::invalid_argument(\"negative page count\");\n    target.swap(prepared);\n}\n\nint main()\n{\n    std::vector<int> pages{4, 6};\n    try {\n        replace_pages(pages, std::vector<int>{8, -1});\n    } catch (const std::invalid_argument&) {\n        std::cout << \"Rejected\\n\";\n    }\n    std::cout << pages[0] << ' ' << pages[1] << '\\n';\n    replace_pages(pages, std::vector<int>{8, 10});\n    std::cout << pages[0] << ' ' << pages[1] << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Rejected\n4 6\n8 10\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "replace_pages first creates an independent vector called prepared. If allocation while copying fails, target has not been changed. The function then validates every proposed page count and throws invalid_argument if it encounters a negative value. Destruction of prepared handles its storage during unwinding. Because the original target is still untouched, the rejected input cannot leave only part of the old vector replaced."
+        },
+        {
+          "type": "paragraph",
+          "text": "After all validation succeeds, swap commits the prepared vector into target. This example uses std::vector<int> with its default allocator, so the swap supplies a suitable non-throwing commit. The first call is rejected and caught by reference. Printing the target afterward shows the old values 4 and 6. The second call succeeds and replaces them with 8 and 10."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_error_handling_exceptions_and_state_guarantees_part_3",
+      "title": "State the guarantee a caller can rely on",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The strong guarantee must be scoped to the operation’s observable state. A function that sends a network message or writes external output before failing cannot generally undo that effect by restoring a vector. Even this demonstration’s diagnostic output is separate from the target update. Identify exactly which state is protected and consider the contracts of every operation used before and during the commit."
+        },
+        {
+          "type": "paragraph",
+          "text": "noexcept does not make a potentially failing operation safe by suppressing errors. If an exception escapes a function declared non-throwing, std::terminate is called. Declare it only when the operation’s design and members justify that contract. Destructors used for cleanup should avoid throwing during unwinding. For normal reporting, catch exceptions at a boundary that can recover or explain the failure; avoid catching merely to discard the problem and continue with guessed state."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why would clearing target before validating input weaken this operation’s guarantee?",
+          "explanation": "If validation then failed, the original contents would already be lost. target could still be a valid empty vector, but failure would no longer leave it unchanged, so the strong guarantee for the target contents would not hold."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_error_handling_exceptions_and_state_guarantees_source_1",
+      "title": "C++20 working draft N4861: except.ctor",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/except.ctor",
+      "locator": "N4861, [except.ctor]; consulted 2026-09-11. Stack unwinding and destruction of constructed subobjects."
+    },
+    {
+      "id": "cpp_core_error_handling_exceptions_and_state_guarantees_source_2",
+      "title": "C++20 working draft N4861: except.spec",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/except.spec",
+      "locator": "N4861, [except.spec]; consulted 2026-09-11. Non-throwing exception specifications and termination."
+    },
+    {
+      "id": "cpp_core_error_handling_exceptions_and_state_guarantees_source_3",
+      "title": "C++20 working draft N4861: vector.capacity",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity",
+      "locator": "N4861, [vector.capacity]; consulted 2026-09-11. size versus capacity; reserve and invalidation on reallocation."
+    }
+  ]
+}

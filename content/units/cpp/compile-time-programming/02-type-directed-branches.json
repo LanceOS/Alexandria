@@ -1,0 +1,114 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_type_directed_branches_module",
+  "versionId": "cpp_type_directed_branches_v1",
+  "slug": "type-directed-branches",
+  "title": "Selecting an implementation with if constexpr",
+  "summary": "Choose a well-formed implementation for a type without confusing compile-time selection with runtime execution.",
+  "position": 1,
+  "objectives": [
+    "Explain when a discarded template branch is not instantiated.",
+    "Combine requires with if constexpr for a small generic operation.",
+    "Separate a type-based decision from the runtime data being processed."
+  ],
+  "parts": [
+    {
+      "id": "cpp_type_directed_branches_part_1",
+      "title": "Select by a type capability",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A generic function may support several representations of the same idea. A page count can be stored directly as an integer or represented by the length of a collection. With an ordinary if, both branches must still be valid for the instantiated type. if constexpr allows a compile-time condition to select which dependent branch is instantiated."
+        },
+        {
+          "type": "paragraph",
+          "text": "A requires expression can ask whether a particular expression is valid. Here it asks whether a const reference of the deduced type supports size(). That is a syntactic capability check, not proof that size means pages, that the result is cheap to obtain, or that every use has the intended units. Naming and documenting the semantic requirement remains the author’s job."
+        }
+      ]
+    },
+    {
+      "id": "cpp_type_directed_branches_part_2",
+      "title": "Use two representations",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <concepts>\n#include <cstddef>\n#include <iostream>\n#include <vector>\n\ntemplate<class T>\nstd::size_t itemCount(const T& value)\n{\n    if constexpr (requires { { value.size() } -> std::convertible_to<std::size_t>; })\n        return static_cast<std::size_t>(value.size());\n    else\n    {\n        static_assert(std::same_as<T, std::size_t>);\n        return value;\n    }\n}\n\nint main()\n{\n    const std::vector<int> chapters{2, 4, 6};\n    std::cout << itemCount(chapters) << ' '\n              << itemCount(std::size_t{7}) << '\\n';\n}\n",
+          "caption": "main.cpp — C++20"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "3 7\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "For the vector call, the size branch is instantiated and the alternative assertion is discarded. For std::size_t, the other branch is selected. A signed int is intentionally rejected rather than silently converted into an enormous unsigned count when negative. The vector itself can contain runtime data; selecting a branch at compilation does not require that all the work inside it execute at compilation."
+        },
+        {
+          "type": "callout",
+          "title": "Discarded does not mean arbitrary text",
+          "text": "Both branches must parse. Outside templates, if constexpr is not a general mechanism for hiding invalid code. Even in templates, dependent validity and the rules for ill-formed templates still matter."
+        }
+      ]
+    },
+    {
+      "id": "cpp_type_directed_branches_part_3",
+      "title": "Keep generic interfaces understandable",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Would a size() member returning a temperature make the object a meaningful input?",
+          "explanation": "Not necessarily. An expression can satisfy a syntactic constraint while violating the domain meaning. This function expects a nonnegative item count representable in std::size_t."
+        },
+        {
+          "type": "paragraph",
+          "text": "Constrained overloads may be clearer when alternatives have different contracts. A single if constexpr body works well when the interface has one coherent meaning and only the implementation varies. If many nested branches accumulate, reconsider the abstraction before adding more traits. C++23 adds if consteval for a different question about evaluation context; it is not used by this C++20 example."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_type_directed_branches_source_1",
+      "title": "C++20 working draft N4861: stmt.if",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/stmt.if",
+      "locator": "Primary standards draft, [stmt.if]: discarded substatements during template instantiation. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_type_directed_branches_source_2",
+      "title": "C++20 working draft N4861: expr.prim.req",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.prim.req",
+      "locator": "Primary standards draft, [expr.prim.req]: requires expressions. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_type_directed_branches_source_3",
+      "title": "C++20 working draft N4861: concept.convertible",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/concept.convertible",
+      "locator": "Primary standards draft, [concept.convertible]: convertible_to constraints. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_type_directed_branches_source_4",
+      "title": "C++ working draft N4950: stmt.if",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2023,
+      "url": "https://timsong-cpp.github.io/cppwp/n4950/stmt.if",
+      "locator": "Primary standards draft: C++23 if consteval, paragraphs 4–6; edition boundary only. Consulted 2026-09-11; not the published ISO edition."
+    }
+  ]
+}

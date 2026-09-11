@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "game_development_scene_composition_module",
+  "versionId": "game_development_scene_composition_version_1",
+  "slug": "instance-state",
+  "title": "Compose reusable entities without sharing their state",
+  "summary": "Reason about scene instances, paths and lifecycle boundaries.",
+  "position": 0,
+  "objectives": [
+    "Distinguish a reusable scene definition from its instances.",
+    "Trace independent per-entity state changes.",
+    "Identify brittle dependencies caused by external node paths."
+  ],
+  "parts": [
+    {
+      "id": "game_development_scene_composition_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ classes, composition and ownership. This unit teaches game-world organization using Godot concepts; it does not teach Godot scripting syntax or replace C++ class design."
+        },
+        {
+          "type": "paragraph",
+          "text": "A scene packages a tree of nodes that can be instantiated as part of a larger world. Node paths select particular nodes in that tree, rather than selecting every node of a given type. This makes tree structure part of an interface whenever outside code reaches through it. Godot provides operations to instantiate scenes, add nodes and defer node deletion. A useful design separates reusable structure from mutable state belonging to one entity. Give a scene a small public behavior such as apply_damage, rather than making every caller know the path to its health label. This allows presentation children to change without changing the gameplay contract."
+        }
+      ]
+    },
+    {
+      "id": "game_development_scene_composition_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original scene definition describes a training target with health, a visual node and a label. Instantiating it twice produces Target A and Target B. Assume both initialize their own health to ten and share only an immutable mesh asset. The following trace is a conceptual design exercise; the behavior names are pseudocode, not a complete engine script."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Definition Target: root + Visual + HealthLabel\nInstantiate A -> health 10, shared immutable mesh M\nInstantiate B -> health 10, shared immutable mesh M\nA.apply_damage(3) -> A health 7; B health 10\nRename A presentation child HealthLabel to StatusText\nExternal call A.apply_damage(2) -> A health 5; B health 10"
+        },
+        {
+          "type": "paragraph",
+          "text": "The second damage call survives the presentation rename because the caller depends on the root behavior. An external path ending in HealthLabel would have become stale. Sharing an immutable asset is different from sharing the mutable health field. A common template does not imply common instance state. Conversely, deliberately shared resource objects must be treated according to their own mutability and lifetime rules, rather than assumed private because two scene instances exist."
+        }
+      ]
+    },
+    {
+      "id": "game_development_scene_composition_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Draw an ownership tree and mark each shared asset separately. Add a third target, then remove B through an explicit lifecycle operation. Identify which listeners or handles must stop referring to B. Godot deferred deletion means a removal request and actual destruction are different moments; do not continue gameplay interactions simply because an old reference is still present. Keep these engine lifecycle rules separate from ordinary C++ automatic destruction."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why is a root-level apply_damage operation a more stable interface than a caller editing a nested label directly?",
+          "explanation": "The operation expresses a gameplay intention and can update health, presentation and events consistently. Editing a label changes only presentation and couples the caller to a path. The scene can then be rearranged or displayed differently while preserving the same gameplay operation. The benefit comes from the boundary, not from adding more inheritance."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "game_development_scene_composition_source_scene",
+      "title": "Godot: Nodes and scene instances",
+      "authors": [
+        "Godot Engine contributors"
+      ],
+      "url": "https://docs.godotengine.org/en/stable/tutorials/scripting/nodes_and_scene_instances.html",
+      "locator": "Primary documentation: Getting nodes, Node paths, Creating nodes and Instancing scenes; tree composition and deferred deletion; consulted 2026-09-11"
+    }
+  ]
+}

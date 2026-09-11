@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "robotics_coordinate_frames_module",
+  "versionId": "robotics_coordinate_frames_version_1",
+  "slug": "transform-observation",
+  "title": "Transform an observation with its frame and time",
+  "summary": "Track direction, units and timestamps when combining sensor coordinates.",
+  "position": 0,
+  "objectives": [
+    "Compute a translation-only frame conversion.",
+    "Invert the translation and verify a round trip.",
+    "Explain why a timestamp belongs with a moving-frame measurement."
+  ],
+  "parts": [
+    {
+      "id": "robotics_coordinate_frames_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: vectors and coordinate geometry; C++ data structures. Robotics owns frames and measurement semantics; C++ strong types can help encode those contracts."
+        },
+        {
+          "type": "paragraph",
+          "text": "A point is meaningful relative to a coordinate frame. ROS 2 tf2 tracks relationships between frames over time and can transform stamped data between source and target frames. Direction matters: converting coordinates from sensor to world uses the corresponding data transformation, and the reverse conversion uses its inverse. A moving robot also makes time part of the question. Combining an old measurement with a new pose can describe a location that was never observed. Write down source frame, target frame, units and timestamp before applying arithmetic. Translation-only examples are useful first checks, but real rigid transforms generally include rotation as well."
+        }
+      ]
+    },
+    {
+      "id": "robotics_coordinate_frames_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our finite model is a two-dimensional robot with no rotation. At time one second, the sensor origin is at world position (4,1) metres. The sensor observes a point at (2,3) metres in its local axes. At time two seconds the sensor has moved to (5,1), but we still want the location of the observation made at one second."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "At t=1: world_from_sensor(p) = p + (4,1)\nObserved point in sensor:      (2,3)\nCorrect world point at t=1:    (2,3) + (4,1) = (6,4)\nRound trip:                   (6,4) - (4,1) = (2,3)\nWrong-time transform t=2:      (2,3) + (5,1) = (7,4)"
+        },
+        {
+          "type": "paragraph",
+          "text": "The wrong-time result is one metre away in x even though every addition is arithmetically correct. The error is semantic: the transform and measurement describe different moments. The round trip checks direction for this simple model. If rotation were present, subtracting a translation alone would not form the full inverse. Frame-aware APIs reduce manual bookkeeping, but they still require correctly identified frames and a policy for unavailable transform data."
+        }
+      ]
+    },
+    {
+      "id": "robotics_coordinate_frames_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Label each value in the trace with metres and its frame. Change the target to a second stationary frame whose origin is world (1,0), and compute the observation’s coordinates there. Then specify what the application should do when the transform at the measurement time is unavailable: wait within a deadline, discard the observation or explicitly estimate under a documented model. Substituting the latest transform silently changes the question."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If the coordinate calculation compiles and produces finite numbers, has the robot necessarily located the observed point correctly?",
+          "explanation": "No. The types and arithmetic may be valid while frame direction, units or timestamps are wrong. In the trace both world results are finite, but only (6,4) corresponds to the stated observation time. Correct data interpretation must be checked alongside numerical calculation."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "robotics_coordinate_frames_source_tf2",
+      "title": "ROS 2 Jazzy: Tf2",
+      "authors": [
+        "ROS 2 contributors"
+      ],
+      "url": "https://raw.githubusercontent.com/ros2/ros2_documentation/jazzy/source/Concepts/Intermediate/About-Tf2.rst",
+      "locator": "Primary documentation: Overview, Publishing transforms and Position; official documentation source, coordinate frames and time; consulted 2026-09-11"
+    }
+  ]
+}

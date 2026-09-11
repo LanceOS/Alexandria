@@ -1,0 +1,86 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "scientific_computing_linear_systems_module",
+  "versionId": "scientific_computing_linear_systems_version_1",
+  "slug": "solve-and-check",
+  "title": "Solve a linear system and check its residual",
+  "summary": "Connect a matrix solver result to the equations it is meant to satisfy.",
+  "position": 0,
+  "objectives": [
+    "Solve a two-equation system by elimination.",
+    "Compute a candidate solution residual.",
+    "Explain why a small residual is useful but not a complete accuracy certificate."
+  ],
+  "parts": [
+    {
+      "id": "scientific_computing_linear_systems_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ arithmetic and containers; matrices and simultaneous equations. This unit owns numerical methods; C++ expression templates and library installation are separate concerns."
+        },
+        {
+          "type": "paragraph",
+          "text": "A linear-system solver seeks x satisfying A x = b. Eigen offers decomposition-based solve operations, with choices depending on properties of A and the accuracy and cost requirements. Do not select a method solely because its name is familiar; a decomposition that requires an invertible or positive-definite matrix needs evidence for that assumption. After solving, evaluate how well the candidate satisfies the original equations. The residual r = b - A x measures that discrepancy. It is useful diagnostic evidence, but closeness to a true solution also depends on sensitivity of the problem and the scaling of its data."
+        }
+      ]
+    },
+    {
+      "id": "scientific_computing_linear_systems_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Consider the exact system 2x + y = 5 and x + 3y = 5. All arithmetic in the worked trace is exact decimal or rational arithmetic. The coefficient matrix is two by two, and the determinant is five, so there is a unique solution. We compare the exact solution with a deliberately perturbed candidate rather than claiming an actual library produces that perturbation."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Second equation times 2: 2x + 6y = 10\nSubtract first equation:       5y = 5 -> y = 1\nSubstitute:                    2x + 1 = 5 -> x = 2\nExact solution (2,1):         A*x = (5,5), residual (0,0)\nCandidate (2.01,0.99):        A*x = (5.01,4.98)\nCandidate residual b-A*x:     (-0.01,0.02)"
+        },
+        {
+          "type": "paragraph",
+          "text": "The residual tests the original equations, providing a check independent of the elimination steps. Its components have the units of b; their size cannot be judged without a scale. An application might compare a norm of the residual with a documented scale involving A, x and b, while treating zero denominators carefully. A tiny residual for a very sensitive system does not establish a tiny error in x. That distinction motivates studying conditioning before interpreting solver success as scientific correctness."
+        }
+      ]
+    },
+    {
+      "id": "scientific_computing_linear_systems_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Perturb the right-hand side to (5,5.1), solve again, and compare the change in x with the input change. Keep the original and modified problems separate in your notes. In an implementation, retain the inputs needed for verification, check solver status where provided, and test singular and near-singular cases appropriate to the selected method. Computing an explicit inverse solely to solve a system is generally an unnecessary intermediate operation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why is checking only whether the solver returned a vector weaker than checking the residual?",
+          "explanation": "A returned vector has the correct representation but may not satisfy the intended equations closely enough. A residual connects the result back to the mathematical problem. It still must be interpreted with scale, conditioning and the solver assumptions, so it is one part of validation rather than a universal pass certificate."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "scientific_computing_linear_systems_source_eigen",
+      "title": "Eigen: Linear algebra and decompositions",
+      "authors": [
+        "Eigen contributors"
+      ],
+      "url": "https://libeigen.gitlab.io/eigen/docs-nightly/group__TutorialLinearAlgebra.html",
+      "locator": "Primary documentation: Basic linear solving, Checking if a matrix is singular and Computing inverse and determinant; decomposition choice and residual checks; consulted 2026-09-11"
+    },
+    {
+      "id": "scientific_computing_linear_systems_source_lapack",
+      "title": "LAPACK Users Guide: How to Measure Errors",
+      "authors": [
+        "LAPACK authors"
+      ],
+      "url": "https://www.netlib.org/lapack/lug/node75.html",
+      "locator": "Primary documentation: Error measures, vector norms and condition number; sensitivity and interpreting numerical errors; consulted 2026-09-11"
+    }
+  ]
+}

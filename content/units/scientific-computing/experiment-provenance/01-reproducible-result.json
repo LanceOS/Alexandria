@@ -1,0 +1,83 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "scientific_computing_experiment_provenance_module",
+  "versionId": "scientific_computing_experiment_provenance_version_1",
+  "slug": "reproducible-result",
+  "title": "Make a computational result reproducible",
+  "summary": "Record inputs, transformations and parameters so a result can be reconstructed.",
+  "position": 0,
+  "objectives": [
+    "Identify the data and configuration behind a numerical result.",
+    "Trace a documented transformation from raw observations to a summary.",
+    "Distinguish reproducing a calculation from validating its scientific assumptions."
+  ],
+  "parts": [
+    {
+      "id": "scientific_computing_experiment_provenance_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ programs and files; elementary averages and units. Scientific computing owns experiment provenance; numerical-computing teaches arithmetic error and stable algorithms, while build engineering owns toolchain setup."
+        },
+        {
+          "type": "paragraph",
+          "text": "A computational result depends on more than source code. It also depends on the data, processing steps, parameters and software environment used to obtain it. Wilson and colleagues recommend preserving raw data, recording transformations, making dependencies explicit and tracking changes in scientific projects. A reproducible workflow should make those relationships inspectable instead of relying on memory or a file named final. Keep raw observations separate from derived outputs. Version identifiers and a run record help explain what changed between analyses, but merely obtaining the same output does not validate the scientific model or the quality of the measurements."
+        }
+      ]
+    },
+    {
+      "id": "scientific_computing_experiment_provenance_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original finite experiment summarizes three recorded distances: 2, 4 and 6 millimetres. The analysis converts every value to metres and computes the arithmetic mean. All arithmetic is exact for this paper trace. The symbolic labels data-A and analysis-v1 identify the specified inputs and procedure; they are not actual hashes or claims that a program was executed."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Run R1 input: data-A = [2,4,6], unit millimetres\nProcedure: analysis-v1, conversion factor 0.001 metre/millimetre\nDerived values: [0.002,0.004,0.006] metres\nMean: (0.002+0.004+0.006)/3 = 0.004 metre\nRun R2 changes input to data-B = [2,4,9] millimetres\nSame procedure: mean = 0.005 metre; input change explains difference."
+        },
+        {
+          "type": "paragraph",
+          "text": "An output file containing only 0.004 would omit both the units and the origin of the result. The run record makes the conversion and input identity visible. R2 does not contradict R1 because it analyzes different observations. Preserving data-A allows the original calculation to be reconstructed after data-B arrives. Overwriting the raw values in place and keeping only the latest mean would erase that explanation."
+        }
+      ]
+    },
+    {
+      "id": "scientific_computing_experiment_provenance_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Write a compact run record containing input identity, input units, analysis version, parameters, dependency versions and output units. Then record a deliberately incorrect conversion factor of one and show that the workflow would reproducibly produce the wrong answer. Add a small known-input check for the millimetre conversion. For randomized or parallel experiments, record the relevant settings and define an appropriate comparison criterion rather than assuming bit-for-bit agreement across environments."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If another researcher repeats R1 and also obtains 0.004, does that establish that the measured distances and the averaging model are scientifically appropriate?",
+          "explanation": "No. Repeating the calculation checks a computational relationship under the recorded assumptions. Measurement quality, sampling design and whether the mean answers the scientific question require separate evidence. A transparent workflow makes those assumptions easier to inspect; it does not transform an unsuitable experiment into a valid one."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "scientific_computing_experiment_provenance_source_provenance",
+      "title": "Good enough practices in scientific computing",
+      "authors": [
+        "Greg Wilson",
+        "Jennifer Bryan",
+        "Karen Cranston",
+        "Justin Kitzes",
+        "Lex Nederbragt",
+        "Tracy K. Teal"
+      ],
+      "url": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005510",
+      "locator": "Scholarly guidance (journal Perspective): Data management, Software and Keeping track of changes; raw data, processing records, dependencies and version tracking; consulted 2026-09-11",
+      "publicationYear": 2017
+    }
+  ]
+}

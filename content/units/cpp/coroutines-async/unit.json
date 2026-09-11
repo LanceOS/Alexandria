@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_unit_coroutines_async",
+  "name": "Coroutines and asynchronous C++",
+  "slug": "coroutines-async",
+  "description": "After ownership and advanced functions: trace suspension and own coroutine frames. Executors, event loops, networking, and cancellation policy belong to the chosen runtime and application course.",
+  "position": 16
+}

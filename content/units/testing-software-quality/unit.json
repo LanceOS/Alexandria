@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "quality_unit",
+  "name": "Testing and Software Quality",
+  "slug": "testing-software-quality",
+  "description": "Develop test cases, properties, and fuzzing strategies after basic programming. Language diagnostics complement the broader evidence and test-design methods taught here.",
+  "position": 0,
+  "topic": {
+    "id": "quality_topic",
+    "slug": "testing-software-quality",
+    "name": "Testing and Software Quality",
+    "description": "Develop test cases, properties, and fuzzing strategies after basic programming. Language diagnostics complement the broader evidence and test-design methods taught here.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 5
+      }
+    ]
+  }
+}

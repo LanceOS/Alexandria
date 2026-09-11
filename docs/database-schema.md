@@ -2,7 +2,7 @@
 
 Alexandria uses one local SQLite database with foreign keys, strict tables, WAL journaling, full synchronous writes, and a busy timeout. Schema changes run through explicit, checksummed migrations. Application startup verifies migration history; it does not initialize or upgrade storage implicitly. See [Getting started](getting-started.md) for initialization, backup, and migration commands.
 
-The schema supports accounts, the library catalog, versioned curriculum, and sparse learner progress. Only the three library categories and instance metadata are initialized. Database initialization does not seed accounts, topics, units, modules, lessons, exercises, attempts, or progress records. The separate `content:import -- cpp` command imports six cited introductory modules and their catalog hierarchy from JSON; `content:cpp-basics` remains a compatibility alias. See [C++ Basics content](cpp-basics-content.md).
+The schema supports accounts, the library catalog, versioned curriculum, and sparse learner progress. Only the three library categories and instance metadata are initialized. Database initialization does not seed accounts, topics, units, modules, lessons, exercises, attempts, or progress records. The separate `content:import -- cpp` command imports the expanded C++ hierarchy from JSON; `content:cpp-basics` remains a compatibility alias. `content:import -- --all` imports the full [curriculum catalog](curriculum-map.md) in one transaction after a backup. The original seven [C++ Basics lessons](cpp-basics-content.md) keep their published identities and content.
 
 ## Migration history
 
@@ -124,7 +124,7 @@ All new curriculum/progress timestamps are validated date-time text; chronologic
 
 ## Deferred interfaces and decisions
 
-Published curriculum reading, a small C++ unit/module UI, and JSON content import are implemented. Unit folders describe the hierarchy and individual module files contain the structured lessons and citations. `content:check` validates files without database access; `content:import` backs up and adds a named root transactionally. Moving the existing C++ definitions to JSON uses the same IDs and values, requires no migration, and leaves matching database records unchanged.
+Published curriculum reading, a shared unit/module UI, and JSON content import are implemented. Unit folders describe the hierarchy and individual module files contain the structured lessons and citations. `content:check` validates files and cross-topic identities without database access; `content:import` backs up and adds a named root or all roots transactionally. The curriculum expansion uses the existing schema, requires no migration, and leaves matching published records unchanged.
 
 The database supports multiple releases, but the file importer currently creates version 1 only. Module JSON supplies a stable module ID and first-release `versionId`, not a version-number field. Reimport validates existing records instead of updating published content; additions use new identities. A later-version publishing workflow, authoring/publishing endpoints, progress endpoints, grading workers, and a code runner remain deferred. See [Content authoring](../content/README.md) for the file format and constraints.
 

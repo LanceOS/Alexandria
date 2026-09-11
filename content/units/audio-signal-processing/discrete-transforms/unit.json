@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "audio_signal_processing_discrete_transforms_unit",
+  "name": "Discrete Transforms",
+  "slug": "discrete-transforms",
+  "description": "Track frequency bins and normalization in a small exact transform.",
+  "position": 1
+}

@@ -1,0 +1,113 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_coroutine_lifetimes_module",
+  "versionId": "cpp_coroutine_lifetimes_v1",
+  "slug": "coroutine-lifetimes",
+  "title": "Keep coroutine inputs alive across suspension",
+  "summary": "Give suspended work an owner and ensure every borrowed object outlives its use.",
+  "position": 1,
+  "objectives": [
+    "Identify data retained by a suspended coroutine.",
+    "Distinguish a copied owning parameter from a borrowed reference.",
+    "Explain cleanup when a task is abandoned before completion."
+  ],
+  "parts": [
+    {
+      "id": "cpp_coroutine_lifetimes_part_1",
+      "title": "The caller may continue first",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Suspension separates the caller’s progress from the coroutine body’s progress. An argument supplied by reference remains a reference; a coroutine frame does not turn it into an owned copy of the referent. An object local to the caller can disappear before suspended work uses it. Captured this pointers, views, and references all deserve the same lifetime review."
+        },
+        {
+          "type": "paragraph",
+          "text": "Passing a std::string by value lets the coroutine retain an owning parameter. The copy or move into coroutine state has a cost, but that cost can be the correct price of an interface that allows the caller to continue. Passing std::string_view by value would only copy a view. Always inspect the ownership semantics of the parameter type, not just whether its declaration contains an ampersand."
+        }
+      ]
+    },
+    {
+      "id": "cpp_coroutine_lifetimes_part_2",
+      "title": "Move ownership into the task",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <coroutine>\n#include <exception>\n#include <iostream>\n#include <utility>\n#include <string>\n\nclass Stepper {\npublic:\n    struct promise_type;\n    using Handle = std::coroutine_handle<promise_type>;\n    struct promise_type {\n        Stepper get_return_object() { return Stepper{Handle::from_promise(*this)}; }\n        std::suspend_always initial_suspend() noexcept { return {}; }\n        std::suspend_always final_suspend() noexcept { return {}; }\n        void return_void() noexcept {}\n        void unhandled_exception() { std::terminate(); }\n    };\n    explicit Stepper(Handle handle) : handle_{handle} {}\n    Stepper(const Stepper&) = delete;\n    Stepper& operator=(const Stepper&) = delete;\n    Stepper(Stepper&& other) noexcept : handle_{std::exchange(other.handle_, {})} {}\n    Stepper& operator=(Stepper&&) = delete;\n    ~Stepper() { if (handle_) handle_.destroy(); }\n    void resume() { if (handle_ && !handle_.done()) handle_.resume(); }\nprivate:\n    Handle handle_;\n};\n\nStepper announce(std::string title)\n{\n    std::cout << title << '\\n';\n    co_await std::suspend_always{};\n    std::cout << \"finished\\n\";\n}\n\nint main()\n{\n    auto task = announce(std::string{\"Atlas\"});\n    task.resume();\n}\n",
+          "caption": "main.cpp — C++20"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Atlas\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The temporary supplied by main can expire after the call because the coroutine’s value parameter owns its own string. The first resume prints Atlas and suspends. Then task is destroyed. Destroying the suspended frame cleans up its state without executing the remaining finished output. The wrapper has the same single-thread, suspended-frame invariant as the previous lesson."
+        },
+        {
+          "type": "paragraph",
+          "text": "This is abandonment of a local teaching task, not a protocol for canceling an external operation. If an event loop has retained a handle, destroying the frame while it can still resume that handle creates a lifetime bug. A real runtime must coordinate operation cancellation, unregistration, outstanding callbacks, and frame destruction."
+        }
+      ]
+    },
+    {
+      "id": "cpp_coroutine_lifetimes_part_3",
+      "title": "Review every retained dependency",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Would changing announce to accept const std::string& preserve the temporary’s lifetime until resume?",
+          "explanation": "No. The reference parameter would refer to a temporary that expires after the call expression. Initial suspension happens before the body uses it, so a later resume would access an expired object."
+        },
+        {
+          "type": "paragraph",
+          "text": "For each suspension point, list the objects needed afterward and who keeps them alive. Test early completion and abandonment as deliberately as the success path. Library task types can package these rules, but their ownership, cancellation, and exception contracts must be read. C++23 supplies std::generator for a particular synchronous generator use case; it does not retroactively make all C++20 coroutine return types standard task abstractions."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_coroutine_lifetimes_source_1",
+      "title": "C++20 working draft N4861: dcl.fct.def.coroutine",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.fct.def.coroutine",
+      "locator": "Primary standards draft, [dcl.fct.def.coroutine]: parameter copies and coroutine state destruction. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_coroutine_lifetimes_source_2",
+      "title": "C++20 working draft N4861: basic.life",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+      "locator": "Primary standards draft, [basic.life]: reference and object lifetime. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_coroutine_lifetimes_source_3",
+      "title": "C++20 working draft N4861: coroutine.handle.resumption",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/coroutine.handle.resumption",
+      "locator": "Primary standards draft, [coroutine.handle.resumption]: destruction requires a suspended coroutine. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_coroutine_lifetimes_source_4",
+      "title": "C++ working draft N4950: coro.generator",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2023,
+      "url": "https://timsong-cpp.github.io/cppwp/n4950/coro.generator",
+      "locator": "Primary standards draft: C++23 generator overview; later-library distinction only. Consulted 2026-09-11; not the published ISO edition."
+    }
+  ]
+}

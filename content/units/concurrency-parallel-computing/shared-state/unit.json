@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "parallel_unit_shared_state",
+  "name": "Shared State and Coordination",
+  "slug": "shared-state",
+  "description": "Reason about indivisible operations, invariants, and safe coordination.",
+  "position": 0
+}

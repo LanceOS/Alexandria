@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "audio_signal_processing_callback_deadlines_unit",
+  "name": "Audio Callback Deadlines",
+  "slug": "callback-deadlines",
+  "description": "Compute a buffer interval and separate bounded processing from background work.",
+  "position": 0
+}

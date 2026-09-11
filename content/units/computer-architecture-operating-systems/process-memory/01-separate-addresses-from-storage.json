@@ -1,0 +1,81 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "archos_separate_addresses_from_storage_module",
+  "versionId": "archos_separate_addresses_from_storage_v1",
+  "slug": "separate-addresses-from-storage",
+  "title": "Separate virtual addresses from physical storage",
+  "summary": "Trace two process mappings and distinguish mapped storage from valid language objects.",
+  "position": 0,
+  "objectives": [
+    "Explain a virtual page and its offset.",
+    "Distinguish address-space isolation from explicit sharing.",
+    "Separate OS mappings from C++ object lifetime and validity."
+  ],
+  "parts": [
+    {
+      "id": "archos_separate_addresses_from_storage_part_1",
+      "title": "Identify the translation layer",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: hexadecimal notation and the distinction between a process and a program file. This lesson uses MMU-equipped Linux as a documented example. C++ pointers, storage duration, and object lifetime remain language-level topics."
+        },
+        {
+          "type": "paragraph",
+          "text": "A process normally uses virtual addresses. Hardware translation and operating-system page tables connect those addresses to physical memory, with permissions controlling allowed accesses. Two processes can use the same numeric virtual address while referring to different storage. Conversely, mappings in different processes can intentionally refer to shared storage. A numeric address by itself therefore does not identify an object throughout the whole machine."
+        },
+        {
+          "type": "paragraph",
+          "text": "A page mapping covers a range. Split an address into a virtual page number and an offset inside the page; translation changes the page identity while retaining the offset. For the example, assume pages of 4096 bytes, or hexadecimal 0x1000. This is an explicit teaching choice, not a statement that all systems use one page size. The Linux documentation describes architecture-dependent page sizes and multiple mapping mechanisms."
+        }
+      ]
+    },
+    {
+      "id": "archos_separate_addresses_from_storage_part_2",
+      "title": "Trace independent mappings",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Teaching page size: 0x1000 bytes\nProcess A: virtual page 0x4 -> physical frame 0x9\nProcess B: virtual page 0x4 -> physical frame 0xC\n\nA reads virtual address 0x4028 -> physical address 0x9028\nB reads virtual address 0x4028 -> physical address 0xC028\nSame virtual number; different process mapping; different storage",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The low offset, 0x028, remains the same. The process-specific page mapping supplies the frame. If a mapping instead has no permitted access, the operating system may need to handle a page fault or report an invalid access. A page fault is not synonymous with a program bug: demand paging can legitimately require the kernel to establish a mapping or bring data into memory."
+        },
+        {
+          "type": "paragraph",
+          "text": "Reserving virtual space also does not necessarily allocate one physical page immediately for every address. Linux anonymous mappings can obtain physical pages on demand. Consequently, virtual size and resident physical memory describe different quantities. Releasing a language-level allocation may leave allocator storage reserved for later reuse, so a process memory graph does not directly count live C++ objects."
+        }
+      ]
+    },
+    {
+      "id": "archos_separate_addresses_from_storage_part_3",
+      "title": "Keep the abstraction boundaries clear",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "If a destroyed C++ object’s address still lies in a readable mapped page, does reading through its old pointer become valid?",
+          "explanation": "No. OS access permissions only establish that the machine can access the mapped storage. They do not establish that a suitable C++ object is alive there or that a particular pointer may be used to access it."
+        },
+        {
+          "type": "paragraph",
+          "text": "For an explicitly shared region, processes also need a compatible data representation and a synchronization protocol. Ordinary process-local pointer values generally cannot serve as portable references inside that region. Use the language course to reason about valid objects and the systems course to reason about mappings, permissions, and sharing. Keeping these questions separate helps explain why some lifetime bugs appear to work until memory is reused."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "archos_separate_addresses_from_storage_source_linuxmem",
+      "title": "Linux memory management: Concepts overview",
+      "authors": [
+        "The Linux kernel development community"
+      ],
+      "url": "https://www.kernel.org/doc/html/latest/admin-guide/mm/concepts.html",
+      "locator": "Official implementation documentation, not portable C++ guarantees: Virtual Memory Primer, Huge Pages, Page cache, and Anonymous Memory; MMU-equipped Linux systems; consulted 2026-09-11."
+    }
+  ]
+}

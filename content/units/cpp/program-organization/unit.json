@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_core_unit_program_organization",
+  "name": "Program Organization",
+  "slug": "program-organization",
+  "description": "Understand translation boundaries, linkage, headers, and modules.",
+  "position": 11
+}

@@ -1,6 +1,6 @@
 # C++ Basics content
 
-Six short, original modules establish the reading interface with this hierarchy:
+Seven short, original modules establish the reading interface with this hierarchy:
 
 ```text
 Software & Computing
@@ -12,10 +12,11 @@ Software & Computing
             ├── Expressions and arithmetic
             ├── Making decisions
             ├── Repeating work
-            └── Functions
+            ├── Functions
+            └── Output and buffering
 ```
 
-Each module has three parts, complete C++20 examples with expected output, and short explanations or ungraded reflection prompts. The first module covers a greeting program; the following modules introduce named values, arithmetic, selection, repetition, and simple functions in that order. Further-reading links appear at the bottom of each module's final section and can be expanded in earlier sections. Final sections link to the next module in the same subunit, or back to the learning path at the end.
+Each module has three parts, complete C++20 examples with expected output, and short explanations or ungraded reflection prompts. The first module covers a greeting program; the following modules introduce named values, arithmetic, selection, repetition, simple functions, and output buffering in that order. Further-reading links appear at the bottom of each module's final section and can be expanded in earlier sections. Final sections link to the next module in the same subunit, or back to the learning path at the end.
 
 Installation creates no exercises, accounts, attempts, or learner progress. All modules use content schema version 1 and an empty completion policy. Reading does not claim a grade or persist completion.
 
@@ -28,13 +29,13 @@ npm run content:check -- cpp
 npm run content:import -- cpp
 ```
 
-The check validates the curriculum files without opening the database. Import acquires the maintenance lock, creates a verified database backup, then publishes the topic, units, six modules, eighteen lesson parts, and citations in one transaction. On an existing starter installation, it adds only the five following modules. It does not execute lesson code. Restart the server afterward. `npm run content:cpp-basics` remains an alias for importing this root.
+The check validates the curriculum files without opening the database. C++ now includes the core and advanced subunits in the [curriculum map](curriculum-map.md), so this import publishes the entire expanded C++ root in one transaction after acquiring the maintenance lock and creating a verified backup. An existing Basics installation retains its seven modules and twenty-one parts unchanged and gains the new subunits. It does not execute lesson code. Restart the server afterward. `npm run content:cpp-basics` remains an alias for importing this entire root; the historical TypeScript Basics helpers remain scoped to the original seven lessons for compatibility.
 
 Content is not seeded during initialization or startup. Running this command again validates the existing records and makes no content writes if they still match. A backup is still created on each invocation. Conflicting IDs, an unrelated topic using the `cpp` slug, conflicting module slugs in Basics, partial owned records, or modified installed records cause an error without overwriting existing work. A failure rolls back the entire installation. Unrelated curriculum is preserved. Future revisions need explicit new content versions, not edits to these published versions.
 
-The content lives in `content/units/cpp/`. The root `unit.json` declares the C++ unit and topic; `basics/unit.json` declares the child unit. Six files, `01-first-program.json` through `06-functions.json`, contain the modules, lesson parts, code examples, and source references. The starter retains its `cpp_starter_` IDs and the following modules retain their `cpp_basics_` IDs. Topic and root-unit slugs remain `cpp`; the child-unit slug is `basics`.
+The content lives in `content/units/cpp/`. The root `unit.json` declares the C++ unit and topic; `basics/unit.json` declares the child unit. Seven files, `01-first-program.json` through `07-output-and-buffering.json`, contain the modules, lesson parts, code examples, and source references. The starter retains its `cpp_starter_` IDs and the following modules retain their `cpp_basics_` IDs. Topic and root-unit slugs remain `cpp`; the child-unit slug is `basics`.
 
-Moving these definitions to JSON changes neither lesson content nor database records. Reimporting an already matching six-module installation makes no content writes, and no schema migration is required. The generic loader discovers unit folders and modules; adding a new file does not require a TypeScript registration entry. See [Content authoring](../content/README.md) for the format, ordering, and validation rules.
+Moving the original definitions to JSON changed neither their lesson content nor database records. The curriculum expansion is additive: existing Basics records remain unchanged, and no database schema migration is required for the new units. Reimporting a matching expanded installation makes no content writes. The generic loader discovers unit folders and modules; adding a new file does not require a TypeScript registration entry. See [Content authoring](../content/README.md) for the format, ordering, and validation rules.
 
 ## References and review
 
@@ -60,6 +61,6 @@ Additional module references:
 | Repeating work | §9.5.2–§9.5.3, printed pp. 235–236 | [for statements](https://eel.is/c++draft/stmt.for), [while statements](https://eel.is/c++draft/stmt.while) |
 | Functions | §12.1.1, §12.1.3, and §12.1.4, printed pp. 306–310; §12.2, printed p. 315 | [Function calls](https://eel.is/c++draft/expr.call), [return statements](https://eel.is/c++draft/stmt.return), [function declarations](https://eel.is/c++draft/dcl.fct) |
 
-The relevant supplied book pages were read and visually inspected. Public book links open the author's edition page; section and page locators tell readers where to continue in their own copy. Draft links provide technical detail and can be more demanding than the lesson itself.
+The relevant supplied book pages for the first six modules were read and visually inspected. The output module’s suggested book sections (§38.4.3 Manipulators and §38.6 Buffering) were checked against the [author’s table of contents](https://www.stroustrup.com/4thContents.html); its technical explanations were checked against the linked working draft sections. Public book links open the author's edition page; section and page locators tell readers where to continue in their own copy. Draft links provide technical detail and can be more demanding than the lesson itself.
 
 The draft links were consulted on 2026-09-11 and may evolve. These lessons teach established C++ features; they do not treat a particular working draft as a published ISO edition. The terminal example selects C++20 and explicitly assumes an installed GCC C++ compiler and standard library on Linux or macOS. It is not a universal compiler setup command. Alexandria does not execute source code in the browser or on the server.

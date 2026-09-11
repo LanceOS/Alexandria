@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_core_unit_lifetime_ownership",
+  "name": "Lifetime and Ownership",
+  "slug": "lifetime-ownership",
+  "description": "Track owners and borrowers and use automatic resource management.",
+  "position": 3
+}

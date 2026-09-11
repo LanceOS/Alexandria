@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "gui_development_responsive_work_unit",
+  "name": "Responsive Background Work",
+  "slug": "responsive-work",
+  "description": "Trace worker completion without unsafe widget access or stale results.",
+  "position": 1
+}

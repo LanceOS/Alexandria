@@ -1,0 +1,121 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_library_services_time_and_path_values",
+  "versionId": "cpp_core_library_services_time_and_path_values_v1",
+  "slug": "time-and-path-values",
+  "title": "Time durations and filesystem paths",
+  "summary": "Use library types to preserve units and interpret paths without touching the filesystem.",
+  "position": 1,
+  "objectives": [
+    "Distinguish a duration’s count from its time unit.",
+    "Explain truncation when converting to a coarser integral duration.",
+    "Separate lexical path manipulation from filesystem resolution."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_library_services_time_and_path_values_part_1",
+      "title": "Represent units and paths explicitly",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A plain number such as 1500 does not say whether it represents seconds, milliseconds, or bytes. std::chrono::duration pairs a representation with a tick period, making the unit part of the type. A filesystem path similarly gives structure to a pathname instead of asking every caller to concatenate raw separator characters. Both facilities demonstrate how standard types can preserve meaning that a primitive value or string would leave implicit."
+        },
+        {
+          "type": "paragraph",
+          "text": "A duration measures an interval; a time_point represents a position relative to a clock’s epoch. They are related but not interchangeable. For elapsed runtime, a monotonic clock such as steady_clock is usually the relevant mechanism. This lesson uses fixed duration values instead of reading a live clock so every run has the same expected output. Measuring performance responsibly requires additional methodology beyond obtaining two timestamps."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_library_services_time_and_path_values_part_2",
+      "title": "Keep the example independent of machine state",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <chrono>\n#include <filesystem>\n#include <iostream>\n\nint main()\n{\n    using namespace std::chrono_literals;\n    const auto elapsed = 1s + 1500ms;\n    const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);\n    const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed);\n    const auto path = (std::filesystem::path{\"library\"} / \"notes/../atlas.txt\")\n                          .lexically_normal();\n    std::cout << millis.count() << \" ms\\n\";\n    std::cout << seconds.count() << \" seconds\\n\";\n    std::cout << path.generic_string() << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "2500 ms\n2 seconds\nlibrary/atlas.txt\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The program adds one second and 1500 milliseconds. The resulting interval is 2500 milliseconds. Converting it to integral seconds with duration_cast discards the fractional second, producing 2. This makes the conversion policy visible. A program that must round up or preserve fractions would need a different operation or representation. count returns the stored number of ticks, so label the unit whenever that number is displayed or passed outside the type system."
+        },
+        {
+          "type": "paragraph",
+          "text": "The path example joins a directory and a relative path using the path operator rather than hard-coding platform separators. lexically_normal simplifies the pathname components, producing library/atlas.txt in generic format. generic_string chooses the portable separator spelling for this output. No file is created or read, and the named path need not exist for these lexical operations to succeed."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_library_services_time_and_path_values_part_3",
+      "title": "Know which questions require the outside world",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Lexical normalization reasons about pathname components, not the actual filesystem. In particular, it does not establish where symbolic links point or whether a resulting file is accessible. File existence, permissions, canonical resolution, and directory traversal require filesystem operations that can fail and interact with changing external state. Do not treat a normalized string as a security guarantee about which real file an application will open."
+        },
+        {
+          "type": "paragraph",
+          "text": "Paths and durations also have portability boundaries. Operating systems differ in valid filename characters, root syntax, case behavior, and native text representation. Time representations can overflow or lose precision during unsuitable conversions. The library provides structure and documented rules, but an interface must still choose a supported range, output encoding, and failure policy. Keep those application decisions separate from the convenient syntax used to manipulate the values."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Does a successful lexically_normal call prove that library/atlas.txt exists?",
+          "explanation": "No. It transforms pathname syntax without consulting directory contents. Existence and resolution are separate filesystem questions that may fail or change between operations."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_library_services_time_and_path_values_source_1",
+      "title": "C++20 working draft N4861: time.duration",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/time.duration",
+      "locator": "N4861, [time.duration]; consulted 2026-09-11. Typed tick counts, periods, and duration conversion."
+    },
+    {
+      "id": "cpp_core_library_services_time_and_path_values_source_2",
+      "title": "C++20 working draft N4861: fs.path.gen",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/fs.path.gen",
+      "locator": "N4861, [fs.path.gen]; consulted 2026-09-11. Lexical path normalization without filesystem traversal."
+    },
+    {
+      "id": "cpp_core_library_services_time_and_path_values_source_3",
+      "title": "C++20 working draft N4861: fs.path.generic",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/fs.path.generic",
+      "locator": "N4861, [fs.path.generic]; consulted 2026-09-11. Generic path syntax and platform-dependent filename rules."
+    },
+    {
+      "id": "cpp_core_library_services_time_and_path_values_source_4",
+      "title": "C++20 working draft N4861: time.clock.steady",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/time.clock.steady",
+      "locator": "N4861, [time.clock.steady]; consulted 2026-09-11. Monotonic time_point values and a steady rate."
+    }
+  ]
+}

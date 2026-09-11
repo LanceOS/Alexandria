@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "build_unit",
+  "name": "Build and Release Engineering",
+  "slug": "build-release-engineering",
+  "description": "Model build dependencies and reproducible artifacts after understanding compilation and linking. C++ owns language translation rules; this subject owns delivery workflows.",
+  "position": 0,
+  "topic": {
+    "id": "build_topic",
+    "slug": "build-release-engineering",
+    "name": "Build and Release Engineering",
+    "description": "Model build dependencies and reproducible artifacts after understanding compilation and linking. C++ owns language translation rules; this subject owns delivery workflows.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 6
+      }
+    ]
+  }
+}

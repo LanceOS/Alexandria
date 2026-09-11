@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "systems_programming_descriptor_io_unit",
+  "name": "Descriptor I/O",
+  "slug": "descriptor-io",
+  "description": "Interpret I/O results and preserve progress across partial transfers.",
+  "position": 0
+}

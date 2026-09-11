@@ -1,0 +1,90 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "textdata_design_an_interoperable_record_module",
+  "versionId": "textdata_design_an_interoperable_record_v1",
+  "slug": "design-an-interoperable-record",
+  "title": "Design an interoperable data record",
+  "summary": "Separate JSON syntax from the application rules needed to exchange a reading session.",
+  "position": 0,
+  "objectives": [
+    "Distinguish parsing from application validation.",
+    "Choose explicit representations for exact identifiers and numeric fields.",
+    "Specify duplicate-name, version, and resource-limit policies."
+  ],
+  "parts": [
+    {
+      "id": "textdata_design_an_interoperable_record_part_1",
+      "title": "Define the meaning beyond the syntax",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: strings, records, and error handling. This unit uses RFC 8259, the JSON Internet standard. C++ streams and third-party parser APIs are separate implementation topics; the interchange contract belongs here."
+        },
+        {
+          "type": "paragraph",
+          "text": "JSON defines how to represent objects, arrays, strings, numbers, and a few literal values. It does not define what a reading session means. An application must specify required fields, allowed values, units, missing-field behavior, and version handling. A parser accepting a document establishes syntactic success; it does not establish that a negative duration or an unknown book identifier is meaningful."
+        },
+        {
+          "type": "paragraph",
+          "text": "For this exercise, version 1 requires a string bookId and an integer-valued minutes field from one through 120. Unknown fields are ignored for forward compatibility, but an unknown version is rejected. The contract rejects duplicate member names to avoid parser-dependent interpretations. These are our explicit application choices, not rules imposed universally by JSON."
+        }
+      ]
+    },
+    {
+      "id": "textdata_design_an_interoperable_record_part_2",
+      "title": "Read a concrete record",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "{\n  \"version\": 1,\n  \"bookId\": \"9007199254740993\",\n  \"minutes\": 25\n}\n\nParse: a JSON object containing the three named fields\nValidate version: supported value 1\nValidate bookId: exact identifier represented as text\nValidate minutes: integer value within 1..120\nAccept: one 25-minute session for the given book identifier",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The identifier is text because it is a label, not a quantity to calculate with. RFC 8259 describes interoperability limits when implementations use binary64 numbers: sufficiently large integer values may not be represented exactly by every consumer. A string avoids asking a numeric parser to preserve this identifier’s arithmetic value. The application must still define the permitted identifier grammar and length."
+        },
+        {
+          "type": "paragraph",
+          "text": "The standard requires UTF-8 for JSON exchanged between systems outside a closed ecosystem. It also permits parsers to impose limits, such as maximum nesting or numeric range. Document those limits in a protocol so producers can generate records consumers accept. A syntactically valid number with an enormous exponent need not be useful to the application."
+        }
+      ]
+    },
+    {
+      "id": "textdata_design_an_interoperable_record_part_3",
+      "title": "Exercise incompatible and ambiguous inputs",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Should {\"minutes\":25,\"minutes\":60} silently mean 60 in this contract?",
+          "explanation": "No. The contract explicitly rejects duplicate names. Different parsers may otherwise choose different behaviors. Enforce duplicate detection during parsing or with parser facilities that preserve the information; it may be lost after conversion into an ordinary map."
+        },
+        {
+          "type": "paragraph",
+          "text": "Set bounds for record bytes, nesting, field counts, and string lengths before expensive processing or large allocation. Maintain a small set of accepted and rejected fixtures as compatibility tests across implementations. When the format evolves, state which old records new readers accept and which new records old readers reject. Serialization is successful when independent producers and consumers agree on meaning, not merely when one program can read its own output."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "textdata_design_an_interoperable_record_source_json",
+      "title": "RFC 8259: The JavaScript Object Notation (JSON) Data Interchange Format",
+      "authors": [
+        "Tim Bray"
+      ],
+      "url": "https://www.rfc-editor.org/rfc/rfc8259",
+      "locator": "Normative Internet standard: RFC 8259, December 2017, §§4, 6, 8.1 and 9 on objects, numbers, UTF-8 and parser limits; consulted 2026-09-11."
+    },
+    {
+      "id": "textdata_design_an_interoperable_record_source_owasp",
+      "title": "OWASP Input Validation Cheat Sheet",
+      "authors": [
+        "OWASP Cheat Sheet Series contributors"
+      ],
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+      "locator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
+    }
+  ]
+}

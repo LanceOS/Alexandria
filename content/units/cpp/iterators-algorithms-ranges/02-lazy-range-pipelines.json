@@ -1,0 +1,110 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines",
+  "versionId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_v1",
+  "slug": "lazy-range-pipelines",
+  "title": "Lazy range pipelines",
+  "summary": "Combine filtering and transformation while tracking the data that a view borrows.",
+  "position": 1,
+  "objectives": [
+    "Build a C++20 filter and transform pipeline.",
+    "Explain when the pipeline evaluates element operations.",
+    "Materialize an owning result when it must outlive the source."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_part_1",
+      "title": "Describe a sequence transformation",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "C++20 ranges add interfaces that work with a range as an object and provide views that describe transformed sequences. A view is designed to be lightweight to move and compose, but it is not simply a synonym for a container. Some views own state and some refer to external data. The important lifetime question is which objects ultimately keep the underlying elements alive."
+        },
+        {
+          "type": "paragraph",
+          "text": "A filter view selects elements whose predicate is true. A transform view applies a callable when an element is accessed through the view. Joining these operations with the pipe syntax builds a pipeline. In the example, the input vector is an lvalue, so the pipeline refers to that existing vector. Constructing the pipeline does not immediately create another vector containing every transformed result."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_part_2",
+      "title": "Evaluate elements during iteration",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <ranges>\n#include <vector>\n\nint main()\n{\n    const std::vector<int> pages{1, 2, 3, 4, 5, 6};\n    auto selected = pages\n        | std::views::filter([](int value) { return value % 2 == 0; })\n        | std::views::transform([](int value) { return value * 10; });\n    std::vector<int> saved;\n    for (int value : selected) {\n        std::cout << value << '\\n';\n        saved.push_back(value);\n    }\n    std::cout << \"Saved: \" << saved.size() << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "20\n40\n60\nSaved: 3\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The predicate selects even page counts: 2, 4, and 6. The transformation multiplies each selected count by ten, producing 20, 40, and 60 as the loop visits them. The example prints each value and appends it to a separate vector. The source and pipeline remain alive for the entire loop, and neither is structurally modified during iteration. Those decisions keep the borrowing relationships easy to verify."
+        },
+        {
+          "type": "paragraph",
+          "text": "The second vector is a materialized result: it owns its three integers after the loop completes. This creates a clear lifetime boundary if later code needs the values after the source or pipeline goes away. The explicit loop is portable C++20. Some newer convenience facilities for collecting ranges require later standards and library support, so this course does not silently depend on them."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_part_3",
+      "title": "Decide when to own the result",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Laziness means operation timing matters. A transform callable may run again when an element is accessed again; it is not generally a one-time preprocessing step. Keep predicates and transformations free of surprising side effects, and do not use their invocation counts as application state. Some views also cache traversal information, so changing the underlying sequence during traversal can require care beyond merely preserving raw storage addresses."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ranges describe useful processing but do not erase algorithmic costs or lifetime rules. Filtering may inspect several input elements before producing one output element. A view returned from a function can dangle when it ultimately refers to a destroyed local vector. Return an owning collection when independent storage is the intended contract, or clearly require the caller-owned input to outlive the returned view. Choose the representation by that contract before optimizing allocations."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Would returning this pipeline from a helper with a local pages vector provide an independent result?",
+          "explanation": "No. The pipeline built from that local lvalue would refer to its elements. Destroying the local vector would invalidate that access. Returning the materialized saved vector supplies an owning result instead."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_source_1",
+      "title": "C++20 working draft N4861: range.filter",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/range.filter",
+      "locator": "N4861, [range.filter]; consulted 2026-09-11. Predicate filtering and iteration behavior."
+    },
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_source_2",
+      "title": "C++20 working draft N4861: range.transform",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/range.transform",
+      "locator": "N4861, [range.transform]; consulted 2026-09-11. Transformation of elements through a view."
+    },
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_source_3",
+      "title": "C++20 working draft N4861: iterator.requirements.general",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/iterator.requirements.general",
+      "locator": "N4861, [iterator.requirements.general]; consulted 2026-09-11. Half-open ranges, sentinels, and dereferenceability."
+    }
+  ]
+}

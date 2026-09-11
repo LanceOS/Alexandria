@@ -1,0 +1,90 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "dsa_design_a_bounded_queue_module",
+  "versionId": "dsa_design_a_bounded_queue_v1",
+  "slug": "design-a-bounded-queue",
+  "title": "Design a bounded queue from its contract",
+  "summary": "Trace FIFO behavior and a circular representation with a clear capacity rule.",
+  "position": 0,
+  "objectives": [
+    "Define queue behavior independently of storage.",
+    "Trace head, count, and insertion position in a ring buffer.",
+    "Choose an explicit response to full and empty states."
+  ],
+  "parts": [
+    {
+      "id": "dsa_design_a_bounded_queue_part_1",
+      "title": "Specify behavior first",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: arrays, indexing, and remainder arithmetic. C++ container adapters belong in the language track. Here the focus is the abstract contract, representation invariant, and the tradeoff behind a data structure."
+        },
+        {
+          "type": "paragraph",
+          "text": "A print service needs to preserve job arrival order. A queue promises that removal returns the oldest queued item, which is first-in, first-out behavior. That promise does not require linked nodes, a particular class, or contiguous storage. Define operations such as enqueue, front, and dequeue, then state what they do in empty and full states. The service in this lesson has capacity three and rejects a new job when full."
+        },
+        {
+          "type": "paragraph",
+          "text": "A bounded queue can use three storage slots, a head index, and a count. Head identifies the oldest occupied slot; count ranges from zero through three. When space exists, the insertion slot is the remainder of head plus count divided by capacity. Slots outside the active sequence have no logical meaning, even if old bytes remain there. A real implementation must additionally manage the stored objects’ lifetimes."
+        }
+      ]
+    },
+    {
+      "id": "dsa_design_a_bounded_queue_part_2",
+      "title": "Follow wraparound",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Capacity = 3; initial head = 0, count = 0\nenqueue A -> slot 0; head 0, count 1; logical queue [A]\nenqueue B -> slot 1; head 0, count 2; logical queue [A, B]\ndequeue   -> returns A; head 1, count 1; logical queue [B]\nenqueue C -> slot 2; head 1, count 2; logical queue [B, C]\nenqueue D -> slot 0; head 1, count 3; logical queue [B, C, D]\nenqueue E -> rejected; queue remains [B, C, D]",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "After wraparound, physical slot order differs from logical arrival order. Reading slots zero, one, and two would incorrectly present D before B. The head and count provide the interpretation that turns raw storage into a queue. Check the invariant after each successful operation: exactly count logical items begin at head and proceed cyclically, with each item removed at most once."
+        },
+        {
+          "type": "paragraph",
+          "text": "In this model, index updates take constant work and storage is fixed. Copying an arbitrarily large job payload need not take constant time, so distinguish queue bookkeeping from element operations. Fixed capacity bounds storage but introduces a rejection policy. Growing storage avoids this particular full state while introducing allocation and possible relocation costs."
+        }
+      ]
+    },
+    {
+      "id": "dsa_design_a_bounded_queue_part_3",
+      "title": "Protect the contract",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Why keep count instead of assuming head equals tail always means empty?",
+          "explanation": "In a ring representation, equal positions can describe either an empty ring or a completely full ring unless another convention distinguishes them. Count makes that distinction explicit. Another design may reserve one unused slot, but then usable capacity changes."
+        },
+        {
+          "type": "paragraph",
+          "text": "Write tests from the public behavior: empty removal, fill to capacity, rejected insertion, wraparound, and repeated drain-and-refill cycles. Tests should compare the logical removal sequence, not demand one internal slot arrangement. That separation lets the implementation change while the service contract remains stable. Choosing a structure starts with the required behavior, then checks whether its representation makes those operations affordable."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dsa_design_a_bounded_queue_source_queue",
+      "title": "Dictionary of Algorithms and Data Structures: queue",
+      "authors": [
+        "Paul E. Black"
+      ],
+      "url": "https://xlinux.nist.gov/dads/HTML/queue.html",
+      "locator": "Official NIST reference documentation: FIFO definition and abstract queue operations; entry modified 2020-12-14; consulted 2026-09-11."
+    },
+    {
+      "id": "dsa_design_a_bounded_queue_source_bigO",
+      "title": "Dictionary of Algorithms and Data Structures: big-O notation",
+      "authors": [
+        "Paul E. Black"
+      ],
+      "url": "https://xlinux.nist.gov/dads/HTML/bigOnotation.html",
+      "locator": "Official NIST reference documentation: formal definition, tight versus upper bounds, and computation models; entry modified 2019-09-06; consulted 2026-09-11."
+    }
+  ]
+}

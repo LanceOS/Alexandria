@@ -1,0 +1,110 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_functions_interfaces_parameters_and_results",
+  "versionId": "cpp_core_functions_interfaces_parameters_and_results_v1",
+  "slug": "parameters-and-results",
+  "title": "Parameters, results, and borrowing",
+  "summary": "Choose value and reference parameters by what a function is allowed to do.",
+  "position": 0,
+  "objectives": [
+    "Distinguish copied inputs, borrowed inputs, and mutable references.",
+    "Return an owning result safely.",
+    "State assumptions that parameter types do not enforce."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_functions_interfaces_parameters_and_results_part_1",
+      "title": "Read a function as a contract",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A function interface communicates more than the names of its arguments. A value parameter creates a separate parameter object. A reference parameter binds to an existing object. A reference to const allows the function to inspect that object without changing it through the reference. These choices communicate how a caller’s state may be affected. They also carry lifetime obligations that the parameter list alone cannot completely enforce."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a small integer input, passing by value is straightforward. For an existing vector that a function only reads, a const reference avoids copying all the elements. This is a design choice based on the operation rather than a blanket rule that references are always faster. Passing an int by mutable reference advertises that the function may update the caller’s integer, so the operation’s name should make that effect understandable."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_functions_interfaces_parameters_and_results_part_2",
+      "title": "Trace copied values and shared objects",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <string>\n#include <vector>\n\nint total(const std::vector<int>& sessions)\n{\n    int result{};\n    for (int pages : sessions) result += pages;\n    return result;\n}\n\nvoid set_completed(int& completed, int value)\n{\n    completed = value;\n}\n\nstd::string make_label(int completed)\n{\n    return \"Completed: \" + std::to_string(completed);\n}\n\nint main()\n{\n    const std::vector<int> sessions{4, 6, 5};\n    int completed{};\n    set_completed(completed, total(sessions));\n    const std::string label = make_label(completed);\n    std::cout << label << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Completed: 15\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The total function visits the existing vector through a const reference and adds its elements into a local result. The sample values are nonnegative and their sum fits in int; the function’s type does not prove that assumption for every possible vector. set_completed has a mutable reference parameter, so its assignment updates the caller’s completed variable. The value parameter in that function supplies the replacement value without creating another alias."
+        },
+        {
+          "type": "paragraph",
+          "text": "make_label returns a std::string by value. The returned string owns the characters needed by the caller, even though the function’s local work has ended. Returning a reference to a local string would leave the caller referring to a destroyed object. Modern C++ can construct or move returned values efficiently; a borrowed return should be chosen because borrowing is correct, not because a value return merely looks expensive."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_functions_interfaces_parameters_and_results_part_3",
+      "title": "Make the lifetime promise explicit",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Borrowing means the function does not acquire responsibility for destroying the argument. This example does not retain a reference after either helper returns. A function that stores a reference for later use needs an additional promise about how long the caller keeps the owner alive. const does not provide that promise, and it does not prevent some other valid alias from modifying the original object."
+        },
+        {
+          "type": "paragraph",
+          "text": "Prefer a result when the job is to calculate a new value, and use a mutable reference when updating an existing object is the job itself. Keep input assumptions close to the interface. Here a more general total function would need an overflow policy and perhaps a wider representation. Returning several related results can later use a small struct, keeping their names and relationships clearer than a collection of output parameters."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Would changing set_completed to take int completed update main’s variable?",
+          "explanation": "No. That parameter would be a separate int initialized from the argument. The assignment would change only the parameter, and main’s completed value would remain zero."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_functions_interfaces_parameters_and_results_source_1",
+      "title": "C++20 working draft N4861: expr.call",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.call",
+      "locator": "N4861, [expr.call]; consulted 2026-09-11. Parameter initialization and function calls."
+    },
+    {
+      "id": "cpp_core_functions_interfaces_parameters_and_results_source_2",
+      "title": "C++20 working draft N4861: dcl.init.ref",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.init.ref",
+      "locator": "N4861, [dcl.init.ref]; consulted 2026-09-11. Reference initialization and assignment through a reference."
+    },
+    {
+      "id": "cpp_core_functions_interfaces_parameters_and_results_source_3",
+      "title": "C++20 working draft N4861: basic.life",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+      "locator": "N4861, [basic.life]; consulted 2026-09-11. Object lifetime begins and ends; access outside lifetime is restricted."
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "performance_reason_about_useful_bytes_module",
+  "versionId": "performance_reason_about_useful_bytes_v1",
+  "slug": "reason-about-useful-bytes",
+  "title": "Reason about useful bytes in a layout",
+  "summary": "Compare record and field layouts using an explicit traffic model.",
+  "position": 0,
+  "objectives": [
+    "Calculate useful-data density under stated layout assumptions.",
+    "Identify the workload tradeoff behind a field-oriented layout.",
+    "Separate a traffic estimate from a measured speedup."
+  ],
+  "parts": [
+    {
+      "id": "performance_reason_about_useful_bytes_part_1",
+      "title": "Connect the layout to an operation",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: the memory-hierarchy lesson, arrays, and basic profiling. This unit owns optimization reasoning and validation. C++ layout rules and alignment explain actual object representation; the numbers below define a teaching model."
+        },
+        {
+          "type": "paragraph",
+          "text": "A catalog stores a four-byte year, a four-byte page count, and 56 bytes of other data in each record. Assume a 64-byte record size and a scan that reads only page counts. A record-oriented representation makes whole-record access convenient, but the scan uses only four of every 64 bytes it brings through the simplified memory model. If this scan dominates runtime, separating page counts becomes a plausible experiment."
+        },
+        {
+          "type": "paragraph",
+          "text": "Define a second representation with page counts packed contiguously in a separate array. Other fields remain elsewhere and records share a stable index. This arrangement increases useful density for the page-count scan, while potentially adding work to operations that need all fields of one record. The appropriate layout is determined by the important operations and their frequencies."
+        }
+      ]
+    },
+    {
+      "id": "performance_reason_about_useful_bytes_part_2",
+      "title": "Calculate the model, then state its limits",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Assumptions: 1,024 records; 64-byte aligned cache lines; cold scan\nEach record is 64 bytes; each page count is 4 bytes\n\nRecord layout: 1,024 lines = 65,536 bytes fetched\nPacked counts: 64 lines = 4,096 bytes fetched\nUseful page-count data in either layout: 4,096 bytes\nTraffic ratio in this model: 16 to 1\nThis is a traffic estimate, not a 16x runtime claim.",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The calculation assumes each required line is fetched once and no relevant data is already cached. Real machines have prefetchers, multiple cache levels, finite memory bandwidth, and other bottlenecks. The record scan may overlap memory accesses effectively. The packed version might require conversion work elsewhere. None of those effects appears in this simple byte count."
+        },
+        {
+          "type": "paragraph",
+          "text": "An estimate is useful when it provides a falsifiable explanation. Predict fewer data-cache misses or lower bandwidth demand for the scan, then investigate with an appropriate tool. Cachegrind’s manual documents its simulation model and omissions; hardware counters also require careful interpretation. Measure end-to-end time as well as a focused scan so moved work does not disappear from the comparison."
+        }
+      ]
+    },
+    {
+      "id": "performance_reason_about_useful_bytes_part_3",
+      "title": "Check the cost paid elsewhere",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "What new correctness obligation appears if removing a record means removing entries from several parallel arrays?",
+          "explanation": "The arrays must stay aligned so each index continues to identify matching fields of one record. Partial updates or inconsistent reordering can associate a page count with the wrong title. Update all related structures under a clear invariant."
+        },
+        {
+          "type": "paragraph",
+          "text": "Keep the public behavior fixed and use existing correctness tests while comparing implementations. Include operations that insert records, load data, and retrieve whole records, not just the favorable scan. Record memory consumption and conversion costs where relevant. A smaller traffic estimate can justify an experiment; retaining the new layout requires evidence that its practical benefit outweighs its complexity and other costs."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "performance_reason_about_useful_bytes_source_cachegrind",
+      "title": "Valgrind User Manual: Cachegrind",
+      "authors": [
+        "Valgrind Developers"
+      ],
+      "url": "https://valgrind.org/docs/manual/cg-manual.html",
+      "locator": "Official tool documentation: §5.7 cache simulation and §5.8.1–5.8.3 simulation model and accuracy limits; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
+    },
+    {
+      "id": "performance_reason_about_useful_bytes_source_benchmark",
+      "title": "Google Benchmark User Guide",
+      "authors": [
+        "Google Benchmark contributors"
+      ],
+      "url": "https://google.github.io/benchmark/user_guide.html",
+      "locator": "Official project documentation: Runtime and Reporting Considerations, Preventing Optimization, Reporting Statistics, and Random Interleaving; consulted 2026-09-11."
+    }
+  ]
+}

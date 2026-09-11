@@ -1,0 +1,121 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_types_initialization_initialization_and_deduction",
+  "versionId": "cpp_core_types_initialization_initialization_and_deduction_v1",
+  "slug": "initialization-and-deduction",
+  "title": "Initialize values and read deduced types",
+  "summary": "Distinguish initialization forms and predict the values stored by simple library objects.",
+  "position": 0,
+  "objectives": [
+    "Distinguish initialization from assignment.",
+    "Predict scalar and vector brace initialization.",
+    "Explain what auto deduces and why a reference may dangle."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_types_initialization_initialization_and_deduction_part_1",
+      "title": "Give every object a starting state",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Initialization establishes an object’s first state; assignment changes an object that already exists. This difference matters even when both statements contain an equals sign. In int pages = 12, the equals sign belongs to initialization. In a later pages = 18, it belongs to assignment. An ordinary local int declared without an initializer does not acquire a useful initial value automatically. Reading that uninitialized value is not a way to obtain a default page count in C++20."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a scalar such as int, an empty brace initializer produces zero. A nonempty brace initializer also rejects narrowing conversions, such as initializing an int directly from 2.5. That diagnostic is useful because it makes a possible information loss visible. Braces are not a universal promise that every type interprets an initializer identically. A class may have constructors that give a list of values a meaning different from a count and a repeated value."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_types_initialization_initialization_and_deduction_part_2",
+      "title": "Read the initializer before predicting the value",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <string>\n#include <vector>\n\nint main()\n{\n    int pages{12};\n    auto copied = pages;\n    auto& alias = pages;\n    alias = 18;\n    const std::string title{\"Atlas\"};\n    const std::vector<int> listed{3, 7};\n    const std::vector<int> repeated(3, 7);\n    std::cout << title << \": \" << pages << ' ' << copied << '\\n';\n    std::cout << listed.size() << ' ' << repeated.size() << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Atlas: 18 12\n2 3\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The first vector contains two elements: 3 and 7. The second contains three copies of 7. The parentheses select the count-and-value constructor; the braces prefer the initializer-list constructor that accepts individual elements. Both objects manage their own storage. A std::string similarly owns its characters, so title can be used without manually allocating or releasing a character buffer. Standard types make useful experiments possible before studying their implementation."
+        },
+        {
+          "type": "paragraph",
+          "text": "auto asks the compiler to determine a type from an initializer. Here copied is an int containing a copy of pages. The declaration of alias includes an ampersand, so alias refers to pages instead. Updating alias therefore changes pages while copied stays 12. Deduction happens during compilation; auto does not make a variable dynamically change its type when later assignments occur."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_types_initialization_initialization_and_deduction_part_3",
+      "title": "Keep deduction and ownership separate",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Read a declaration in two stages: identify the type and whether it includes a reference, then identify which initialization rules apply. const can be added when a value should not change through that name. A const reference still observes an existing object rather than owning a replacement. Avoid assuming that adding const extends the lifetime of every object reached through a reference; the detailed temporary-binding rules have specific limits."
+        },
+        {
+          "type": "paragraph",
+          "text": "For now, keep every referenced owner alive until the last use of its reference. In particular, references to vector elements can become invalid when the vector reallocates, even though the vector variable itself is still in scope. That is why an initialized reference is not automatically safe forever. Later lifetime and container lessons develop this rule into a method for reviewing function interfaces and modifications."
+        },
+        {
+          "type": "reflection",
+          "prompt": "What changes if auto& alias is replaced by auto alias?",
+          "explanation": "alias becomes a separate int. Its assignment no longer changes pages, so the first output line becomes Atlas: 12 12. The two vectors and their sizes are unaffected."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_types_initialization_initialization_and_deduction_source_1",
+      "title": "C++20 working draft N4861: dcl.init",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.init",
+      "locator": "N4861, [dcl.init]; consulted 2026-09-11. Default initialization, value initialization, and initialization contexts."
+    },
+    {
+      "id": "cpp_core_types_initialization_initialization_and_deduction_source_2",
+      "title": "C++20 working draft N4861: dcl.init.list",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.init.list",
+      "locator": "N4861, [dcl.init.list]; consulted 2026-09-11. List initialization, initializer-list constructor selection, and narrowing conversions."
+    },
+    {
+      "id": "cpp_core_types_initialization_initialization_and_deduction_source_3",
+      "title": "C++20 working draft N4861: dcl.spec.auto",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.spec.auto",
+      "locator": "N4861, [dcl.spec.auto]; consulted 2026-09-11. Placeholder type deduction from initializers."
+    },
+    {
+      "id": "cpp_core_types_initialization_initialization_and_deduction_source_4",
+      "title": "C++20 working draft N4861: vector.capacity",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity",
+      "locator": "N4861, [vector.capacity]; consulted 2026-09-11. size versus capacity; reserve and invalidation on reallocation."
+    }
+  ]
+}

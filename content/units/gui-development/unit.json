@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "gui_development_unit_root",
+  "name": "GUI and desktop applications",
+  "slug": "gui-development",
+  "description": "Event-driven state changes and responsive desktop interfaces. Prerequisites: C++ classes, lambdas, ownership and concurrency basics. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_gui_development",
+    "slug": "gui-development",
+    "name": "GUI and desktop applications",
+    "description": "Event-driven state changes and responsive desktop interfaces. Prerequisites: C++ classes, lambdas, ownership and concurrency basics. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 22
+      }
+    ]
+  }
+}

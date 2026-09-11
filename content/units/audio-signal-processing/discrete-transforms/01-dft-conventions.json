@@ -1,0 +1,78 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "audio_signal_processing_discrete_transforms_module",
+  "versionId": "audio_signal_processing_discrete_transforms_version_1",
+  "slug": "dft-conventions",
+  "title": "Interpret a discrete Fourier transform convention",
+  "summary": "Track frequency bins and normalization in a small exact transform.",
+  "position": 0,
+  "objectives": [
+    "Compute an impulse transform using the stated DFT definition.",
+    "Map bin indices to frequencies for a finite sample rate.",
+    "Apply the inverse normalization required by FFTW."
+  ],
+  "parts": [
+    {
+      "id": "audio_signal_processing_discrete_transforms_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: sampled signals, complex numbers and summations; C++ arrays. Signal processing owns transform meaning; an FFT library is an implementation tool."
+        },
+        {
+          "type": "paragraph",
+          "text": "A discrete Fourier transform expresses a finite sequence using complex sinusoidal components. Conventions matter when comparing libraries: the exponent sign, output order and scaling must match. FFTW uses an unnormalized forward transform with a negative exponent, and its backward transform is also unnormalized. A forward followed by backward transform therefore multiplies the original sequence by its length. A frequency-bin label also needs the sample rate; a bin index by itself is not a frequency in hertz. This module studies exact finite arithmetic identities, not floating-point FFT error or spectral leakage."
+        }
+      ]
+    },
+    {
+      "id": "audio_signal_processing_discrete_transforms_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original sequence has four samples x=[1,0,0,0], sampled at eight samples per second. Define the forward transform as X[k]=sum over n=0..3 of x[n] times exp(-i*2*pi*k*n/4). Only n=0 contributes, making the complex arithmetic transparent. The backward sum uses the positive exponent and no leading scale."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "N=4, sample rate=8 Hz -> bin spacing = 8/4 = 2 Hz\nForward impulse transform: X=[1,1,1,1]\nBackward unnormalized result: [4,0,0,0]\nDivide backward result by N: [1,0,0,0]\nBin labels: k=0 -> 0 Hz; k=1 -> 2 Hz; k=2 -> Nyquist 4 Hz; k=3 -> -2 Hz"
+        },
+        {
+          "type": "paragraph",
+          "text": "At every forward bin, the single nonzero term is exp(0), which equals one. At backward index zero, the four terms add to four; at the other indices they cancel. The last bin can be interpreted as a negative frequency because sampling identifies frequencies separated by the sample rate. The Nyquist bin lies at the boundary between positive and negative interpretations. These labels explain ordering; they do not imply the impulse is a single-frequency signal."
+        }
+      ]
+    },
+    {
+      "id": "audio_signal_processing_discrete_transforms_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Repeat the forward calculation for x=[1,1,1,1]. The result is [4,0,0,0], concentrating this constant sequence at the zero-frequency bin. When integrating a library, document where normalization occurs and test a round trip with an impulse and a constant sequence. Use a justified tolerance for floating-point implementations rather than requiring exact equality for arbitrary numerical inputs."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If the backward transform produces values four times larger than the input in this example, has the FFT implementation necessarily failed?",
+          "explanation": "No. That is the stated unnormalized convention for a length-four transform. Dividing once by four recovers the original sequence. Applying normalization twice would instead make the result too small. The library contract and the application’s scaling policy must agree."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "audio_signal_processing_discrete_transforms_source_dft",
+      "title": "FFTW: The 1d Discrete Fourier Transform (DFT)",
+      "authors": [
+        "Matteo Frigo",
+        "Steven G. Johnson"
+      ],
+      "url": "https://www.fftw.org/fftw3_doc/The-1d-Discrete-Fourier-Transform-_0028DFT_0029.html",
+      "locator": "Primary documentation: Section 4.8.1; sign, bin order and unnormalized forward/backward transforms; consulted 2026-09-11"
+    }
+  ]
+}

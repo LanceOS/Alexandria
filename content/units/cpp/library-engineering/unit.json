@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_unit_library_engineering",
+  "name": "Production library engineering",
+  "slug": "library-engineering",
+  "description": "After classes, templates, and program organization: define public ownership contracts and compatible releases. General release pipelines and architecture belong in their separate subjects.",
+  "position": 17
+}

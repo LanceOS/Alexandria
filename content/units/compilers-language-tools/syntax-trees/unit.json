@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "compilers_language_tools_syntax_trees_unit",
+  "name": "Syntax Trees",
+  "slug": "syntax-trees",
+  "description": "Connect grammar decisions to the structure and evaluation of an AST.",
+  "position": 1
+}

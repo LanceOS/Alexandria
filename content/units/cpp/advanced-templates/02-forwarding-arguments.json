@@ -1,0 +1,104 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_forwarding_arguments_module",
+  "versionId": "cpp_forwarding_arguments_v1",
+  "slug": "forwarding-arguments",
+  "title": "Forwarding arguments without changing their category",
+  "summary": "Use a forwarding reference and std::forward to preserve a caller’s choice of lvalue or rvalue.",
+  "position": 1,
+  "objectives": [
+    "Distinguish a forwarding reference from an ordinary rvalue reference.",
+    "Trace deduction and reference collapsing for two calls.",
+    "Recognize that forwarding does not extend an argument’s lifetime."
+  ],
+  "parts": [
+    {
+      "id": "cpp_forwarding_arguments_part_1",
+      "title": "Preserve the caller’s interface",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A generic adapter often needs to pass an argument to another function without unconditionally copying it or treating it as disposable. In a deduced function-template parameter T&&, with T an unqualified template type parameter, the parameter can be a forwarding reference. An lvalue argument makes T a reference type; an rvalue argument ordinarily makes T a non-reference type. Reference collapsing then produces the parameter type."
+        },
+        {
+          "type": "paragraph",
+          "text": "The expression naming a parameter is an lvalue even when that parameter has rvalue-reference type. Merely passing value onward would therefore choose lvalue behavior. std::forward<T>(value) uses the deduced T to preserve the category needed at the forwarding boundary. In contrast, std::move expresses a choice to treat an expression as an rvalue regardless of how a caller originally supplied it."
+        }
+      ]
+    },
+    {
+      "id": "cpp_forwarding_arguments_part_2",
+      "title": "Observe overload selection",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <string>\n#include <utility>\n\nvoid inspect(const std::string&) { std::cout << \"borrow\\n\"; }\nvoid inspect(std::string&&) { std::cout << \"rvalue\\n\"; }\n\ntemplate<class T>\nvoid relay(T&& value)\n{\n    inspect(std::forward<T>(value));\n}\n\nint main()\n{\n    std::string title{\"Atlas\"};\n    relay(title);\n    relay(std::string{\"Maps\"});\n}\n",
+          "caption": "main.cpp — C++20"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "borrow\nrvalue\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The first call deduces T as std::string& and forwards an lvalue. The second deduces T as std::string and forwards an rvalue. Neither inspect overload actually moves from a string; the output reports which overload was selected. A cast-like helper enables an operation but does not itself transfer the string’s resource. This distinction keeps reasoning about overloads separate from assumptions about allocation or speed."
+        },
+        {
+          "type": "callout",
+          "title": "Do not forward into dangling storage",
+          "text": "This adapter completes its inspection during the call. If inspect instead retained a reference to the temporary, forwarding would not extend the temporary’s lifetime. Ownership must be designed explicitly at an asynchronous or stored-callback boundary."
+        }
+      ]
+    },
+    {
+      "id": "cpp_forwarding_arguments_part_3",
+      "title": "Choose a simpler parameter when possible",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Would const T&& provide the same forwarding behavior?",
+          "explanation": "No. The usual forwarding-reference rule requires an rvalue reference to a cv-unqualified template parameter. const T&& is an ordinary rvalue-reference pattern and does not accept arbitrary lvalues this way."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use this technique when preserving the argument category is part of the adapter’s job. A normal const reference or a value parameter is often easier to explain for a concrete operation. Forwarding the same argument more than once can also be surprising if an earlier consumer moves from it. Specify whether the adapter consumes, borrows, or stores each argument before introducing a variadic forwarding interface."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_forwarding_arguments_source_1",
+      "title": "C++20 working draft N4861: temp.deduct.call",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.deduct.call",
+      "locator": "Primary standards draft, [temp.deduct.call]: forwarding-reference deduction. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_forwarding_arguments_source_2",
+      "title": "C++20 working draft N4861: forward",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/forward",
+      "locator": "Primary standards draft, [forward]: std::forward and std::move return expressions. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_forwarding_arguments_source_3",
+      "title": "C++20 working draft N4861: basic.life",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+      "locator": "Primary standards draft, [basic.life]: object and reference lifetime boundaries. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    }
+  ]
+}

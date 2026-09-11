@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "design_unit",
+  "name": "Software Design and Architecture",
+  "slug": "software-design-architecture",
+  "description": "Design responsibilities and explicit interfaces after learning functions and classes. C++ provides mechanisms; this subject owns boundaries, requirements, and change analysis.",
+  "position": 0,
+  "topic": {
+    "id": "design_topic",
+    "slug": "software-design-architecture",
+    "name": "Software Design and Architecture",
+    "description": "Design responsibilities and explicit interfaces after learning functions and classes. C++ provides mechanisms; this subject owns boundaries, requirements, and change analysis.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 4
+      }
+    ]
+  }
+}

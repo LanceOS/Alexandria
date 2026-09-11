@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "language_interoperability_cross_runtime_ownership_module",
+  "versionId": "language_interoperability_cross_runtime_ownership_version_1",
+  "slug": "return-policies",
+  "title": "Define ownership when C++ objects cross into Python",
+  "summary": "Trace an object and its wrapper as separate lifetime responsibilities.",
+  "position": 0,
+  "objectives": [
+    "Distinguish an owned return value from a borrowed reference.",
+    "Identify a dangling-reference risk at a binding boundary.",
+    "Explain a parent-child keep-alive relationship."
+  ],
+  "parts": [
+    {
+      "id": "language_interoperability_cross_runtime_ownership_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ lifetime, pointers and value semantics; Python objects. Interoperability owns the cross-runtime contract, while each language’s basic lifetime mechanisms remain prerequisites."
+        },
+        {
+          "type": "paragraph",
+          "text": "A binding must answer who owns a returned object and how long it remains valid. pybind11 return policies distinguish copying, moving, taking ownership and borrowing. A reference policy does not transfer deletion responsibility and does not automatically keep an unrelated owner alive. For a returned child reference tied to its parent, reference_internal can establish a keep-alive relationship with that parent. These policies encode real ownership facts; choosing a reassuring policy name cannot repair an invalid C++ API. A raw address alone does not reveal whether storage is static, dynamically allocated, owned elsewhere or already about to disappear."
+        }
+      ]
+    },
+    {
+      "id": "language_interoperability_cross_runtime_ownership_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original model has a Document that owns a stable Page member for the entire document lifetime. Python receives a wrapper around that document and calls page() to get a borrowed reference to the member. There is no operation that replaces the member while the document exists. We compare a plain borrowed result with a correctly configured parent-lifetime relationship."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Create Document owner D -> Page P lives inside D\nPython gets page wrapper W -> W refers to P\nPlain borrow: delete final owner of D -> P dies, W would dangle\nParent keep-alive: W keeps D alive -> P remains valid\nRelease W and remaining owners -> D and its member P can be destroyed"
+        },
+        {
+          "type": "paragraph",
+          "text": "The wrapper and the C++ member are different objects with connected lifetimes. Python retaining a wrapper does not inherently make every referenced C++ allocation safe. The keep-alive relationship works in this example because the parent truly controls a stable member lifetime. If a method could replace or erase the referenced element while the parent remained alive, retaining the parent alone would not protect that reference. Returning an independent value may be a simpler contract when copying is acceptable."
+        }
+      ]
+    },
+    {
+      "id": "language_interoperability_cross_runtime_ownership_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Classify three hypothetical results: a newly returned value, a reference to a process-lifetime immutable singleton, and a reference to a removable vector element. For each, state the actual owner before selecting a binding policy. Test destruction order and attempted use after owner removal through supported interfaces. Never make Python take ownership of storage that must not be deleted, and never allow two independent owners to delete the same allocation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Does keeping a container alive guarantee that a borrowed reference to one of its elements remains valid after arbitrary container modifications?",
+          "explanation": "No. The container can remain alive while erasure or reallocation invalidates an element reference. Keep-alive protects the parent lifetime, not every internal address against mutation. The binding must restrict invalidating operations, provide stable storage, or return an independent value according to the intended API."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "language_interoperability_cross_runtime_ownership_source_policies",
+      "title": "pybind11: Functions",
+      "authors": [
+        "pybind11 contributors"
+      ],
+      "url": "https://pybind11.readthedocs.io/en/stable/advanced/functions.html",
+      "locator": "Primary documentation: Return value policies and Additional call policies; copy, reference, reference_internal and ownership; consulted 2026-09-11"
+    }
+  ]
+}

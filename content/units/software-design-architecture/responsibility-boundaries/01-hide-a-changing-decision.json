@@ -1,0 +1,93 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "design_hide_a_changing_decision_module",
+  "versionId": "design_hide_a_changing_decision_v1",
+  "slug": "hide-a-changing-decision",
+  "title": "Hide a changing decision behind a stable boundary",
+  "summary": "Compare two decompositions of a reading-log application.",
+  "position": 0,
+  "objectives": [
+    "Identify a design decision that callers should not need to know.",
+    "Distinguish a processing stage from a module responsibility.",
+    "Evaluate a boundary using a concrete change scenario."
+  ],
+  "parts": [
+    {
+      "id": "design_hide_a_changing_decision_part_1",
+      "title": "Find the decision that may change",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: functions and a small multi-file program. Software design owns decisions about responsibilities. C++ classes, private members, templates, and modules are mechanisms for expressing those decisions, not substitutes for them."
+        },
+        {
+          "type": "paragraph",
+          "text": "A reading log accepts sessions, calculates progress, and saves records. Splitting the program into input, calculation, and output stages looks orderly, but it may still spread knowledge of the file format across all three. If every stage knows that the third comma-separated field contains minutes, a format change requires coordinated edits. The important dependency is knowledge, even if each stage lives in a different source file."
+        },
+        {
+          "type": "paragraph",
+          "text": "Parnas’s decomposition paper compares alternative structures and argues for hiding difficult or changeable decisions behind module interfaces. Apply that idea by identifying what should remain stable for a caller. In this application, callers need to save and retrieve sessions. They need not know whether storage is a text file, a database, or an in-memory collection. This is an original change-analysis example, not a result measured in the paper."
+        }
+      ]
+    },
+    {
+      "id": "design_hide_a_changing_decision_part_2",
+      "title": "Trace the impact of a change",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Change request: replace comma-separated storage with a database\n\nDesign A:\n  input screen constructs comma-separated rows\n  progress calculation parses stored rows\n  save routine writes rows\n  -> all three know the representation\n\nDesign B:\n  input screen creates a Session value\n  progress calculation consumes Session values\n  repository converts Session values to/from storage\n  -> storage representation is concentrated in the repository",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "Design B reduces the number of places that must understand the storage representation. It does not eliminate all changes: database failures, transactions, and migration requirements still need explicit policies. An interface that promises instantaneous, infallible storage would hide information callers actually require. The goal is a useful separation of responsibilities, not concealment of observable behavior."
+        },
+        {
+          "type": "paragraph",
+          "text": "A boundary also has a cost. An unnecessary abstraction can add indirection, conversions, configuration, and vocabulary. If a program has one tiny stable operation, a function may be enough. Judge a proposed boundary by the actual changes and independent reasoning it enables. A diagram with many boxes is not evidence of maintainability by itself."
+        }
+      ]
+    },
+    {
+      "id": "design_hide_a_changing_decision_part_3",
+      "title": "Review the boundary with a scenario",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "The application adds a rule that a reading session cannot have negative minutes. Should that rule live only inside the file-writing code?",
+          "explanation": "No. It is a domain rule for every session, including sessions that have not been saved. Validate it when constructing or accepting a session. Storage decoding must also prevent invalid external data from entering the domain."
+        },
+        {
+          "type": "paragraph",
+          "text": "For each boundary, write the responsibility, the hidden decisions, the information exchanged, and one expected change. Then ask which callers must change and why. Add tests at the observable boundary so an implementation replacement can be checked against the same expectations. This makes a design review a discussion about behavior and dependencies rather than a debate over preferred patterns."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "design_hide_a_changing_decision_source_parnas",
+      "title": "On the Criteria To Be Used in Decomposing Systems into Modules",
+      "authors": [
+        "D. L. Parnas"
+      ],
+      "url": "https://doi.org/10.1145/361598.361623",
+      "locator": "Peer-reviewed research: Communications of the ACM 15(12), 1972, pp. 1053–1058; comparison of decompositions and Conclusion. Author-uploaded paper text inspected on ResearchGate 2026-09-11; access URL recorded in research ledger.",
+      "publisher": "Association for Computing Machinery",
+      "publicationYear": 1972
+    },
+    {
+      "id": "design_hide_a_changing_decision_source_guidelines",
+      "title": "C++ Core Guidelines",
+      "authors": [
+        "Bjarne Stroustrup",
+        "Herb Sutter"
+      ],
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
+      "locator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
+    }
+  ]
+}

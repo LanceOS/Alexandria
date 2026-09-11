@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "graphics_gpu_rendering_pipeline_module",
+  "versionId": "graphics_gpu_rendering_pipeline_version_1",
+  "slug": "triangle-stages",
+  "title": "Follow geometry through a graphics pipeline",
+  "summary": "Separate vertex work, rasterization and fragment outcomes.",
+  "position": 0,
+  "objectives": [
+    "Assign work to vertex processing, rasterization and fragment processing.",
+    "Compute a simple transformed triangle.",
+    "Explain why a generated fragment is not a guaranteed framebuffer write."
+  ],
+  "parts": [
+    {
+      "id": "graphics_gpu_rendering_pipeline_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ resource concepts and two-dimensional coordinates. This unit owns rendering and GPU concepts; C++ containers and RAII only organize the host-side implementation."
+        },
+        {
+          "type": "paragraph",
+          "text": "A graphics pipeline turns geometry and state into potential image updates. In the conventional primitive-shading path described by Vulkan, vertices form primitives, vertex shaders compute positions and attributes, and later processing clips and rasterizes primitives. Rasterization generates fragments associated with framebuffer regions. Fragment shading and tests then determine which values reach attachments. A vertex is therefore not a pixel, and a fragment is not a promise that a visible pixel will change. Different pipeline stages operate over different kinds of input. Keeping those roles separate helps diagnose whether a missing object originates in geometry, transformation, coverage, testing or output configuration."
+        }
+      ]
+    },
+    {
+      "id": "graphics_gpu_rendering_pipeline_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Use a conceptual two-dimensional triangle with local vertices (0,0), (2,0) and (0,2). For this exercise the vertex transformation translates x by one and y by two. We deliberately omit projection, clipping conventions and API setup. The rasterizer is assumed to generate a particular interior fragment, and a configured depth test can accept or reject it."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Local triangle:       (0,0), (2,0), (0,2)\nAfter translation:   (1,2), (3,2), (1,4)\nRasterization:       produce an interior fragment F\nFragment shading:   candidate color for F = blue\nDepth test passes:  blue may be written, subject to other configured operations\nDepth test fails:   F contributes no color write in this example"
+        },
+        {
+          "type": "paragraph",
+          "text": "The three transformed coordinates describe geometry; they do not enumerate every affected sample. An object can have valid vertices yet disappear because a later test rejects its fragments. The example uses translation so that each coordinate is easy to verify, rather than hiding the stage distinction inside matrix notation. Real Vulkan setup also specifies attachments, shader interfaces and other state. Those contracts must agree with the data supplied by the application."
+        }
+      ]
+    },
+    {
+      "id": "graphics_gpu_rendering_pipeline_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Change the translation to minus one in x and keep y unchanged. Compute all three new vertices before thinking about shading. Then devise a diagnostic sequence: inspect transformed geometry, inspect coverage, and inspect relevant tests and writes. Avoid changing unrelated pipeline state all at once. A small known triangle with a simple output is a more interpretable experiment than a full scene containing many assets and materials."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If the vertex shader runs successfully, does that prove the triangle appears in the final image?",
+          "explanation": "No. Successful vertex processing only establishes one stage of the path. Clipping, rasterization coverage, depth or stencil decisions, attachment configuration and later operations can affect the result. The pipeline model tells you which intermediate fact to inspect next rather than treating rendering as one indivisible operation."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "graphics_gpu_rendering_pipeline_source_pipeline",
+      "title": "Vulkan specification: Pipelines",
+      "authors": [
+        "Khronos Group"
+      ],
+      "url": "https://docs.vulkan.org/spec/latest/chapters/pipelines.html",
+      "locator": "Primary specification: Pipelines introduction, Primitive Shading and Common; vertex transformation, rasterization and fragment processing; consulted 2026-09-11"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Server architecture
 
-Alexandria runs one Fastify process and one local SQLite database. The production process serves the built React client and API at the same origin; Vite proxies `/api` and `/health` during development. This implementation establishes accounts, catalog management, published curriculum reads, and sparse progress storage. Explicit content commands validate and import curriculum JSON; the included C++ Basics root contains six short modules.
+Alexandria runs one Fastify process and one local SQLite database. The production process serves the built React client and API at the same origin; Vite proxies `/api` and `/health` during development. This implementation establishes accounts, catalog management, published curriculum reads, and sparse progress storage. Explicit content commands validate and import curriculum JSON; the catalog includes C++ core and advanced subunits, supporting subjects, and application tracks using the shared reader.
 
 ```mermaid
 flowchart LR
@@ -100,6 +100,8 @@ The outline's `extraReading` array combines citations from the latest published 
 The content loader recursively discovers `unit.json` metadata, child unit folders, and module JSON under `content/units/`. It validates file shapes with Ajv against the checked-in JSON schemas, then checks semantic rules such as stable identities, ownership, and ordering. `content:check` validates all roots by default, or a named root, without opening the database.
 
 `content:import -- cpp` imports one root after a verified backup, using a single transaction. It adds new units and version-1 modules, leaves exact matching records unchanged, and rejects conflicts without replacing published work. The compatibility command `content:cpp-basics` imports the C++ root through the same path. The source files contain no version-number field: the current importer only creates first releases. Publishing later releases needs an explicit future workflow; changing `versionId` alone is not an update mechanism. See [Content authoring](../content/README.md) and [C++ Basics content](cpp-basics-content.md).
+
+`content:import -- --all` validates all roots, including cross-topic IDs and topic slugs, before opening the database. It creates one backup and installs every topic within an outer transaction; per-topic transactions use savepoints. A failure in a later topic rolls back all additions. The historical `installCppBasics` and `installCppBasicsPath` TypeScript helpers intentionally select only the original introductory content, while the operator commands discover the complete C++ topic.
 
 Builds validate curriculum and copy the content tree to `dist/content/`. Compiled content commands locate that packaged directory relative to their own files, not the current working directory. The HTTP server reads published curriculum from SQLite. JSON source files and schemas are not bundled into the frontend or exposed as static assets.
 

@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "databases_storage_unit_root",
+  "name": "Databases and storage engines",
+  "slug": "databases-storage",
+  "description": "Transactions, snapshots, logging and storage lifecycle. Prerequisites: C++ resources and errors; basic SQL and operating-system storage concepts. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_databases_storage",
+    "slug": "databases-storage",
+    "name": "Databases and storage engines",
+    "description": "Transactions, snapshots, logging and storage lifecycle. Prerequisites: C++ resources and errors; basic SQL and operating-system storage concepts. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 20
+      }
+    ]
+  }
+}

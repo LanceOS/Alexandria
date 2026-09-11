@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_core_unit_runtime_polymorphism",
+  "name": "Runtime Polymorphism",
+  "slug": "runtime-polymorphism",
+  "description": "Select behavior through interfaces and own heterogeneous objects safely.",
+  "position": 10
+}

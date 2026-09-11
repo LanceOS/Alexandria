@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "audio_signal_processing_callback_deadlines_module",
+  "versionId": "audio_signal_processing_callback_deadlines_version_1",
+  "slug": "buffer-budget",
+  "title": "Budget work inside an audio callback",
+  "summary": "Compute a buffer interval and separate bounded processing from background work.",
+  "position": 0,
+  "objectives": [
+    "Calculate an audio block duration from frames and sample rate.",
+    "Identify operations unsuitable for a callback deadline.",
+    "Trace a producer-consumer buffer handoff with explicit ownership."
+  ],
+  "parts": [
+    {
+      "id": "audio_signal_processing_callback_deadlines_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ arrays, callbacks and concurrency; sample-rate vocabulary. Audio scheduling belongs here; C++ language rules alone provide no real-time deadline guarantee."
+        },
+        {
+          "type": "paragraph",
+          "text": "An audio callback supplies or consumes frames when the audio engine needs them. PortAudio warns against operations with potentially unbounded duration, including allocation, ordinary I/O and mutex operations, in that callback context. Prepare resources and perform slow work elsewhere. A sample rate and frame count provide a useful block-duration calculation, but actual callback scheduling and device buffering remain platform concerns. Design the callback around bounded processing of the supplied frame count, and keep ownership of shared buffers explicit. A fast average run is insufficient if occasional delays exhaust the available audio buffer."
+        }
+      ]
+    },
+    {
+      "id": "audio_signal_processing_callback_deadlines_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original model uses 48,000 frames per second and a block of 240 frames. The nominal block interval is five milliseconds. Assume one worker prepares immutable blocks ahead of time, while the callback consumes one ready block or produces silence if none is ready. The handoff primitive itself is assumed suitable for this platform; this trace does not establish that any arbitrary queue is real-time safe."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Block interval = 240 / 48000 seconds = 0.005 seconds\nBefore callback 1: ready block A -> consume A, return A to free pool\nBefore callback 2: ready block B -> consume B, return B to free pool\nBefore callback 3: no ready block -> output 240 frames of silence\nBackground worker later records the underrun diagnostic."
+        },
+        {
+          "type": "paragraph",
+          "text": "The empty-queue policy is explicit and bounded. Waiting indefinitely for the worker would turn a missed preparation into an unbounded callback delay. A callback must fill the required output according to its API contract; reusing uninitialized data is not a valid substitute. Releasing a block to a free pool means the worker may write it again, so the callback must not retain an active read reference after that handoff."
+        }
+      ]
+    },
+    {
+      "id": "audio_signal_processing_callback_deadlines_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Compute the nominal interval for 480 frames at the same sample rate, then explain the latency and scheduling tradeoff without claiming that a larger block fixes every underrun. Audit the callback’s transitive calls, including destructors and logging helpers, for unexpected allocation or waiting. Measure worst observed processing time and underruns under realistic load while acknowledging that measurement alone is not a formal bound."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Would printing a diagnostic directly from the callback be acceptable because it usually takes less than five milliseconds?",
+          "explanation": "No. The relevant concern is potentially unbounded delay, not the usual duration of a console write. Record a bounded diagnostic signal using an appropriate mechanism and let background code format and print it. The same reasoning applies to seemingly small allocations or mutex-protected helpers."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "audio_signal_processing_callback_deadlines_source_callback",
+      "title": "PortAudio: Writing a Callback Function",
+      "authors": [
+        "PortAudio developers"
+      ],
+      "url": "https://portaudio.com/docs/v19-doxydocs/writing_a_callback.html",
+      "locator": "Primary documentation: Callback responsibilities and operations with unbounded execution time; consulted 2026-09-11"
+    }
+  ]
+}

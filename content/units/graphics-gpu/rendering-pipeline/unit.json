@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "graphics_gpu_rendering_pipeline_unit",
+  "name": "Rendering Pipeline",
+  "slug": "rendering-pipeline",
+  "description": "Separate vertex work, rasterization and fragment outcomes.",
+  "position": 0
+}

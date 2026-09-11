@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "foundations_unit_problem_solving",
+  "name": "Problem Solving",
+  "slug": "problem-solving",
+  "description": "Turn a request into explicit inputs, decisions, and observable results.",
+  "position": 0
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "parallel_unit",
+  "name": "Concurrency and Parallel Computing",
+  "slug": "concurrency-parallel-computing",
+  "description": "Reason about coordinated state and parallel work after sequential program design. C++ atomics and coroutines are language-track mechanisms; scheduling and scalability belong here.",
+  "position": 0,
+  "topic": {
+    "id": "parallel_topic",
+    "slug": "concurrency-parallel-computing",
+    "name": "Concurrency and Parallel Computing",
+    "description": "Reason about coordinated state and parallel work after sequential program design. C++ atomics and coroutines are language-track mechanisms; scheduling and scalability belong here.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 8
+      }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "dsa_unit_abstract_data_types",
+  "name": "Abstract Data Types",
+  "slug": "abstract-data-types",
+  "description": "Separate observable collection behavior from storage representation.",
+  "position": 1
+}

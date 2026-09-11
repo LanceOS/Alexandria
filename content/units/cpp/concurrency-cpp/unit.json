@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_unit_concurrency_cpp",
+  "name": "Concurrency in C++",
+  "slug": "concurrency-cpp",
+  "description": "After ownership and error handling: manage threads, shared state, and synchronization under the C++ memory model. Scheduling theory and parallel decomposition belong in Concurrency and parallel computing.",
+  "position": 15
+}

@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "embedded_realtime_task_timing_unit",
+  "name": "Task Timing",
+  "slug": "task-timing",
+  "description": "Evaluate a small periodic schedule using explicit timing assumptions.",
+  "position": 0
+}

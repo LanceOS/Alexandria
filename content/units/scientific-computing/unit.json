@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "scientific_computing_unit_root",
+  "name": "Scientific computing",
+  "slug": "scientific-computing",
+  "description": "Reproducible experiments, linear systems and defensible computational results. Prerequisites: C++ arithmetic and containers; algebra, vectors and matrices. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_scientific_computing",
+    "slug": "scientific-computing",
+    "name": "Scientific computing",
+    "description": "Reproducible experiments, linear systems and defensible computational results. Prerequisites: C++ arithmetic and containers; algebra, vectors and matrices. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 16
+      },
+      {
+        "id": "category_mathematics",
+        "position": 1
+      }
+    ]
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "machine_learning_infrastructure_tensor_execution_module",
+  "versionId": "machine_learning_infrastructure_tensor_execution_version_1",
+  "slug": "graph-and-data",
+  "title": "Map a tensor computation onto an execution graph",
+  "summary": "Separate mathematical operators from devices, storage and execution dependencies.",
+  "position": 0,
+  "objectives": [
+    "Compute a small matrix-vector product and activation.",
+    "Identify data dependencies between graph operations.",
+    "Explain why a graph representation does not promise a speedup."
+  ],
+  "parts": [
+    {
+      "id": "machine_learning_infrastructure_tensor_execution_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: matrices and basic machine learning; C++ arrays and ownership. This unit owns ML execution infrastructure, while model selection and statistical evaluation belong to machine learning theory."
+        },
+        {
+          "type": "paragraph",
+          "text": "The TensorFlow systems paper presents computations as operations connected by tensor-valued edges, including representations of mutable state. Such a graph exposes dependencies and can support execution across different devices. The mathematical operation, the storage containing its values and the device executing its kernel are distinct concepts. A C++ implementation must manage the last two without changing the intended mathematics. The 2016 paper is a historical architecture study, not a promise about today’s APIs or performance. A graph can expose parallel work, but communication, memory use and scheduling costs determine whether a particular placement is worthwhile."
+        }
+      ]
+    },
+    {
+      "id": "machine_learning_infrastructure_tensor_execution_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original finite graph computes y=ReLU(Wx+b), with W=[[1,2],[3,4]], x=[2,1] and b=[-5,1]. ReLU replaces each negative component with zero. All arithmetic is exact and small. Inputs and parameters are ready before execution, and this trace has no training updates or concurrent mutation of W or b."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Inputs: W shape 2x2; x shape 2; b shape 2\nMatVec: Wx = [1*2+2*1, 3*2+4*1] = [4,10]\nAdd:    Wx+b = [4-5,10+1] = [-1,11]\nReLU:   y = [0,11]\nDependencies: MatVec -> Add -> ReLU; b -> Add"
+        },
+        {
+          "type": "paragraph",
+          "text": "The activation cannot consume its result until addition produces it, and addition depends on both the matrix-vector result and the bias. The shapes provide an early interface check: a three-element bias would violate the contract of this particular graph. Device placement is absent from the arithmetic trace on purpose. Executing the matrix operation on an accelerator could require transfers that cost more than the tiny operation itself."
+        }
+      ]
+    },
+    {
+      "id": "machine_learning_infrastructure_tensor_execution_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Change x to [1,1] and recompute every intermediate result. Then annotate a proposed placement with each transferred tensor and the moment its storage can be reused. Measure complete request time, including transfers and synchronization, rather than reporting only an isolated kernel duration. Preserve input preprocessing and output interpretation as explicit stages so that a fast executor is not mistaken for a correct end-to-end ML service."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If two graph nodes have no dependency edge between them, must running them in parallel make the program faster?",
+          "explanation": "No. Independence makes parallel scheduling possible, not automatically beneficial. They may compete for the same device, memory bandwidth or limited working space, and scheduling adds overhead. Correct dependencies establish allowed execution orders; measurements under the actual workload establish performance."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "machine_learning_infrastructure_tensor_execution_source_tensorflow",
+      "title": "TensorFlow: A System for Large-Scale Machine Learning",
+      "authors": [
+        "Martín Abadi",
+        "Paul Barham",
+        "Jianmin Chen",
+        "Zhifeng Chen",
+        "Andy Davis",
+        "Jeffrey Dean",
+        "Matthieu Devin",
+        "Sanjay Ghemawat",
+        "Geoffrey Irving",
+        "Michael Isard",
+        "Manjunath Kudlur",
+        "Josh Levenberg",
+        "Rajat Monga",
+        "Sherry Moore",
+        "Derek G. Murray",
+        "Benoit Steiner",
+        "Paul Tucker",
+        "Vijay Vasudevan",
+        "Pete Warden",
+        "Martin Wicke",
+        "Yuan Yu",
+        "Xiaoqiang Zheng"
+      ],
+      "url": "https://www.usenix.org/system/files/conference/osdi16/osdi16-abadi.pdf",
+      "locator": "Peer-reviewed research: OSDI 2016, sections 2.2 and 3.1; graph operations, tensors, state and heterogeneous execution; consulted 2026-09-11",
+      "publicationYear": 2016
+    }
+  ]
+}

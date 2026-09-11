@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "quality_unit_test_design",
+  "name": "Test Design",
+  "slug": "test-design",
+  "description": "Derive boundary cases and assertions from a behavior specification.",
+  "position": 0
+}

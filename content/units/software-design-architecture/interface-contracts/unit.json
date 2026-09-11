@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "design_unit_interface_contracts",
+  "name": "Interface Contracts",
+  "slug": "interface-contracts",
+  "description": "Specify valid inputs, ownership, failure outcomes, and observable effects.",
+  "position": 1
+}

@@ -1,0 +1,113 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_atomic_publication_module",
+  "versionId": "cpp_atomic_publication_v1",
+  "slug": "atomic-publication",
+  "title": "Publish a result with release and acquire",
+  "summary": "Build a happens-before argument for one writer and one reader instead of treating atomic as a universal safety switch.",
+  "position": 1,
+  "objectives": [
+    "Identify the release and acquire operations in a publication protocol.",
+    "Explain which non-atomic accesses they order.",
+    "Distinguish atomicity from synchronization of other data."
+  ],
+  "parts": [
+    {
+      "id": "cpp_atomic_publication_part_1",
+      "title": "Publish a value once",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Sometimes one thread computes a result that another thread will read after a readiness flag changes. Making the flag atomic prevents a data race on the flag itself. To also order the ordinary result, the protocol needs an appropriate synchronization relationship. This lesson assumes familiarity with threads, joining, and data races."
+        },
+        {
+          "type": "paragraph",
+          "text": "A release operation on an atomic object can synchronize with an acquire operation that reads the value it publishes. In this single-publication example, the writer stores the result before releasing the flag. The reader waits until it observes that publication with acquire semantics and reads the result afterward. Those steps form a happens-before path from the write to the read."
+        }
+      ]
+    },
+    {
+      "id": "cpp_atomic_publication_part_2",
+      "title": "Trace the publication",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <atomic>\n#include <iostream>\n#include <thread>\n\nint main()\n{\n    int result{};\n    std::atomic<bool> ready{false};\n    std::jthread writer{[&] {\n        result = 42;\n        ready.store(true, std::memory_order_release);\n        ready.notify_one();\n    }};\n    ready.wait(false, std::memory_order_acquire);\n    std::cout << result << '\\n';\n}\n",
+          "caption": "main.cpp — C++20"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "42\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "wait returns after it observes a value different from false; the atomic wait operation checks the value around waiting. A notification is useful to wake a waiter, but notify_one alone is not the publication edge. The release store and the acquire observation establish the relevant ordering. There is exactly one writer and no later mutation of result in this program."
+        },
+        {
+          "type": "paragraph",
+          "text": "Using relaxed ordering for the flag would still make flag operations atomic, but would remove this argument for ordering result. Repeating the protocol by toggling the flag is a different problem: an observer can miss intermediate changes, and the writer might overwrite data still being read. A queue, mutex, or versioned protocol needs its own proof."
+        }
+      ]
+    },
+    {
+      "id": "cpp_atomic_publication_part_3",
+      "title": "Keep the protocol small",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Does replacing every shared field with an atomic automatically preserve a multi-field invariant?",
+          "explanation": "No. Several individually atomic operations need not constitute one indivisible transaction. The relationship between fields and the ordering observed by readers must still be designed."
+        },
+        {
+          "type": "paragraph",
+          "text": "Default sequentially consistent atomic operations are often easier to reason about; weaken ordering only with a specific correctness argument and measured reason. Atomic does not mean lock-free on every target, and lock-free does not mean faster for every workload. This lesson establishes safe publication under its stated assumptions, not general progress guarantees or a reusable concurrent container."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_atomic_publication_source_1",
+      "title": "C++20 working draft N4861: atomics.order",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/atomics.order",
+      "locator": "Primary standards draft, [atomics.order]: release/acquire synchronization and relaxed ordering. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_atomic_publication_source_2",
+      "title": "C++20 working draft N4861: atomics.wait",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/atomics.wait",
+      "locator": "Primary standards draft, [atomics.wait]: value checks, notification, and transient changes. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_atomic_publication_source_3",
+      "title": "C++20 working draft N4861: intro.races",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/intro.races",
+      "locator": "Primary standards draft, [intro.races]: happens-before and non-atomic accesses. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_atomic_publication_source_4",
+      "title": "C++ working draft N4861: atomics.types.operations",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/atomics.types.operations",
+      "locator": "Primary standards draft: atomic::wait effects and notify_one; paragraphs 29–33. Consulted 2026-09-11; not the published ISO edition."
+    }
+  ]
+}

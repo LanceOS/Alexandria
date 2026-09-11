@@ -1,0 +1,90 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "dsa_count_search_work_module",
+  "versionId": "dsa_count_search_work_v1",
+  "slug": "count-search-work",
+  "title": "Count the work in a search",
+  "summary": "Compare a scan with interval halving while separating theoretical cost from timing.",
+  "position": 0,
+  "objectives": [
+    "Define the input size and the operation being counted.",
+    "Trace binary search on sorted data.",
+    "Distinguish an asymptotic upper bound from measured runtime."
+  ],
+  "parts": [
+    {
+      "id": "dsa_count_search_work_part_1",
+      "title": "Choose a cost model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: loops, indexed sequences, and simple logarithms. This course owns algorithm analysis. The C++ course teaches standard search functions and iterator requirements; the performance course teaches actual timing."
+        },
+        {
+          "type": "paragraph",
+          "text": "To compare search methods, specify the data and the question. We have a sorted sequence of distinct integer identifiers and want to know whether a target occurs. Let n be the number of identifiers and count examinations of sequence elements. This model deliberately ignores file access, allocation, and the cost of a comparison. Those costs matter in other models, so record the model whenever making a complexity claim."
+        },
+        {
+          "type": "paragraph",
+          "text": "A linear scan may examine every element before reporting absence. Binary search maintains a half-open candidate interval from low up to, but excluding, high. It examines a middle element and discards a portion that cannot contain the target because the data is sorted. NIST’s binary-search reference makes the sorted-input condition part of the definition; halving an arbitrary sequence is not a valid search method."
+        }
+      ]
+    },
+    {
+      "id": "dsa_count_search_work_part_2",
+      "title": "Trace the candidate interval",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Sequence: [3, 8, 12, 17, 24, 31, 40, 55]; target = 31\n[low, high) = [0, 8); mid = 4; value 24 < 31 -> low = 5\n[low, high) = [5, 8); mid = 6; value 40 > 31 -> high = 6\n[low, high) = [5, 6); mid = 5; value 31 = 31 -> found\nElements examined: 3",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The interval is the state of the search. Every update preserves the statement that an existing target must lie in that interval. An empty interval means the target is absent. For fixed-cost comparisons and constant-time indexed access, repeatedly halving the candidates gives logarithmic worst-case growth in the number of examined elements. Computing the middle as low plus half the interval length is also a useful implementation pattern when indices have finite ranges."
+        },
+        {
+          "type": "paragraph",
+          "text": "Big-O describes an asymptotic upper bound, using a constant multiplier after some threshold. It does not mean exact equality or a stopwatch result. A linear function is also bounded above by a quadratic function for sufficiently large inputs, although that loose bound communicates less. Use a tight characterization when known, and always say whether the bound is worst-case, expected, or amortized."
+        }
+      ]
+    },
+    {
+      "id": "dsa_count_search_work_part_3",
+      "title": "Account for preparation",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Would you sort a list for just one membership query solely to enable binary search?",
+          "explanation": "Not automatically. Sorting has a cost, and one linear scan can be cheaper than preparing a sorted copy and then searching it. Many repeated queries may justify preparation; the decision depends on total workload and other requirements."
+        },
+        {
+          "type": "paragraph",
+          "text": "A linked representation may support few element comparisons while still requiring many pointer steps to reach successive middle positions. Input representation is therefore part of an algorithm’s cost. Build a small comparison table for one query and for a thousand queries, counting preparation separately. This exercise turns a slogan about logarithmic search into an explicit workload argument."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dsa_count_search_work_source_binary",
+      "title": "Dictionary of Algorithms and Data Structures: binary search",
+      "authors": [
+        "Paul E. Black"
+      ],
+      "url": "https://xlinux.nist.gov/dads/HTML/binarySearch.html",
+      "locator": "Official NIST reference documentation: sorted input, repeated interval halving, and logarithmic comparisons; consulted 2026-09-11."
+    },
+    {
+      "id": "dsa_count_search_work_source_bigO",
+      "title": "Dictionary of Algorithms and Data Structures: big-O notation",
+      "authors": [
+        "Paul E. Black"
+      ],
+      "url": "https://xlinux.nist.gov/dads/HTML/bigOnotation.html",
+      "locator": "Official NIST reference documentation: formal definition, tight versus upper bounds, and computation models; entry modified 2019-09-06; consulted 2026-09-11."
+    }
+  ]
+}

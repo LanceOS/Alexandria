@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_unit_object_model_memory",
+  "name": "The object model and memory customization",
+  "slug": "object-model-memory",
+  "description": "After lifetime and containers: distinguish storage from live objects and choose resource lifetimes for allocator-aware containers. Virtual memory and caches belong in architecture and systems courses.",
+  "position": 14
+}

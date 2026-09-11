@@ -1,0 +1,90 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "build_define_a_reproducible_artifact_module",
+  "versionId": "build_define_a_reproducible_artifact_v1",
+  "slug": "define-a-reproducible-artifact",
+  "title": "Define a reproducible release artifact",
+  "summary": "Trace how an undeclared build path can change a release even when source code matches.",
+  "position": 0,
+  "objectives": [
+    "Define the artifact and build environment under comparison.",
+    "Identify common undeclared sources of output variation.",
+    "Distinguish reproducibility, authenticity, and behavioral correctness."
+  ],
+  "parts": [
+    {
+      "id": "build_define_a_reproducible_artifact_part_1",
+      "title": "Specify what must match",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: build graphs, version control, and compilation. This unit owns release evidence and reproducibility. C++ language conformance does not itself require identical executable bytes across builds."
+        },
+        {
+          "type": "paragraph",
+          "text": "A reproducible build allows the same source and defined build instructions and environment to produce matching specified artifacts. Decide what the artifact is: an executable, an archive, a container image, or a package with debug symbols. Comparing only the executable while ignoring changing package metadata supports a narrower claim than reproducing the complete release. Record that scope before comparing results."
+        },
+        {
+          "type": "paragraph",
+          "text": "Source identity is only one input. Compiler and linker versions, dependencies, generated code, locale, time zone, timestamps, environment variables, and build paths can affect output. A dependency name without a version is insufficient to reconstruct a historical release. The Reproducible Builds project documents these categories and the need to define the environment; the exact controls depend on the toolchain and packaging format."
+        }
+      ]
+    },
+    {
+      "id": "build_define_a_reproducible_artifact_part_2",
+      "title": "Trace an unexpected difference",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Build A source revision: abc123; workspace: /build/alice/project\nBuild B source revision: abc123; workspace: /build/bob/project\nCompiler and dependency versions: identical\nExecutable debug information records absolute source paths\nResult: artifact bytes differ despite matching source revision\nInvestigation: compare embedded paths and declared build inputs\nPossible remedy: supported compiler path mapping, then rebuild",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "This trace is a hypothetical diagnosis, not an experiment performed on a release. The project’s build-path documentation describes compiler options that normalize prefixes in debug information or file-name macros. Applying an option blindly can remove useful diagnostics or miss other generated paths. Verify exactly which outputs it changes, then repeat the comparison under the intended release process."
+        },
+        {
+          "type": "paragraph",
+          "text": "A cryptographic digest is a compact artifact identifier, not an explanation of a mismatch. Keep the actual artifacts and inspect their differences when a comparison fails. Build separately from clean inputs so one build cannot simply reuse the other’s output. Define the allowed environment variation and document any required equivalence transformation before seeing the result."
+        }
+      ]
+    },
+    {
+      "id": "build_define_a_reproducible_artifact_part_3",
+      "title": "Keep release claims distinct",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "If two independent builds produce identical bytes, does that show that the program is secure and implements the correct behavior?",
+          "explanation": "No. The same source and toolchain can reproducibly create the same defective program. Matching bytes support the reproducibility claim. Tests, review, security analysis, and trusted provenance answer different questions."
+        },
+        {
+          "type": "paragraph",
+          "text": "Authenticity asks who produced or endorsed an artifact; a signature and its trust chain address that question. Reproducibility asks whether the declared inputs account for the output. Correctness asks whether the program meets its specification. A useful release record connects these forms of evidence without treating one as a substitute for the others. Preserve source revisions, dependency identities, build instructions, and validation results so future maintainers can investigate a particular release."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "build_define_a_reproducible_artifact_source_repro",
+      "title": "Reproducible Builds: Definitions",
+      "authors": [
+        "Reproducible Builds project"
+      ],
+      "url": "https://reproducible-builds.org/docs/definition/",
+      "locator": "Official project guidance: reproducible builds, artifacts, source code, and build environment definitions; consulted 2026-09-11. Reproducibility is not a security proof."
+    },
+    {
+      "id": "build_define_a_reproducible_artifact_source_buildpath",
+      "title": "Reproducible Builds: Build path",
+      "authors": [
+        "Reproducible Builds project"
+      ],
+      "url": "https://reproducible-builds.org/docs/build-path/",
+      "locator": "Official project guidance: source paths in debug information and compiler prefix-map options; consulted 2026-09-11."
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "embedded_realtime_task_timing_module",
+  "versionId": "embedded_realtime_task_timing_version_1",
+  "slug": "release-and-deadline",
+  "title": "Separate release time from completion deadline",
+  "summary": "Evaluate a small periodic schedule using explicit timing assumptions.",
+  "position": 0,
+  "objectives": [
+    "Compute release, completion and deadline times.",
+    "Distinguish a ready task from one currently executing.",
+    "Identify assumptions needed before claiming a deadline guarantee."
+  ],
+  "parts": [
+    {
+      "id": "embedded_realtime_task_timing_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: C++ control flow and concurrency concepts; arithmetic in milliseconds. Embedded timing requirements belong here; C++ threads and object lifetimes remain in the language course."
+        },
+        {
+          "type": "paragraph",
+          "text": "A task can be ready to run without currently occupying a processor. In Zephyr, waiting for a timeout or an unavailable kernel object makes a thread unready; expiration of a sleep makes it eligible again, rather than promising immediate execution. For timing analysis, write down a release time, an execution demand and a deadline. The deadline is the latest acceptable completion time, not simply the time at which the task wakes. Priority and other work can delay execution. A measured average duration is not a worst-case bound. Keep the scheduling model explicit before interpreting a timeline, especially when interrupt handling, blocking or multiple processors are involved."
+        }
+      ]
+    },
+    {
+      "id": "embedded_realtime_task_timing_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original model has one processor, a periodic sampling task released every ten milliseconds, and a relative deadline of six milliseconds. Each sampling job needs exactly two milliseconds of processor time. A prescribed higher-priority activity occupies the processor from ten through thirteen milliseconds. There are no other costs or interruptions in this finite schedule."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "Job 0: release 0;  execute [0,2);   deadline 6;  finishes 2\nJob 1: release 10; ready [10,13); execute [13,15); deadline 16\nJob 2: release 20; execute [20,22); deadline 26\nAll three jobs finish before their deadlines.\nAlternative interference [10,15): Job 1 finishes 17, misses deadline 16."
+        },
+        {
+          "type": "paragraph",
+          "text": "The second job is ready at ten but begins at thirteen. Its response time is five milliseconds, including three milliseconds of waiting and two of execution. The alternate interference interval changes the result even though the sampling code itself takes exactly the same time. This is why benchmarking only the task body cannot establish the end-to-end deadline. Half-open intervals keep adjacent events unambiguous: one job can finish at the exact instant another begins."
+        }
+      ]
+    },
+    {
+      "id": "embedded_realtime_task_timing_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Annotate each interval as executing, ready or waiting for its next release. Add one millisecond of explicitly bounded blocking before Job 1 runs and recompute completion. For hardware validation, collect evidence about maximum execution, interrupt load, scheduling configuration and clock behavior. Do not label this small arithmetic exercise a schedulability proof for an unspecified device."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Does waking every ten milliseconds prove that a job with a six-millisecond deadline always completes in time?",
+          "explanation": "No. The period controls when work becomes eligible, while the deadline constrains when it must finish. Waiting for processor time, execution and blocking all contribute to response time. In the alternate trace the releases remain perfectly periodic but Job 1 misses its deadline."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "embedded_realtime_task_timing_source_threads",
+      "title": "Zephyr: Threads",
+      "authors": [
+        "Zephyr Project"
+      ],
+      "url": "https://docs.zephyrproject.org/latest/kernel/services/threads/index.html",
+      "locator": "Primary documentation: Thread States, Thread Priorities and Thread Suspension; readiness and execution eligibility; consulted 2026-09-11"
+    }
+  ]
+}

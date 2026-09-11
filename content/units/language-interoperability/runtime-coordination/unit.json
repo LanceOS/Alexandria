@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "language_interoperability_runtime_coordination_unit",
+  "name": "Runtime Coordination",
+  "slug": "runtime-coordination",
+  "description": "Trace a scoped interpreter-lock boundary with explicit data ownership.",
+  "position": 1
+}

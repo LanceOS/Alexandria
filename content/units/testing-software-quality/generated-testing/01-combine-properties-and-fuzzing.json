@@ -1,0 +1,90 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "quality_combine_properties_and_fuzzing_module",
+  "versionId": "quality_combine_properties_and_fuzzing_v1",
+  "slug": "combine-properties-and-fuzzing",
+  "title": "Combine properties with fuzzing",
+  "summary": "Use an encoder and decoder to distinguish semantic checks from crash detection.",
+  "position": 0,
+  "objectives": [
+    "Express a property that applies to many generated inputs.",
+    "Explain the role of a fuzz target, seed corpus, and sanitizer.",
+    "Preserve and minimize a counterexample without treating passing runs as proof."
+  ],
+  "parts": [
+    {
+      "id": "quality_combine_properties_and_fuzzing_part_1",
+      "title": "Choose an observable property",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: functions, collections, and example-based tests. This unit owns generated-test design. C++ sanitizers and library-specific harness code belong in tool and language lessons; the property should remain meaningful in any implementation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Imagine a format that encodes a sequence of small nonnegative integers as comma-separated decimal fields. The domain allows empty sequences and values from zero through 999. A useful property is that decoding an encoded valid sequence recovers the same sequence. This covers many examples with one general statement, but only if the generator actually explores empty inputs, boundary values, repeated elements, and different lengths."
+        },
+        {
+          "type": "paragraph",
+          "text": "A round-trip property has limits: an encoder and decoder can share a mistake. If both silently reverse sequences, their composition might still satisfy a poorly chosen check. Add independent examples with externally specified bytes and separate properties about length, order, and rejection. A property needs an oracle—a rule that tells us what counts as success—not just many inputs."
+        }
+      ]
+    },
+    {
+      "id": "quality_combine_properties_and_fuzzing_part_2",
+      "title": "Follow one counterexample",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Intended domain: sequences with values 0..999\nInput sequence: [4, 0, 9]\nEncoder result: \"4,0,9\"\nFaulty decoder skips zero-valued fields\nDecoded sequence: [4, 9]\nProperty: decoded sequence equals original -> FAIL\nSmaller counterexample to retain: [0] -> \"0\" -> []",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The smaller case explains the fault without unrelated values. Store it as a regression test, record the generator seed or input bytes needed to reproduce the failure, and fix the underlying behavior. Minimization is useful because the shortest clear failure often reveals a missing branch or a mistaken assumption about empty and zero values."
+        },
+        {
+          "type": "paragraph",
+          "text": "Coverage-guided fuzzing explores a different input surface: raw bytes, including malformed representations. LLVM’s libFuzzer repeatedly calls a target with byte sequences and uses coverage feedback to explore paths. The target must tolerate repeated calls, bound its work, and avoid dependence on hidden process history. Sanitizers can turn certain memory errors into reported failures; semantic properties can detect incorrect results that never crash."
+        }
+      ]
+    },
+    {
+      "id": "quality_combine_properties_and_fuzzing_part_3",
+      "title": "Define the campaign and its limits",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "A decoder survives a million random byte strings without crashing. What conclusion is justified?",
+          "explanation": "It survived those executions under the tested build and environment. That does not establish that every input is safe, that decoded values are correct, or that performance remains bounded for every possible structure."
+        },
+        {
+          "type": "paragraph",
+          "text": "Keep valid-input generators separate from malformed-input fuzzing so rejected random data does not crowd out useful semantic tests. Seed the fuzz corpus with small valid records and known corner cases. Limit total input size and processing time, and retain discovered failures. The two techniques complement ordinary examples: properties explore relationships, while coverage feedback seeks execution paths. Their value depends on the harness and oracle as much as on iteration count."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "quality_combine_properties_and_fuzzing_source_fuzzer",
+      "title": "libFuzzer: a library for coverage-guided fuzz testing",
+      "authors": [
+        "LLVM Project"
+      ],
+      "url": "https://releases.llvm.org/18.1.8/docs/LibFuzzer.html",
+      "locator": "Official versioned documentation: LLVM 18.1.8, Introduction, Fuzz Target, Corpus, and Sanitizers; consulted 2026-09-11."
+    },
+    {
+      "id": "quality_combine_properties_and_fuzzing_source_gtest",
+      "title": "GoogleTest Primer",
+      "authors": [
+        "GoogleTest contributors"
+      ],
+      "url": "https://google.github.io/googletest/primer.html",
+      "locator": "Official project documentation: assertions, independent and repeatable tests, and fixtures; consulted 2026-09-11. No claim that framework use establishes correctness."
+    }
+  ]
+}

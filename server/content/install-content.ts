@@ -1,10 +1,29 @@
 import type { DatabaseSync, SQLInputValue } from 'node:sqlite';
 import { transaction } from '../db/transaction.js';
 import type { ContentBundle, ContentModule } from './content-definition.js';
+import { validateContentCatalog } from './content-catalog.js';
 
 type Row = Record<string, SQLInputValue>;
 interface ExpectedRecord { table: string; key: Row; values: Row }
 interface PendingModule { module: ContentModule; records: ExpectedRecord[] }
+
+/** A failure in any selected topic rolls back the entire catalog import. */
+export function installContentCatalog(database: DatabaseSync, bundles: ContentBundle[]) {
+  if (bundles.length === 0) throw new Error('Select at least one topic to import.');
+  validateContentCatalog(bundles);
+  return transaction(database, () => {
+    const content = bundles.map((bundle) => installContentBundle(database, bundle));
+    return {
+      created: content.some((result) => result.created),
+      addedModules: content.reduce((total, result) => total + result.addedModules, 0),
+      topics: content.length,
+      units: content.reduce((total, result) => total + result.units, 0),
+      modules: content.reduce((total, result) => total + result.modules, 0),
+      parts: content.reduce((total, result) => total + result.parts, 0),
+      content,
+    };
+  });
+}
 
 function findRecord(database: DatabaseSync, record: ExpectedRecord) {
   const predicate = Object.keys(record.key).map((key) => `${key} = ?`).join(' AND ');

@@ -26,11 +26,12 @@ test('JSON discovery derives the unit hierarchy and uses positions rather than f
   renameSync(join(root, 'basics', '01-first-program.json'), join(root, 'basics', 'zz-first-program.json'));
   const bundle = loadContentBundle(root);
   assert.equal(bundle.topic.slug, 'cpp');
-  assert.deepEqual(bundle.units.map((unit) => [unit.slug, unit.parentUnitId]), [['cpp', null], ['basics', 'cpp_starter_unit_cpp']]);
-  const modules = bundle.units[1]!.modules;
-  assert.equal(modules.length, 6);
+  assert.deepEqual(bundle.units.slice(0, 2).map((unit) => [unit.slug, unit.parentUnitId]), [['cpp', null], ['basics', 'cpp_starter_unit_cpp']]);
+  const modules = bundle.units.find((unit) => unit.slug === 'basics')!.modules;
+  assert.equal(modules.length, 7);
   assert.equal(modules[0]!.id, 'cpp_starter_module_first_program');
   assert.equal(modules[5]!.id, 'cpp_basics_module_functions');
+  assert.equal(modules[6]!.id, 'cpp_basics_module_output');
 });
 
 test('validation identifies the filename for malformed JSON and rejects unsupported lesson fields', async (t) => {

@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_core_unit_types_initialization",
+  "name": "Types and Initialization",
+  "slug": "types-initialization",
+  "description": "Choose representations and initialize values deliberately.",
+  "position": 1
+}

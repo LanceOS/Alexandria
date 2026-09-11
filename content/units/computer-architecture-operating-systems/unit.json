@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "archos_unit",
+  "name": "Computer Architecture and Operating Systems",
+  "slug": "computer-architecture-operating-systems",
+  "description": "Understand cache models and process memory after basic binary representation. C++ object lifetime remains in the language course; hardware and OS behavior belong here.",
+  "position": 0,
+  "topic": {
+    "id": "archos_topic",
+    "slug": "computer-architecture-operating-systems",
+    "name": "Computer Architecture and Operating Systems",
+    "description": "Understand cache models and process memory after basic binary representation. C++ object lifetime remains in the language course; hardware and OS behavior belong here.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 3
+      }
+    ]
+  }
+}

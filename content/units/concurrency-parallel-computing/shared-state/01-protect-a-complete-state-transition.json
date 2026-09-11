@@ -1,0 +1,101 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "parallel_protect_a_complete_state_transition_module",
+  "versionId": "parallel_protect_a_complete_state_transition_v1",
+  "slug": "protect-a-complete-state-transition",
+  "title": "Protect a complete state transition",
+  "summary": "Show why individually safe reads and writes can still violate an application rule.",
+  "position": 0,
+  "objectives": [
+    "Distinguish a race in application logic from a language data race.",
+    "Identify the full operation that must be coordinated.",
+    "Explain a lock-order rule and the limits of a simplified schedule."
+  ],
+  "parts": [
+    {
+      "id": "parallel_protect_a_complete_state_transition_part_1",
+      "title": "Name the invariant across workers",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: sequential state invariants and error handling. This subject owns coordination design. C++ synchronization and its precise memory model are taught in advanced C++; these traces are language-neutral models, not runnable unsynchronized C++."
+        },
+        {
+          "type": "paragraph",
+          "text": "Two workers sell the last available ticket. The application invariant says no more tickets may be sold than the initial capacity. Suppose each read and write is individually indivisible and visible in the order shown, but reading availability, deciding, and recording a sale are separate operations. That model lets us expose a logic race without asserting what an invalid C++ program would do."
+        },
+        {
+          "type": "paragraph",
+          "text": "One worker can read availability before another finishes its decision. Both then act on observations that were true when read but are no longer enough to justify a sale. Replacing an ordinary variable with individually atomic loads and stores does not automatically turn the whole decision into one coordinated operation. The unit of correctness is the application state transition."
+        }
+      ]
+    },
+    {
+      "id": "parallel_protect_a_complete_state_transition_part_2",
+      "title": "Compare two schedules",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Model: each listed read or write is indivisible; available starts at 1\nA reads available -> 1\nB reads available -> 1\nA writes available = 0 and confirms sale A\nB writes available = 0 and confirms sale B\nTwo sales were confirmed for one ticket\n\nCoordinated operation:\nA enters critical section, checks 1, decrements, confirms, leaves\nB enters critical section, checks 0, rejects, leaves\nOnly one sale is confirmed",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The protected operation includes checking the condition and committing the state change. All participants must follow the same coordination protocol. A lock used by only the writers does not help a reader that ignores it. Keep slow unrelated work outside the critical section when possible, while ensuring any prepared result is still valid when the state is committed."
+        },
+        {
+          "type": "paragraph",
+          "text": "A language data race has a technical definition involving conflicting accesses and ordering. In ordinary C++, a data race causes undefined behavior, so the first schedule must not be presented as a guaranteed result from unsynchronized non-atomic variables. OpenMP likewise specifies sharing and synchronization rules for its own model. Here the schedule demonstrates a broader logic error under explicitly stronger assumptions."
+        }
+      ]
+    },
+    {
+      "id": "parallel_protect_a_complete_state_transition_part_3",
+      "title": "Plan progress as well as safety",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Two operations each need locks for accounts X and Y. One locks X then Y; the other locks Y then X. What can go wrong?",
+          "explanation": "Each operation can hold one lock while waiting forever for the other. A consistent global acquisition order, or an appropriate multi-lock mechanism, prevents this particular circular-wait pattern. It does not by itself prove fairness or bounded waiting."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ask separately whether the invariant holds and whether workers can make progress. Document lock ownership, permitted callbacks, cancellation behavior, and the lifetime of shared state. Tests can explore many schedules but do not enumerate every possible interleaving. Begin with a small state machine and a clear protocol before choosing lower-level optimizations such as lock-free data structures."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "parallel_protect_a_complete_state_transition_source_openmpmem",
+      "title": "OpenMP 5.2: Structure of the Memory Model",
+      "authors": [
+        "OpenMP Architecture Review Board"
+      ],
+      "url": "https://www.openmp.org/spec-html/5.2/openmpsu9.html",
+      "locator": "Normative API specification for OpenMP 5.2, §1.4.1; shared and private data, unordered conflicts, synchronization, and lifetime; consulted 2026-09-11. Language-neutral traces are not an implementation of this model."
+    },
+    {
+      "id": "parallel_protect_a_complete_state_transition_source_guidelines",
+      "title": "C++ Core Guidelines",
+      "authors": [
+        "Bjarne Stroustrup",
+        "Herb Sutter"
+      ],
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
+      "locator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: CP.20 (scoped lock ownership), CP.21 (multiple mutexes and deadlock), CP.22 (callbacks under a lock); page dated 2026-06-14, consulted 2026-09-11."
+    },
+    {
+      "id": "parallel_protect_a_complete_state_transition_source_cpp_races",
+      "title": "C++20 working draft N4861: Data races",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/intro.races",
+      "locator": "Primary standards draft, not the published ISO edition: N4861 [intro.races] paragraphs 2–6 and 21; conflicting actions, synchronization, atomic operations, and undefined behavior from a data race. Pinned C++20 text inspected 2026-09-11."
+    }
+  ]
+}

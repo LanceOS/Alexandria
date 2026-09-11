@@ -1,0 +1,90 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "quality_test_a_partitioned_input_domain_module",
+  "versionId": "quality_test_a_partitioned_input_domain_v1",
+  "slug": "test-a-partitioned-input-domain",
+  "title": "Test the boundaries of an input domain",
+  "summary": "Build a meaningful test set for a duration parser with explicit rejection rules.",
+  "position": 0,
+  "objectives": [
+    "Derive valid and invalid partitions from requirements.",
+    "Select cases on both sides of boundaries.",
+    "Distinguish independent behavioral tests from implementation-shaped tests."
+  ],
+  "parts": [
+    {
+      "id": "quality_test_a_partitioned_input_domain_part_1",
+      "title": "Begin with a behavioral rule",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: functions, conditions, and error results. Testing is a general engineering discipline. The C++ course covers assertions and language errors; this course owns test selection and the evidence a passing suite provides."
+        },
+        {
+          "type": "paragraph",
+          "text": "A duration field accepts decimal digits representing one through 120 minutes. Leading zeros are accepted. Signs, spaces, trailing characters, and values outside the range are rejected. These are application requirements, so a test can judge the parser without knowing its loops or internal storage. Start by partitioning the input domain into cases expected to behave similarly: accepted values, syntactically invalid strings, and syntactically valid values outside the range."
+        },
+        {
+          "type": "paragraph",
+          "text": "Choose examples at the edges of those partitions. A parser that accepts 60 might still reject 1 or mistakenly accept 121. The empty string needs its own attention because it contains no digit to convert. Very long digit sequences also matter because they can exceed implementation ranges before the application range check runs. State the result you expect before looking at what the implementation currently does."
+        }
+      ]
+    },
+    {
+      "id": "quality_test_a_partitioned_input_domain_part_2",
+      "title": "Construct a reviewable test table",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Input     Expected result        Requirement exercised\n\"1\"       accepted: 1            lower accepted boundary\n\"120\"     accepted: 120          upper accepted boundary\n\"0\"       rejected               below range\n\"121\"     rejected               above range\n\"007\"     accepted: 7            permitted leading zeros\n\"\"        rejected               at least one digit\n\"7x\"      rejected               entire input consumed\n\" 7\"      rejected               whitespace forbidden",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "Each case should identify the behavior it protects. An accepted result needs a value assertion as well as a success assertion. A rejected result should not leave a misleading usable value. If parsing mutates an output object, the contract must say whether that object changes on failure, and the tests should check the promised behavior."
+        },
+        {
+          "type": "paragraph",
+          "text": "GoogleTest’s primer emphasizes independent, repeatable tests. Apply that principle regardless of framework: initialize each parser test explicitly and do not depend on the order of earlier tests. If a test changes locale or global configuration, isolate and restore that environment. Prefer a fresh input value over a shared object modified by several tests."
+        }
+      ]
+    },
+    {
+      "id": "quality_test_a_partitioned_input_domain_part_3",
+      "title": "Interpret passing tests carefully",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "If all eight cases pass, has the parser been proved correct for every possible input?",
+          "explanation": "No. The examples provide evidence for selected requirements and boundaries. An implementation can still mishandle a different length, character, encoding, or overflow case. Add cases based on risks and failures, and combine example tests with properties or analysis when useful."
+        },
+        {
+          "type": "paragraph",
+          "text": "A test that repeats the parser’s exact arithmetic may repeat its defect. Expected results should come from the specification or a genuinely independent reference. When a bug appears, reduce its input to a small counterexample and preserve that case as a regression test. Test quality comes from the mistakes the suite can detect and the promises it checks, not simply from the number of assertions or a coverage percentage."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "quality_test_a_partitioned_input_domain_source_gtest",
+      "title": "GoogleTest Primer",
+      "authors": [
+        "GoogleTest contributors"
+      ],
+      "url": "https://google.github.io/googletest/primer.html",
+      "locator": "Official project documentation: assertions, independent and repeatable tests, and fixtures; consulted 2026-09-11. No claim that framework use establishes correctness."
+    },
+    {
+      "id": "quality_test_a_partitioned_input_domain_source_owasp",
+      "title": "OWASP Input Validation Cheat Sheet",
+      "authors": [
+        "OWASP Cheat Sheet Series contributors"
+      ],
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+      "locator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
+    }
+  ]
+}

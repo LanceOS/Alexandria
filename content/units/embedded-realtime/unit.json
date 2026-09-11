@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "embedded_realtime_unit_root",
+  "name": "Embedded and real-time systems",
+  "slug": "embedded-realtime",
+  "description": "Bounded event handling, task readiness and timing requirements. Prerequisites: C++ lifetime and concurrency basics; binary representation and elementary timing arithmetic. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_embedded_realtime",
+    "slug": "embedded-realtime",
+    "name": "Embedded and real-time systems",
+    "description": "Bounded event handling, task readiness and timing requirements. Prerequisites: C++ lifetime and concurrency basics; binary representation and elementary timing arithmetic. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 13
+      }
+    ]
+  }
+}

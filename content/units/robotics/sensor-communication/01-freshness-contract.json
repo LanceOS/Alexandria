@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "robotics_sensor_communication_module",
+  "versionId": "robotics_sensor_communication_version_1",
+  "slug": "freshness-contract",
+  "title": "Specify freshness and delivery expectations",
+  "summary": "Compare queue history, reliability and age of robotic observations.",
+  "position": 0,
+  "objectives": [
+    "Trace which samples remain in a bounded history.",
+    "Distinguish delivery reliability from freshness.",
+    "Identify a publisher-subscriber policy mismatch."
+  ],
+  "parts": [
+    {
+      "id": "robotics_sensor_communication_part_concepts",
+      "title": "Understand the model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and subject boundary",
+          "text": "Prerequisites: message queues, timestamps and basic distributed communication. This unit owns robotics communication requirements; C++ concurrency mechanisms are supporting knowledge."
+        },
+        {
+          "type": "paragraph",
+          "text": "ROS 2 quality-of-service profiles combine policies such as history, depth, reliability, deadline and lifespan. Keep-last history bounds the number of stored samples; lifespan addresses how long a sample remains acceptable; reliability addresses delivery behavior. These are different questions. Incompatible publisher and subscriber profiles can prevent communication even when topic names agree. Sensor processing often values a recent observation more than a complete backlog, but that is an application requirement, not a rule for every robot message. A commanded action, calibration record and camera frame may need different contracts. Make those choices explicit at both ends of the connection."
+        }
+      ]
+    },
+    {
+      "id": "robotics_sensor_communication_part_trace",
+      "title": "Work through an example",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our original finite example has a compatible producer and consumer for a temperature display. Three samples are produced at 0, 10 and 20 milliseconds. The middleware history retains the last two samples. The consumer reads at 25 milliseconds and additionally applies an application rule that a sample older than twelve milliseconds is too old. For simplicity the clocks agree and transport adds no other delay."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Original worked trace; finite assumptions, not executable platform code",
+          "code": "After t=0:  history [S0]\nAfter t=10: history [S0,S10]\nAfter t=20: history [S10,S20]\nAt t=25: age(S10)=15 ms -> reject by application age rule\nAt t=25: age(S20)=5 ms  -> accept\nS0 was displaced by the bounded history before this read."
+        },
+        {
+          "type": "paragraph",
+          "text": "The history limit and age rule remove different samples for different reasons. Increasing reliability would not turn the fifteen-millisecond-old observation into a five-millisecond-old one. A reliable transport can still face delay, so a control system must decide whether late data remains useful. The application rule is spelled out separately from middleware lifespan so that the trace does not depend on a particular middleware’s scheduling or cache implementation."
+        }
+      ]
+    },
+    {
+      "id": "robotics_sensor_communication_part_practice",
+      "title": "Apply and explain",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Change the consumer time to thirty-five milliseconds and re-evaluate both retained samples. Then compare the display requirement with an audit log that must preserve every accepted event. Document the chosen profile at the publisher and subscriber and check their compatibility table before diagnosing missing messages as a C++ bug. Include a visible stale-data state so that a stopped sensor is distinguishable from a constant reading."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Can a reliable connection guarantee that a displayed value is recent enough for this application?",
+          "explanation": "No. Reliability and age are separate dimensions. The application needs an explicit freshness requirement, timestamps and an action when that requirement is not met. In the trace a sample can arrive intact and still be rejected because its age exceeds twelve milliseconds."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "robotics_sensor_communication_source_qos",
+      "title": "ROS 2 Jazzy: Quality of Service settings",
+      "authors": [
+        "ROS 2 contributors"
+      ],
+      "url": "https://raw.githubusercontent.com/ros2/ros2_documentation/jazzy/source/Concepts/Intermediate/About-Quality-of-Service-Settings.rst",
+      "locator": "Primary documentation: QoS policies, profiles and compatibility; history, reliability, deadline and lifespan; consulted 2026-09-11"
+    }
+  ]
+}

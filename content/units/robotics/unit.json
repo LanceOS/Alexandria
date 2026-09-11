@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "robotics_unit_root",
+  "name": "Robotics",
+  "slug": "robotics",
+  "description": "Coordinate frames, measurement time and communication contracts. Prerequisites: C++ classes; vectors, coordinate geometry and concurrency basics. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+  "position": 0,
+  "topic": {
+    "id": "topic_robotics",
+    "slug": "robotics",
+    "name": "Robotics",
+    "description": "Coordinate frames, measurement time and communication contracts. Prerequisites: C++ classes; vectors, coordinate geometry and concurrency basics. This application subject owns domain concepts; the C++ course owns language syntax, lifetime rules and standard-library mechanisms.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 19
+      }
+    ]
+  }
+}

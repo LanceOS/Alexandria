@@ -1,0 +1,83 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "numerical_reason_about_rounded_numbers_module",
+  "versionId": "numerical_reason_about_rounded_numbers_v1",
+  "slug": "reason-about-rounded-numbers",
+  "title": "Reason about rounded numbers",
+  "summary": "Use a small decimal model to see why grouping can change an arithmetic result.",
+  "position": 0,
+  "objectives": [
+    "Distinguish a real value from its finite representation.",
+    "Trace rounding after each arithmetic operation.",
+    "Choose an error measure that matches the scale and purpose of a calculation."
+  ],
+  "parts": [
+    {
+      "id": "numerical_reason_about_rounded_numbers_part_1",
+      "title": "Define the arithmetic model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: fractions, powers of ten, and basic algebra. Numerical computing owns error analysis. C++ floating-point types and environment facilities are separate language topics; this lesson uses a decimal teaching model, not a claim about every double implementation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Finite representations cannot store every real number exactly. A computation therefore combines input approximation with rounding introduced by operations. More printed digits do not create information that was never represented. Goldberg’s peer-reviewed survey explains representation, rounding error, and cancellation; its historical discussion is useful conceptual background but is not a replacement for the current hardware and language specifications."
+        },
+        {
+          "type": "paragraph",
+          "text": "For the trace, use three significant decimal digits and round to the nearest representable value after every operation. Assume a sufficiently wide exponent range so overflow and underflow are irrelevant. This is a deliberately small arithmetic model that makes lost low-order information visible on paper. The chosen values avoid halfway rounding cases, so no tie-breaking rule is needed for this example."
+        }
+      ]
+    },
+    {
+      "id": "numerical_reason_about_rounded_numbers_part_2",
+      "title": "Trace two groupings",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Teaching arithmetic: three significant decimal digits\na = 1.00 x 10^3; b = 1.00; c = -1.00 x 10^3\n\n(a + b) + c:\n  exact first sum 1001 -> rounded 1.00 x 10^3\n  1000 + (-1000) -> 0\n\n(a + c) + b:\n  1000 + (-1000) -> 0\n  0 + 1 -> 1\nExact real sum in either grouping: 1",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The first grouping loses the contribution of b before the large values cancel. The final subtraction is not enough to restore that information. This demonstrates non-associativity in the specified finite arithmetic: changing grouping changes the result. A parallel reduction or an aggressive optimization that changes evaluation grouping therefore deserves numerical review, even when both expressions are algebraically equivalent over the reals."
+        },
+        {
+          "type": "paragraph",
+          "text": "Absolute error is the magnitude of the difference between a computed result and a reference. Relative error divides that magnitude by the magnitude of a nonzero reference. Near zero, relative error can become enormous or undefined, while absolute error may better describe the application’s needs. A tolerance should come from the units, input uncertainty, and accuracy requirement rather than one magic constant used everywhere."
+        }
+      ]
+    },
+    {
+      "id": "numerical_reason_about_rounded_numbers_part_3",
+      "title": "State what accuracy is needed",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Would rounding the first grouping’s final result to more display digits recover the missing one?",
+          "explanation": "No. The computed result is already zero. Formatting can reveal stored digits or hide them, but it cannot reconstruct information lost during the computation. The arithmetic strategy or representation must change."
+        },
+        {
+          "type": "paragraph",
+          "text": "Test representative magnitudes, near-zero results, and difficult cancellation cases against an independent high-accuracy reference when possible. Record the rounding assumptions and whether non-finite values are allowed. Separate exact counts, which may belong in integer arithmetic, from measured quantities that inherently carry uncertainty. Numerical correctness begins with defining an acceptable result, not merely checking that an arithmetic expression compiles."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "numerical_reason_about_rounded_numbers_source_goldberg",
+      "title": "What Every Computer Scientist Should Know About Floating-Point Arithmetic",
+      "authors": [
+        "David Goldberg"
+      ],
+      "url": "https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html",
+      "locator": "Peer-reviewed research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text.",
+      "publisher": "Association for Computing Machinery",
+      "publicationYear": 1991
+    }
+  ]
+}

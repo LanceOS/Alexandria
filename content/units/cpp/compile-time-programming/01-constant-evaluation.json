@@ -1,0 +1,103 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_constant_evaluation_module",
+  "versionId": "cpp_constant_evaluation_v1",
+  "slug": "constant-evaluation",
+  "title": "Computing and checking constants",
+  "summary": "Distinguish a function that can be constant-evaluated from an interface that requires constant evaluation.",
+  "position": 0,
+  "objectives": [
+    "Explain constexpr and consteval at a call site.",
+    "Use static_assert to check a compile-time result.",
+    "Describe what constinit guarantees and what it leaves mutable."
+  ],
+  "parts": [
+    {
+      "id": "cpp_constant_evaluation_part_1",
+      "title": "Make the requirement explicit",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A constexpr function can participate in a constant expression when the selected operations and inputs satisfy the language rules. It is not a promise that every call happens during translation. The context matters: initializing a constexpr variable demands a suitable constant expression, while an ordinary runtime call can use changing input. This lesson builds on functions and initialization."
+        },
+        {
+          "type": "paragraph",
+          "text": "A consteval function is an immediate function. Calls in the ordinary contexts shown here must produce constant expressions. This is useful for a configuration that should be rejected during compilation when its arguments are unsuitable. The goal is an early, clear failure, not a claim that computation is free: compiler time and memory are resources too."
+        }
+      ]
+    },
+    {
+      "id": "cpp_constant_evaluation_part_2",
+      "title": "Calculate a small configuration",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n\nconstexpr int square(int n) { return n * n; }\nconsteval int checkedWidth(int n)\n{\n    if (n < 1 || n > 8) throw \"width outside lesson range\";\n    return n;\n}\nconstinit int sessions{2};\n\nint main()\n{\n    constexpr int width{checkedWidth(4)};\n    constexpr int area{square(width)};\n    static_assert(area == 16);\n    ++sessions;\n    std::cout << area << ' ' << sessions << '\\n';\n}\n",
+          "caption": "main.cpp — C++20"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "16 3\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The accepted width stays in a tiny range, so squaring it fits in int. Calling checkedWidth with zero would take a throw during the required constant evaluation and fail compilation; it is not a runtime exception-handling demonstration. The static assertion checks one concrete result. It does not prove square correct for every int, and large runtime arguments could overflow."
+        },
+        {
+          "type": "paragraph",
+          "text": "sessions has static storage duration. constinit requires static initialization, but does not make the variable const; incrementing it in main is allowed. This separates initialization timing from mutability. The example is single-threaded: choosing constinit would not make concurrent increments safe."
+        }
+      ]
+    },
+    {
+      "id": "cpp_constant_evaluation_part_3",
+      "title": "Match the tool to the requirement",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "A function should accept both compile-time configuration and runtime user input. Is consteval automatically the best declaration?",
+          "explanation": "No. A constexpr function can serve both roles when its implementation permits constant evaluation. A consteval interface would reject ordinary runtime arguments. Choose the declaration based on the intended calls."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use small compile-time checks to document boundaries and invariants that can actually be known at translation. Keep runtime validation for values read from files, networks, or users. Later modules can build lookup tables and compile-time parsers, but should still state input limits, failure behavior, and the cost imposed on every translation unit using the facility."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_constant_evaluation_source_1",
+      "title": "C++20 working draft N4861: dcl.constexpr",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.constexpr",
+      "locator": "Primary standards draft, [dcl.constexpr]: constexpr variables and functions; immediate functions. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_constant_evaluation_source_2",
+      "title": "C++20 working draft N4861: expr.const",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.const",
+      "locator": "Primary standards draft, [expr.const]: constant expression requirements and disallowed evaluated operations. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_constant_evaluation_source_3",
+      "title": "C++20 working draft N4861: dcl.constinit",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.constinit",
+      "locator": "Primary standards draft, [dcl.constinit]: static initialization without implied const qualification. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    }
+  ]
+}

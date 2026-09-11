@@ -1,0 +1,92 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "security_validate_before_changing_state_module",
+  "versionId": "security_validate_before_changing_state_v1",
+  "slug": "validate-before-changing-state",
+  "title": "Validate before changing state",
+  "summary": "Trace syntax, meaning, and permission checks for a reading-log request.",
+  "position": 0,
+  "objectives": [
+    "Distinguish syntactic validation, semantic validation, and authorization.",
+    "Reject malformed and out-of-range input before state changes.",
+    "Explain why client-side validation is insufficient for a service boundary."
+  ],
+  "parts": [
+    {
+      "id": "security_validate_before_changing_state_part_1",
+      "title": "Identify where trust changes",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: functions, parsing, and error handling. Security engineering owns threat boundaries and policy. C++ bounds checks and ownership help implement the policy safely but cannot decide who is allowed to modify a record."
+        },
+        {
+          "type": "paragraph",
+          "text": "A server receives a request to add reading minutes to a book. The request may come from a well-behaved interface, a modified client, or a malformed file imported by a user. Treat its bytes as untrusted until the server has checked the relevant rules. A browser form that restricts values improves usability but does not prevent another client from sending different bytes."
+        },
+        {
+          "type": "paragraph",
+          "text": "Separate the questions. Syntactic validation asks whether the field has the accepted structure. Semantic validation asks whether its value makes sense for the application. Authorization asks whether this caller may perform this action on this book. OWASP’s guidance distinguishes syntax and semantics; adding an explicit authorization step in our example prevents a valid value from being mistaken for a permitted operation."
+        }
+      ]
+    },
+    {
+      "id": "security_validate_before_changing_state_part_2",
+      "title": "Trace acceptance without hidden coercion",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Application contract: minutes is decimal digits for an integer 1..120\nRequest: book = B7, minutes = \"25x\", authenticated user = U2\nSyntax check: trailing x is forbidden -> reject; no mutation\n\nRequest: book = B7, minutes = \"250\", authenticated user = U2\nSyntax check: passes; range check: fails -> reject; no mutation\n\nRequest: book = B7, minutes = \"25\", authenticated user = U2\nSyntax and range: pass; book belongs to U1 -> deny; no mutation\n\nOnly an authorized request with all checks passing may commit.",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "Do not accept a numeric prefix and quietly discard the rest unless the protocol expressly defines that behavior. Validate the entire field, its length, and its representable range before converting or allocating based on it. Error handling should preserve the previous state. For a concurrent service, checks that depend on mutable state must remain valid at commit time through an appropriate transaction or coordination mechanism."
+        },
+        {
+          "type": "paragraph",
+          "text": "Validation is not a universal substitute for safe downstream APIs. A validated string can still require parameterized database queries or context-specific output encoding. The correct operation depends on the destination context. Keep internal error details useful for diagnostics without exposing unrelated records or sensitive implementation information to an unauthorized caller."
+        }
+      ]
+    },
+    {
+      "id": "security_validate_before_changing_state_part_3",
+      "title": "Test the boundary as an adversarial interface",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "A client already authenticated as U2 supplies the correct numeric duration. Why must the server still check ownership of B7?",
+          "explanation": "Authentication establishes an identity; it does not authorize every action on every object. The server must evaluate the relationship between the caller, the operation, and the specific resource before updating it."
+        },
+        {
+          "type": "paragraph",
+          "text": "Create tests for empty input, oversized input, range edges, trailing data, a missing book, and a book owned by another user. Assert that rejected requests leave state unchanged. NIST’s SSDF recommends integrating security practices into development; this lesson applies that general direction through a concrete boundary specification and tests. No fixed checklist proves a service secure, but an explicit boundary makes its assumptions reviewable."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "security_validate_before_changing_state_source_owasp",
+      "title": "OWASP Input Validation Cheat Sheet",
+      "authors": [
+        "OWASP Cheat Sheet Series contributors"
+      ],
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+      "locator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
+    },
+    {
+      "id": "security_validate_before_changing_state_source_ssdf",
+      "title": "Secure Software Development Framework Version 1.1",
+      "authors": [
+        "Murugiah Souppaya",
+        "Karen Scarfone",
+        "Donna Dodson"
+      ],
+      "url": "https://csrc.nist.gov/pubs/sp/800/218/final",
+      "locator": "Official NIST guidance: SP 800-218, February 2022, SSDF 1.1 overview and abstract on integrating security practices into development; consulted 2026-09-11. Only the publication overview inspected; no uninspected practice-level claims attributed."
+    }
+  ]
+}

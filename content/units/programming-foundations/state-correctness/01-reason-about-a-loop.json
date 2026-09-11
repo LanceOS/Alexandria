@@ -1,0 +1,83 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "foundations_reason_about_a_loop_module",
+  "versionId": "foundations_reason_about_a_loop_v1",
+  "slug": "reason-about-a-loop",
+  "title": "Reason about a loop using an invariant",
+  "summary": "Explain why a counting process computes the required answer and eventually stops.",
+  "position": 0,
+  "objectives": [
+    "State an invariant at a precise point in a loop.",
+    "Check initialization, preservation, and the exit condition.",
+    "Distinguish a correctness argument from a termination argument."
+  ],
+  "parts": [
+    {
+      "id": "foundations_reason_about_a_loop_part_1",
+      "title": "Name what remains true",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: variables, comparisons, and the idea of repetition, from C++ Basics or another language. This subject develops language-independent reasoning. C++ sequencing, integer ranges, and loop syntax remain separate language rules."
+        },
+        {
+          "type": "paragraph",
+          "text": "Suppose a program receives a finite list of nonnegative reading-session lengths and must compute their sum. At the start of an iteration, let processed be the number of entries already visited and total be their sum. The useful invariant is: total equals the sum of exactly the first processed entries, and processed lies between zero and the list length. An invariant describes a relationship, not merely a variable that stays numerically unchanged."
+        },
+        {
+          "type": "paragraph",
+          "text": "Before the first iteration, processed and total are both zero. The sum of an empty prefix is zero, so the invariant already holds. Assume exact mathematical integers for this reasoning. When translating to a fixed-width language type, checking that the total fits is an additional obligation; algebra does not override machine arithmetic."
+        }
+      ]
+    },
+    {
+      "id": "foundations_reason_about_a_loop_part_2",
+      "title": "Preserve the relationship",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Sessions: [8, 0, 12]\nStart:   processed = 0, total = 0,  prefix = []\nStep 1:  processed = 1, total = 8,  prefix = [8]\nStep 2:  processed = 2, total = 8,  prefix = [8, 0]\nStep 3:  processed = 3, total = 20, prefix = [8, 0, 12]\nExit: processed equals list length; total is the full sum",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "While processed is less than the list length, the next entry exists. Add that entry to total, then advance processed by one. The new total includes precisely the new prefix, so the invariant is preserved. The zero-length session changes the prefix without changing the total; this demonstrates why the relationship matters more than whether a value changed."
+        },
+        {
+          "type": "paragraph",
+          "text": "At exit, processed equals the list length. Combining that fact with the invariant gives the desired result: total is the sum of the entire list. This pattern—establish a relationship, preserve it, and combine it with the exit condition—is the central idea behind the iteration rule in Hoare’s paper. It establishes the result if execution terminates; termination deserves its own explanation."
+        }
+      ]
+    },
+    {
+      "id": "foundations_reason_about_a_loop_part_3",
+      "title": "Explain progress and test the claim",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "What happens to the proof if processed is never incremented?",
+          "explanation": "Adding the first entry repeatedly would fail to preserve the prefix-sum invariant. Even for a zero first entry, when the relationship might remain true, the loop would still fail to terminate for a nonempty list because it makes no progress."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use list length minus processed as a decreasing measure. It begins as a nonnegative integer and falls by one each iteration, so the loop cannot repeat forever under the stated assumptions. For an empty list, the body runs zero times and the initialized result is already correct. Try tracing a one-element list and explain both the invariant and progress measure in words. A good explanation tells a future reader why the algorithm works rather than simply repeating its statements."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "foundations_reason_about_a_loop_source_hoare",
+      "title": "An Axiomatic Basis for Computer Programming",
+      "authors": [
+        "C. A. R. Hoare"
+      ],
+      "url": "https://sites.cs.ucsb.edu/~kemm/courses/cs266/acmhoare69.pdf",
+      "locator": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11.",
+      "publisher": "Association for Computing Machinery",
+      "publicationYear": 1969
+    }
+  ]
+}

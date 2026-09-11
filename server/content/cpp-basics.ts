@@ -13,7 +13,10 @@ export const cppBasicsIds = {
 } as const;
 
 export function loadCppBasicsBundle() {
-  return loadContentBundle(join(defaultContentDirectory, 'cpp'));
+  const bundle = loadContentBundle(join(defaultContentDirectory, 'cpp'));
+  // Historical helpers remain scoped to the seven Basics lessons. The generic
+  // content:import command (including its legacy CLI alias) discovers all C++ units.
+  return { ...bundle, units: bundle.units.filter((unit) => unit.id === cppBasicsIds.unit || unit.id === cppBasicsIds.basics) };
 }
 
 const starter = loadCppBasicsBundle().units.flatMap((unit) => unit.modules)

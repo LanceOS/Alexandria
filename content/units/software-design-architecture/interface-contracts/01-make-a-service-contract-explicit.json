@@ -1,0 +1,93 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "design_make_a_service_contract_explicit_module",
+  "versionId": "design_make_a_service_contract_explicit_v1",
+  "slug": "make-a-service-contract-explicit",
+  "title": "Make a service contract explicit",
+  "summary": "Design a reservation operation that callers can use without guessing hidden rules.",
+  "position": 0,
+  "objectives": [
+    "Specify inputs, outcomes, and state changes separately.",
+    "Explain why a successful signature does not define all behavior.",
+    "Use a failure trace to assess an interface promise."
+  ],
+  "parts": [
+    {
+      "id": "design_make_a_service_contract_explicit_part_1",
+      "title": "Write the promise before the signature",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and the C++ boundary",
+          "text": "Prerequisites: functions, error handling, and basic ownership vocabulary. This subject owns API meaning and responsibility. C++ references, return types, exceptions, and smart pointers provide ways to encode the resulting contract."
+        },
+        {
+          "type": "paragraph",
+          "text": "A seat-reservation service exposes reserve(event, count). The name suggests a job, but leaves crucial questions unanswered. Can count be zero? Does failure reserve some seats? Does the result identify a reservation? Can the caller retry? An interface consists of these observable rules as well as its parameter and return types. The Core Guidelines recommend explicit interfaces and stated preconditions and postconditions; those recommendations are expert guidance rather than an automatic proof of design quality."
+        },
+        {
+          "type": "paragraph",
+          "text": "For our small in-memory service, accept counts from one through the available capacity. A success subtracts exactly that count and returns a new reservation identifier. A capacity failure leaves availability unchanged. Invalid input is reported distinctly. We deliberately exclude network failures and persistent transactions here, because those add uncertainty about what happened after a request was sent."
+        }
+      ]
+    },
+    {
+      "id": "design_make_a_service_contract_explicit_part_2",
+      "title": "Check a success and a failure",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Initial state: available = 4; reservations = []\nreserve(event, 3) -> success, id R1\nState: available = 1; reservations = [(R1, 3)]\nreserve(event, 2) -> insufficient capacity\nState: available = 1; reservations = [(R1, 3)]\nreserve(event, 0) -> invalid count\nState: available = 1; reservations = [(R1, 3)]",
+          "caption": "Worked trace — illustrative data, not measured output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The trace makes the failure guarantee observable. If the second request first deducted one seat and then reported failure, it would violate the contract. An implementation should prepare any fallible work before committing the state change, or otherwise restore a valid prior state. The precise mechanism depends on the storage and execution model; this example assumes sequential calls and ordinary completion."
+        },
+        {
+          "type": "paragraph",
+          "text": "Ownership also belongs in the contract. If a query returns a view into internal reservation data, state how long it remains valid and what changes invalidate it. Returning an independent value can simplify callers’ reasoning but may have copying costs. Choose between these designs according to real usage, then express the decision in the C++ interface rather than burying it in an implementation comment."
+        }
+      ]
+    },
+    {
+      "id": "design_make_a_service_contract_explicit_part_3",
+      "title": "Test what callers can rely on",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "Would changing capacity failure into a successful partial reservation preserve this interface?",
+          "explanation": "No. The existing contract promises either the full requested count or no state change. Partial reservation is a new observable behavior. It requires an explicit alternative operation or a reviewed contract change and corresponding caller updates."
+        },
+        {
+          "type": "paragraph",
+          "text": "Write tests that assert both the outcome and the resulting state. Keep implementation details such as vector positions out of those tests unless they are public requirements. Document retry and concurrency behavior before expanding the service to multiple workers or a network. A precise small contract creates a reliable starting point; it does not silently grant guarantees for a more complicated deployment."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "design_make_a_service_contract_explicit_source_guidelines",
+      "title": "C++ Core Guidelines",
+      "authors": [
+        "Bjarne Stroustrup",
+        "Herb Sutter"
+      ],
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
+      "locator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
+    },
+    {
+      "id": "design_make_a_service_contract_explicit_source_hoare",
+      "title": "An Axiomatic Basis for Computer Programming",
+      "authors": [
+        "C. A. R. Hoare"
+      ],
+      "url": "https://sites.cs.ucsb.edu/~kemm/courses/cs266/acmhoare69.pdf",
+      "locator": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11.",
+      "publisher": "Association for Computing Machinery",
+      "publicationYear": 1969
+    }
+  ]
+}

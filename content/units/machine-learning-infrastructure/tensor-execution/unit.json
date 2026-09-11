@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "machine_learning_infrastructure_tensor_execution_unit",
+  "name": "Tensor Execution",
+  "slug": "tensor-execution",
+  "description": "Separate mathematical operators from devices, storage and execution dependencies.",
+  "position": 0
+}

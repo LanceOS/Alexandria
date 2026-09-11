@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "performance_unit_locality_optimization",
+  "name": "Locality and Optimization",
+  "slug": "locality-optimization",
+  "description": "Use access-pattern hypotheses to guide bounded performance changes.",
+  "position": 1
+}

@@ -1,0 +1,115 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_scoped_threads_locks_module",
+  "versionId": "cpp_scoped_threads_locks_v1",
+  "slug": "scoped-threads-locks",
+  "title": "Own threads and protect shared state",
+  "summary": "Use scoped thread ownership and a shared mutex to give every access a synchronization rule.",
+  "position": 0,
+  "objectives": [
+    "Keep shared objects alive until their threads finish.",
+    "Use a named lock guard for a critical section.",
+    "Explain why automatic joining does not prevent a data race by itself."
+  ],
+  "parts": [
+    {
+      "id": "cpp_scoped_threads_locks_part_1",
+      "title": "Two responsibilities, two tools",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A thread handle has a lifetime, and the data accessed by the thread has a lifetime too. std::jthread provides scoped ownership: destruction of a joinable jthread requests stopping and joins it. A stop request is cooperative; it does not forcibly terminate an operation. Finite work that ignores cancellation can still finish and be joined."
+        },
+        {
+          "type": "paragraph",
+          "text": "Joining is separate from protecting shared state while workers run. Two threads modifying the same ordinary int without suitable ordering can create a data race and undefined behavior. A mutex lets the program define a critical section. Every conflicting access during concurrent work must follow the same synchronization discipline; protecting only writers or only some call sites is insufficient."
+        }
+      ]
+    },
+    {
+      "id": "cpp_scoped_threads_locks_part_2",
+      "title": "Count a fixed amount of work",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <mutex>\n#include <thread>\n\nint main()\n{\n    int completed{};\n    std::mutex mutex;\n    auto work = [&] {\n        for (int i{}; i < 100; ++i)\n        {\n            std::lock_guard lock{mutex};\n            ++completed;\n        }\n    };\n    {\n        std::jthread first{work};\n        std::jthread second{work};\n    }\n    std::cout << completed << '\\n';\n}\n",
+          "caption": "main.cpp — C++20"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "200\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The named guard holds the mutex for one increment and releases it at the end of that iteration. The inner scope ends both jthread lifetimes before main reads completed. The integer, mutex, and callable are declared outside that scope, so they remain alive throughout the work. Successful thread creation is assumed; an allocation or thread-creation failure is not silently treated as a successful run."
+        },
+        {
+          "type": "callout",
+          "title": "Compile the threading example with thread support",
+          "text": "For the GCC environment used by these lessons, use g++ -std=c++20 -Wall -Wextra -pedantic -pthread main.cpp -o lesson. The program’s final result is deterministic although the order of worker increments is not."
+        }
+      ]
+    },
+    {
+      "id": "cpp_scoped_threads_locks_part_3",
+      "title": "Explain the guarantee before optimizing",
+      "blocks": [
+        {
+          "type": "reflection",
+          "prompt": "If the lock guard were removed but the joins stayed, would the final count be guaranteed to be 200?",
+          "explanation": "No. Joining orders completion before the final read; it does not order the workers’ conflicting increments with respect to each other. A data race makes the program undefined, not merely an unreliable counter."
+        },
+        {
+          "type": "paragraph",
+          "text": "The Boehm–Adve paper motivates why C++ concurrency needs language-level semantics instead of assumptions based on a particular processor. It provides historical design reasoning, while the pinned C++20 draft specifies the rules used here. This tiny example is a correctness exercise rather than a speed benchmark. Error propagation from workers, lock ordering, condition-variable predicates, and cancellation require further explicit contracts."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_scoped_threads_locks_source_1",
+      "title": "C++20 working draft N4861: thread.jthread.class",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/thread.jthread.class",
+      "locator": "Primary standards draft, [thread.jthread.class]: thread ownership, cooperative stop requests, and joining. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_scoped_threads_locks_source_2",
+      "title": "C++20 working draft N4861: thread.lock.guard",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/thread.lock.guard",
+      "locator": "Primary standards draft, [thread.lock.guard]: scope-based lock ownership. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_scoped_threads_locks_source_3",
+      "title": "C++20 working draft N4861: intro.races",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/intro.races",
+      "locator": "Primary standards draft, [intro.races]: conflicting accesses and data races. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_scoped_threads_locks_source_4",
+      "title": "Foundations of the C++ Concurrency Memory Model",
+      "authors": [
+        "Hans-J. Boehm",
+        "Sarita V. Adve"
+      ],
+      "url": "https://doi.org/10.1145/1375581.1375591",
+      "locator": "Peer-reviewed PLDI 2008 paper, pp. 68–78; abstract and introduction inspected in the SFU-hosted full-text copy. Historical rationale for language-level race semantics, not the C++20 specification; consulted 2026-09-11",
+      "publicationYear": 2008
+    }
+  ]
+}

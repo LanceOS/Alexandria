@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "design_unit_responsibility_boundaries",
+  "name": "Responsibility Boundaries",
+  "slug": "responsibility-boundaries",
+  "description": "Choose module boundaries by analyzing responsibilities and likely change.",
+  "position": 0
+}

@@ -1,0 +1,121 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_core_lifetime_ownership_owners_and_borrowers",
+  "versionId": "cpp_core_lifetime_ownership_owners_and_borrowers_v1",
+  "slug": "owners-and-borrowers",
+  "title": "Owners, borrowers, and scope",
+  "summary": "Track which object keeps data alive when a reference or view accesses it.",
+  "position": 0,
+  "objectives": [
+    "Separate object lifetime from the scope of a name.",
+    "Identify the owner behind a string_view or span.",
+    "Explain why copying a view does not copy its elements."
+  ],
+  "parts": [
+    {
+      "id": "cpp_core_lifetime_ownership_owners_and_borrowers_part_1",
+      "title": "Draw the ownership relationship",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A name’s scope describes where that name can be used in source code. An object’s lifetime describes when the object exists during execution. The two ideas often line up for a local variable, but they are not identical. An owner such as a string or vector controls storage that other objects may borrow. A reference or view can remain in scope after that storage has become unusable, creating a dangling access."
+        },
+        {
+          "type": "paragraph",
+          "text": "std::string_view describes a sequence of characters without owning those characters. std::span, introduced in C++20, similarly describes a contiguous sequence of elements. Each view lets a function receive a sequence and its length together. Neither view is a mechanism for keeping the original string or vector alive. Copying a view creates another description of the same sequence rather than another copy of its elements."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_lifetime_ownership_owners_and_borrowers_part_2",
+      "title": "Use a view while its owner is stable",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "Complete C++20 program — main.cpp",
+          "code": "#include <iostream>\n#include <span>\n#include <string>\n#include <string_view>\n#include <vector>\n\nint main()\n{\n    const std::string title{\"Atlas of Stars\"};\n    const std::string_view prefix{title.data(), 5};\n    std::vector<int> pages{4, 6, 8};\n    const std::span<const int> entries{pages};\n    pages[0] = 9;\n    std::cout << prefix << '\\n';\n    std::cout << entries.front() << ' ' << entries.size() << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Atlas\n9 3\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The title string owns the characters observed by prefix. The pages vector owns the integers observed by entries. Both owners are created before their views and remain alive throughout the output operations. prefix selects the first five characters without allocating a replacement string. entries allows indexed access to the vector’s existing elements. The printed values come from the original owners, so the program’s safety depends on those relationships."
+        },
+        {
+          "type": "paragraph",
+          "text": "The change to pages[0] replaces an existing integer without changing the vector’s size or capacity. Consequently, entries observes the new value 9. A push_back that reallocates would be different: it would move storage and invalidate the old span’s access. Similarly, modifying a string in a way that invalidates its character pointers can invalidate string views. Scope alone cannot distinguish these cases; the owner’s operation matters."
+        }
+      ]
+    },
+    {
+      "id": "cpp_core_lifetime_ownership_owners_and_borrowers_part_3",
+      "title": "Review the last use of each borrower",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "When a function returns borrowed data, identify an owner that will remain alive after the function returns. A view into a caller-owned argument can be appropriate if that condition is documented and obeyed. A view into a local string is not suitable because destruction ends the backing characters’ lifetime. Returning an owning std::string is often the clearest interface when the caller needs an independent result."
+        },
+        {
+          "type": "paragraph",
+          "text": "A useful review habit is to connect every view to an owner, then check both destruction and storage-changing operations before the view’s final use. A const view object does not necessarily make its elements const: span<int> still exposes mutable integers. Use span<const int> when the interface should allow observation only. The type expresses permitted access, while program structure must still supply a valid lifetime."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Would copying entries into another span make it safe to destroy pages first?",
+          "explanation": "No. Both spans would still refer to the same vector storage. An independent vector copy would own its own elements, but a span copy only duplicates the borrowing relationship."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_core_lifetime_ownership_owners_and_borrowers_source_1",
+      "title": "C++20 working draft N4861: basic.life",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+      "locator": "N4861, [basic.life]; consulted 2026-09-11. Object lifetime begins and ends; access outside lifetime is restricted."
+    },
+    {
+      "id": "cpp_core_lifetime_ownership_owners_and_borrowers_source_2",
+      "title": "C++20 working draft N4861: span.overview",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/span.overview",
+      "locator": "N4861, [span.overview]; consulted 2026-09-11. span is a view of contiguous objects owned elsewhere."
+    },
+    {
+      "id": "cpp_core_lifetime_ownership_owners_and_borrowers_source_3",
+      "title": "C++20 working draft N4861: string.view.template",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/string.view.template",
+      "locator": "N4861, [string.view.template], string_view represents borrowed constant character access; invalidation follows underlying pointers; consulted 2026-09-11."
+    },
+    {
+      "id": "cpp_core_lifetime_ownership_owners_and_borrowers_source_4",
+      "title": "C++20 working draft N4861: vector.modifiers",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers",
+      "locator": "N4861, [vector.modifiers]; consulted 2026-09-11. Insertion and erase invalidation requirements."
+    }
+  ]
+}
