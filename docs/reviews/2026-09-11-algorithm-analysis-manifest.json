@@ -1,0 +1,76 @@
+{
+  "date": "2026-09-11",
+  "scope": "Data Structures and Algorithms / Algorithm Analysis",
+  "modules": [
+    {
+      "path": "content/units/data-structures-algorithms/algorithm-analysis/01-count-search-work.json",
+      "sha256": "34c39278d992eb60de86689a015fc650b93eeecac67f63bd9cf6c24675102525",
+      "id": "dsa_count_search_work_module",
+      "versionId": "dsa_count_search_work_v3",
+      "version": 3,
+      "parts": 3,
+      "reflections": 6,
+      "cppPrograms": 1,
+      "sources": 3
+    },
+    {
+      "path": "content/units/data-structures-algorithms/algorithm-analysis/02-prove-a-loop-correct.json",
+      "sha256": "7820408d5130f7949f7adffcf505587da9c30dfbd721f2d852f32d279ddd5b60",
+      "id": "dsa_loop_correctness_module",
+      "versionId": "dsa_loop_correctness_v1",
+      "version": 1,
+      "parts": 3,
+      "reflections": 6,
+      "cppPrograms": 1,
+      "sources": 4
+    },
+    {
+      "path": "content/units/data-structures-algorithms/algorithm-analysis/03-describe-growth-with-bounds.json",
+      "sha256": "50c9f2202c9bf266e7b28f359c171b088b5c4e0fabacfac0316fb59487bfa8ba",
+      "id": "dsa_growth_bounds_module",
+      "versionId": "dsa_growth_bounds_v1",
+      "version": 1,
+      "parts": 3,
+      "reflections": 6,
+      "cppPrograms": 1,
+      "sources": 3
+    },
+    {
+      "path": "content/units/data-structures-algorithms/algorithm-analysis/04-build-and-verify-binary-search.json",
+      "sha256": "ddb4dcd382da844925c9b67ea91e0a5101a3e896d24ef9a169c010c511b126e4",
+      "id": "dsa_binary_boundary_module",
+      "versionId": "dsa_binary_boundary_v1",
+      "version": 1,
+      "parts": 3,
+      "reflections": 6,
+      "cppPrograms": 3,
+      "sources": 3
+    },
+    {
+      "path": "content/units/data-structures-algorithms/algorithm-analysis/05-analyze-insertion-sort.json",
+      "sha256": "e2d40a47ebb8e32619f1f0ac84ebe02d4802ef0795dc48c700d9c03fa29b5c19",
+      "id": "dsa_insertion_analysis_module",
+      "versionId": "dsa_insertion_analysis_v1",
+      "version": 1,
+      "parts": 3,
+      "reflections": 6,
+      "cppPrograms": 1,
+      "sources": 1
+    },
+    {
+      "path": "content/units/data-structures-algorithms/algorithm-analysis/06-explain-merge-sort.json",
+      "sha256": "ce1b60abc3f4f8fff30c1f2059c3b265a8f1df395fb64e21182d6b939cb30e21",
+      "id": "dsa_merge_analysis_module",
+      "versionId": "dsa_merge_analysis_v1",
+      "version": 1,
+      "parts": 3,
+      "reflections": 6,
+      "cppPrograms": 1,
+      "sources": 1
+    }
+  ],
+  "totalParts": 18,
+  "totalReflections": 36,
+  "totalCppPrograms": 8,
+  "sourceCitations": 15
+}

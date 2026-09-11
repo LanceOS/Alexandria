@@ -1,0 +1,175 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "dsa_insertion_analysis_module",
+  "versionId": "dsa_insertion_analysis_v1",
+  "version": 1,
+  "slug": "analyze-insertion-sort",
+  "title": "Analyze insertion sort",
+  "position": 4,
+  "summary": "Prove an incremental sort, trace its comparisons and shifts, and derive its input-sensitive cost.",
+  "objectives": [
+    "Prove that insertion sort preserves values, orders the prefix, and keeps equal records stable.",
+    "Count key comparisons and element shifts separately, including duplicate and boundary cases.",
+    "Derive the triangular worst-case count and explain the linear best case under a fixed-cost model.",
+    "Use a measurable property of nearly ordered input when choosing a sorting method."
+  ],
+  "parts": [
+    {
+      "id": "dsa_insertion_analysis_part_1",
+      "title": "Grow a sorted prefix without losing a value",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Before you begin",
+          "text": "You need the earlier lessons on loop invariants and tight growth bounds, plus arrays and while loops. The program uses a vector as an indexed sequence. Its small integers occupy fixed-size machine words, so comparison, copying one value, and indexed access each have constant cost. We sort in nondecreasing order: equal keys are allowed."
+        },
+        {
+          "type": "paragraph",
+          "text": "The contract has two parts: the result must be ordered, and it must contain exactly the original values with their original multiplicities. Replacing every item with zero satisfies an ordering test but does not sort the input. A stable sort adds a promise for records: records with equal keys retain their original relative order. Stability matters when a key belongs to a larger record, such as an item with both a priority and an arrival identifier."
+        },
+        {
+          "type": "paragraph",
+          "text": "Insertion sort builds the answer one prefix at a time. At the start of pass i, positions [0, i) contain the original first i values in sorted order. The item at position i is the next value to insert; positions after i have not been processed. Save that value in a variable named key, and think of position i as a hole. While the value immediately left of the hole is greater than key, move that value one position right and move the hole one position left. Put key into the final hole."
+        },
+        {
+          "type": "paragraph",
+          "text": "Saving key is essential. A shift overwrites an array entry, and the physical array can temporarily contain a repeated value. During this movement, reason about the entries outside the hole together with the saved key. Those entries and key still represent exactly the values that belonged to the enlarged prefix. The hole is a logical position that will be filled, not an extra array entry. This is how the argument tracks the value that a simple check of the current array would appear to lose."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Original values: [8, 3a, 6, 3b, 5]\nAfter inserting 3a: [3a, 8, 6, 3b, 5]\nAfter inserting 6:  [3a, 6, 8, 3b, 5]\nInsert 3b: save 3b, move 8 right, then move 6 right.\n           Stop beside 3a because equal keys do not move.\nAfter inserting 3b:[3a, 3b, 6, 8, 5]\nAfter inserting 5: [3a, 3b, 5, 6, 8]",
+          "caption": "Original worked trace; a and b identify equal-key records, not extra numeric values"
+        },
+        {
+          "type": "paragraph",
+          "text": "For initialization, the prefix of length one is already sorted and still contains its original value. For maintenance, the existing prefix is sorted, so the values shifted right form an ordered suffix, all greater than key. The unshifted prefix is still ordered. At the stopping position, either the hole is at the beginning or its left neighbor is at most key. Inserting key between these two portions produces the next sorted prefix and restores the full collection of its original values. Nothing outside that prefix changes."
+        },
+        {
+          "type": "paragraph",
+          "text": "Both loops must finish. Each shift reduces the nonnegative hole index by one. Each outer pass increases i, and the outer loop stops when i reaches the vector length n. The prefix then covers every element, establishing the sorting contract. Empty and one-element vectors require no passes and already meet it. Equal keys are never shifted past the incoming key, so an earlier equal record remains earlier; the maintenance step also preserves stability."
+        },
+        {
+          "type": "reflection",
+          "prompt": "During insertion of 3b into the prefix [3a, 6, 8], one shift can make the array appear to contain two copies of 8. Has the permutation promise been broken?",
+          "explanation": "The final sorting contract has not failed. During the shift, ignore the logical hole and include the saved key, 3b, when accounting for values. The apparent duplicate is an entry waiting to be overwritten. Filling the final hole with key restores the array representation of exactly the original multiset. Forgetting to save key would actually lose a value."
+        },
+        {
+          "type": "reflection",
+          "prompt": "What changes if the loop shifts values that are greater than or equal to key?",
+          "explanation": "The output can still be sorted and contain the same values, but an arriving equal-key record moves ahead of earlier ones. For [4a, 4b, 4c], the strict-greater rule keeps a, b, c; shifting on equality reverses their relative order as each new record moves left. Stability is a separate property from sortedness and preservation of values."
+        }
+      ]
+    },
+    {
+      "id": "dsa_insertion_analysis_part_2",
+      "title": "Count comparisons and shifts separately",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Choose counters before interpreting a run. Here a key comparison means comparing values[hole - 1] with key. A shift means copying one previously processed element one position right. Testing hole > 0, saving key, writing key into its final position, and controlling the outer loop are real work but are not counted by either counter. In particular, reaching hole=0 ends the while loop without another key comparison. The counters describe selected operations, not total instructions or elapsed time."
+        },
+        {
+          "type": "paragraph",
+          "text": "The C++ program deliberately separates the boundary test from the value comparison. The index is unsigned, so checking hole > 0 before evaluating hole - 1 prevents subtraction below zero and an invalid access. Each comparison either stops the pass or causes exactly one shift. The final assignment happens on every outer pass, even when key stays in the same position. The show helper copies its small demonstration input before calling the sort; that copy and printing are outside our analysis of insertion_sort. These fixed small examples keep both counters representable. For much larger inputs, a mathematical count may exceed std::size_t; an instrumented implementation needs overflow detection or a wider counting representation before reporting exact totals."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <cstddef>\n#include <iostream>\n#include <vector>\n\nstruct Counts {\n    std::size_t comparisons = 0;\n    std::size_t shifts = 0;\n};\n\nCounts insertion_sort(std::vector<int>& values) {\n    Counts counts;\n    for (std::size_t i = 1; i < values.size(); ++i) {\n        const int key = values[i];\n        std::size_t hole = i;\n        while (hole > 0) {\n            ++counts.comparisons;\n            if (values[hole - 1] <= key) break;\n            values[hole] = values[hole - 1];\n            ++counts.shifts;\n            --hole;\n        }\n        values[hole] = key;\n    }\n    return counts;\n}\n\nvoid show(std::vector<int> values) {\n    const Counts counts = insertion_sort(values);\n    for (std::size_t i = 0; i < values.size(); ++i) {\n        if (i > 0) std::cout << ' ';\n        std::cout << values[i];\n    }\n    std::cout << \" | comparisons=\" << counts.comparisons\n              << \", shifts=\" << counts.shifts << '\\n';\n}\n\nint main() {\n    show({8, 3, 6, 3, 5});\n    show({3, 5, 7, 9});\n    show({9, 7, 5, 3});\n    show({4, 4, 4});\n}\n",
+          "caption": "Complete C++20 example; fixed demonstration inputs, no standard input required"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "3 3 5 6 8 | comparisons=9, shifts=6\n3 5 7 9 | comparisons=3, shifts=0\n3 5 7 9 | comparisons=6, shifts=6\n4 4 4 | comparisons=2, shifts=0\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Pass through [8, 3, 6, 3, 5]\nkey 3: compare 8                         -> 1 comparison, 1 shift\nkey 6: compare 8, then 3                 -> 2 comparisons, 1 shift\nkey 3: compare 8, then 6, then equal 3    -> 3 comparisons, 2 shifts\nkey 5: compare 8, then 6, then 3          -> 3 comparisons, 2 shifts\nTotals: 9 comparisons; 6 shifts; 4 final writes of key.",
+          "caption": "Counter reconciliation for the first program case"
+        },
+        {
+          "type": "paragraph",
+          "text": "A pass that shifts k elements makes k comparisons that lead to shifts. It can then make one more key comparison that stops the shifting, unless the hole has reached zero. Consequently, shifts and key comparisons need not match. The first program case also makes ten assignments into the array inside insertion_sort: six shift assignments plus four final key assignments. This is a third possible counter, distinct from both numbers printed by the program."
+        },
+        {
+          "type": "reflection",
+          "prompt": "For [4, 1, 3, 2], predict the comparison and shift totals using the program's definitions. Explain the last pass.",
+          "explanation": "The passes use (1 comparison, 1 shift), then (2, 1), then (3, 2): six comparisons and four shifts overall. On the last pass, 4 and 3 move right, then comparison with 1 stops the loop. The final key assignment is additional work but is not a shift."
+        },
+        {
+          "type": "reflection",
+          "prompt": "What counters does insertion_sort return for an empty vector and for [7]? Does either case access position 1?",
+          "explanation": "Both counters are zero in both cases. The outer loop starts with i=1 but checks i < values.size() before entering its body. The body never executes, so neither case accesses position 1. A loop variable may equal a nonexistent index without causing an access; the guarded body is what matters."
+        }
+      ]
+    },
+    {
+      "id": "dsa_insertion_analysis_part_3",
+      "title": "Derive the cost and choose an input-sensitive tool",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "On an already nondecreasing input with n>=1, every pass stops after its first key comparison. There are n-1 passes, exactly n-1 key comparisons, and zero shifts. The outer loop, key saves, final writes, and boundary checks still run. With the fixed-cost operations specified above, the best-case running time is Θ(n), even though the shift counter is zero. A statement about one counter cannot silently become a statement about all the work."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a strictly decreasing input of n distinct keys, pass i must move all i earlier elements. It therefore makes i shifts and i key comparisons before reaching the beginning. Summing the passes gives 1+2+...+(n-1). To derive the total rather than memorize it, write that sum forward and backward. Each of the n-1 paired positions sums to n, so twice the sum is n(n-1). Both worst-case counters equal n(n-1)/2."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Strictly decreasing distinct input\nn = 4: 1+2+3 = 6 shifts and 6 key comparisons\nn = 8: 1+2+3+4+5+6+7 = 28 of each\nGeneral total S = n(n-1)/2\nFor n>=2: n^2/4 <= S <= n^2/2\nTherefore S is Θ(n^2).",
+          "caption": "Original count examples and an explicit tight-bound argument"
+        },
+        {
+          "type": "paragraph",
+          "text": "No pass can shift more than its i earlier elements, giving a quadratic upper bound for every input. A strictly decreasing distinct input realizes the triangular lower bound, giving a worst-case Θ(n²) running time. The remaining constant-cost work contributes only linear overhead. The sorting procedure itself uses Θ(1) extra storage: key, indices, and counters; it modifies the supplied vector. That space claim excludes the input and the show helper's demonstration copy."
+        },
+        {
+          "type": "paragraph",
+          "text": "Duplicates explain why the word distinct mattered. A nonincreasing sequence with many equal keys need not attain the triangular count because equal keys stop shifting. An all-equal sequence is a best-case input for this stable implementation. There is also no single average case until a distribution over inputs is specified. A random permutation model and a stream of mostly ordered records can produce very different typical work."
+        },
+        {
+          "type": "paragraph",
+          "text": "We can make “nearly ordered” precise using the total number of shifts, S. Every pass adds at most one stopping key comparison beyond its shifts, so comparisons are at most S+(n-1). Conversely, every shift performs a key comparison. Including the outer-pass overhead gives Θ(n+S) work for n>=1. A useful sufficient condition is that each incoming key needs to move left at most k places: then S<=k(n-1). When k is a fixed constant, the full time is Θ(n). Merely calling a dataset “almost sorted” does not establish that condition."
+        },
+        {
+          "type": "paragraph",
+          "text": "Insertion sort is therefore a reasonable candidate for a small collection or a workload with demonstrably few shifts. Its simple storage pattern and lack of a separate merge buffer can matter, but exact speed depends on the implementation and machine. Large arbitrary inputs retain the quadratic risk. The next lesson develops a sorting method with Θ(n log n) full running time for all input orders, at the cost of extra storage."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A report says “already sorted input takes O(1), because the shift count is zero.” Repair the claim, and give the exact printed counters for a sorted input of length 8.",
+          "explanation": "Zero shifts is correct, but the procedure still processes seven keys and compares each with its predecessor. The counters are seven key comparisons and zero shifts; full best-case time is Θ(n). O(1) does not describe the complete procedure as n grows."
+        },
+        {
+          "type": "reflection",
+          "prompt": "An application guarantees that every incoming key moves left at most three positions. Bound the shifts and comparisons for n>=1. Does the same conclusion follow just because the input contains duplicates?",
+          "explanation": "The guarantee gives at most 3(n-1) shifts and at most 4(n-1) key comparisons. With the outer-loop overhead, time is Θ(n) under the fixed-cost model. Duplicates alone supply no such displacement bound: large groups of greater keys can still need to move past smaller ones, causing quadratic work."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dsa_insertion_analysis_source_clrs4",
+      "title": "Introduction to Algorithms",
+      "authors": [
+        "Thomas H. Cormen",
+        "Charles E. Leiserson",
+        "Ronald L. Rivest",
+        "Clifford Stein"
+      ],
+      "publisher": "The MIT Press",
+      "publicationYear": 2022,
+      "edition": "4th edition",
+      "isbn": "9780262367509",
+      "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+      "locator": "Chapter 2, sections 2.1 (insertion sort, loop invariants, and short-circuit evaluation) and 2.2 (operation costs and best/worst cases); Appendix A, sections A.1–A.2 (arithmetic sums and bounds). Fourth-edition ebook consulted 2026-09-11. Code, record labels, counter traces, and practice cases are original teaching examples."
+    }
+  ]
+}

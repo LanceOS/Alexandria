@@ -1,0 +1,254 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "dsa_binary_boundary_module",
+  "versionId": "dsa_binary_boundary_v1",
+  "version": 1,
+  "slug": "build-and-verify-binary-search",
+  "title": "Build and verify binary search",
+  "summary": "Implement a first-not-less-than search, prove its boundary and progress rules, and verify its exact comparison bound on sorted vectors with duplicates.",
+  "position": 3,
+  "objectives": [
+    "Specify a lower-bound result separately from membership and handle empty input and duplicate values.",
+    "Use a half-open interval and a preserved invariant to justify every discarded element.",
+    "Prove safe indexing, overflow-safe midpoint arithmetic, and termination through a decreasing interval width.",
+    "Derive and test the exact worst-case number of value comparisons for this implementation.",
+    "Explain why ordering, representation, and preparation costs limit the search guarantee."
+  ],
+  "parts": [
+    {
+      "id": "dsa_binary_boundary_part_1",
+      "title": "Search for a boundary and preserve its meaning",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Starting point",
+          "text": "Use the earlier cost-model and invariant lessons: name an input size, choose the operation being counted, and distinguish preservation from termination. C++ prerequisites are functions, loops, std::vector<int>, zero-based indexing, std::size_t, and short-circuit &&. All programs here are complete C++20 programs with fixed inputs and no standard input. This lesson develops an indexed search; it does not teach generic comparator design."
+        },
+        {
+          "type": "paragraph",
+          "text": "Suppose a sorted price list is [2, 6, 6, 6, 9, 13]. A membership search answers whether 6 occurs, but an insertion or range query needs a position. Define lower_boundary(values, target) to return the first index whose value is at least target. Return n, the vector's size, if every value is smaller. Thus target 6 gives index 1, target 7 gives index 4, and target 20 gives index 6. Duplicates are allowed, and the first equal item matters. The result is a boundary between a prefix of values smaller than the target and a suffix of values at least as large."
+        },
+        {
+          "type": "paragraph",
+          "text": "The input contract is a vector of integers sorted in nondecreasing order, unchanged throughout the call. Nondecreasing means neighboring values may be equal but never fall. The function does not sort or validate its input. Binary search uses that ordering to justify discarding many indices after inspecting one value. NIST's reference explains this interval-halving principle. We will derive the exact boundary version below, including its safety and cost, rather than treating a successful trace as a proof."
+        },
+        {
+          "type": "paragraph",
+          "text": "Let low and high delimit the elements whose relation to the target is still unknown: [low, high) includes low and excludes high. Maintain three facts: 0 <= low <= high <= n; every element before low is smaller than target; every element at or after high is at least target. The second and third facts concern only valid element indices below n. Initially low=0 and high=n, so both known regions are empty and their claims hold automatically."
+        },
+        {
+          "type": "callout",
+          "title": "Elements and answer positions are different",
+          "text": "The unknown elements occupy [low, high), but the answer boundary may be any position from low through high, inclusive. In particular, n is a valid answer even though it is never a valid element index. Saying that the answer always lies inside [low, high) would incorrectly rule out insertion after the final element and every empty-input answer."
+        },
+        {
+          "type": "paragraph",
+          "text": "Choose mid inside the nonempty unknown interval. If values[mid] < target, sortedness makes every element through mid too small, so set low=mid+1. Otherwise values[mid] >= target, and everything from mid onward belongs in the known right region, so set high=mid. An equal value follows this second branch: it may be preceded by another equal value. The element at mid leaves the unknown region, but its position remains a possible boundary when high becomes mid. Each update preserves all three facts."
+        },
+        {
+          "type": "paragraph",
+          "text": "SearchResult is a struct, a type that groups two named values: index and comparisons. An expression such as result.index reads one member of that result. The return statement {low, comparisons} initializes those members in declaration order, letting the function report its answer and count together. As in the earlier scan example, main visits a fixed list of targets and std::boolalpha prints readable Boolean results."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <cstddef>\n#include <initializer_list>\n#include <iostream>\n#include <vector>\n\nstruct SearchResult {\n    std::size_t index;\n    std::size_t comparisons;\n};\n\nSearchResult lower_boundary(const std::vector<int>& values, int target) {\n    std::size_t low = 0;\n    std::size_t high = values.size();\n    std::size_t comparisons = 0;\n\n    while (low < high) {\n        const std::size_t mid = low + (high - low) / 2;\n        ++comparisons; // Count only the value-to-target comparison below.\n        if (values[mid] < target) {\n            low = mid + 1;\n        } else {\n            high = mid;\n        }\n    }\n    return {low, comparisons};\n}\n\nint main() {\n    const std::vector<int> values{2, 6, 6, 6, 9, 13};\n    std::cout << std::boolalpha;\n    for (const int target : {6, 7, 20, -1}) {\n        const SearchResult result = lower_boundary(values, target);\n        const bool present = result.index < values.size()\n                          && values[result.index] == target;\n        std::cout << target << \": boundary=\" << result.index\n                  << \" comparisons=\" << result.comparisons\n                  << \" present=\" << present << '\\n';\n    }\n}\n",
+          "caption": "C++20: return the first-not-less-than index and count value comparisons"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "6: boundary=1 comparisons=3 present=true\n7: boundary=4 comparisons=3 present=false\n20: boundary=6 comparisons=2 present=false\n-1: boundary=0 comparisons=3 present=false\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The counter increments immediately before values[mid] < target, so it counts exactly that operation. It excludes the while condition, index arithmetic, printing, and the later equality test for membership. The return value n is meaningful even though values[n] must never be read. The && guard checks the index first; only a valid index allows evaluation of values[result.index] == target. A valid boundary alone does not establish membership: index 4 for target 7 identifies value 9."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "values = [2, 6, 6, 6, 9, 13]\n\nFound target 6, with duplicates:\n[0,6): mid=3, value=6, 6 < 6 is false -> high=3\n[0,3): mid=1, value=6, 6 < 6 is false -> high=1\n[0,1): mid=0, value=2, 2 < 6 is true  -> low=1\n[1,1): stop; boundary=1; values[1] == 6\n\nAbsent target 7, between stored values:\n[0,6): mid=3, value=6, 6 < 7 is true  -> low=4\n[4,6): mid=5, value=13, 13 < 7 is false -> high=5\n[4,5): mid=4, value=9, 9 < 7 is false -> high=4\n[4,4): stop; boundary=4; values[4] != 7\n\nAbsent target 20, beyond the final value:\n[0,6): mid=3, value=6  -> low=4\n[4,6): mid=5, value=13 -> low=6\n[6,6): stop; boundary=n=6; do not index values[6]",
+          "caption": "Worked state traces for the fixed program inputs"
+        },
+        {
+          "type": "reflection",
+          "prompt": "At the first comparison for target 6, index 3 already contains 6. Why does returning 3 break this function's contract? Which facts justify setting high=3 instead?",
+          "explanation": "The required result is the first value at least 6, which is index 1. Returning an arbitrary equal value answers a weaker question. Since value 6 at index 3 is not smaller than the target and the vector is sorted, every index at least 3 has a value at least 6. They can all join the known right region while boundary position 3 remains allowed. Searching [0,3) discovers whether an earlier boundary exists."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Trace target 5 in [1, 5, 5, 8]. Then decide whether a boundary result of 3 would establish membership for target 7 in that same vector.",
+          "explanation": "For target 5, [0,4) chooses index 2 and sets high=2; [0,2) chooses index 1 and sets high=1; [0,1) chooses index 0 and sets low=1. The result is index 1 after three value comparisons. For target 7, boundary 3 is valid but its value is 8, so membership is false. Both examples require the result contract and a guarded equality check; neither 'a duplicate was seen' nor 'an index was returned' is sufficient."
+        }
+      ]
+    },
+    {
+      "id": "dsa_binary_boundary_part_2",
+      "title": "Prove safe steps and expose a stalled interval",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Preserving the invariant establishes what each state means; it does not by itself show the loop will finish. Use the interval width w=high-low as a variant: a nonnegative integer that strictly decreases on every iteration. When w>0, mid=low+floor(w/2) lies from low through high-1, so reading values[mid] is valid. If high becomes mid, the new width is floor(w/2). If low becomes mid+1, the new width is w-floor(w/2)-1, which is no larger than floor(w/2). Both are smaller than w. A nonnegative integer cannot decrease forever."
+        },
+        {
+          "type": "paragraph",
+          "text": "On exit low=high=b. The known-left claim says every index below b is too small; the known-right claim says every valid index from b onward has a value at least target. Together they identify the first qualifying position, or n if the suffix is empty. This is the postcondition, the result promised after the function returns. The proof has three separate jobs: initialization makes the invariant true, each branch preserves it, and a decreasing variant leads to an exit where it implies the result."
+        },
+        {
+          "type": "paragraph",
+          "text": "The midpoint expression also respects finite integer ranges. std::size_t is unsigned, so subtraction must be justified rather than assumed safe. Since low <= high, high-low cannot wrap. Adding half that difference to low cannot exceed high, which is already representable. During an iteration mid < high, so mid+1 <= high is representable too. By contrast, low+high can exceed the type's maximum even when each bound is representable. Use low+(high-low)/2; the NIST entry specifically discusses this overflow hazard. These arguments establish the arithmetic under our invariant, not under arbitrary invalid bounds."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Empty input [], target 6:\nlow=0, high=0 -> no iteration, no indexing, result=0=n\n\nOne item [4], target 4:\n[0,1): mid=0, 4 < 4 is false -> high=0 -> result=0\n\nOne item [4], target 9:\n[0,1): mid=0, 4 < 9 is true -> low=1 -> result=1=n\n\nAll duplicates [6, 6, 6, 6], target 6:\n[0,4): mid=2 -> high=2\n[0,2): mid=1 -> high=1\n[0,1): mid=0 -> high=0\n[0,0): result=0; the first duplicate remains the boundary",
+          "caption": "Boundary-case traces using the same updates"
+        },
+        {
+          "type": "paragraph",
+          "text": "Empty input does not need a special branch: the invariant already permits n=0 and the loop never executes. On a singleton, either update removes the only unknown element. The all-equal trace shows why equality does not return early: the leftmost position still has to be established. Duplicates affect the answer policy, but they do not invalidate nondecreasing order or the progress argument."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now deliberately change the too-small branch to low=mid. On a one-element interval, mid equals low. The comparison correctly rejects the element, but the update records no progress and the interval repeats. The following diagnostic program stops after at most three iterations so that the defect is safe to inspect. The step limit is for demonstrating the bug; the correct search needs no arbitrary iteration limit."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <cstddef>\n#include <iostream>\n#include <vector>\n\nint main() {\n    const std::vector<int> values{4};\n    const int target = 9;\n    std::size_t low = 0;\n    std::size_t high = values.size();\n\n    // Deliberately incorrect update; the step limit makes the demo finite.\n    for (int step = 1; step <= 3 && low < high; ++step) {\n        const std::size_t mid = low + (high - low) / 2;\n        std::cout << \"step \" << step << \": [\" << low << ',' << high\n                  << \") mid=\" << mid;\n        if (values[mid] < target) {\n            low = mid; // BUG: the already rejected element is retained.\n        } else {\n            high = mid;\n        }\n        std::cout << \" next=[\" << low << ',' << high << \")\\n\";\n    }\n    std::cout << \"interval still nonempty: \" << std::boolalpha\n              << (low < high) << '\\n';\n}\n",
+          "caption": "C++20: a bounded demonstration of an incorrect low=mid update"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "step 1: [0,1) mid=0 next=[0,1)\nstep 2: [0,1) mid=0 next=[0,1)\nstep 3: [0,1) mid=0 next=[0,1)\ninterval still nonempty: true\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "Keeping high=mid is correct in the other branch because high is excluded from the unknown elements. Replacing it with high=mid-1 mixes a different interval convention into this implementation. It can skip the true boundary; with mid=0 and unsigned indices it also wraps instead of expressing a negative bound. Choose updates by their meaning in the invariant, then check progress and arithmetic. Memorizing a mixture of inclusive and half-open formulas is unreliable."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A teammate repairs the stalled example by changing the loop condition to low+1 < high, while retaining low=mid. Does this implement the promised lower boundary on [4] for target 9?",
+          "explanation": "No. Initially low=0 and high=1, so the revised loop executes zero times and returning low gives 0. The correct boundary is 1 because 4 is smaller than 9. A different loop convention could work with a new invariant and an explicit final decision, but changing this condition alone skips an unresolved element. Restoring low=mid+1 preserves this lesson's invariant and resolves the singleton naturally."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Explain both safety and termination for the last step of [0,1). Then identify which proof fails if a programmer calls the midpoint formula with low=7 and high=3.",
+          "explanation": "For [0,1), high-low is 1 and mid is 0, a valid index. The too-small branch sets low to 1; the other branch sets high to 0. Both leave width zero and stop. For low=7, high=3, the required ordering low <= high already fails. Unsigned high-low wraps, so the arithmetic proof and the interval interpretation are unavailable. An overflow-safe formula is safe under its preconditions, not a repair for corrupt bounds."
+        }
+      ]
+    },
+    {
+      "id": "dsa_binary_boundary_part_3",
+      "title": "Bound the comparisons and challenge the contract",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Let C(n) be the largest number of values[mid] < target evaluations made by this implementation on a sorted vector of length n. Empty input gives C(0)=0. For nonempty input there is one comparison, then at most floor(n/2) unknown elements. Repeating the width argument gives C(n) <= 1+C(floor(n/2)). A target no greater than the first value always takes the high=mid branch and realizes that larger remaining width at every step, so this recurrence is attained in the worst case."
+        },
+        {
+          "type": "paragraph",
+          "text": "Integer halving takes a positive n to zero in floor(log2(n))+1 steps. One way to see this is to choose k with 2^k <= n < 2^(k+1): after k floor-halvings the width is 1, and one more reaches 0. Therefore C(n)=floor(log2(n))+1 for n>0, with C(0)=0 defined separately. This is an exact worst-case comparison count for the displayed code. A particular target can take fewer steps: target 20 in the first example uses two comparisons although n=6 has worst case three."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "n                         0  1  2  3  4  7  8  15  16\nworst value comparisons   0  1  2  2  3  3  4   4   5\n\nWorst-case width sequence for n=8:\n8 -> 4 -> 2 -> 1 -> 0  (four comparisons)\nWorst-case width sequence for n=7:\n7 -> 3 -> 1 -> 0       (three comparisons)",
+          "caption": "Derived counts, not timing measurements"
+        },
+        {
+          "type": "paragraph",
+          "text": "Be precise about what this result excludes. The loop guard runs once more than the body. Checking membership adds at most one value equality comparison after checking the returned index. Preparation and any sortedness validation are outside the function. With constant-cost integer comparisons and vector indexing, the total search work is Θ(1+log2(n+1)). The outer 1 retains constant setup and guard work for empty input; for n>=2, this simplifies to Θ(log n). The iteration uses a constant amount of auxiliary storage, independent of n. These are model statements, not elapsed-time predictions."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use std::lower_bound as a separately implemented oracle, meaning a trusted reference result for these test inputs. The C++20 draft specifies the boundary of a range partitioned by element < target; sorted ascending integers meet that requirement. Its guarantee is logarithmic comparisons, not this code's exact count. The library also accepts forward iterators, but reaching positions can then take linear traversal work. Random-access iterators support constant-time jumps. Consequently a logarithmic comparison count alone does not establish logarithmic total work on a linked representation."
+        },
+        {
+          "type": "paragraph",
+          "text": "The next program checks six sorted vectors against six targets each. They cover empty and singleton vectors, all duplicates, mixed duplicates, present targets, gaps, and both ends. The bound helper uses integer division instead of floating-point logarithms, avoiding log2(0) and rounding concerns. Every nonempty case has only nonnegative values, so target -1 witnesses the worst-case left branch. The program checks boundary equality and the comparison upper bound for every query, then checks that the worst case was actually reached. Here auto asks the compiler to deduce a variable’s type from its initializer. begin() and end() provide iterator positions at the first element and just past the final element; they coincide for an empty vector. On vector iterators, subtracting begin() from the returned position gives its nonnegative index. static_cast<std::size_t> converts that distance to our index type. The outer const auto& reads each test vector by reference, and std::max retains the largest count seen so far."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <algorithm>\n#include <cstddef>\n#include <initializer_list>\n#include <iostream>\n#include <vector>\n\nstruct SearchResult {\n    std::size_t index;\n    std::size_t comparisons;\n};\n\nSearchResult lower_boundary(const std::vector<int>& values, int target) {\n    std::size_t low = 0;\n    std::size_t high = values.size();\n    std::size_t comparisons = 0;\n\n    while (low < high) {\n        const std::size_t mid = low + (high - low) / 2;\n        ++comparisons; // Count only the value-to-target comparison below.\n        if (values[mid] < target) {\n            low = mid + 1;\n        } else {\n            high = mid;\n        }\n    }\n    return {low, comparisons};\n}\n\nstd::size_t comparison_bound(std::size_t n) {\n    std::size_t count = 0;\n    while (n > 0) {\n        ++count;\n        n /= 2;\n    }\n    return count;\n}\n\nint main() {\n    const std::vector<std::vector<int>> cases{\n        {}, {4}, {4, 4, 4, 4}, {0, 2, 4, 6, 8},\n        {1, 1, 3, 3, 5, 5, 7}, {0, 1, 2, 3, 4, 5, 6, 7}\n    };\n    std::size_t checked = 0;\n    for (const auto& values : cases) {\n        std::size_t worst = 0;\n        const std::size_t bound = comparison_bound(values.size());\n        for (const int target : {-1, 0, 3, 4, 8, 9}) {\n            const SearchResult result = lower_boundary(values, target);\n            const auto expected = std::lower_bound(\n                values.begin(), values.end(), target);\n            const auto expected_index = static_cast<std::size_t>(\n                expected - values.begin());\n            if (result.index != expected_index || result.comparisons > bound) {\n                std::cout << \"verification failed\\n\";\n                return 1;\n            }\n            worst = std::max(worst, result.comparisons);\n            ++checked;\n        }\n        if (worst != bound) {\n            std::cout << \"worst-case witness missing\\n\";\n            return 1;\n        }\n        std::cout << \"n=\" << values.size() << \" worst=\" << worst\n                  << \" bound=\" << bound << '\\n';\n    }\n    std::cout << \"verified \" << checked << \" searches\\n\";\n}\n",
+          "caption": "C++20: check fixed cases against std::lower_bound and the derived bound"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "n=0 worst=0 bound=0\nn=1 worst=1 bound=1\nn=4 worst=3 bound=3\nn=5 worst=3 bound=3\nn=7 worst=3 bound=3\nn=8 worst=4 bound=4\nverified 36 searches\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "These checks catch many likely defects, including arbitrary-duplicate returns and skipped end positions. They do not prove correctness for every vector. The invariant and variant supply the general argument; tests exercise concrete implementations of it. A useful next authoring check generates all small nondecreasing vectors from a small value alphabet, compares each boundary with std::lower_bound, and checks both invariant regions after every update. Generate only inputs meeting the oracle's preconditions."
+        },
+        {
+          "type": "callout",
+          "title": "Ordering is a live assumption",
+          "text": "Consider the custom search on [9, 1, 7] for target 5. It sees 1 at index 1, discards indices 0 and 1, and returns 2, although index 0 already has value 9. The too-small midpoint did not justify discarding its unsorted left neighbor. An ascending comparison applied to descending data can fail for the same reason. Mutating a value or changing the ordering rule during a search can likewise invalidate the invariant. Such calls are outside this function's contract; do not feed them to std::lower_bound as valid comparison tests."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a single fixed target, the standard library's partition condition is weaker than globally sorted input: all elements smaller than that target need to precede all the others, even if order within either group varies. This lesson deliberately requires nondecreasing order because it supports arbitrary later integer queries. If the vector changes between queries, maintain or reestablish that order first. A const reference prevents writes through this function's parameter; it does not make unsynchronized external mutation safe or arrange an immutable snapshot."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A vector of length 1,024 is searched for a target smaller than every value. Predict the exact counter value in lower_boundary. Would floor(log2(n)) alone be enough, and may you attach the same exact number to any std::lower_bound implementation?",
+          "explanation": "The widths are 1,024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, then 0: eleven comparisons. floor(log2(1,024)) is ten and misses the final singleton comparison. Our bound is eleven because the loop also compares at width one. The standard guarantees logarithmic comparisons with an additive constant; it does not require the exact decision sequence or count of this implementation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "You have an unsorted vector and only one target query. A proposal sorts the vector, verifies sortedness before every search, then reports only the binary-search comparison counter as the cost. What should the analysis and tests change?",
+          "explanation": "Count preparation and validation as well as the search. Sorting and checking all neighboring pairs have their own work, while one linear scan can answer a single membership query without sorting. Repeated queries may make a maintained sorted representation worthwhile, but the workload determines that tradeoff. Tests should distinguish sorted valid inputs from rejected or separately prepared inputs, cover updates between queries, and verify the intended result contract. The small comparison counter cannot account for work performed outside the function."
+        },
+        {
+          "type": "paragraph",
+          "text": "A reliable binary search ties four things together: a boundary result, an ordering promise, a preserved partition of known and unknown regions, and a decreasing interval width. Those choices explain the duplicate policy, legal indices, safe midpoint, exit result, and logarithmic growth. Later searches over other ordered spaces reuse the same proof pattern, but must redefine the predicate, representation cost, and numeric domain. This module covers integer vectors and a lower boundary; custom orderings, floating-point exceptional values, concurrent updates, and efficient maintenance of sorted data need additional contracts."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dsa_binary_boundary_source_cpp20",
+      "title": "Working Draft, Standard for Programming Language C++ (N4861)",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publisher": "ISO/IEC JTC1/SC22/WG21",
+      "publicationYear": 2020,
+      "edition": "C++20 working draft, 2020-04-01",
+      "url": "https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/n4861.pdf",
+      "locator": "Inspected standards draft, not the published ISO edition: §25.8.3 [alg.binary.search] and §25.8.3.1 [lower.bound], printed pp. 1100–1101 (PDF pp. 1108–1109), support the library partition contract and comparison/traversal distinction; §23.3.4.13 [iterator.concept.random.access], printed p. 920 (PDF p. 928), supports constant-time jumps. The exact custom comparison bound is derived in this lesson, not attributed to the library. Consulted 2026-09-11."
+    },
+    {
+      "id": "dsa_binary_boundary_source_nist",
+      "title": "Dictionary of Algorithms and Data Structures: binary search",
+      "authors": [
+        "Paul E. Black"
+      ],
+      "publisher": "National Institute of Standards and Technology",
+      "publicationYear": 2022,
+      "url": "https://xlinux.nist.gov/dads/HTML/binarySearch.html",
+      "locator": "Inspected official reference entry: definition and notes on ordered input, interval halving, midpoint overflow, and comparisons versus linked-list traversal. Entry modified 2022-04-21; consulted 2026-09-11."
+    },
+    {
+      "id": "dsa_binary_boundary_source_tcpl4",
+      "title": "The C++ Programming Language",
+      "authors": [
+        "Bjarne Stroustrup"
+      ],
+      "publisher": "Addison-Wesley",
+      "publicationYear": 2013,
+      "edition": "4th edition (C++11 baseline)",
+      "isbn": "9780321563842",
+      "url": "https://www.stroustrup.com/4th.html",
+      "locator": "Local book passages inspected and page images checked: §32.6.1 Binary Search, printed pp. 945–946 (PDF pp. 960–961), for first-boundary versus membership behavior; §33.1.1–33.1.2, printed pp. 954–955 (PDF pp. 969–970), for half-open ranges and iterator categories; §31.3.5, printed p. 900 (PDF p. 915), for indexed element access. Public URL is the author's bibliographic page; exact C++20 library rules are checked against N4861."
+    }
+  ]
+}

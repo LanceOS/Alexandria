@@ -2,7 +2,7 @@
 
 All subjects use the existing C++ layout: a topic and root unit, child subunits, modules with objectives and exactly three lesson parts, worked examples, explained reflections, and public sources. The same client components render every subject. The curriculum map distinguishes C++ language mechanisms, broader computing principles, and domain applications.
 
-The standing [curriculum depth standard](../notes/curriculum-depth.md) requires substantial teaching throughout those parts: conceptual reasoning, step-by-step and contrasting worked cases, practice with explained answers, and relevant limitations. Organization supports efficient learning; brevity alone is not a teaching goal. The [depth expansion review](reviews/2026-09-11-curriculum-depth.md) records the latest teaching and source checks across all 89 modules.
+The standing [curriculum depth standard](../notes/curriculum-depth.md) requires substantial teaching throughout those parts: conceptual reasoning, step-by-step and contrasting worked cases, practice with explained answers, and relevant limitations. Organization supports efficient learning; brevity alone is not a teaching goal. The [depth expansion review](reviews/2026-09-11-curriculum-depth.md) records catalog-wide teaching and source checks for the original 89 modules. The [Algorithm Analysis review](reviews/2026-09-11-algorithm-analysis.md) records the subsequent focused expansion of one unit.
 
 The [follow-up audit of commit 99a387f](reviews/2026-09-11-curriculum-audit.md) covers all 89 modules and records outstanding corrections, source additions and verification limits. Read it alongside the initial ledgers below: it identifies mistaken Parnas inspection provenance and other citation issues. The [correction release](reviews/2026-09-11-curriculum-corrections.md) records the applied findings and validation. Historical audit files retain their original observations; the current ledgers describe the corrected references.
 
@@ -28,6 +28,7 @@ The current evidence ledgers are:
 - [Core C++](research/cpp-core.md)
 - [Advanced C++](research/cpp-advanced.md)
 - [Supporting subjects](research/supporting-subjects.md)
+- [Algorithm Analysis book study](research/algorithm-analysis.md)
 - [Application tracks](research/application-tracks.md)
 
 ## Verify lessons as well as files
@@ -59,3 +60,7 @@ The [applied-findings report](reviews/2026-09-11-curriculum-corrections.md) reco
 ## Depth expansion — 2026-09-11
 
 The [depth expansion report](reviews/2026-09-11-curriculum-depth.md) records 89 further lesson revisions, 269 explained practice checkpoints across all 267 parts, 23 added references, and the applied independent-review findings. The expanded teaching follows the permanent standard in `/notes`. All 113 tests, the production build and 46 C++20 examples passed. Local publication preserved all 1,627 pre-existing database rows; every latest module, lesson part and public reference matches its authored definition. The report and four authoring ledgers retain the evidence and execution limits.
+
+## Focused Algorithm Analysis expansion — 2026-09-11
+
+The [unit review](reviews/2026-09-11-algorithm-analysis.md) records six connected modules, 18 sections, 36 explained practice prompts, and eight runnable C++20 examples grounded in inspected book passages. Five modules were added and one existing module revised within Algorithm Analysis, bringing the catalog to 94 modules and 282 parts. The application suite passed 163 tests; the build, all 54 current C++ examples, and the unit's eight programs in the application sandbox were verified. Local publication preserved all 2,271 existing database rows. The [source ledger](research/algorithm-analysis.md) distinguishes source material from independently written explanations of established proof methods, examples, and hypothetical cost models. The [source-comparison review](reviews/2026-09-11-algorithm-analysis-originality.md) records the subsequent checks for direct copying and distinctive source examples before commit.

@@ -1,0 +1,202 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "dsa_merge_analysis_module",
+  "versionId": "dsa_merge_analysis_v1",
+  "version": 1,
+  "slug": "explain-merge-sort",
+  "title": "Explain merge sort with a recurrence",
+  "position": 5,
+  "summary": "Prove a stable merge, account for recursive work and storage, then compare complete search workloads.",
+  "objectives": [
+    "Explain why merging sorted ranges preserves values, order, and the order of equal-key records.",
+    "Trace a complete merge sort on odd-length input and separate comparisons from data movement.",
+    "Derive a balanced recursion tree including base cases and handle non-power-of-two inputs honestly.",
+    "Compare preparation, queries, and maintenance using an explicit total-work model."
+  ],
+  "parts": [
+    {
+      "id": "dsa_merge_analysis_part_1",
+      "title": "Make merging a correct building block",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Before you begin",
+          "text": "You need indexed half-open ranges [first, last), loop invariants, insertion-sort correctness, and basic functions. Recursion means that a function calls itself on a smaller instance; a base case stops those calls. The program uses fixed-size records with an integer key and a character label so that stability is visible. We assume valid indices, enough memory, and constant-cost comparisons and record copies."
+        },
+        {
+          "type": "paragraph",
+          "text": "Two already sorted ranges can be merged without searching for every item's final position. Keep a cursor at the smallest unconsumed item of each range. Copy the smaller of those two items into a separate output range and advance only its cursor. If the keys are equal, take the item from the left range first. Once one range is exhausted, append the other range's remaining items in order. The sorted-input promise is what makes a cursor's current item the smallest still available from its range."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Left range:  [4b, 9a]\nRight range: [2d, 6e, 9c]\nCompare 4 with 2: copy 2d from the right.\nCompare 4 with 6: copy 4b from the left.\nCompare 9 with 6: copy 6e from the right.\nCompare 9 with 9: copy 9a from the left on the tie.\nLeft is empty: append the remaining 9c.\nResult: [2d, 4b, 6e, 9a, 9c]\nFour key comparisons; five output writes.",
+          "caption": "Original merge trace; labels identify the records while comparisons use only their integer keys"
+        },
+        {
+          "type": "paragraph",
+          "text": "Use this loop invariant: the output prefix is sorted and contains exactly the items consumed from the two input ranges; when the output is nonempty, every unconsumed item has a key at least as large as the last emitted key. Before the first copy, the empty output satisfies this statement. During a step, the smaller head is no greater than any remaining item: each range is sorted, and the other head was compared with it. Appending that head preserves order, and advancing exactly one cursor accounts for exactly one consumed record."
+        },
+        {
+          "type": "paragraph",
+          "text": "Each copy reduces the total number of unconsumed items by one, so the merge terminates. When one range is empty, the invariant and the other range's sortedness justify appending its tail. At the end, every input item has been emitted once, so the output is a sorted permutation of the inputs. Taking from the left on equal keys preserves order between ranges. Preserving cursor order within each range preserves its internal order. Together these facts prove stability when the ranges themselves were stably sorted."
+        },
+        {
+          "type": "paragraph",
+          "text": "Merge sort supplies those sorted ranges recursively. For a range of length m<2, there is nothing to do. Otherwise, split at first+(last-first)/2, recursively sort [first, mid) and [mid, last), then merge them. The recursive contract is to stably sort exactly the requested range without changing entries outside it. Both child lengths are positive and smaller than m, so the calls eventually reach the base case. Assuming the contract for smaller ranges, the merge argument proves it for the parent. This is induction on range length, not an assumption that an unproved recursive call somehow works."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why would choosing the smaller of two cursor values fail to justify merging unsorted input ranges?",
+          "explanation": "The cursor value might not be its range's smallest remaining value. For example, merging [8, 1] with [3, 6] can emit 3 and 6 before discovering 1, leaving an unsorted result. The invariant depends on sorted inputs; comparing the two heads alone cannot establish that precondition."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Would choosing the right item first on a tie make the result numerically unsorted? What promise would change?",
+          "explanation": "The keys can remain correctly ordered, and no item need be lost. But in the worked trace 9c would precede 9a, even though 9a came earlier in the original sequence. The algorithm would lose its stability guarantee. Sortedness, preservation of values, and stability require separate arguments."
+        }
+      ]
+    },
+    {
+      "id": "dsa_merge_analysis_part_2",
+      "title": "Follow the calls, copies, and storage",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The program allocates one buffer of n records before sorting and reuses it throughout the recursive calls. A merge first reads from values and writes into buffer, then copies the completed range back. Writing to a separate buffer prevents an output assignment from destroying an input item that a cursor has not consumed yet. Each recursive call waits for both of its children before using their results; this code is sequential. The helper requires buffer to be a different vector with at least values.size() entries, and first and last to describe a valid range in values. The call in main establishes these preconditions; recursive calls preserve them."
+        },
+        {
+          "type": "paragraph",
+          "text": "The main call uses first=0 and last=n. Every internal call preserves 0<=first<=last<=n, so last-first is safe to compute with unsigned indices. The test for fewer than two items covers both empty and one-item ranges. For an odd length, the left range gets floor(m/2) items and the right gets ceil(m/2); they differ by one. Here floor rounds down to an integer and ceil rounds up: floor(5/2)=2 and ceil(5/2)=3 when 5/2 denotes the mathematical value 2.5. Counts.comparisons records only comparisons between record keys. Counts.merge_writes records assignments into buffer during merging, excluding buffer initialization and the later copy back. The fixed example keeps these totals within std::size_t. Larger instrumented workloads need an explicit counter-overflow policy before treating the printed numbers as exact mathematical counts. In buffer[out++] = values[left++], each postfix ++ uses the old index for that access and then advances its own cursor by one. Thus the statement copies one record and advances both the output position and the selected input position. The right-hand branch does the same with right."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <cstddef>\n#include <iostream>\n#include <vector>\n\nstruct Item {\n    int key;\n    char label;\n};\n\nstruct Counts {\n    std::size_t comparisons = 0;\n    std::size_t merge_writes = 0;\n};\n\nvoid merge_sort(std::vector<Item>& values, std::vector<Item>& buffer,\n                std::size_t first, std::size_t last, Counts& counts) {\n    if (last - first < 2) return;\n    const std::size_t mid = first + (last - first) / 2;\n    merge_sort(values, buffer, first, mid, counts);\n    merge_sort(values, buffer, mid, last, counts);\n\n    std::size_t left = first;\n    std::size_t right = mid;\n    std::size_t out = first;\n    while (left < mid && right < last) {\n        ++counts.comparisons;\n        if (values[left].key <= values[right].key)\n            buffer[out++] = values[left++];\n        else\n            buffer[out++] = values[right++];\n        ++counts.merge_writes;\n    }\n    while (left < mid) {\n        buffer[out++] = values[left++];\n        ++counts.merge_writes;\n    }\n    while (right < last) {\n        buffer[out++] = values[right++];\n        ++counts.merge_writes;\n    }\n    for (std::size_t i = first; i < last; ++i)\n        values[i] = buffer[i];\n}\n\nint main() {\n    std::vector<Item> values{{9, 'a'}, {4, 'b'}, {9, 'c'},\n                             {2, 'd'}, {6, 'e'}};\n    std::vector<Item> buffer(values.size());\n    Counts counts;\n    merge_sort(values, buffer, 0, values.size(), counts);\n    for (std::size_t i = 0; i < values.size(); ++i) {\n        if (i > 0) std::cout << ' ';\n        std::cout << values[i].key << values[i].label;\n    }\n    std::cout << \"\\ncomparisons=\" << counts.comparisons\n              << \", merge writes=\" << counts.merge_writes << '\\n';\n}\n",
+          "caption": "Complete C++20 example with one reusable buffer; no standard input required"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "2d 4b 6e 9a 9c\ncomparisons=8, merge writes=12\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Sort [9a, 4b, 9c, 2d, 6e]\nSplit: [9a, 4b] | [9c, 2d, 6e]\nMerge [9a] with [4b]             -> [4b, 9a]          : 1 comparison, 2 writes\nMerge [2d] with [6e]             -> [2d, 6e]          : 1 comparison, 2 writes\nMerge [9c] with [2d, 6e]         -> [2d, 6e, 9c]      : 2 comparisons, 3 writes\nMerge [4b, 9a] with [2d, 6e, 9c] -> [2d, 4b, 6e, 9a, 9c]: 4 comparisons, 5 writes\nTotals: 8 comparisons; 12 writes into buffer; 12 further copies back.",
+          "caption": "Original odd-length trace reconciling every merge in the program"
+        },
+        {
+          "type": "paragraph",
+          "text": "For any merge of m items, the main loop and the two tail loops together emit exactly m records. They do not each emit m independent sets of records: the cursors partition the remaining work. The copy-back loop performs another m assignments. Thus merging takes Θ(m) full time under our fixed-cost model, even when one input range becomes empty after very few key comparisons. For two nonempty ranges, the comparison count is at most m-1; output movement still touches all m items."
+        },
+        {
+          "type": "paragraph",
+          "text": "The extra buffer holds n records, so it uses Θ(n) auxiliary space. At most one chain of calls is active down the recursion tree at a time, giving O(log n) additional stack space for n>=2. The number of calls made during the whole sort is not the number of simultaneously live stack frames. Reusing the buffer also means that each call does not allocate another n-record array. Input storage, the buffer, and the call stack are distinct parts of the memory accounting."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Suppose the two sorted ranges are [1] and [2, 3, ..., 100]. The main comparison loop ends after one comparison. Is the full merge constant-time?",
+          "explanation": "No. The tail loop still copies the other 99 items into the output, and this implementation copies all 100 items back afterward. The key-comparison count is one for this merge, but the full merge time is Θ(m) with m=100 in the example and variable m in the general statement."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Predict the behavior for an empty vector, one labeled record, and two equal-key records. Does one buffer position need to be read before it is written?",
+          "explanation": "The empty and one-record cases return immediately with zero comparisons and merge writes. Two equal-key records use one key comparison and two merge writes, keeping the left record first. Every merged output position is written before the copy-back loop reads it. Base cases do not read buffer at all."
+        }
+      ]
+    },
+    {
+      "id": "dsa_merge_analysis_part_3",
+      "title": "Add the recursion tree and the complete workload",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Let T(n) describe full sorting work, not just the comparison counter. Splitting indices costs constant time, the two child sorts contribute their own costs, and merging contributes Θ(n). For n>=2 the recurrence is T(n)=T(floor(n/2))+T(ceil(n/2))+Θ(n), with constant work for n<=1. Buffer allocation adds a one-time Θ(n) preparation cost for this wrapper. It does not change the final asymptotic bound."
+        },
+        {
+          "type": "paragraph",
+          "text": "First analyze powers of two, n=2^h. In an explicit simplified model, let the base-case cost be b>0 and let a non-base call spend exactly c times its range length outside its recursive calls, where c>0 is fixed. Then T(1)=b and T(n)=2T(n/2)+cn. At depth d there are 2^d calls, each of size n/2^d, so the total nonrecursive work at that depth is 2^d*c*(n/2^d)=cn. The cancellation is between the number of calls and the work per call."
+        },
+        {
+          "type": "paragraph",
+          "text": "There are h=log2(n) internal levels, at depths zero through h-1. There is also a leaf level at depth h with n base cases, costing bn. The tree has h+1 levels when those leaves are included. Summing gives T(n)=cn log2(n)+bn in this simplified exact model, and therefore Θ(n log n) for growing n. Logarithms count repeated halving because n/2^h=1 precisely when h=log2(n). Changing between fixed logarithm bases greater than one changes only a constant factor, not this growth class."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Original exact-cost model: b=2 and c=3; n=8\nDepth 0: 1 call  of size 8 -> 1*3*8 = 24\nDepth 1: 2 calls of size 4 -> 2*3*4 = 24\nDepth 2: 4 calls of size 2 -> 4*3*2 = 24\nDepth 3: 8 base cases     -> 8*2   = 16\nTotal: 24+24+24+16 = 88\nFormula: 3*8*log2(8)+2*8 = 88\nAt n=16 the same model gives 3*16*4+2*16 = 224.",
+          "caption": "Worked recursion tree in invented cost units, not measured program instructions"
+        },
+        {
+          "type": "paragraph",
+          "text": "You can verify that exact formula by substitution. The base n=1 gives 3*1*0+2*1=2. For larger powers of two, assume F(m)=3m log2(m)+2m on the smaller input m=n/2. Then 2F(n/2)+3n equals 3n(log2(n)-1)+2n+3n, which simplifies to 3n log2(n)+2n. The same constants appear throughout the proof. Replacing a smaller call with an unspecified O(n) and then absorbing extra work into a new hidden constant would not prove an inductive hypothesis with a fixed constant."
+        },
+        {
+          "type": "paragraph",
+          "text": "For general n, do not pretend the child lengths are exactly equal or expect the program to perform a fractional number of writes. Balanced splitting gives at least floor(log2(n)) complete internal levels and at most ceil(log2(n)) internal levels. At a complete internal level the active ranges contain n items in total; a partially filled level contributes at most n. With linear merge work bounded above and below by fixed positive constants, these observations give Θ(n log n) for n>=2. In the five-item trace, merge writes total 5+5+2=12. They lie between 5*floor(log2(5))=10 and 5*ceil(log2(5))=15; they are not asserted to equal 5*log2(5)."
+        },
+        {
+          "type": "paragraph",
+          "text": "This implementation always splits and merges, so the full best- and worst-case times have the same Θ(n log n) growth, although comparison counts vary. The linear best case of insertion sort is a real difference. An optimization that skips a merge when the neighboring ranges are already jointly ordered would need a new analysis. We are analyzing the displayed code, not every program called merge sort."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A derivation says “log2(n) levels at cn work per level, so the exact answer is cn log2(n).” What is missing, and what happens at n=1?",
+          "explanation": "It omitted the base cases. Under the stated exact model there are n leaves with cost b each, so the exact answer is cn log2(n)+bn. When n=1 there are no internal levels, but one leaf still costs b. Omitting the linear leaf term can preserve the asymptotic bound while making the claimed exact formula wrong."
+        },
+        {
+          "type": "callout",
+          "title": "Capstone: sort once or keep scanning?",
+          "text": "The collection has 64 fixed-size records in arbitrary order. There will be q membership queries. Compare worst-case scan work with preparing a sorted representation and using indexed binary search. Use the explicit hypothetical costs below; they are accounting assumptions for this exercise, not timings or exact counts from the displayed C++ program."
+        },
+        {
+          "type": "paragraph",
+          "text": "Assign an unsorted scan 64 work units per query. Assign sorting preparation 3n log2(n)=1152 units at n=64, and assign binary search two units per examined record. A binary membership search on 64 records can require seven examinations in the worst case, not six, so budget 14 units per query. Initially, assume reordering the collection is allowed, data stays unchanged, and the stated preparation budget covers all preparation being compared. Then U(q)=64q for scanning and S(q)=1152+14q for preparing and searching."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Static data; hypothetical work units\nq=10: U=64*10=640;   S=1152+14*10=1292 -> scanning costs less\nq=24: U=64*24=1536;  S=1152+14*24=1488 -> preparing costs less\nSolve: 1152+14q < 64q\n       1152 < 50q\n       q > 23.04\nFirst integer query count with a strict saving: 24.",
+          "caption": "Original complete-workload comparison; equal or lower growth alone does not determine this crossover"
+        },
+        {
+          "type": "paragraph",
+          "text": "Change a requirement and repeat the accounting. If original order must be preserved and copying the 64 records costs another 64 units outside that budget, preparation becomes 1216. Strict savings then require q>1216/50=24.32, so the first winning integer is 25. Storage for the preserved original, a sorted working copy, and merge buffer must also fit. A memory requirement cannot be decided from the time formula alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now let u replacements change record keys between queries while keeping the collection length at 64. Suppose an unsorted replacement costs five units and maintaining the sorted representation costs 80 units, including whatever search and movement that policy requires. The new totals are U(q,u)=64q+5u and S(q,u)=1152+14q+80u. Sorting wins only if 50q>1152+75u. With ten replacements, the first winning integer query count rises to 39. Rebuilding after each update would be a different maintenance policy with a different formula."
+        },
+        {
+          "type": "reflection",
+          "prompt": "For q=30 and u=10 under the replacement model, compute both totals and select a strategy. What further fact would you need before calling the numerical winner faster on a real machine?",
+          "explanation": "Scanning costs 64*30+5*10=1970 units. Preparing and maintaining sorted data costs 1152+14*30+80*10=2372 units, so scanning wins by 402 units in this model. A real-time claim also needs evidence that these coefficients and operation costs fit the actual implementation, data representation, machine, and query/update distribution."
+        },
+        {
+          "type": "paragraph",
+          "text": "You now have a complete analysis pattern: state a contract, prove the updates preserve it and terminate, choose what work and storage mean, derive a bound, and account for the whole workload before selecting an algorithm. Recursion trees can suggest bounds, while induction checks them with consistent assumptions. General recurrence theorems, hashing, balanced trees, amortized analysis, external-memory sorting, and machine-level benchmarking remain later topics. They offer other strategies when the simple static-array model stops matching the application."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dsa_merge_analysis_source_clrs4",
+      "title": "Introduction to Algorithms",
+      "authors": [
+        "Thomas H. Cormen",
+        "Charles E. Leiserson",
+        "Ronald L. Rivest",
+        "Clifford Stein"
+      ],
+      "publisher": "The MIT Press",
+      "publicationYear": 2022,
+      "edition": "4th edition",
+      "isbn": "9780262367509",
+      "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+      "locator": "Chapter 2, sections 2.3.1–2.3.2 (divide-and-conquer, merging, and merge-sort recurrence); Chapter 3, section 3.3, Logarithms; Chapter 4, sections 4.3–4.4 (substitution, fixed constants, recursion trees, and leaves); Appendix A, sections A.1–A.2 (summation formulas and bounds). Fourth-edition ebook consulted 2026-09-11. Code, labeled traces, exact-cost coefficients, and workload scenarios are original teaching examples."
+    }
+  ]
+}

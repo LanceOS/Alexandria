@@ -1,6 +1,6 @@
 # Curriculum map
 
-The catalog contains **25 topics, 25 root units, 66 subunits, and 89 modules (267 lesson parts)**. Every module uses the established C++ layout: objectives, three ordered sections, worked examples, explained reflection, and sources. These are substantive initial lessons in each area, not a claim that two lessons exhaust an entire discipline.
+The catalog contains **25 topics, 25 root units, 66 subunits, and 94 modules (282 lesson parts)**. Every module uses the established C++ layout: objectives, three ordered sections, worked examples, explained reflection, and sources. These are substantive initial lessons in each area, not a claim that two lessons exhaust an entire discipline.
 
 The [curriculum depth standard](../notes/curriculum-depth.md) applies to every unit and module. The [depth expansion review](reviews/2026-09-11-curriculum-depth.md) records the detailed walkthroughs, contrasting cases, and explained practice added throughout all 89 modules while preserving the hierarchy.
 
@@ -46,6 +46,11 @@ Subunits 1–12 form the core progression; 13–18 are advanced. The reader pres
 | [Programming Foundations](../content/units/programming-foundations/unit.json) | Problem Solving | [Decompose a task before choosing syntax](../content/units/programming-foundations/problem-solving/01-decompose-a-task.json) |
 | [Programming Foundations](../content/units/programming-foundations/unit.json) | State and Correctness | [Reason about a loop using an invariant](../content/units/programming-foundations/state-correctness/01-reason-about-a-loop.json) |
 | [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Algorithm Analysis | [Count the work in a search](../content/units/data-structures-algorithms/algorithm-analysis/01-count-search-work.json) |
+| [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Algorithm Analysis | [Prove a loop correct](../content/units/data-structures-algorithms/algorithm-analysis/02-prove-a-loop-correct.json) |
+| [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Algorithm Analysis | [Describe growth with bounds](../content/units/data-structures-algorithms/algorithm-analysis/03-describe-growth-with-bounds.json) |
+| [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Algorithm Analysis | [Build and verify binary search](../content/units/data-structures-algorithms/algorithm-analysis/04-build-and-verify-binary-search.json) |
+| [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Algorithm Analysis | [Analyze insertion sort](../content/units/data-structures-algorithms/algorithm-analysis/05-analyze-insertion-sort.json) |
+| [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Algorithm Analysis | [Explain merge sort with a recurrence](../content/units/data-structures-algorithms/algorithm-analysis/06-explain-merge-sort.json) |
 | [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Abstract Data Types | [Design a bounded queue from its contract](../content/units/data-structures-algorithms/abstract-data-types/01-design-a-bounded-queue.json) |
 | [Computer Architecture and Operating Systems](../content/units/computer-architecture-operating-systems/unit.json) | Memory Hierarchy | [Trace locality with a tiny cache](../content/units/computer-architecture-operating-systems/memory-hierarchy/01-trace-cache-locality.json) |
 | [Computer Architecture and Operating Systems](../content/units/computer-architecture-operating-systems/unit.json) | Process Memory | [Separate virtual addresses from physical storage](../content/units/computer-architecture-operating-systems/process-memory/01-separate-addresses-from-storage.json) |
@@ -96,6 +101,8 @@ Subunits 1–12 form the core progression; 13–18 are advanced. The reader pres
 | [Machine learning infrastructure](../content/units/machine-learning-infrastructure/unit.json) | Inference Contracts | [Separate model evaluation behavior from gradient recording](../content/units/machine-learning-infrastructure/inference-contracts/01-evaluation-and-gradients.json) |
 | [Language interoperability](../content/units/language-interoperability/unit.json) | Cross-runtime Ownership | [Define ownership when C++ objects cross into Python](../content/units/language-interoperability/cross-runtime-ownership/01-return-policies.json) |
 | [Language interoperability](../content/units/language-interoperability/unit.json) | Runtime Coordination | [Separate Python access from independent native work](../content/units/language-interoperability/runtime-coordination/01-gil-boundary.json) |
+
+Algorithm Analysis is the first focused book-supported unit expansion: six connected modules, from cost models through correctness and growth bounds to binary search and sorting. Its [source ledger](research/algorithm-analysis.md) records the actual passages inspected; the [release review](reviews/2026-09-11-algorithm-analysis.md) records teaching and execution checks.
 
 ## Evidence and installation
 

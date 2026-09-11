@@ -1,112 +1,144 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "dsa_count_search_work_module",
-  "versionId": "dsa_count_search_work_v2",
+  "versionId": "dsa_count_search_work_v3",
   "slug": "count-search-work",
   "title": "Count the work in a search",
   "summary": "Compare a scan with interval halving while separating theoretical cost from timing.",
   "position": 0,
   "objectives": [
-    "Define the input size and the operation being counted.",
-    "Trace binary search on sorted data.",
-    "Distinguish an asymptotic upper bound from measured runtime."
+    "Specify a search contract, input size, representation, and counted operation.",
+    "Trace successful, unsuccessful, and empty searches without confusing examinations with elapsed time.",
+    "Compare scan and interval-halving work and include preparation in a repeated-query decision.",
+    "Explain what later correctness proofs and growth bounds must establish beyond a few successful runs."
   ],
   "parts": [
     {
       "id": "dsa_count_search_work_part_1",
-      "title": "Choose a cost model",
+      "title": "Define the question before counting",
       "blocks": [
         {
           "type": "callout",
-          "title": "Prerequisites and the C++ boundary",
-          "text": "Prerequisites: loops, indexed sequences, and simple logarithms. This course owns algorithm analysis. The C++ course teaches standard search functions and iterator requirements; the performance course teaches actual timing."
+          "title": "Start here: the route through Algorithm Analysis",
+          "text": "You need variables, integer comparisons, functions, loops, and indexed sequences. The examples use C++20, but the reasoning applies beyond C++. Read this unit in order: count search work; prove a loop correct; describe growth with bounds; build binary search; analyze insertion sort; explain merge sort. Logarithms, invariants, and recurrences are introduced before they are used in detail. The final lesson combines the techniques in a workload decision."
         },
         {
           "type": "paragraph",
-          "text": "An analysis answers a question only after choosing what counts as work. Here one examination means selecting one indexed element and comparing its value with the target. We count an examination even if deciding less-than, greater-than, or equality requires more than one primitive machine instruction. The sequence is already sorted in increasing order, distinct values are used to avoid duplicate-result policy questions, and accessing a chosen index is constant cost. The result is membership, not insertion position or the first among several equal items."
+          "text": "Suppose a library receives an integer book identifier and needs to answer whether that identifier is present in a collection. Before choosing a clever search, state the contract: accept a finite sequence of integer identifiers and one target; return true exactly when at least one sequence element equals the target; leave the sequence unchanged. An empty sequence is valid and must return false. This is a membership question. Returning a position, returning the first duplicate, or counting all duplicates would be different contracts."
         },
         {
           "type": "paragraph",
-          "text": "The state [low, high) contains every index that could still match. Low is included; high is excluded. Initially low=0 and high=n includes the whole sequence, including the empty case n=0. The middle is low plus the integer floor of (high-low)/2. If the middle value is too small, every index at or below it is impossible, so low becomes mid+1. If it is too large, the middle and everything above it are impossible, so high becomes mid. Equality ends the search. These updates remove the examined element from every unsuccessful step."
+          "text": "The contract tells us what counts as a correct answer. Analysis asks a second question: which resources does a correct method require? Let n be the number of sequence elements. For now, one examination means choosing one element and comparing its value with the target. A scan uses one equality comparison per examination; a binary-search decision might use two different comparisons on the same element. We will not silently treat those as the same primitive-operation count. We are initially counting element examinations, not CPU instructions or seconds."
         },
         {
           "type": "paragraph",
-          "text": "Removing the middle matters for termination. Setting low=mid after a too-small comparison can repeat a one-element interval forever. Sortedness matters for correctness: without it, excluding an entire side after one comparison is unjustified. The search therefore depends on both a representation promise and a shrinking interval. A runtime comparison can check one element; it cannot retroactively supply a missing sorted-input contract."
+          "text": "Our representation is an in-memory indexed sequence, with fixed-width integers and constant-cost indexed access in the chosen model. The vector is already available when a search begins. File loading, constructing the vector, displaying results, allocating storage, and preparing an ordering are outside this initial search count. This boundary makes the count useful and reproducible. It does not make the excluded work disappear from a complete application. Comparing long text, following linked nodes, or reading blocks from a disk requires a different account of costs."
         },
         {
           "type": "paragraph",
-          "text": "To compare search methods, specify the data and the question. We have a sorted sequence of distinct integer identifiers and want to know whether a target occurs. Let n be the number of identifiers and count examinations of sequence elements. This model deliberately ignores file access, allocation, and the cost of a comparison. Those costs matter in other models, so record the model whenever making a complexity claim."
-        },
-        {
-          "type": "paragraph",
-          "text": "A linear scan may examine every element before reporting absence. Binary search maintains a half-open candidate interval from low up to, but excluding, high. It examines a middle element and discards a portion that cannot contain the target because the data is sorted. NIST’s binary-search reference makes the sorted-input condition part of the definition; halving an arbitrary sequence is not a valid search method."
+          "text": "A scan begins at index zero and moves one place right after each failed equality test. In [2, 6, 9, 13, 18, 25, 34, 47], searching for 25 examines six elements: the five earlier values rule out those positions, and the sixth supplies a match. Searching for 20 examines all eight before reporting absence. The input size is eight in both cases, yet the observed work differs. A statement about one execution therefore needs both the sequence and the target."
         },
         {
           "type": "reflection",
-          "prompt": "An implementation on a linked list makes logarithmically many value comparisons, but finding middle positions requires traversing links. May it claim logarithmic elapsed time solely from the comparison count?",
-          "explanation": "No. Finding middle positions can require traversing links. Count pointer steps as well as comparisons, and consider their costs. A claim about comparisons is still useful when comparisons are expensive, but it does not eliminate traversal work or justify a stopwatch prediction."
+          "prompt": "A collection contains [4, 11, 4]. If a search stops at the first 4, has it satisfied the membership contract? What changes if the requested output is the number of copies?",
+          "explanation": "It satisfies membership because one equality is enough to establish existence. It has not established the number of copies: an unexamined position may contain another 4. A counting contract usually requires processing the remaining elements or using additional maintained information. The difference comes from the required answer, not a disagreement about how fast the same algorithm runs."
+        },
+        {
+          "type": "reflection",
+          "prompt": "An empty sequence leads to zero element examinations. Does that establish zero running time?",
+          "explanation": "No. The counted resource is only element examinations. Calling the function, checking that the loop cannot start, and returning a result still require work in a normal execution model. Zero examinations is the exact boundary-case count; constant total work is a separate description. Never infer a stopwatch reading from a counter that excludes most instructions."
         }
       ]
     },
     {
       "id": "dsa_count_search_work_part_2",
-      "title": "Trace the candidate interval",
+      "title": "Trace and run the counted search",
       "blocks": [
         {
+          "type": "paragraph",
+          "text": "The following complete program exposes the scan counter. std::vector<int> stores the integer sequence; std::size_t is the unsigned size/index type used here. The const reference lets scan read the existing sequence without copying or modifying it. The reference named examinations is an output parameter: resetting it at the start makes each call report its own work. The increment is immediately before the equality test, so both a successful test and a failed test count once. In main, the range-for visits targets 25 and 20 in turn. std::boolalpha prints Boolean results as true or false. The {} argument constructs an empty vector for that call; the temporary remains alive while scan reads it."
+        },
+        {
           "type": "code",
-          "language": "text",
-          "code": "Sequence: [3, 8, 12, 17, 24, 31, 40, 55]; target = 31\n[low, high) = [0, 8); mid = 4; value 24 < 31 -> low = 5\n[low, high) = [5, 8); mid = 6; value 40 > 31 -> high = 6\n[low, high) = [5, 6); mid = 5; value 31 = 31 -> found\nElements examined: 3",
-          "caption": "Worked trace — illustrative data, not measured output"
-        },
-        {
-          "type": "paragraph",
-          "text": "In the original eight-element example, mid=4 selects 24. All indices zero through four can be discarded because their values cannot exceed 24. The candidate set becomes indices five through seven. Its middle is six, containing 40, so the remaining candidates must be below six. Index five is now the only candidate and contains 31. A linear scan of the same sequence would inspect 3, 8, 12, 17, 24, and 31: six examinations. This particular factor of two is not a universal speedup. It depends on the target, algorithm, and chosen cost model."
-        },
-        {
-          "type": "paragraph",
-          "text": "The interval is the state of the search. Every update preserves the statement that an existing target must lie in that interval. An empty interval means the target is absent. For fixed-cost comparisons and constant-time indexed access, repeatedly halving the candidates gives logarithmic worst-case growth in the number of examined elements. Computing the middle as low plus half the interval length is also a useful implementation pattern when indices have finite ranges."
-        },
-        {
-          "type": "paragraph",
-          "text": "Big-O describes an asymptotic upper bound, using a constant multiplier after some threshold. It does not mean exact equality or a stopwatch result. A linear function is also bounded above by a quadratic function for sufficiently large inputs, although that loose bound communicates less. Use a tight characterization when known, and always say whether the bound is worst-case, expected, or amortized."
-        },
-        {
-          "type": "paragraph",
-          "text": "Consider a missing target, 30, in the same sequence. The first two decisions again narrow the interval to [5,6). The value there is 31, which is too large, so high becomes five. Now low equals high: no possible index remains. Absence follows from the invariant, not from searching every element. For target 1, the algorithm examines 24, 12, 8, and 3 before the interval becomes empty. These different totals show why analysis normally states a worst case separately from a single trace."
-        },
-        {
-          "type": "paragraph",
-          "text": "Preparation can reverse an algorithm choice. In a hypothetical accounting model, suppose sorting costs 24 work units, each subsequent binary search costs four, and a linear query costs eight. One query costs 28 units after sorting versus eight without sorting. Ten queries cost 24 + 10*4 = 64 versus 80. The crossover is more than six queries because 24 + 4q < 8q exactly when q > 6. These invented costs illustrate workload accounting; they are not an estimate of a particular sorting implementation."
+          "language": "cpp",
+          "code": "#include <cstddef>\n#include <initializer_list>\n#include <iostream>\n#include <vector>\n\nbool scan(const std::vector<int>& values, int target,\n          std::size_t& examinations) {\n    examinations = 0;\n    for (std::size_t i = 0; i < values.size(); ++i) {\n        ++examinations;\n        if (values[i] == target) {\n            return true;\n        }\n    }\n    return false;\n}\n\nint main() {\n    const std::vector<int> ids{2, 6, 9, 13, 18, 25, 34, 47};\n    std::size_t examinations = 0;\n    std::cout << std::boolalpha;\n    for (int target : {25, 20}) {\n        const bool found = scan(ids, target, examinations);\n        std::cout << target << \": found=\" << found\n                  << \", examinations=\" << examinations << '\\n';\n    }\n    const bool found = scan({}, 25, examinations);\n    std::cout << \"empty: found=\" << found\n              << \", examinations=\" << examinations << '\\n';\n}\n",
+          "caption": "C++20 — count equality examinations on fixed small inputs; no program input is required"
         },
         {
           "type": "code",
           "language": "text",
-          "code": "Hypothetical absence trace for target 30\n[0,8): mid 4, value 24 -> low=5\n[5,8): mid 6, value 40 -> high=6\n[5,6): mid 5, value 31 -> high=5\n[5,5): empty -> absent after three examinations",
-          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+          "code": "25: found=true, examinations=6\n20: found=false, examinations=8\nempty: found=false, examinations=0\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The loop condition is checked before values[i] is read. That is why the empty call is safe and why index values.size() is never examined. If a match occurs, the function returns immediately with the increment already recorded. If all tests fail, reaching the end means every allowed index was examined and none matched. Changing the target to 2 gives one examination; changing it to 47 gives eight. Use Edit and run to predict these counts before making the changes."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now exploit a stronger input promise: the same eight values are already sorted. A binary membership search keeps an interval [low, high), including low and excluding high. Initially it is [0, 8). Choose mid = low + (high - low) / 2 using integer division. A too-small value rules out mid and all earlier candidates; a too-large value rules out mid and all later candidates. An equality answers membership. The trace below counts each chosen element once even if its decision uses more than one value comparison."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Sorted identifiers: [2, 6, 9, 13, 18, 25, 34, 47]\nTarget 25:\n[0,8): mid=4, value=18 -> low=5\n[5,8): mid=6, value=34 -> high=6\n[5,6): mid=5, value=25 -> found (3 examinations)\n\nTarget 20:\n[0,8): mid=4, value=18 -> low=5\n[5,8): mid=6, value=34 -> high=6\n[5,6): mid=5, value=25 -> high=5\n[5,5): empty -> absent (3 examinations)",
+          "caption": "Original worked traces — counted element examinations, not timing measurements"
+        },
+        {
+          "type": "paragraph",
+          "text": "After examining 18, sortedness tells us that every earlier value is also too small for either target. That implication justifies discarding five positions. After examining 34, only index five remains. The two traces share their first two steps but finish for different reasons: an observed equality versus an empty set of possible positions. Without sortedness, a large middle value says nothing reliable about values on its right. Halving an arbitrary array would be a faster way to obtain an unjustified answer."
         },
         {
           "type": "reflection",
-          "prompt": "Trace a search for 55 in the original eight-element sequence. Why does the final interval update use mid+1 after seeing 40?",
-          "explanation": "The algorithm examines 24 at index four, 40 at index six, then 55 at index seven: three examinations. After seeing 40, index six is already known not to match, so low becomes seven. Keeping low at six could fail to shrink a later one-element interval."
+          "prompt": "Trace binary membership search for target 1 in the displayed sequence. How does this compare with the trace for 25?",
+          "explanation": "The examined values are 18 at index 4, 9 at index 2, 6 at index 1, and 2 at index 0. Each is too large, so high becomes 4,2,1,0 in turn. The interval is then empty after four examinations. Target 25 took three. A logarithmic growth claim does not promise that every query on the same-sized sequence takes an identical number of steps."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The scan counter is moved after the equality test and executes only when the value did not match. What does the counter report for target 25, and why is that no longer our metric?",
+          "explanation": "It reports five because the successful sixth examination returns before reaching the increment. The code now counts failed examinations rather than all examinations. Either metric can be defined, but mixing them makes comparisons misleading. Place instrumentation where it records precisely the event named in the analysis."
         }
       ]
     },
     {
       "id": "dsa_count_search_work_part_3",
-      "title": "Account for preparation",
+      "title": "Account for preparation and state the limits",
       "blocks": [
         {
+          "type": "paragraph",
+          "text": "To summarize many inputs, first specify the case. For the scan, among sequences and targets with n elements, an absent target requires n examinations; that is a worst case. For nonempty sequences, a target at the first position needs one; that is a best case. An average requires a stated distribution of inputs and targets. Neither the middle position nor half of the worst case automatically defines an average. The next modules will make these distinctions precise."
+        },
+        {
+          "type": "paragraph",
+          "text": "Repeated interval halving explains why binary search has logarithmic worst-case examinations under this indexed model. A scan has linear worst-case examinations. These are growth descriptions as n increases, not exact counts for every input. Big-O notation expresses an eventual upper bound up to a fixed multiplier; it is not an equality sign for work and it does not itself mean worst case. The growth-bounds lesson will derive the definitions and show how to select the relevant case function."
+        },
+        {
+          "type": "paragraph",
+          "text": "Preparation belongs in the final decision. Consider an explicitly hypothetical workload in common accounting units: preparing a sorted copy costs 60 units, one binary query costs 4, and one scan costs 8. For q independent membership queries on unchanged data, the strategies cost 60 + 4q and 8q. One query costs 64 versus 8. Twenty queries cost 140 versus 160. Preparing once helps in the second scenario but wastes work in the first. These invented coefficients illustrate how to combine costs; they are not measured performance or a bound for a particular sorting routine."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical unchanged-data workload\nq queries       prepare + binary       repeated scans\n1               60 + 4 = 64            8\n15              60 + 60 = 120          120\n20              60 + 80 = 140          160\n\n60 + 4q < 8q\n60 < 4q\nq > 15",
+          "caption": "Original accounting example — preparation included, all costs in the same invented unit"
+        },
+        {
+          "type": "paragraph",
+          "text": "If the collection changes, the sorted representation must be maintained or rebuilt before its ordering can justify a later search. If preserving arrival order matters, sorting the original may violate a requirement, while a copy consumes additional memory. If the collection is linked rather than indexed, reaching a middle position may require many pointer traversals despite few value comparisons. These are reasons to name the representation, mutation pattern, required result, and memory budget alongside the growth bound."
+        },
+        {
           "type": "reflection",
-          "prompt": "Would you sort a list for just one membership query solely to enable binary search?",
-          "explanation": "Not automatically. Sorting has a cost, and one linear scan can be cheaper than preparing a sorted copy and then searching it. Many repeated queries may justify preparation; the decision depends on total workload and other requirements."
+          "prompt": "With the displayed hypothetical costs, do exactly fifteen queries justify claiming that preparation saves work? What is the first integer query count that does?",
+          "explanation": "At fifteen the two totals are equal:120 units. Equality is not a saving. The inequality reduces to q>15, so sixteen is the first integer count with a strict saving:60+64=124 versus 128. A different preparation cost or query distribution would move this crossover; the number is a result of this stated model only."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A benchmark finds that the eight-element scan finishes sooner than a binary search. Does that refute logarithmic search growth? What evidence would you collect next?",
+          "explanation": "No. Small-input timings include constants, branching, call overhead, the implementation, and the measurement method. A growth statement describes a named resource over increasing input sizes under assumptions. Check that both implementations answer the same contract, count the stated events over several sizes and cases, include preparation, and use careful timing only for the actual deployment question. One small benchmark neither proves nor disproves an asymptotic claim."
         },
         {
           "type": "paragraph",
-          "text": "A linked representation may support few element comparisons while still requiring many pointer steps to reach successive middle positions. Input representation is therefore part of an algorithm’s cost. Build a small comparison table for one query and for a thousand queries, counting preparation separately. This exercise turns a slogan about logarithmic search into an explicit workload argument."
-        },
-        {
-          "type": "paragraph",
-          "text": "Use asymptotic notation to describe growth, then use total-work accounting to choose a strategy. Under this indexed model, binary search has logarithmic worst-case examinations for nonempty sequences; linear search has linear worst-case examinations. Neither statement includes preparing or maintaining sorted data. A complete design decision names the workload, representation, accepted inputs, cost model, and the observable result the search must return."
+          "text": "You now have a reusable analysis checklist: define the answer, identify valid inputs, name the representation, choose a resource, trace contrasting cases, and include setup in the workload. You have also seen why counts alone cannot establish correctness. Continue to Prove a loop correct, where the scan becomes a vehicle for explaining why every permitted input is handled, including an empty sequence and repeated values. Later lessons replace informal growth descriptions with bounds and connect both techniques to sorting."
         }
       ]
     }
@@ -129,7 +161,23 @@
       ],
       "url": "https://xlinux.nist.gov/dads/HTML/bigOnotation.html",
       "locator": "Official NIST reference documentation: formal definition, tight versus upper bounds, and computation models; entry modified 2019-09-06; consulted 2026-09-11."
+    },
+    {
+      "id": "dsa_count_search_work_source_clrs",
+      "title": "Introduction to Algorithms",
+      "authors": [
+        "Thomas H. Cormen",
+        "Charles E. Leiserson",
+        "Ronald L. Rivest",
+        "Clifford Stein"
+      ],
+      "publisher": "The MIT Press",
+      "publicationYear": 2022,
+      "edition": "4th edition",
+      "isbn": "9780262367509",
+      "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+      "locator": "§1.1, Algorithms: problem instances and correctness; §2.2, Analyzing algorithms: input size, RAM assumptions, case dependence, and operation costs; §3.1–3.2: growth notation. Relevant passages inspected in the fourth-edition digital book; section locators are used because the consulted PDF has reflowed pagination."
     }
   ],
-  "version": 2
+  "version": 3
 }

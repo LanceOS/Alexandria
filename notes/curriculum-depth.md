@@ -27,6 +27,8 @@ Follow the [curriculum evidence policy](../docs/curriculum-evidence.md). Check l
 
 Provide useful source locators and record which passages were inspected. A bibliography entry, title, abstract, or table of contents is not evidence that an inaccessible passage was read. Label such access limits and distinguish further reading from verified support. Write original explanations; source books and extracted pages stay outside the application.
 
+Attribute established algorithms, theories, and proof methods while writing the teaching exposition independently. Do not copy distinctive source paragraphs, diagrams, code listings, worked examples, exercises, or answer keys into a lesson; changing names or input numbers alone is not independent authorship. Design examples around the lesson's own stated contract and learning objectives. Before publication, compare the draft with the relevant source passages for both direct wording and close restatements of distinctive material. Automated phrase matching can help identify passages to inspect, but it does not replace that review. Record the comparison scope and findings without claiming an exhaustive plagiarism guarantee. See the [Algorithm Analysis comparison review](../docs/reviews/2026-09-11-algorithm-analysis-originality.md) for a concrete application.
+
 Make assumptions, units, input domains, platform constraints, and failure behavior explicit. Label hypothetical timings, simplified models, pseudocode, and illustrative traces. Independently check arithmetic and state transitions. Compile and run executable examples under their stated language baseline and compare expected output; neither a successful example nor a sequential trace proves every possible execution.
 
 ## Review and publication

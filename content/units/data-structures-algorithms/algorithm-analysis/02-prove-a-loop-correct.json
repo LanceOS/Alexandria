@@ -1,0 +1,214 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "dsa_loop_correctness_module",
+  "versionId": "dsa_loop_correctness_v1",
+  "version": 1,
+  "slug": "prove-a-loop-correct",
+  "title": "Prove a loop correct",
+  "summary": "Connect a search contract to a loop invariant, justify every return, and prove that the search finishes.",
+  "position": 1,
+  "objectives": [
+    "Specify a first-match search that handles unsorted input, duplicates, and empty sequences.",
+    "Use a bounds condition and a ruled-out prefix to prove initialization, maintenance, and correct exits.",
+    "Distinguish an invariant from a decreasing integer measure that establishes termination.",
+    "Find a small counterexample to a defective loop and explain what tests establish compared with a proof."
+  ],
+  "parts": [
+    {
+      "id": "dsa_loop_correctness_part_1",
+      "title": "Turn the result into a contract",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Start with the search model",
+          "text": "Read Count the work in a search first. You should recognize a variable, an if statement, a loop, a function result, and zero-based indexing. This lesson develops algorithm reasoning; the C++ listing uses a vector only as an indexed sequence. You do not need sorting, recursion, or a formal logic course."
+        },
+        {
+          "type": "paragraph",
+          "text": "Suppose request identifiers are stored in the order they arrived. An identifier may occur more than once, and we need the earliest matching position without rearranging the requests. Finding some matching value is insufficient: on [12, 5, 9, 5], searching for 5 must return index 1, not index 3. Both positions contain 5, but only one identifies the earliest request. Before considering whether a loop is fast, decide which result it must produce."
+        },
+        {
+          "type": "paragraph",
+          "text": "A contract describes the accepted inputs and the promised outcome. A precondition is something that must hold before the algorithm starts. A postcondition describes what must hold when it returns. Here the input is an existing, finite sequence of integers and an integer target; the sequence remains alive and unchanged during the search. Its values need not be sorted or distinct. Let n be its length. We also promise to leave the sequence unchanged. These assumptions let the proof refer to the same values throughout the call."
+        },
+        {
+          "type": "list",
+          "items": [
+            "If a matching element exists, return its smallest index r. This means 0 <= r < n, the value at r equals the target, and every smaller index holds a different value.",
+            "If there is no match, return n. This is a sentinel: a distinguished result meaning absence. It is a position just beyond the valid element indices, not an element to read.",
+            "For an empty sequence n is zero, so return zero as the absence sentinel. For a nonempty sequence, a result of zero instead identifies a match at the first element. Interpret the result together with the input length."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "A forward search keeps an index i for the next candidate. The prefix [0, i) means all indices from zero up to, but excluding, i. Think of this prefix as the part already examined. A useful loop invariant is a statement that holds whenever execution reaches a chosen point in the loop. We choose the point immediately before testing whether i < n. Our invariant has two clauses: 0 <= i <= n, and no element in [0, i) equals the target. The first clause limits the index; the second records why earlier positions can be ignored."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Original hand trace: [12, 5, 9, 5], target 5\nBefore the first test: i = 0; the examined prefix is empty.\nRead index 0: 12 is not 5; advance i to 1.\nBefore the next test: i = 1; index 0 has been ruled out.\nRead index 1: 5 matches; return 1 immediately.\nIndex 3 also matches, but cannot be the earliest match.",
+          "caption": "Worked case: connect each search state to the first-match contract"
+        },
+        {
+          "type": "paragraph",
+          "text": "At i = 0, the examined prefix contains no indices. Saying that it contains no match does not require inspecting anything: there is no earlier element that could contradict the statement. The invariant does not claim that the target is absent from the entire sequence. That stronger claim would already be false for our example. It describes what we have established so far, with i marking the boundary between known and unexamined positions."
+        },
+        {
+          "type": "reflection",
+          "prompt": "For [12, 5, 9, 5] and target 5, a function returns 3. Another function always returns 0 to mean not found. Explain which part of the contract each design fails, using a concrete input for the second design.",
+          "explanation": "Returning 3 identifies a matching value but violates the requirement to return the smallest matching index, which is 1. A fixed zero sentinel collides with a valid first position: for [5] and target 5, zero must mean a match; for [8] and target 5, the required absence result is the length, 1. Returning n separates absence from every valid index for that particular input."
+        },
+        {
+          "type": "paragraph",
+          "text": "Bounds alone are too weak to prove this contract. A program could keep i between zero and n while skipping the only match. Conversely, the ruled-out-prefix clause alone does not establish that reading the next position is safe. Together, the clauses capture both where the search may act and what it knows about earlier candidates. The invariant is tied to a control-flow point; in other algorithms a helpful statement may need to be restored before the next iteration rather than remain true after every individual assignment."
+        },
+        {
+          "type": "reflection",
+          "prompt": "For [12, 9, 5, 5] and target 5, does the proposed invariant hold at i = 2? Does it hold at i = 3? State the prefix in each case rather than just saying the index is in bounds.",
+          "explanation": "At i = 2, the prefix contains indices 0 and 1, holding 12 and 9, so both bounds and the no-earlier-match claim hold. At i = 3, the prefix also contains index 2, whose value is 5. The index is still in bounds, but the second clause fails. A correct forward search returns at index 2 and never reaches the next loop test with i = 3 for this input."
+        }
+      ]
+    },
+    {
+      "id": "dsa_loop_correctness_part_2",
+      "title": "Justify the loop and every return",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The program below implements the contract directly. std::vector<int> stores the integer sequence. In the parameter const std::vector<int>& values, the ampersand makes values refer to the caller's vector instead of copying it; const prevents changes through that parameter. The caller must still satisfy the earlier assumption that the sequence is not changed elsewhere during the call. std::size_t, declared by <cstddef>, is an unsigned integer type suitable for sizes; here it represents n and the nonnegative indices. The braces in i{0} initialize i to zero. The function's returned number is an index or the length sentinel, not the target value itself."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <cstddef>\n#include <iostream>\n#include <vector>\n\nstd::size_t first_index(const std::vector<int>& values, int target) {\n    const std::size_t n = values.size();\n    std::size_t i{0};\n    while (i < n) {\n        if (values[i] == target) {\n            return i;\n        }\n        ++i;\n    }\n    return n;\n}\n\nint main() {\n    const std::vector<int> requests{12, 5, 9, 5};\n    const std::vector<int> empty{};\n    const std::vector<int> one{5};\n\n    std::cout << \"duplicate: \" << first_index(requests, 5) << '\\n';\n    std::cout << \"absent: \" << first_index(requests, 7) << '\\n';\n    std::cout << \"empty: \" << first_index(empty, 5) << '\\n';\n    std::cout << \"singleton hit: \" << first_index(one, 5) << '\\n';\n    std::cout << \"singleton miss: \" << first_index(one, 9) << '\\n';\n}\n",
+          "caption": "Complete C++20 program with embedded inputs; no interactive input is required"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "duplicate: 1\nabsent: 4\nempty: 0\nsingleton hit: 0\nsingleton miss: 1\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "Initialization asks whether the invariant holds before the first loop test. i is zero, so 0 <= i <= n holds for every accepted length, including zero. The prefix [0, 0) is empty, so it contains no match. Neither argument depends on the particular integer values or their order. This is the starting point of a proof for every accepted input, rather than a description of just the five printed cases."
+        },
+        {
+          "type": "paragraph",
+          "text": "Maintenance asks what happens if the invariant holds and the loop body runs. The guard i < n, together with nonnegativity, establishes that values[i] names an element. There are two branches. If it matches, return i ends the function immediately. The guard gives a valid index, the if condition gives equality, and the invariant excludes a match at every smaller index. These facts establish the complete first-match postcondition at that return. We do not need to force execution to a later loop test to justify it."
+        },
+        {
+          "type": "paragraph",
+          "text": "If the equality test fails, the old prefix has no match and the newly examined element also has no match. Incrementing i therefore extends the ruled-out prefix by exactly that element. The old i was less than n, so the new i is at most n. Both invariant clauses hold again before the next loop test. Merely writing that the loop moves forward would omit the crucial reasoning: the newly excluded element was actually checked."
+        },
+        {
+          "type": "paragraph",
+          "text": "The normal exit is different from the early return. When the while condition is false, i is at least n. The invariant also says i is at most n, so i equals n. The prefix [0, i) now covers the whole sequence, and the no-match clause establishes absence. Returning n satisfies the other branch of the contract. The C++20 draft specifies that while tests its condition before executing the body and that return transfers control back to the caller; those control-flow rules are part of connecting this reasoning to the listing."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Original absence trace: [12, 5, 9, 5], target 7\ni = 0: prefix [] is clear; 12 does not match -> i = 1\ni = 1: prefix [12] is clear; 5 does not match -> i = 2\ni = 2: prefix [12, 5] is clear; 9 does not match -> i = 3\ni = 3: prefix [12, 5, 9] is clear; 5 does not match -> i = 4\ni = 4: i < n is false; the entire sequence is clear -> return 4",
+          "caption": "Worked contrasting case: absence follows from the invariant and the exit condition"
+        },
+        {
+          "type": "paragraph",
+          "text": "In this absence trace there are four equality comparisons but five tests of i < n, including the final false test. Those are different operations, so name the one being counted. For an empty vector, the initial guard is already false: the program reads no element and returns zero. For [5], searching for 5 returns zero from the first body execution; searching for 9 rules out the single element, reaches i = n = 1, and returns one. The empty and singleton cases exercise different exit paths without requiring special-case branches."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Trace first_index on [4, 4] with target 4. Justify the early return using three separate facts: bounds, equality, and the earlier prefix. Is the second 4 relevant to this contract?",
+          "explanation": "Initially i = 0 and n = 2, so the guard establishes a valid index. values[0] equals 4. The prefix before index zero is empty, so no earlier match exists. Together these facts justify returning zero immediately. The second 4 would matter to a last-match or count-all contract, but cannot change which matching index is smallest."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Suppose only the guard is changed from i < n to i <= n. Find the smallest accepted input on which the listing attempts an invalid read, and identify the failed proof step.",
+          "explanation": "An empty vector is already enough: i and n are both zero, so the changed guard allows the body to read values[0] even though no element exists. The step from the guard to a valid element index has failed. A nonempty unsuccessful search eventually has the same problem at index n. Returning n as a sentinel is valid; reading the element at n is not."
+        }
+      ]
+    },
+    {
+      "id": "dsa_loop_correctness_part_3",
+      "title": "Show progress, then challenge the proof",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "So far we have explained why each return produces the required result. We must also establish that execution reaches a return. An invariant records a preserved fact; a loop variant is a measure of remaining work that decreases on every iteration that continues. For this search choose n - i. It is a nonnegative integer at each loop test. Whenever the body runs, it is positive. A match returns immediately; otherwise ++i decreases the measure by exactly one. A nonnegative integer cannot decrease strictly forever, so the search cannot continue indefinitely."
+        },
+        {
+          "type": "paragraph",
+          "text": "The distinction is useful even if the terminology is new. Partial correctness means that, if the algorithm returns, its result meets the contract. Total correctness additionally requires termination on accepted inputs. Our exit arguments establish the result, and the decreasing measure establishes progress. In the actual listing, i increases only when i < n and never beyond n. This also keeps the finite unsigned index arithmetic within the established range; the proof does not assume an unlimited C++ integer or rely on a negative sentinel. The already constructed vector and ordinary integer comparisons are the execution model here, not a promise that allocating an arbitrarily large input will succeed."
+        },
+        {
+          "type": "paragraph",
+          "text": "A terminating loop can still answer incorrectly. Consider the following deliberate defect, expressed with mathematical integers as pseudocode rather than executable C++. It skips two positions after each failed comparison, clamping the result to n so that it cannot overshoot. The bounds clause survives, and n - i still decreases when an iteration continues. What has been lost is the justification for ruling out every newly skipped position."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Defective pseudocode, using mathematical integer arithmetic\ni = 0\nwhile i < n:\n    if A[i] equals target:\n        return i\n    i = min(i + 2, n)\nreturn n",
+          "caption": "Deliberately incorrect first-match search; min chooses the smaller of its two arguments"
+        },
+        {
+          "type": "reflection",
+          "prompt": "Find a smallest-length input on which this skip-two pseudocode violates the first-match contract. Trace the states, then explain why its decreasing measure does not rescue the proof.",
+          "explanation": "Use [8, 3] with target 3. At i = 0 the value 8 fails; the update sets i to min(2, 2) = 2. The guard then fails and the algorithm returns n = 2, although the required answer is index 1. The new prefix includes index 1 without checking it, so maintenance of the no-earlier-match clause fails. The measure decreases from 2 to 0 and correctly shows termination, but says nothing about the skipped value. Length zero returns the right sentinel; at length one the only possible candidate is examined. Thus two is the smallest length that exposes this search defect."
+        },
+        {
+          "type": "paragraph",
+          "text": "The defect can escape plausible tests. On [3, 8] with target 3, it returns zero correctly. On [8, 3] with target 7, it returns two correctly because neither value matches. Passing these cases would not repair the broken maintenance argument. Useful tests deliberately vary the structure of the problem: empty input, a singleton hit and miss, a match at the first and last positions, absence, and duplicates. For each result, check the full contract, including that no smaller matching index exists; checking only that the reported value matches would miss a later-duplicate bug."
+        },
+        {
+          "type": "paragraph",
+          "text": "A failing test supplies a concrete counterexample. A finite selection of passing tests establishes the observed outcomes for those cases, but not the contract for every accepted sequence. The invariant proof covers arbitrary lengths and values under its assumptions. It is still possible to prove a mathematical algorithm and mistranslate it: a wrong guard, an unchecked subscript, or an unexpected change to the input can break the connection. Review that connection and execute boundary tests as complementary checks. This lesson presents a reasoned correctness argument, not a claim that a compiler or proof assistant has formally verified the implementation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Change the contract to return the last matching index, or n if absent. Propose the extra state and a prefix invariant. Work through [6, 2, 6] with target 6 and explain why the original early return must change.",
+          "explanation": "Keep a candidate initialized to n and examine every position. Before each loop test, require 0 <= i <= n and that candidate is the greatest matching index in [0, i), or n if that prefix contains no match. When the current value matches, replace candidate with i; otherwise retain it, then advance i by one. For [6, 2, 6], the candidate after each examined element is 0, 0, then 2. At i = n the invariant describes the whole sequence, so return candidate. Returning at the first match would incorrectly return 0. The same decreasing measure n - i proves termination; the information preserved by the invariant changes with the contract."
+        },
+        {
+          "type": "paragraph",
+          "text": "To review a loop, write the accepted inputs and exact result first. Choose the point where the invariant must hold, establish it initially, and check every path that continues or returns. Use the guard and invariant together to justify reads and final results, then give a bounded decreasing measure for termination. In later modules, binary search will exclude a larger interval using sortedness, and insertion sort will preserve a sorted prefix. The preserved statement will change, but it must always explain why the algorithm's next action and eventual answer are justified."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dsa_loop_correctness_source_clrs4",
+      "title": "Introduction to Algorithms",
+      "authors": ["Thomas H. Cormen", "Charles E. Leiserson", "Ronald L. Rivest", "Clifford Stein"],
+      "publisher": "The MIT Press",
+      "publicationYear": 2022,
+      "edition": "4th edition (eBook)",
+      "isbn": "9780262367509",
+      "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+      "locator": "Inspected textbook sections 1.1 (problem specifications and correctness, including termination) and 2.1 (loop invariants, initialization, maintenance, and termination). Original first-match examples, traces, and practice in this lesson apply that reasoning framework; they are not copied textbook exercises."
+    },
+    {
+      "id": "dsa_loop_correctness_source_cpp20_control",
+      "title": "C++20 working draft N4861: iteration and jump statements",
+      "authors": ["ISO/IEC JTC1/SC22/WG21"],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/stmt.while",
+      "locator": "Inspected working-draft clauses [stmt.while]/1 and [stmt.return]/1-2: test-before-body while behavior and returning a value to the caller. N4861 is a C++20 working draft, not the published ISO standard."
+    },
+    {
+      "id": "dsa_loop_correctness_source_cpp20_sizes",
+      "title": "C++20 working draft N4861: sizes, alignments, and offsets",
+      "authors": ["ISO/IEC JTC1/SC22/WG21"],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/support.types.layout",
+      "locator": "Inspected [support.types.layout]/3: size_t is an implementation-defined unsigned integer type able to represent object sizes. The lesson's guarded increments and sentinel choice are original deductions for the stated search."
+    },
+    {
+      "id": "dsa_loop_correctness_source_cpp20_sequences",
+      "title": "C++20 working draft N4861: sequence container requirements",
+      "authors": ["ISO/IEC JTC1/SC22/WG21"],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/sequence.reqmts",
+      "locator": "Inspected [sequence.reqmts], especially Table 78's indexed access semantics, together with [vector.overview] and [dcl.ref] for the vector and reference interface used by the executable example. Indexed access requires an actual element; the length sentinel is not an element to read. Working-draft language/library evidence."
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "dsa_growth_bounds_module",
+  "versionId": "dsa_growth_bounds_v1",
+  "version": 1,
+  "slug": "describe-growth-with-bounds",
+  "title": "Describe growth with bounds",
+  "summary": "Build upper, lower, and tight bounds from explicit count functions, then distinguish growth from cases and timing.",
+  "position": 2,
+  "objectives": [
+    "Choose a best-case, worst-case, or explicitly distributed average count function before bounding it.",
+    "Prove simple O, Ω, and Θ claims using constants and a threshold independent of input size.",
+    "Derive linear, triangular, and halving counts from loop behavior.",
+    "Explain the limits of growth-rate comparisons, including fixed costs and multiple input dimensions."
+  ],
+  "parts": [
+    {
+      "id": "dsa_growth_bounds_part_1",
+      "title": "Choose the function, then build a bound",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and scope",
+          "text": "Build on the counted-search and loop-correctness lessons. You need inequalities, integer division, and multiplication; sums and logarithms are explained below. We count nonnegative work as a function of integer input size. The formal statements concern sufficiently large n, while empty and tiny inputs still require correct code. This lesson analyzes growth; it does not teach benchmarking or prove a lower bound for every conceivable algorithm."
+        },
+        {
+          "type": "paragraph",
+          "text": "An algorithm can do different amounts of work on different inputs of the same size. Write C(x) for its cost on a particular valid input x. The worst-case function W(n) is the maximum C(x) among valid inputs of size n; the best-case function B(n) is the minimum. These are two different functions. For a membership scan with n>0, counting equality examinations gives B(n)=1 and W(n)=n. Once you choose a function, O, Ω, and Θ can all describe bounds on that same function."
+        },
+        {
+          "type": "paragraph",
+          "text": "An expected count needs probabilities. If exactly one matching element occupies each of the n positions with equal probability, the scan costs 1,2,...,n with probability 1/n each. Its expectation is (1+2+...+n)/n=(n+1)/2. This model assumes success, a unique match, and a uniform position. It is not an average over all possible membership queries. If absence has probability p and the successful cases retain that uniform model, the expectation becomes p*n+(1-p)*(n+1)/2. Query patterns with frequent first-element hits give another expectation."
+        },
+        {
+          "type": "paragraph",
+          "text": "To say f(n) is O(g(n)), choose a positive multiplier c and a threshold n0 such that 0<=f(n)<=c*g(n) for every n>=n0. Both c and n0 are fixed numbers for the claim; neither may increase with n. Think of c*g(n) as a ceiling that eventually covers the count curve. The threshold permits small exceptions, and the multiplier permits fixed overhead. The usual notation f(n)=O(g(n)) means membership in a class of upper-bounded functions, not that f and g are equal."
+        },
+        {
+          "type": "paragraph",
+          "text": "For an original example, suppose a model gives f(n)=3n+7. For n>=1, 7<=7n, so 3n+7<=10n. The choices c=10 and n0=1 prove f(n) is O(n). They need not be the smallest possible choices. For n>=7, c=4 also works because 7<=n. Finding one valid fixed ceiling is enough to prove an upper bound. Observing that the inequality holds at three selected input sizes is not enough: the statement covers every size past the threshold."
+        },
+        {
+          "type": "paragraph",
+          "text": "An Ω(g(n)) claim supplies an eventual floor: 0<=c*g(n)<=f(n) for fixed positive c and all n beyond a threshold. Here 3n<=3n+7 for n>=1, so f is Ω(n). A Θ(g(n)) claim supplies both a floor and a ceiling, possibly with different constants. Combining the two inequalities gives 3n<=3n+7<=10n for n>=1 and proves Θ(n). We call this a tight growth bound because the count is trapped between constant multiples of the same comparison function."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A teammate says the scan has O(n) worst-case examinations and Ω(1) best-case examinations. Can you give a tight bound for each function? Does Ω mean best case?",
+          "explanation": "For nonempty sequences, W(n)=n is Θ(n) and B(n)=1 is Θ(1). Ω does not select a case; it names a lower bound on whatever function was chosen. W(n) is also Ω(n), while B(n) is also O(1). State the function and the type of bound separately so the claim cannot confuse input selection with the direction of an inequality."
+        },
+        {
+          "type": "reflection",
+          "prompt": "For f(n)=5n+9, supply constants proving Θ(n) for n>=1. Why is choosing c=n not an acceptable proof of O(n)?",
+          "explanation": "Use 5n<=5n+9<=14n for n>=1: the lower multiplier is 5, the upper is 14, and n0=1. A multiplier c=n would change with the input and turn the supposed linear ceiling into n². The definition requires one fixed multiplier that works for all sufficiently large sizes."
+        }
+      ]
+    },
+    {
+      "id": "dsa_growth_bounds_part_2",
+      "title": "Derive counts from loops rather than their appearance",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "One loop that executes its counted body once for each index 0 through n-1 contributes exactly n events. Two sequential loops with n bodies each contribute 2n events and still have Θ(n) growth. Two nested loops do not automatically contribute n² events: you must inspect the bounds. If the inner loop at outer index i runs j=0,...,i-1, its count is i, so the total is 0+1+...+(n-1). This is a triangular rather than a full rectangular grid of index pairs."
+        },
+        {
+          "type": "paragraph",
+          "text": "Derive that sum instead of memorizing it. Write the same list forward and backward. Each aligned pair adds to n-1, and there are n pairs. The doubled sum is n(n-1), giving n(n-1)/2 counted events. For n=4, the row counts are 0,1,2,3 and total 6; for n=8, they total 28. For n>=2, n/2<=n-1<=n, so n²/4<=n(n-1)/2<=n²/2. Those fixed inequalities prove Θ(n²). The exact zero count at n=0 or 1 does not invalidate the asymptotic statement."
+        },
+        {
+          "type": "paragraph",
+          "text": "Repeated halving produces a different shape. Starting at n=16 and applying integer division by 2 gives 16,8,4,2,1,0. There are five positive values to process. The binary logarithm log2(n) answers which exponent on 2 produces n: log2(16)=4. The notation floor(x) means the greatest integer no larger than x; floor(3.7)=3. For positive integer n, let k=floor(log2(n)), so 2^k<=n<2^(k+1). After k rounded-down halvings the remaining value is 1; one more makes it 0. The loop therefore processes k+1 positive values, giving exactly floor(log2(n))+1 iterations. For n>=2, log2(n)<=k+1<=2log2(n), which proves Θ(log n). The loop runs zero times when n=0; log2(0) is undefined, so the exact formula needs its positive-input condition."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <cstddef>\n#include <initializer_list>\n#include <iostream>\n\nint main() {\n    for (std::size_t n : {1U, 4U, 8U, 16U}) {\n        std::size_t linear = 0;\n        for (std::size_t i = 0; i < n; ++i) {\n            ++linear;\n        }\n        std::size_t pairs = 0;\n        for (std::size_t i = 0; i < n; ++i) {\n            for (std::size_t j = 0; j < i; ++j) {\n                ++pairs;\n            }\n        }\n        std::size_t halves = 0;\n        for (std::size_t remaining = n; remaining > 0; remaining /= 2) {\n            ++halves;\n        }\n        std::cout << n << \": linear=\" << linear\n                  << \", pairs=\" << pairs\n                  << \", halving=\" << halves << '\\n';\n    }\n}\n",
+          "caption": "C++20 — count selected loop-body events for small fixed sizes; these are not timing measurements"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "1: linear=1, pairs=0, halving=1\n4: linear=4, pairs=6, halving=3\n8: linear=8, pairs=28, halving=4\n16: linear=16, pairs=120, halving=5\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The U suffix in 1U marks an unsigned integer literal; the range-for converts each listed value to std::size_t. The update remaining /= 2 is shorthand for remaining = remaining / 2; for these nonnegative integers, division discards the fractional part. Each counter measures only the event next to its increment. The pairs counter excludes outer-loop checks and increments; the halving counter excludes output and initialization. Those omitted operations are relevant to total cost, but their inclusion under a fixed-cost instruction model does not change these large-n growth classes. The example deliberately uses small inputs whose counters fit in std::size_t. A production counter must account for overflow; a mathematical count has no automatic machine-sized storage guarantee."
+        },
+        {
+          "type": "paragraph",
+          "text": "Doubling n roughly doubles a linear count and roughly quadruples a triangular count for large n. The exact triangular ratio is not four at small sizes: 28/6 is about 4.67 between 4 and 8. Doubling a power of two adds one halving step. Changing the logarithm base between two fixed numbers greater than 1 multiplies its value by a fixed constant, because log_b(n)=log_2(n)/log_2(b). That is why Θ(log n) can suppress the base even though an exact count cannot."
+        },
+        {
+          "type": "reflection",
+          "prompt": "An outer loop performs n iterations, but its inner loop performs exactly three iterations each time. Another pair of loops visits every pair with j<i. Give both counts and explain why counting loop nesting alone fails.",
+          "explanation": "The first contributes 3n counted inner-body events and has Θ(n) growth. The second contributes n(n-1)/2 and has Θ(n²) growth. The bounds determine how many events occur, not the number of indentation levels. To analyze a new loop, write its per-iteration count and add those counts before simplifying."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Predict the halving counter for n=10 and for n=0. A proposed revision uses remaining=(remaining+1)/2. What happens at remaining=1?",
+          "explanation": "For 10 the positive states are 10,5,2,1, so the count is 4. For 0 the loop never enters. Rounding upward makes 1 become 1 again, so the revised loop may never terminate. A small rounding change can invalidate the decreasing-variant argument before any claimed logarithmic bound is meaningful."
+        }
+      ]
+    },
+    {
+      "id": "dsa_growth_bounds_part_3",
+      "title": "Use precise growth claims in real decisions",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "An upper bound may be correct and uninformative. The linear function 3n+7 is also O(n²), since its established upper ceiling 10n is at most 10n² for n>=1. That does not make it quadratic. In contrast, n² is not O(n): for any proposed fixed c, choose an integer n larger than both c and the claimed threshold. Then n²>cn, so the required linear ceiling fails. This is how a counterargument deals with every possible constant rather than checking a large but finite table."
+        },
+        {
+          "type": "paragraph",
+          "text": "A tight worst-case bound also does not describe every execution. A scan with W(n)=n has Θ(n) worst-case examinations but can finish after one examination. In the insertion-sort lesson, reverse order will establish quadratic worst-case work while already ordered input takes linear total work. Saying that an algorithm is Ω(n²) needs a clear function: a lower bound on its worst case is not a statement that every input requires that much work, nor a proof that every other algorithm for the problem must do so."
+        },
+        {
+          "type": "paragraph",
+          "text": "Fixed costs can matter at the sizes you actually use. In an invented common-unit model, method A costs 40n and method B costs n². At n=10 their costs are 400 and 100, so B costs less. At n=100 they are 4000 and 10000, so A costs less. Equality occurs at positive n=40; dividing 40n<n² by positive n shows A wins when n>40. The lower-growth method eventually wins in this model, but its growth class alone did not identify the practical crossover."
+        },
+        {
+          "type": "paragraph",
+          "text": "More than one independent input size may matter. Suppose n and m are positive. If a procedure scans each of n records once and then each of m queries once, its work is Θ(n+m) under constant-cost processing. If it scans all n records for each query, its work is Θ(nm). Calling both Θ(n²) without relating m to n hides the actual workload. When m=1, the repeated-scan procedure is linear in n; when m=n, it is quadratic. State a relationship only when the problem supplies it. If empty inputs are allowed, retain the outer query-loop and constant overhead: the repeated-scan procedure has Θ(1+m+nm) full work, even though it performs zero record examinations when n=0."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A report says that an O(n²) method must be slower than an O(n log n) method for every input. Identify two independent reasons this does not follow.",
+          "explanation": "First, O is only an upper bound: the method described as O(n²) might actually have a tight Θ(n) bound. Second, even when the intended tight bounds are quadratic and n log n, constants and input cases can make the higher-growth method faster at a particular finite size. Compare the same resource, case, and contract, then evaluate the actual size range and setup work."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Membership queries miss with probability 1/4; otherwise the only match is uniformly distributed among six positions. Compute the expected scan examinations under that model. Why may a measured workload disagree?",
+          "explanation": "A miss costs 6. A successful uniform query averages (1+2+3+4+5+6)/6=3.5. The expectation is (1/4)*6+(3/4)*3.5=4.125 examinations. The fractional value is an average, not a possible count for one run. A workload with repeated hot keys, multiple matches, or a different miss rate has different probabilities, so this calculation need not describe it."
+        },
+        {
+          "type": "paragraph",
+          "text": "A useful analysis ends with a complete sentence: name the valid input, size variables, counted resource, representation, case function, and bound. Keep exact small counts beside the asymptotic result when they reveal boundary behavior. Prove a bound with reasoning that covers all sufficiently large sizes, and use measurements only for the performance question actually being asked. Next, binary search combines a decreasing interval with a logarithmic count; insertion and merge sort will connect the triangular and halving patterns to full algorithms."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dsa_growth_bounds_source_clrs",
+      "title": "Introduction to Algorithms",
+      "authors": [
+        "Thomas H. Cormen",
+        "Charles E. Leiserson",
+        "Ronald L. Rivest",
+        "Clifford Stein"
+      ],
+      "publisher": "The MIT Press",
+      "publicationYear": 2022,
+      "edition": "4th edition",
+      "isbn": "9780262367509",
+      "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+      "locator": "§2.2: cost models and best/worst/average cases; §3.1–3.2: upper, lower, tight bounds and their interpretation; §3.3, Logarithms: domain and change of base; Appendix A.1: arithmetic sums. Relevant passages inspected in the fourth-edition digital book; section locators are used because the consulted PDF has reflowed pagination."
+    },
+    {
+      "id": "dsa_growth_bounds_source_nist",
+      "title": "Dictionary of Algorithms and Data Structures: big-O notation",
+      "authors": [
+        "Paul E. Black"
+      ],
+      "url": "https://xlinux.nist.gov/dads/HTML/bigOnotation.html",
+      "locator": "Official reference: fixed constants and an eventual threshold in the upper-bound definition, loose versus tight bounds, and the dependence on a computation model; inspected 2026-09-11."
+    },
+    {
+      "id": "dsa_growth_bounds_source_cpp20_range",
+      "title": "C++20 working draft N4861: range-based for statements",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/stmt.ranged",
+      "locator": "[stmt.ranged] and [support.initlist]: range-for expansion and the initializer_list header used explicitly by the braced-input counter example. Inspected 2026-09-11; N4861 is a working draft, not the published ISO standard."
+    }
+  ]
+}
