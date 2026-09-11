@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "game_development_scene_composition_module",
-  "versionId": "game_development_scene_composition_version_1",
+  "versionId": "game_development_scene_composition_version_1_r2",
   "slug": "instance-state",
   "title": "Compose reusable entities without sharing their state",
   "summary": "Reason about scene instances, paths and lifecycle boundaries.",
@@ -39,11 +39,11 @@
           "type": "code",
           "language": "text",
           "caption": "Original worked trace; finite assumptions, not executable platform code",
-          "code": "Definition Target: root + Visual + HealthLabel\nInstantiate A -> health 10, shared immutable mesh M\nInstantiate B -> health 10, shared immutable mesh M\nA.apply_damage(3) -> A health 7; B health 10\nRename A presentation child HealthLabel to StatusText\nExternal call A.apply_damage(2) -> A health 5; B health 10"
+          "code": "Definition Target: root + Visual + HealthLabel\nInstantiate A -> health 10, shared immutable mesh M\nInstantiate B -> health 10, shared immutable mesh M\nA.apply_damage(3) -> A health 7; B health 10\nRename A presentation child HealthLabel to StatusText\nUpdate any internal node-path lookup to StatusText; callers keep using apply_damage\nExternal call A.apply_damage(2) -> A health 5; B health 10"
         },
         {
           "type": "paragraph",
-          "text": "The second damage call survives the presentation rename because the caller depends on the root behavior. An external path ending in HealthLabel would have become stale. Sharing an immutable asset is different from sharing the mutable health field. A common template does not imply common instance state. Conversely, deliberately shared resource objects must be treated according to their own mutability and lifetime rules, rather than assumed private because two scene instances exist."
+          "text": "The external call remains unchanged because the caller depends on the root behavior. The scene implementation must still update any internal node-path lookup affected by the rename, or use a retained reference that remains valid. An external path ending in HealthLabel would have become stale. Sharing an immutable asset is different from sharing the mutable health field. A common template does not imply common instance state. Conversely, deliberately shared resource objects must be treated according to their own mutability and lifetime rules, rather than assumed private because two scene instances exist."
         }
       ]
     },
@@ -73,5 +73,6 @@
       "url": "https://docs.godotengine.org/en/stable/tutorials/scripting/nodes_and_scene_instances.html",
       "locator": "Primary documentation: Getting nodes, Node paths, Creating nodes and Instancing scenes; tree composition and deferred deletion; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

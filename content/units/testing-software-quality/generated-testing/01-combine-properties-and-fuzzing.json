@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "quality_combine_properties_and_fuzzing_module",
-  "versionId": "quality_combine_properties_and_fuzzing_v1",
+  "versionId": "quality_combine_properties_and_fuzzing_v2",
   "slug": "combine-properties-and-fuzzing",
   "title": "Combine properties with fuzzing",
   "summary": "Use an encoder and decoder to distinguish semantic checks from crash detection.",
@@ -85,6 +85,16 @@
       ],
       "url": "https://google.github.io/googletest/primer.html",
       "locator": "Official project documentation: assertions, independent and repeatable tests, and fixtures; consulted 2026-09-11. No claim that framework use establishes correctness."
+    },
+    {
+      "id": "quality_combine_properties_and_fuzzing_source_quickcheck",
+      "title": "QuickCheck 2.16.0.0: Test.QuickCheck.Arbitrary",
+      "authors": [
+        "QuickCheck contributors"
+      ],
+      "url": "https://hackage-content.haskell.org/package/QuickCheck-2.16.0.0/docs/Test-QuickCheck-Arbitrary.html",
+      "locator": "Official versioned API documentation: Arbitrary, arbitrary, shrink, generator quality and invariant-preserving shrinking; consulted 2026-09-11. A Haskell implementation illustrates the general testing method, not a C++ API."
     }
-  ]
+  ],
+  "version": 2
 }

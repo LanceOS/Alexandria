@@ -10,7 +10,7 @@ Keep each foundational explanation in one home, then apply it elsewhere. For exa
 
 Start with C++ Basics or Programming Foundations according to prior experience. The C++ core subunits follow Basics; advanced C++ follows templates, ownership, and program organization. Supporting subjects and application tracks state their prerequisites in their introductory callouts. These are reading recommendations rather than enforced enrollment prerequisites.
 
-The seven existing Basics modules and all their IDs remain unchanged. C++ now has 18 child subunits, including Basics, and 41 modules. Each other topic mirrors that root/subunit/module hierarchy with two focused subunits and an initial module in each.
+The seven existing Basics modules retain their stable module and part IDs. Reviewed corrections receive new release IDs. C++ now has 18 child subunits, including Basics, and 41 modules. Each other topic mirrors that root/subunit/module hierarchy with two focused subunits and an initial module in each.
 
 ## C++ core and advanced subunits
 

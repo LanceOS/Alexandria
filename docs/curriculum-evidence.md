@@ -2,7 +2,7 @@
 
 All subjects use the existing C++ layout: a topic and root unit, child subunits, modules with objectives and exactly three lesson parts, worked examples, explained reflections, and public sources. The same client components render every subject. The curriculum map distinguishes C++ language mechanisms, broader computing principles, and domain applications.
 
-The [follow-up audit of commit 99a387f](reviews/2026-09-11-curriculum-audit.md) covers all 89 modules and records outstanding corrections, source additions and verification limits. Read it alongside the initial ledgers below: it identifies mistaken Parnas inspection provenance and other citation issues. The proposed lesson corrections have not yet been published.
+The [follow-up audit of commit 99a387f](reviews/2026-09-11-curriculum-audit.md) covers all 89 modules and records outstanding corrections, source additions and verification limits. Read it alongside the initial ledgers below: it identifies mistaken Parnas inspection provenance and other citation issues. The [correction release](reviews/2026-09-11-curriculum-corrections.md) records the applied findings and validation. Historical audit files retain their original observations; the current ledgers describe the corrected references.
 
 ## Match a claim to the right evidence
 
@@ -35,7 +35,7 @@ The current evidence ledgers are:
 - Independently check mathematical traces, boundary cases, units, and assumptions. Mark pseudocode and hypothetical examples as such. A sequential trace is not evidence of every concurrent schedule.
 - Review lifetime, ownership, bounds, failure paths, and standard-version claims against the cited material. A passing example does not prove behavior outside its stated inputs.
 - Check the learning path, objectives, three sections, reflection reveal, next-module navigation, and source links in the shared reader. Check both themes and narrow layouts when changing presentation code.
-- Import only after review. Existing published definitions are immutable in this importer. Keep stable identities and add new lessons; use a future explicit version-publication workflow for revisions to released lesson content.
+- Import only after review. Existing published definitions are immutable in this importer. Keep stable module and part identities; publish revisions with the next `version` and a new `versionId` through the documented [import workflow](../content/README.md#import-and-publication). Preserve source IDs only when their bibliographic metadata is unchanged.
 
 Do not describe the initial set of lessons as exhaustive coverage of every nuance in a subject. The units establish a coherent home for deeper modules; additions should extend that structure without duplicating the same foundational lesson across subjects.
 
@@ -49,3 +49,7 @@ Do not describe the initial set of lessons as exhaustive coverage of every nuanc
 - Browser review confirmed the expanded C++ hierarchy and a new Systems programming topic through the shared overview and reader. Objectives, section navigation, worked-example layout, reflection reveal, and source links rendered correctly. The development server was restarted successfully after import.
 
 These checks establish structural, execution, import, and sampled presentation results. The linked ledgers separately document the factual review and its boundaries.
+
+## Correction release — 2026-09-11
+
+The [applied-findings report](reviews/2026-09-11-curriculum-corrections.md) records 36 published lesson revisions, 13 added references, and the remaining evidence limits. All 113 tests, the production build, and all 46 C++ examples passed. The local import preserved all 1,321 existing database rows; all 89 current lesson definitions match the authored files, and the reader API serves all 36 corrected versions with matching references.

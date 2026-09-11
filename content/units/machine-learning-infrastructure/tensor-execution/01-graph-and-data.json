@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "machine_learning_infrastructure_tensor_execution_module",
-  "versionId": "machine_learning_infrastructure_tensor_execution_version_1",
+  "versionId": "machine_learning_infrastructure_tensor_execution_version_1_r2",
   "slug": "graph-and-data",
   "title": "Map a tensor computation onto an execution graph",
   "summary": "Separate mathematical operators from devices, storage and execution dependencies.",
@@ -57,15 +57,15 @@
         },
         {
           "type": "reflection",
-          "prompt": "If two graph nodes have no dependency edge between them, must running them in parallel make the program faster?",
-          "explanation": "No. Independence makes parallel scheduling possible, not automatically beneficial. They may compete for the same device, memory bandwidth or limited working space, and scheduling adds overhead. Correct dependencies establish allowed execution orders; measurements under the actual workload establish performance."
+          "prompt": "If two graph operations are independent, with no direct or indirect data or control dependency between them and no conflicting shared-state access, must running them in parallel make the program faster?",
+          "explanation": "No. Independent operations may be eligible for parallel execution, but that does not guarantee a speedup. An absent direct edge alone does not establish independence: MatVec and ReLU here are connected indirectly through Add. Independent operations may still compete for the same device, memory bandwidth or working space, and scheduling adds overhead. Check dependencies and shared-state access first, then measure performance under the actual workload."
         }
       ]
     }
   ],
   "sources": [
     {
-      "id": "machine_learning_infrastructure_tensor_execution_source_tensorflow",
+      "id": "machine_learning_infrastructure_tensor_execution_source_tensorflow_r2",
       "title": "TensorFlow: A System for Large-Scale Machine Learning",
       "authors": [
         "Martín Abadi",
@@ -92,8 +92,10 @@
         "Xiaoqiang Zheng"
       ],
       "url": "https://www.usenix.org/system/files/conference/osdi16/osdi16-abadi.pdf",
-      "locator": "Peer-reviewed research: OSDI 2016, sections 2.2 and 3.1; graph operations, tensors, state and heterogeneous execution; consulted 2026-09-11",
-      "publicationYear": 2016
+      "locator": "Peer-reviewed research: OSDI 2016, pp. 265–283, sections 2.2 and 3.1; graph operations, tensors, state and heterogeneous execution; consulted 2026-09-11",
+      "publicationYear": 2016,
+      "publisher": "USENIX Association"
     }
-  ]
+  ],
+  "version": 2
 }

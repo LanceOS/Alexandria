@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership",
-  "versionId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_v1",
+  "versionId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_v2",
   "slug": "raii-and-unique-ownership",
   "title": "RAII and exclusive ownership",
   "summary": "Let object destruction release resources and move ownership when responsibility changes.",
@@ -107,14 +107,15 @@
       "locator": "N4861, [forward]; consulted 2026-09-11. std::move and std::forward are casts with specified reference results."
     },
     {
-      "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_source_guidelines",
-      "title": "C++ Core Guidelines: R.1",
+      "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_source_guidelines_r2",
+      "title": "C++ Core Guidelines: R.1, R.21, and R.24",
       "authors": [
         "Bjarne Stroustrup",
         "Herb Sutter"
       ],
       "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-raii",
-      "locator": "R.1; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII or the Rule of Zero, distinct from normative C++ language requirements."
+      "locator": "R.1, R.21, and R.24; edited by Bjarne Stroustrup and Herb Sutter; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII, preferring exclusive ownership when sharing is unnecessary, and breaking shared-ownership cycles with weak_ptr; not normative language requirements."
     }
-  ]
+  ],
+  "version": 2
 }

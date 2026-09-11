@@ -1,0 +1,502 @@
+{
+  "baselineCommit": "f8f8009",
+  "date": "2026-09-11",
+  "scope": "Applied findings from the full curriculum audit; original audit artifacts remain historical.",
+  "releases": [
+    {
+      "file": "content/units/build-release-engineering/build-graphs/01-model-a-build-as-a-graph.json",
+      "moduleId": "build_model_a_build_as_a_graph_module",
+      "previousVersionId": "build_model_a_build_as_a_graph_v1",
+      "versionId": "build_model_a_build_as_a_graph_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "c4d864471f8f50db2a5c6f7427d6454e6ce61bf9da6aa7e7539ea3c3e9284a30"
+    },
+    {
+      "file": "content/units/build-release-engineering/release-reproducibility/01-define-a-reproducible-artifact.json",
+      "moduleId": "build_define_a_reproducible_artifact_module",
+      "previousVersionId": "build_define_a_reproducible_artifact_v1",
+      "versionId": "build_define_a_reproducible_artifact_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "1126b7b6fed923d90f0ed21eafd4bda24e4db49a45a48fc523f7ea26eb4754a8"
+    },
+    {
+      "file": "content/units/computer-architecture-operating-systems/memory-hierarchy/01-trace-cache-locality.json",
+      "moduleId": "archos_trace_cache_locality_module",
+      "previousVersionId": "archos_trace_cache_locality_v1",
+      "versionId": "archos_trace_cache_locality_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "55181123fa4bd9583d7777105a6d7b3fc69fe2a244a1d391eb2ec5f6714f662e"
+    },
+    {
+      "file": "content/units/computer-architecture-operating-systems/process-memory/01-separate-addresses-from-storage.json",
+      "moduleId": "archos_separate_addresses_from_storage_module",
+      "previousVersionId": "archos_separate_addresses_from_storage_v1",
+      "versionId": "archos_separate_addresses_from_storage_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 2,
+      "sha256": "c621b7982b2fd235d618f979e5d14caefa7455eba108f3205f3bae07129205a2"
+    },
+    {
+      "file": "content/units/concurrency-parallel-computing/parallel-work/01-estimate-a-parallel-speedup-limit.json",
+      "moduleId": "parallel_estimate_a_parallel_speedup_limit_module",
+      "previousVersionId": "parallel_estimate_a_parallel_speedup_limit_v1",
+      "versionId": "parallel_estimate_a_parallel_speedup_limit_v2",
+      "version": 2,
+      "replacedBibliographies": [
+        {
+          "previousId": "parallel_estimate_a_parallel_speedup_limit_source_llnl",
+          "id": "parallel_estimate_a_parallel_speedup_limit_source_llnl_r2"
+        }
+      ],
+      "addedReferences": 0,
+      "sha256": "91297aecccb40a92d91112bef3fd63187026c01dbb3424ecab0884ac534cf49e"
+    },
+    {
+      "file": "content/units/cpp/basics/01-first-program.json",
+      "moduleId": "cpp_starter_module_first_program",
+      "previousVersionId": "cpp_starter_version_1",
+      "versionId": "cpp_starter_version_1_r2",
+      "version": 2,
+      "replacedBibliographies": [
+        {
+          "previousId": "cpp_starter_source_main",
+          "id": "cpp_starter_source_main_r2"
+        },
+        {
+          "previousId": "cpp_starter_source_streams",
+          "id": "cpp_starter_source_streams_r2"
+        },
+        {
+          "previousId": "cpp_starter_source_strings",
+          "id": "cpp_starter_source_strings_r2"
+        },
+        {
+          "previousId": "cpp_starter_source_escapes",
+          "id": "cpp_starter_source_escapes_r2"
+        },
+        {
+          "previousId": "cpp_starter_source_includes",
+          "id": "cpp_starter_source_includes_r2"
+        }
+      ],
+      "addedReferences": 0,
+      "sha256": "7dc56b882d1eacf25edce9d21eac2177fd8ebf6fba685eab9f572e6962f79992"
+    },
+    {
+      "file": "content/units/cpp/basics/02-variables.json",
+      "moduleId": "cpp_basics_module_variables",
+      "previousVersionId": "cpp_basics_variables_v1",
+      "versionId": "cpp_basics_variables_v2",
+      "version": 2,
+      "replacedBibliographies": [
+        {
+          "previousId": "cpp_basics_variables_source_initialization",
+          "id": "cpp_basics_variables_source_initialization_r2"
+        },
+        {
+          "previousId": "cpp_basics_variables_source_types",
+          "id": "cpp_basics_variables_source_types_r2"
+        },
+        {
+          "previousId": "cpp_basics_variables_source_auto",
+          "id": "cpp_basics_variables_source_auto_r2"
+        },
+        {
+          "previousId": "cpp_basics_variables_source_const",
+          "id": "cpp_basics_variables_source_const_r2"
+        },
+        {
+          "previousId": "cpp_basics_variables_source_bool_output",
+          "id": "cpp_basics_variables_source_bool_output_r2"
+        }
+      ],
+      "addedReferences": 0,
+      "sha256": "5e965d1d9c439691d84e6ba3d3bca36d25ae75ba40f6aedba2a66d472970bdea"
+    },
+    {
+      "file": "content/units/cpp/basics/03-expressions.json",
+      "moduleId": "cpp_basics_module_expressions",
+      "previousVersionId": "cpp_basics_expressions_v1",
+      "versionId": "cpp_basics_expressions_v2",
+      "version": 2,
+      "replacedBibliographies": [
+        {
+          "previousId": "cpp_basics_expressions_source_division",
+          "id": "cpp_basics_expressions_source_division_r2"
+        },
+        {
+          "previousId": "cpp_basics_expressions_source_addition",
+          "id": "cpp_basics_expressions_source_addition_r2"
+        },
+        {
+          "previousId": "cpp_basics_expressions_source_conversions",
+          "id": "cpp_basics_expressions_source_conversions_r2"
+        },
+        {
+          "previousId": "cpp_basics_expressions_source_limits",
+          "id": "cpp_basics_expressions_source_limits_r2"
+        },
+        {
+          "previousId": "cpp_basics_expressions_source_assignment",
+          "id": "cpp_basics_expressions_source_assignment_r2"
+        }
+      ],
+      "addedReferences": 0,
+      "sha256": "df4b1088b4e2ee55bbe19986ea7183e6541b971162c2bde54ddfead88ae7d572"
+    },
+    {
+      "file": "content/units/cpp/basics/04-decisions.json",
+      "moduleId": "cpp_basics_module_decisions",
+      "previousVersionId": "cpp_basics_decisions_v1",
+      "versionId": "cpp_basics_decisions_v2",
+      "version": 2,
+      "replacedBibliographies": [
+        {
+          "previousId": "cpp_basics_decisions_source_if",
+          "id": "cpp_basics_decisions_source_if_r2"
+        },
+        {
+          "previousId": "cpp_basics_decisions_source_and",
+          "id": "cpp_basics_decisions_source_and_r2"
+        },
+        {
+          "previousId": "cpp_basics_decisions_source_or",
+          "id": "cpp_basics_decisions_source_or_r2"
+        }
+      ],
+      "addedReferences": 0,
+      "sha256": "8156a59877f1e7e8d1860f686b51b1f94bccf276b9bbf0b45d0d897306df10bf"
+    },
+    {
+      "file": "content/units/cpp/basics/05-loops.json",
+      "moduleId": "cpp_basics_module_loops",
+      "previousVersionId": "cpp_basics_loops_v1",
+      "versionId": "cpp_basics_loops_v2",
+      "version": 2,
+      "replacedBibliographies": [
+        {
+          "previousId": "cpp_basics_loops_source_for",
+          "id": "cpp_basics_loops_source_for_r2"
+        },
+        {
+          "previousId": "cpp_basics_loops_source_while",
+          "id": "cpp_basics_loops_source_while_r2"
+        }
+      ],
+      "addedReferences": 0,
+      "sha256": "9e6ca58f7ba30c2518a3bfe27424579c2c53aa4250edd64daf72677db2898e6f"
+    },
+    {
+      "file": "content/units/cpp/basics/06-functions.json",
+      "moduleId": "cpp_basics_module_functions",
+      "previousVersionId": "cpp_basics_functions_v1",
+      "versionId": "cpp_basics_functions_v2",
+      "version": 2,
+      "replacedBibliographies": [
+        {
+          "previousId": "cpp_basics_functions_source_call",
+          "id": "cpp_basics_functions_source_call_r2"
+        },
+        {
+          "previousId": "cpp_basics_functions_source_return",
+          "id": "cpp_basics_functions_source_return_r2"
+        }
+      ],
+      "addedReferences": 0,
+      "sha256": "574bb28192776627767e85acdce22aa1da95cf8dec1162f46b7fc18dc5ae20be"
+    },
+    {
+      "file": "content/units/cpp/basics/07-output-and-buffering.json",
+      "moduleId": "cpp_basics_module_output",
+      "previousVersionId": "cpp_basics_output_v1",
+      "versionId": "cpp_basics_output_v2",
+      "version": 2,
+      "replacedBibliographies": [
+        {
+          "previousId": "cpp_basics_output_source_manip",
+          "id": "cpp_basics_output_source_manip_r2"
+        },
+        {
+          "previousId": "cpp_basics_output_source_buffer",
+          "id": "cpp_basics_output_source_buffer_r2"
+        },
+        {
+          "previousId": "cpp_basics_output_source_objects",
+          "id": "cpp_basics_output_source_objects_r2"
+        },
+        {
+          "previousId": "cpp_basics_output_source_sentry",
+          "id": "cpp_basics_output_source_sentry_r2"
+        },
+        {
+          "previousId": "cpp_basics_output_source_literal",
+          "id": "cpp_basics_output_source_literal_r2"
+        }
+      ],
+      "addedReferences": 0,
+      "sha256": "38b8363632e659b8ac18406ecb9d7c0acd62d50c139882462c016a6a25fb76cb"
+    },
+    {
+      "file": "content/units/cpp/classes-value-semantics/02-copy-move-and-comparison.json",
+      "moduleId": "cpp_core_classes_value_semantics_copy_move_and_comparison",
+      "previousVersionId": "cpp_core_classes_value_semantics_copy_move_and_comparison_v1",
+      "versionId": "cpp_core_classes_value_semantics_copy_move_and_comparison_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 1,
+      "sha256": "246f3538ab45666061a4b8d3567753aebb61dd68207ca75926209b971e2a3150"
+    },
+    {
+      "file": "content/units/cpp/error-handling/02-exceptions-and-state-guarantees.json",
+      "moduleId": "cpp_core_error_handling_exceptions_and_state_guarantees",
+      "previousVersionId": "cpp_core_error_handling_exceptions_and_state_guarantees_v1",
+      "versionId": "cpp_core_error_handling_exceptions_and_state_guarantees_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 1,
+      "sha256": "0e5959747a7a984738da61f6a121049cdb650842efb7d65c7f013236a3ad97d3"
+    },
+    {
+      "file": "content/units/cpp/iterators-algorithms-ranges/01-algorithms-and-half-open-ranges.json",
+      "moduleId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges",
+      "previousVersionId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_v1",
+      "versionId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 1,
+      "sha256": "3aa73eb8d472f2ffb8dc835803e8cbe6656a2f1853ec0adb92322e07a83f975d"
+    },
+    {
+      "file": "content/units/cpp/library-data-containers/01-sequences-and-invalidation.json",
+      "moduleId": "cpp_core_library_data_containers_sequences_and_invalidation",
+      "previousVersionId": "cpp_core_library_data_containers_sequences_and_invalidation_v1",
+      "versionId": "cpp_core_library_data_containers_sequences_and_invalidation_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "bee07f95101125e051a18b00ad30dd3fcb2d9212883a1535b4fc370befa2fefd"
+    },
+    {
+      "file": "content/units/cpp/library-data-containers/02-keys-and-vocabulary-types.json",
+      "moduleId": "cpp_core_library_data_containers_keys_and_vocabulary_types",
+      "previousVersionId": "cpp_core_library_data_containers_keys_and_vocabulary_types_v1",
+      "versionId": "cpp_core_library_data_containers_keys_and_vocabulary_types_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 1,
+      "sha256": "014d1627548f609a4317ce9946c7eb1fa93294ae04acdbf012f531419305b01d"
+    },
+    {
+      "file": "content/units/cpp/library-services/01-text-streams-and-extraction.json",
+      "moduleId": "cpp_core_library_services_text_streams_and_extraction",
+      "previousVersionId": "cpp_core_library_services_text_streams_and_extraction_v1",
+      "versionId": "cpp_core_library_services_text_streams_and_extraction_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 1,
+      "sha256": "f039970f6b3c613e6b675780a0508a3814755f17b961d8dc37c14fe3928c362e"
+    },
+    {
+      "file": "content/units/cpp/lifetime-ownership/02-raii-and-unique-ownership.json",
+      "moduleId": "cpp_core_lifetime_ownership_raii_and_unique_ownership",
+      "previousVersionId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_v1",
+      "versionId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_v2",
+      "version": 2,
+      "replacedBibliographies": [
+        {
+          "previousId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_source_guidelines",
+          "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_source_guidelines_r2"
+        }
+      ],
+      "addedReferences": 0,
+      "sha256": "cc27a7e2d91f68700db35d24b4246e226f8b23cb228cd9ad6138be9bc962d4ce"
+    },
+    {
+      "file": "content/units/cpp/program-organization/02-headers-and-modules.json",
+      "moduleId": "cpp_core_program_organization_headers_and_modules",
+      "previousVersionId": "cpp_core_program_organization_headers_and_modules_v1",
+      "versionId": "cpp_core_program_organization_headers_and_modules_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 1,
+      "sha256": "455463aadc4ac70a143b40a8c52934eb3573224391c32c947cb69512a0028a96"
+    },
+    {
+      "file": "content/units/cpp/runtime-polymorphism/01-interfaces-and-overriding.json",
+      "moduleId": "cpp_core_runtime_polymorphism_interfaces_and_overriding",
+      "previousVersionId": "cpp_core_runtime_polymorphism_interfaces_and_overriding_v1",
+      "versionId": "cpp_core_runtime_polymorphism_interfaces_and_overriding_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 2,
+      "sha256": "7b8302bd0d1595085cf98fb474ddee71bff36027aee9f694abf863eeb2200f6b"
+    },
+    {
+      "file": "content/units/cpp/runtime-polymorphism/02-owning-polymorphic-objects.json",
+      "moduleId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects",
+      "previousVersionId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_v1",
+      "versionId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 1,
+      "sha256": "9649df4e4c07c2a9eb947a46bdf525225a27a87f5da7ae2e6d4d27ed082c8c0c"
+    },
+    {
+      "file": "content/units/game-development/scene-composition/01-instance-state.json",
+      "moduleId": "game_development_scene_composition_module",
+      "previousVersionId": "game_development_scene_composition_version_1",
+      "versionId": "game_development_scene_composition_version_1_r2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "87973ef7ad06e4c80bb0f5a11ce8d961eeaded48390872f72b431609954beeba"
+    },
+    {
+      "file": "content/units/graphics-gpu/resource-dependencies/01-producer-consumer.json",
+      "moduleId": "graphics_gpu_resource_dependencies_module",
+      "previousVersionId": "graphics_gpu_resource_dependencies_version_1",
+      "versionId": "graphics_gpu_resource_dependencies_version_1_r2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "9b23188509906416b2d2ff145617461df72574a5a35ea2c8f03d067fdbb637b0"
+    },
+    {
+      "file": "content/units/machine-learning-infrastructure/tensor-execution/01-graph-and-data.json",
+      "moduleId": "machine_learning_infrastructure_tensor_execution_module",
+      "previousVersionId": "machine_learning_infrastructure_tensor_execution_version_1",
+      "versionId": "machine_learning_infrastructure_tensor_execution_version_1_r2",
+      "version": 2,
+      "replacedBibliographies": [
+        {
+          "previousId": "machine_learning_infrastructure_tensor_execution_source_tensorflow",
+          "id": "machine_learning_infrastructure_tensor_execution_source_tensorflow_r2"
+        }
+      ],
+      "addedReferences": 0,
+      "sha256": "bdc40ee52c8ce49e9d6d12c8726772650f041b507f3081b113bdf4cd319b8957"
+    },
+    {
+      "file": "content/units/network-distributed-systems/replicated-state/01-quorum-commit.json",
+      "moduleId": "network_distributed_systems_replicated_state_module",
+      "previousVersionId": "network_distributed_systems_replicated_state_version_1",
+      "versionId": "network_distributed_systems_replicated_state_version_1_r2",
+      "version": 2,
+      "replacedBibliographies": [
+        {
+          "previousId": "network_distributed_systems_replicated_state_source_raft",
+          "id": "network_distributed_systems_replicated_state_source_raft_r2"
+        }
+      ],
+      "addedReferences": 0,
+      "sha256": "ab4a5a0c8a2a4ecedb38a1ae56867066b2fbcf307118ce1a09d2c84f5e50714c"
+    },
+    {
+      "file": "content/units/numerical-computing/representation-error/01-reason-about-rounded-numbers.json",
+      "moduleId": "numerical_reason_about_rounded_numbers_module",
+      "previousVersionId": "numerical_reason_about_rounded_numbers_v1",
+      "versionId": "numerical_reason_about_rounded_numbers_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "a5259b494cc7f7acf5c6f6afba5c1dfdce4594dfaf5265d96f30233077b4abd2"
+    },
+    {
+      "file": "content/units/numerical-computing/stable-algorithms/01-rearrange-a-sensitive-calculation.json",
+      "moduleId": "numerical_rearrange_a_sensitive_calculation_module",
+      "previousVersionId": "numerical_rearrange_a_sensitive_calculation_v1",
+      "versionId": "numerical_rearrange_a_sensitive_calculation_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "865a1ef49372e9b86c63f486477045ae0134d138ebc1a6f22f0c87daa75e7659"
+    },
+    {
+      "file": "content/units/performance-engineering/locality-optimization/01-reason-about-useful-bytes.json",
+      "moduleId": "performance_reason_about_useful_bytes_module",
+      "previousVersionId": "performance_reason_about_useful_bytes_v1",
+      "versionId": "performance_reason_about_useful_bytes_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "c3e50ab8174d986e69398ca35762b01d251c40a91c52892188181d2e18c01922"
+    },
+    {
+      "file": "content/units/performance-engineering/measurement-design/01-design-a-fair-benchmark.json",
+      "moduleId": "performance_design_a_fair_benchmark_module",
+      "previousVersionId": "performance_design_a_fair_benchmark_v1",
+      "versionId": "performance_design_a_fair_benchmark_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "0d0a0a89b88388567aff0a4ad8801c3270423e593077bf517dbb41b2e5628c13"
+    },
+    {
+      "file": "content/units/programming-foundations/problem-solving/01-decompose-a-task.json",
+      "moduleId": "foundations_decompose_a_task_module",
+      "previousVersionId": "foundations_decompose_a_task_v1",
+      "versionId": "foundations_decompose_a_task_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "bbf2aacd143589426d989e8a76fe9708337656d6026eb5c482264a10e10a729f"
+    },
+    {
+      "file": "content/units/programming-foundations/state-correctness/01-reason-about-a-loop.json",
+      "moduleId": "foundations_reason_about_a_loop_module",
+      "previousVersionId": "foundations_reason_about_a_loop_v1",
+      "versionId": "foundations_reason_about_a_loop_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "129fcb8f9e99b652451f4547db579f02e387949488f5a9dd0aebd73396a70ee3"
+    },
+    {
+      "file": "content/units/security-engineering/trust-boundaries/01-validate-before-changing-state.json",
+      "moduleId": "security_validate_before_changing_state_module",
+      "previousVersionId": "security_validate_before_changing_state_v1",
+      "versionId": "security_validate_before_changing_state_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 1,
+      "sha256": "1b22c4020bd515c2741d6788e5894a7f0a22a6bebc5477b27a626815a42832b2"
+    },
+    {
+      "file": "content/units/software-design-architecture/interface-contracts/01-make-a-service-contract-explicit.json",
+      "moduleId": "design_make_a_service_contract_explicit_module",
+      "previousVersionId": "design_make_a_service_contract_explicit_v1",
+      "versionId": "design_make_a_service_contract_explicit_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "5691c9f491f688aa03b4f2c09100303e6d391840ecf767092bcd92c814d9b3d8"
+    },
+    {
+      "file": "content/units/software-design-architecture/responsibility-boundaries/01-hide-a-changing-decision.json",
+      "moduleId": "design_hide_a_changing_decision_module",
+      "previousVersionId": "design_hide_a_changing_decision_v1",
+      "versionId": "design_hide_a_changing_decision_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 0,
+      "sha256": "554444a569c38b9d32961a7301a7654f3bf1d0ce64ee5a92f3ceb8e07d6728db"
+    },
+    {
+      "file": "content/units/testing-software-quality/generated-testing/01-combine-properties-and-fuzzing.json",
+      "moduleId": "quality_combine_properties_and_fuzzing_module",
+      "previousVersionId": "quality_combine_properties_and_fuzzing_v1",
+      "versionId": "quality_combine_properties_and_fuzzing_v2",
+      "version": 2,
+      "replacedBibliographies": [],
+      "addedReferences": 1,
+      "sha256": "89b96e7621d7d8666824c312bf8516e0c86dfd276d1ad89497c4fd8e39d07735"
+    }
+  ]
+}

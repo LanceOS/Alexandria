@@ -4,9 +4,9 @@ Authored and checked 2026-09-11. Scope: the eleven core subunits at sibling posi
 
 Language and library semantics were verified by opening the linked section pages of the fixed C++20 working draft N4861. This draft is the baseline, rather than the evolving latest working draft. Section identifiers are normative-style draft locators; explanatory notes and examples remain informative. The draft specifies behavior, not a particular compiler’s diagnostics or implementation strategy. All lesson exposition and runnable examples are original.
 
-The C++ Core Guidelines page was also consulted as design guidance (RAII and the Rule of Zero), not as a normative language specification. Its June 14, 2026 version was accessed on 2026-09-11. The final lessons cite R.1 for RAII and C.20 for the Rule of Zero, while independently explaining the language and owning-member mechanisms; the guidelines do not impose an additional language rule.
+The C++ Core Guidelines page was also consulted as design guidance (RAII and the Rule of Zero), not as a normative language specification. Its June 14, 2026 version was accessed on 2026-09-11. The lessons cite R.1, R.21 and R.24 for RAII and ownership choices, and C.20 for the Rule of Zero. Stroustrup and Sutter are identified as editors. The language and owning-member mechanisms are explained independently; the guidelines do not impose additional language rules.
 
-GCC documentation supports the description of compilation stages and -c only. It does not establish universal compiler command syntax. Compiler output checks establish the observed behavior of the supplied examples, not universal absence of defects in all future inputs.
+GCC documentation supports compilation stages, -c, and the portable wrapper #ifndef include-guard pattern. It does not establish universal compiler command syntax. Compiler output checks establish the observed behavior of the supplied examples, not universal absence of defects in all future inputs.
 
 
 ## Lesson-to-source audit
@@ -69,7 +69,7 @@ Each source ID is module-specific and globally unique. URLs may recur when multi
 - Primary standards draft: [C++20 working draft N4861: class.dtor](https://timsong-cpp.github.io/cppwp/n4861/class.dtor) — N4861, [class.dtor]; consulted 2026-09-11. Implicit destructor invocation and reverse destruction order.
 - Primary standards draft: [C++20 working draft N4861: unique.ptr](https://timsong-cpp.github.io/cppwp/n4861/unique.ptr) — N4861, [unique.ptr]; consulted 2026-09-11. Exclusive ownership and move-only unique_ptr operations.
 - Primary standards draft: [C++20 working draft N4861: forward](https://timsong-cpp.github.io/cppwp/n4861/forward) — N4861, [forward]; consulted 2026-09-11. std::move and std::forward are casts with specified reference results.
-- Advisory design guidelines: [C++ Core Guidelines: R.1](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-raii) — R.1; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII or the Rule of Zero, distinct from normative C++ language requirements.
+- Advisory design guidelines: [C++ Core Guidelines: R.1, R.21, and R.24](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-raii) — R.1, R.21, and R.24; edited by Bjarne Stroustrup and Herb Sutter; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII, preferring exclusive ownership when sharing is unnecessary, and breaking shared-ownership cycles with weak_ptr; not normative language requirements.
 - Limits: illustrative inputs are documented; examples do not claim exhaustive coverage of the cited section or generalize implementation-dependent output.
 
 ### Classes that maintain a useful invariant
@@ -90,13 +90,14 @@ Each source ID is module-specific and globally unique. URLs may recur when multi
 - Primary standards draft: [C++20 working draft N4861: class.compare.default](https://timsong-cpp.github.io/cppwp/n4861/class.compare.default) — N4861, [class.compare.default]; consulted 2026-09-11. C++20 defaulted comparison declarations and restrictions.
 - Primary standards draft: [C++20 working draft N4861: forward](https://timsong-cpp.github.io/cppwp/n4861/forward) — N4861, [forward]; consulted 2026-09-11. std::move and std::forward are casts with specified reference results.
 - Primary standards draft: [C++20 working draft N4861: lib.types.movedfrom](https://timsong-cpp.github.io/cppwp/n4861/lib.types.movedfrom) — N4861, [lib.types.movedfrom]; consulted 2026-09-11. Valid but unspecified states of moved-from standard-library objects.
-- Advisory design guidelines: [C++ Core Guidelines: C.20](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero) — C.20; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII or the Rule of Zero, distinct from normative C++ language requirements.
+- Advisory design guidelines: [C++ Core Guidelines: C.20](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero) — C.20; edited by Bjarne Stroustrup and Herb Sutter; page dated June 14, 2026; consulted 2026-09-11. Advisory Rule of Zero guidance: resource-managing members can supply the surrounding type’s default operations; not normative language requirements.
+- Primary standards draft: [C++20 working draft N4861: class.eq](https://timsong-cpp.github.io/cppwp/n4861/class.eq) — N4861, [class.eq]; consulted 2026-09-11. Paragraphs 1–3: defaulted equality requirements and comparison of corresponding subobjects, stopping at the first unequal pair.
 - Limits: illustrative inputs are documented; examples do not claim exhaustive coverage of the cited section or generalize implementation-dependent output.
 
 ### Sequence containers and invalidation
 
 - Content: `content/units/cpp/library-data-containers/01-sequences-and-invalidation.json`
-- Original explanatory words (paragraphs plus reflection): 430
+- Original explanatory words (paragraphs plus reflection): 445
 - Primary standards draft: [C++20 working draft N4861: vector.overview](https://timsong-cpp.github.io/cppwp/n4861/vector.overview) — N4861, [vector.overview]; consulted 2026-09-11. Storage management and operation complexity.
 - Primary standards draft: [C++20 working draft N4861: vector.capacity](https://timsong-cpp.github.io/cppwp/n4861/vector.capacity) — N4861, [vector.capacity]; consulted 2026-09-11. size versus capacity; reserve and invalidation on reallocation.
 - Primary standards draft: [C++20 working draft N4861: vector.modifiers](https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers) — N4861, [vector.modifiers]; consulted 2026-09-11. Insertion and erase invalidation requirements.
@@ -105,11 +106,12 @@ Each source ID is module-specific and globally unique. URLs may recur when multi
 ### Keys, records, and alternative values
 
 - Content: `content/units/cpp/library-data-containers/02-keys-and-vocabulary-types.json`
-- Original explanatory words (paragraphs plus reflection): 446
+- Original explanatory words (paragraphs plus reflection): 463
 - Primary standards draft: [C++20 working draft N4861: associative.reqmts](https://timsong-cpp.github.io/cppwp/n4861/associative.reqmts) — N4861, [associative.reqmts]; consulted 2026-09-11. Unique keys, comparison ordering, and operation complexity.
 - Primary standards draft: [C++20 working draft N4861: variant](https://timsong-cpp.github.io/cppwp/n4861/variant) — N4861, [variant]; consulted 2026-09-11. A variant manages a value of one of its declared alternative types.
 - Primary standards draft: [C++20 working draft N4861: dcl.struct.bind](https://timsong-cpp.github.io/cppwp/n4861/dcl.struct.bind) — N4861, [dcl.struct.bind], structured binding of tuple-like values, hidden object, and reference qualification; consulted 2026-09-11.
 - Primary standards draft: [C++20 working draft N4861: map.access](https://timsong-cpp.github.io/cppwp/n4861/map.access) — N4861, [map.access]; consulted 2026-09-11. map indexing delegates to try_emplace; at reports missing keys.
+- Primary standards draft: [C++20 working draft N4861: unord.req](https://timsong-cpp.github.io/cppwp/n4861/unord.req) — N4861, [unord.req]; consulted 2026-09-11. Paragraphs 2–6: hash and equality requirements, equal hashes for equivalent keys, and unspecified absolute iteration order.
 - Limits: illustrative inputs are documented; examples do not claim exhaustive coverage of the cited section or generalize implementation-dependent output.
 
 ### Algorithms and half-open ranges
@@ -119,6 +121,7 @@ Each source ID is module-specific and globally unique. URLs may recur when multi
 - Primary standards draft: [C++20 working draft N4861: iterator.requirements.general](https://timsong-cpp.github.io/cppwp/n4861/iterator.requirements.general) — N4861, [iterator.requirements.general]; consulted 2026-09-11. Half-open ranges, sentinels, and dereferenceability.
 - Primary standards draft: [C++20 working draft N4861: alg.find](https://timsong-cpp.github.io/cppwp/n4861/alg.find) — N4861, [alg.find]; consulted 2026-09-11. Search returns the first match or the end iterator.
 - Primary standards draft: [C++20 working draft N4861: alg.sorting](https://timsong-cpp.github.io/cppwp/n4861/alg.sorting) — N4861, [alg.sorting]; consulted 2026-09-11. Ordering requirements and sorting complexity.
+- Primary standards draft: [C++20 working draft N4861: alg.count](https://timsong-cpp.github.io/cppwp/n4861/alg.count) — N4861, [alg.count]; consulted 2026-09-11. Paragraphs 2–3: count/count_if return the number of matching positions and apply the predicate once per input position.
 - Limits: illustrative inputs are documented; examples do not claim exhaustive coverage of the cited section or generalize implementation-dependent output.
 
 ### Lazy range pipelines
@@ -146,7 +149,8 @@ Each source ID is module-specific and globally unique. URLs may recur when multi
 - Original explanatory words (paragraphs plus reflection): 436
 - Primary standards draft: [C++20 working draft N4861: except.ctor](https://timsong-cpp.github.io/cppwp/n4861/except.ctor) — N4861, [except.ctor]; consulted 2026-09-11. Stack unwinding and destruction of constructed subobjects.
 - Primary standards draft: [C++20 working draft N4861: except.spec](https://timsong-cpp.github.io/cppwp/n4861/except.spec) — N4861, [except.spec]; consulted 2026-09-11. Non-throwing exception specifications and termination.
-- Primary standards draft: [C++20 working draft N4861: vector.capacity](https://timsong-cpp.github.io/cppwp/n4861/vector.capacity) — N4861, [vector.capacity]; consulted 2026-09-11. size versus capacity; reserve and invalidation on reallocation.
+- Primary standards draft: [C++20 working draft N4861: vector.capacity](https://timsong-cpp.github.io/cppwp/n4861/vector.capacity) — N4861, [vector.capacity], swap declaration and paragraphs 12–13; consulted 2026-09-11. Swapping contents and capacity, with the conditional noexcept specification used by the prepare-then-commit example.
+- Primary standards draft: [C++20 working draft N4861: default.allocator](https://timsong-cpp.github.io/cppwp/n4861/default.allocator) — N4861, [default.allocator]; consulted 2026-09-11. std::allocator declares is_always_equal as true_type, making the vector<int> swap specification non-throwing in this example.
 - Limits: illustrative inputs are documented; examples do not claim exhaustive coverage of the cited section or generalize implementation-dependent output.
 
 ### Text streams and extraction state
@@ -155,8 +159,9 @@ Each source ID is module-specific and globally unique. URLs may recur when multi
 - Original explanatory words (paragraphs plus reflection): 443
 - Primary standards draft: [C++20 working draft N4861: string.streams](https://timsong-cpp.github.io/cppwp/n4861/string.streams) — N4861, [string.streams]; consulted 2026-09-11. String-backed stream classes and their interfaces.
 - Primary standards draft: [C++20 working draft N4861: istream.formatted.reqmts](https://timsong-cpp.github.io/cppwp/n4861/istream.formatted.reqmts) — N4861, [istream.formatted.reqmts]; consulted 2026-09-11. Formatted extraction and stream error state.
-- Primary standards draft: [C++20 working draft N4861: istream.manip](https://timsong-cpp.github.io/cppwp/n4861/istream.manip) — N4861, [istream.manip], ws consumes whitespace and sets eofbit without failbit at exhausted input; consulted 2026-09-11.
+- Primary standards draft: [C++20 working draft N4861: istream.manip](https://timsong-cpp.github.io/cppwp/n4861/istream.manip) — N4861, [istream.manip]; consulted 2026-09-11. ws consumes whitespace and adds eofbit without adding failbit when exhaustion occurs during that extraction; sentry construction can add failbit when the stream is already not good.
 - Primary standards draft: [C++23 working draft N4950: print.fun](https://timsong-cpp.github.io/cppwp/n4950/print.fun) — N4950, [print.fun]; consulted 2026-09-11. Supports the explicitly marked C++23 facility discussion only; not used in the C++20 program.
+- Primary standards draft: [C++20 working draft N4861: istream.sentry](https://timsong-cpp.github.io/cppwp/n4861/istream.sentry) — N4861, [istream.sentry]; consulted 2026-09-11. Paragraphs 2–3: sentry state checks, failbit when the input is already not good, and locale-based whitespace handling.
 - Limits: illustrative inputs are documented; examples do not claim exhaustive coverage of the cited section or generalize implementation-dependent output.
 
 ### Time durations and filesystem paths
@@ -194,6 +199,8 @@ Each source ID is module-specific and globally unique. URLs may recur when multi
 - Primary standards draft: [C++20 working draft N4861: class.virtual](https://timsong-cpp.github.io/cppwp/n4861/class.virtual) — N4861, [class.virtual]; consulted 2026-09-11. Overriding, final overriders, and polymorphic class types.
 - Primary standards draft: [C++20 working draft N4861: class.abstract](https://timsong-cpp.github.io/cppwp/n4861/class.abstract) — N4861, [class.abstract]; consulted 2026-09-11. Pure virtual functions and abstract classes.
 - Primary standards draft: [C++20 working draft N4861: class.dtor](https://timsong-cpp.github.io/cppwp/n4861/class.dtor) — N4861, [class.dtor]; consulted 2026-09-11. Implicit destructor invocation and reverse destruction order.
+- Primary standards draft: [C++20 working draft N4861: expr.delete](https://timsong-cpp.github.io/cppwp/n4861/expr.delete) — N4861, [expr.delete]; consulted 2026-09-11. Paragraph 3: ordinary single-object deletion through a base type requires its virtual destructor when static and dynamic types differ.
+- Primary standards draft: [C++20 working draft N4861: class.cdtor](https://timsong-cpp.github.io/cppwp/n4861/class.cdtor) — N4861, [class.cdtor]; consulted 2026-09-11. Paragraph 4: a virtual call on an object under construction or destruction uses the final overrider in the constructor’s or destructor’s class.
 - Limits: illustrative inputs are documented; examples do not claim exhaustive coverage of the cited section or generalize implementation-dependent output.
 
 ### Owning a collection of implementations
@@ -204,6 +211,7 @@ Each source ID is module-specific and globally unique. URLs may recur when multi
 - Primary standards draft: [C++20 working draft N4861: expr.dynamic.cast](https://timsong-cpp.github.io/cppwp/n4861/expr.dynamic.cast) — N4861, [expr.dynamic.cast]; consulted 2026-09-11. Runtime casts; pointer-cast failure returns a null pointer.
 - Primary standards draft: [C++20 working draft N4861: class.virtual](https://timsong-cpp.github.io/cppwp/n4861/class.virtual) — N4861, [class.virtual]; consulted 2026-09-11. Overriding, final overriders, and polymorphic class types.
 - Primary standards draft: [C++20 working draft N4861: class.dtor](https://timsong-cpp.github.io/cppwp/n4861/class.dtor) — N4861, [class.dtor]; consulted 2026-09-11. Implicit destructor invocation and reverse destruction order.
+- Primary standards draft: [C++20 working draft N4861: expr.delete](https://timsong-cpp.github.io/cppwp/n4861/expr.delete) — N4861, [expr.delete]; consulted 2026-09-11. Paragraph 3: the virtual-destructor contract for ordinary deletion through a base pointer, as used by unique_ptr<Notice>.
 - Limits: illustrative inputs are documented; examples do not claim exhaustive coverage of the cited section or generalize implementation-dependent output.
 
 ### Declarations, definitions, and linkage
@@ -219,13 +227,14 @@ Each source ID is module-specific and globally unique. URLs may recur when multi
 ### Headers, namespaces, and module boundaries
 
 - Content: `content/units/cpp/program-organization/02-headers-and-modules.json`
-- Original explanatory words (paragraphs plus reflection): 451, counted by whitespace
+- Original explanatory words (paragraphs plus reflection): 451
 - Primary standards draft: [C++20 working draft N4861: cpp.include](https://timsong-cpp.github.io/cppwp/n4861/cpp.include) — N4861, [cpp.include]; consulted 2026-09-11. Header inclusion and implementation-defined search behavior.
 - Primary standards draft: [C++20 working draft N4861: basic.def.odr](https://timsong-cpp.github.io/cppwp/n4861/basic.def.odr) — N4861, [basic.def.odr]; consulted 2026-09-11. Definitions within and across translation units.
 - Primary standards draft: [C++20 working draft N4861: module.unit](https://timsong-cpp.github.io/cppwp/n4861/module.unit) — N4861, [module.unit]; consulted 2026-09-11. Module interface units, implementation units, and partitions.
 - Primary standards draft: [C++20 working draft N4861: namespace.def](https://timsong-cpp.github.io/cppwp/n4861/namespace.def) — N4861, [namespace.def]; consulted 2026-09-11. Namespace definitions, extension, and nesting.
 - Primary standards draft: [C++20 working draft N4861: dcl.inline](https://timsong-cpp.github.io/cppwp/n4861/dcl.inline) — N4861, [dcl.inline]; consulted 2026-09-11. Inline function and variable declarations and definition-domain rules.
-- Primary standards draft: [C++20 working draft N4861: module.global.frag](https://timsong-cpp.github.io/cppwp/n4861/module.global.frag) — N4861, [module.global.frag], especially paragraph 6; consulted 2026-09-11. The exported module declaration may follow a global module fragment; final review corrected the lesson's opening-declaration wording.
+- Primary standards draft: [C++20 working draft N4861: module.global.frag](https://timsong-cpp.github.io/cppwp/n4861/module.global.frag) — N4861, [module.global.frag], especially paragraph 6; consulted 2026-09-11. Optional global module fragment before the exported module declaration.
+- Official compiler documentation: [GCC preprocessor manual: Once-Only Headers](https://gcc.gnu.org/onlinedocs/cpp/Once-Only-Headers.html) — GCC preprocessor manual §2.4; consulted 2026-09-11. The wrapper #ifndef pattern and why a repeated include skips guarded contents. Implementation documentation describing a portable preprocessing pattern.
 - Limits: illustrative inputs are documented; examples do not claim exhaustive coverage of the cited section or generalize implementation-dependent output.
 
 ## Verification
@@ -238,3 +247,7 @@ Each source ID is module-specific and globally unique. URLs may recur when multi
 - All 22 owned core lessons have exactly three parts and 350–600 original explanatory words, excluding objectives and code. Every program includes its headers and main, uses deterministic sample data, and has an expected-output block captioned `Expected standard output`.
 - C++23 expected and print descriptions were checked against pinned N4950 [expected] and [print.fun]; these facilities are excluded from all C++20 example programs.
 - No database import or publication was performed by the core-content subtask.
+
+## Applied deep-review corrections
+
+CORE-001–CORE-010 were applied on 2026-09-11. The lessons now qualify variant’s possible valueless state and vector<bool>, add the exact comparison, unordered-container, count_if, allocator, stream-sentry, deletion, construction-dispatch and include-guard references, and sharpen the existing locators. The [baseline audit](../reviews/cpp-core-audit.md) remains a historical record of the findings. Source listings and word counts above reflect the corrected lessons.

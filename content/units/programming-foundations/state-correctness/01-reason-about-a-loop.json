@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "foundations_reason_about_a_loop_module",
-  "versionId": "foundations_reason_about_a_loop_v1",
+  "versionId": "foundations_reason_about_a_loop_v2",
   "slug": "reason-about-a-loop",
   "title": "Reason about a loop using an invariant",
   "summary": "Explain why a counting process computes the required answer and eventually stops.",
@@ -75,9 +75,10 @@
         "C. A. R. Hoare"
       ],
       "url": "https://sites.cs.ucsb.edu/~kemm/courses/cs266/acmhoare69.pdf",
-      "locator": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11.",
+      "locator": "Published research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11.",
       "publisher": "Association for Computing Machinery",
       "publicationYear": 1969
     }
-  ]
+  ],
+  "version": 2
 }

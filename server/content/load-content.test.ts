@@ -90,3 +90,18 @@ test('content commands accept one explicit folder name without path traversal or
     assert.throws(() => readContentArgument(args, true), /unit folder name/);
   }
 });
+
+test('module release numbers are optional positive safe integers and remain explicit when supplied', async (t) => {
+  const root = await fixture(t);
+  const path = join(root, 'basics', '02-variables.json');
+  const original = readFileSync(path, 'utf8');
+  editJson(path, (data) => { delete data.version; });
+  assert.equal(loadContentBundle(root).units.find((unit) => unit.slug === 'basics')!.modules[1]!.version, undefined);
+  editJson(path, (data) => { data.version = 2; });
+  assert.equal(loadContentBundle(root).units.find((unit) => unit.slug === 'basics')!.modules[1]!.version, 2);
+  for (const value of [0, -1, 1.5, '2', null, Number.MAX_SAFE_INTEGER + 1]) {
+    writeFileSync(path, original);
+    editJson(path, (data) => { data.version = value; });
+    assert.throws(() => loadContentBundle(root), /02-variables\.json.*version/);
+  }
+});

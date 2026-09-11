@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "archos_trace_cache_locality_module",
-  "versionId": "archos_trace_cache_locality_v1",
+  "versionId": "archos_trace_cache_locality_v2",
   "slug": "trace-cache-locality",
   "title": "Trace locality with a tiny cache",
   "summary": "Use an explicit cache model to explain why access order can change memory traffic.",
@@ -75,7 +75,8 @@
         "Valgrind Developers"
       ],
       "url": "https://valgrind.org/docs/manual/cg-manual.html",
-      "locator": "Official tool documentation: §5.7 cache simulation and §5.8.1–5.8.3 simulation model and accuracy limits; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
+      "locator": "Official tool documentation: §5.2.11 Cache and Branch Simulation, §5.8.1 Cache simulation specifics, and §5.8.3 Accuracy; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
     }
-  ]
+  ],
+  "version": 2
 }

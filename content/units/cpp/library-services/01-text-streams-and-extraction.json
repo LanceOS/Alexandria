@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_library_services_text_streams_and_extraction",
-  "versionId": "cpp_core_library_services_text_streams_and_extraction_v1",
+  "versionId": "cpp_core_library_services_text_streams_and_extraction_v2",
   "slug": "text-streams-and-extraction",
   "title": "Text streams and extraction state",
   "summary": "Parse an in-memory record while checking whether each requested field was obtained.",
@@ -104,7 +104,7 @@
       "publicationYear": 2020,
       "edition": "N4861 (C++20 working draft)",
       "url": "https://timsong-cpp.github.io/cppwp/n4861/istream.manip",
-      "locator": "N4861, [istream.manip], ws consumes whitespace and sets eofbit without failbit at exhausted input; consulted 2026-09-11."
+      "locator": "N4861, [istream.manip]; consulted 2026-09-11. ws consumes whitespace and adds eofbit without adding failbit when exhaustion occurs during that extraction; sentry construction can add failbit when the stream is already not good."
     },
     {
       "id": "cpp_core_library_services_text_streams_and_extraction_source_cpp23",
@@ -116,6 +116,18 @@
       "edition": "N4950 (C++23 working draft)",
       "url": "https://timsong-cpp.github.io/cppwp/n4950/print.fun",
       "locator": "N4950, [print.fun]; consulted 2026-09-11. Supports the explicitly marked C++23 facility discussion only; not used in the C++20 program."
+    },
+    {
+      "id": "cpp_core_library_services_text_streams_and_extraction_source_audit_istream_sentry",
+      "title": "C++20 working draft N4861: istream.sentry",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/istream.sentry",
+      "locator": "N4861, [istream.sentry]; consulted 2026-09-11. Paragraphs 2–3: sentry state checks, failbit when the input is already not good, and locale-based whitespace handling."
     }
-  ]
+  ],
+  "version": 2
 }

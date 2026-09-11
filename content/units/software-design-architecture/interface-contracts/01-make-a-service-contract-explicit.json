@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "design_make_a_service_contract_explicit_module",
-  "versionId": "design_make_a_service_contract_explicit_v1",
+  "versionId": "design_make_a_service_contract_explicit_v2",
   "slug": "make-a-service-contract-explicit",
   "title": "Make a service contract explicit",
   "summary": "Design a reservation operation that callers can use without guessing hidden rules.",
@@ -27,7 +27,7 @@
         },
         {
           "type": "paragraph",
-          "text": "For our small in-memory service, accept counts from one through the available capacity. A success subtracts exactly that count and returns a new reservation identifier. A capacity failure leaves availability unchanged. Invalid input is reported distinctly. We deliberately exclude network failures and persistent transactions here, because those add uncertainty about what happened after a request was sent."
+          "text": "For our small in-memory service, a valid request contains a positive count. It succeeds only when that count does not exceed the available capacity. A success subtracts exactly that count and returns a new reservation identifier. A capacity failure leaves availability unchanged. Invalid input is reported distinctly. We deliberately exclude network failures and persistent transactions here, because those add uncertainty about what happened after a request was sent."
         }
       ]
     },
@@ -85,9 +85,10 @@
         "C. A. R. Hoare"
       ],
       "url": "https://sites.cs.ucsb.edu/~kemm/courses/cs266/acmhoare69.pdf",
-      "locator": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11.",
+      "locator": "Published research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11.",
       "publisher": "Association for Computing Machinery",
       "publicationYear": 1969
     }
-  ]
+  ],
+  "version": 2
 }

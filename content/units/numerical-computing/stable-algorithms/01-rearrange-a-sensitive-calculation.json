@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "numerical_rearrange_a_sensitive_calculation_module",
-  "versionId": "numerical_rearrange_a_sensitive_calculation_v1",
+  "versionId": "numerical_rearrange_a_sensitive_calculation_v2",
   "slug": "rearrange-a-sensitive-calculation",
   "title": "Rearrange a calculation to retain useful information",
   "summary": "Compare equivalent square-root expressions under a finite-precision model.",
@@ -27,7 +27,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Multiply numerator and denominator by sqrt(1 + x) plus 1. The product of the two conjugates is x, giving x divided by sqrt(1 + x) plus 1. The equivalent expression keeps the small x in its numerator and divides it by a quantity close to two. This is an original worked application of the cancellation principles discussed in Goldberg’s survey."
+          "text": "Multiply numerator and denominator by (sqrt(1 + x) + 1). The product of the two conjugates is x, giving x / (sqrt(1 + x) + 1). The equivalent expression keeps the small x in its numerator and divides it by a quantity close to two. This is an original worked application of the cancellation principles discussed in Goldberg’s survey."
         }
       ]
     },
@@ -75,9 +75,10 @@
         "David Goldberg"
       ],
       "url": "https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html",
-      "locator": "Peer-reviewed research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text.",
+      "locator": "Published research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text.",
       "publisher": "Association for Computing Machinery",
       "publicationYear": 1991
     }
-  ]
+  ],
+  "version": 2
 }

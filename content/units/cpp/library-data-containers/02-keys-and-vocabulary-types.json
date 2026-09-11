@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_library_data_containers_keys_and_vocabulary_types",
-  "versionId": "cpp_core_library_data_containers_keys_and_vocabulary_types_v1",
+  "versionId": "cpp_core_library_data_containers_keys_and_vocabulary_types_v2",
   "slug": "keys-and-vocabulary-types",
   "title": "Keys, records, and alternative values",
   "summary": "Use maps and vocabulary types to express relationships without parallel containers.",
@@ -58,7 +58,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "text": "A vocabulary type supplies a common relationship between values. pair and tuple group several values; a named struct can explain their roles more clearly when those roles matter. optional represents the presence or absence of a value. variant represents one value chosen from a declared set of alternative types. Here Reading stores either a page count or a textual status, keeping those two meanings distinguishable."
+          "text": "A vocabulary type supplies a common relationship between values. pair and tuple group several values; a named struct can explain their roles more clearly when those roles matter. optional represents the presence or absence of a value. variant normally holds one value chosen from a declared set of alternative types. Certain throwing modifications can instead leave it valueless_by_exception, so generic handling must account for that possibility. Here Reading stores either a page count or a textual status, keeping those two meanings distinguishable."
         },
         {
           "type": "paragraph",
@@ -116,6 +116,18 @@
       "edition": "N4861 (C++20 working draft)",
       "url": "https://timsong-cpp.github.io/cppwp/n4861/map.access",
       "locator": "N4861, [map.access]; consulted 2026-09-11. map indexing delegates to try_emplace; at reports missing keys."
+    },
+    {
+      "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_source_audit_unord_req",
+      "title": "C++20 working draft N4861: unord.req",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unord.req",
+      "locator": "N4861, [unord.req]; consulted 2026-09-11. Paragraphs 2–6: hash and equality requirements, equal hashes for equivalent keys, and unspecified absolute iteration order."
     }
-  ]
+  ],
+  "version": 2
 }

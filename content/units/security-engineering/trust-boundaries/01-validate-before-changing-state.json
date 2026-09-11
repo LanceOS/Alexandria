@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "security_validate_before_changing_state_module",
-  "versionId": "security_validate_before_changing_state_v1",
+  "versionId": "security_validate_before_changing_state_v2",
   "slug": "validate-before-changing-state",
   "title": "Validate before changing state",
   "summary": "Trace syntax, meaning, and permission checks for a reading-log request.",
@@ -87,6 +87,16 @@
       ],
       "url": "https://csrc.nist.gov/pubs/sp/800/218/final",
       "locator": "Official NIST guidance: SP 800-218, February 2022, SSDF 1.1 overview and abstract on integrating security practices into development; consulted 2026-09-11. Only the publication overview inspected; no uninspected practice-level claims attributed."
+    },
+    {
+      "id": "security_validate_before_changing_state_source_authorization",
+      "title": "OWASP Authorization Cheat Sheet",
+      "authors": [
+        "OWASP Cheat Sheet Series contributors"
+      ],
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html",
+      "locator": "Expert security guidance: Introduction, Enforce Least Privileges, Deny by Default, and Validate the Permissions on Every Request; consulted 2026-09-11. Application policy determines which caller/resource/action combinations are permitted."
     }
-  ]
+  ],
+  "version": 2
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "performance_reason_about_useful_bytes_module",
-  "versionId": "performance_reason_about_useful_bytes_v1",
+  "versionId": "performance_reason_about_useful_bytes_v2",
   "slug": "reason-about-useful-bytes",
   "title": "Reason about useful bytes in a layout",
   "summary": "Compare record and field layouts using an explicit traffic model.",
@@ -38,7 +38,7 @@
         {
           "type": "code",
           "language": "text",
-          "code": "Assumptions: 1,024 records; 64-byte aligned cache lines; cold scan\nEach record is 64 bytes; each page count is 4 bytes\n\nRecord layout: 1,024 lines = 65,536 bytes fetched\nPacked counts: 64 lines = 4,096 bytes fetched\nUseful page-count data in either layout: 4,096 bytes\nTraffic ratio in this model: 16 to 1\nThis is a traffic estimate, not a 16x runtime claim.",
+          "code": "Assumptions: 1,024 records; 64-byte cache lines; cold scan\nRecord storage and packed counts both begin on cache-line boundaries\nEach record is 64 bytes; each page count is 4 bytes\n\nRecord layout: 1,024 lines = 65,536 bytes fetched\nPacked counts: 64 lines = 4,096 bytes fetched\nUseful page-count data in either layout: 4,096 bytes\nTraffic ratio in this model: 16 to 1\nThis is a traffic estimate, not a 16x runtime claim.",
           "caption": "Worked trace — illustrative data, not measured output"
         },
         {
@@ -75,7 +75,7 @@
         "Valgrind Developers"
       ],
       "url": "https://valgrind.org/docs/manual/cg-manual.html",
-      "locator": "Official tool documentation: §5.7 cache simulation and §5.8.1–5.8.3 simulation model and accuracy limits; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
+      "locator": "Official tool documentation: §5.2.11 Cache and Branch Simulation, §5.8.1 Cache simulation specifics, and §5.8.3 Accuracy; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
     },
     {
       "id": "performance_reason_about_useful_bytes_source_benchmark",
@@ -86,5 +86,6 @@
       "url": "https://google.github.io/benchmark/user_guide.html",
       "locator": "Official project documentation: Runtime and Reporting Considerations, Preventing Optimization, Reporting Statistics, and Random Interleaving; consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

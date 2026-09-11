@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "design_hide_a_changing_decision_module",
-  "versionId": "design_hide_a_changing_decision_v1",
+  "versionId": "design_hide_a_changing_decision_v2",
   "slug": "hide-a-changing-decision",
   "title": "Hide a changing decision behind a stable boundary",
   "summary": "Compare two decompositions of a reading-log application.",
@@ -75,7 +75,7 @@
         "D. L. Parnas"
       ],
       "url": "https://doi.org/10.1145/361598.361623",
-      "locator": "Peer-reviewed research: Communications of the ACM 15(12), 1972, pp. 1053–1058; comparison of decompositions and Conclusion. Author-uploaded paper text inspected on ResearchGate 2026-09-11; access URL recorded in research ledger.",
+      "locator": "Published research: Communications of the ACM 15(12), December 1972, pp. 1053–1058; Comparison of the Two Modularizations, The Criteria, and Conclusion. Original journal scan inspected at https://www.cse.sc.edu/~mgv/csce330f22/ParnasCriteria.pdf on 2026-09-11. Publisher DOI access was blocked; official historical review-policy verification remains unresolved.",
       "publisher": "Association for Computing Machinery",
       "publicationYear": 1972
     },
@@ -89,5 +89,6 @@
       "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
       "locator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

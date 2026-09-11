@@ -45,7 +45,8 @@ function snapshot(database: DatabaseSync) {
 test('the complete Basics path is published in order and every lesson and reading link can be served', async (t) => {
   const database = await fixture(t);
   assert.deepEqual(installCppBasicsPath(database), {
-    created: true, addedModules: 7, topicId: cppBasicsIds.topic, topics: 1, units: 2, modules: 7, parts: 21,
+    created: true, addedModules: 7, addedVersions: 7, revisedModules: 0,
+    topicId: cppBasicsIds.topic, topics: 1, units: 2, modules: 7, parts: 21,
   });
   const outline = readTopicOutline(database, 'cpp');
   assert.equal(outline.units.length, 2);
@@ -54,11 +55,18 @@ test('the complete Basics path is published in order and every lesson and readin
     'cpp_basics_module_decisions', 'cpp_basics_module_loops', 'cpp_basics_module_functions', 'cpp_basics_module_output']);
   for (const id of moduleIds) {
     const detail = readModuleDetail(database, id);
-    if (publishedHashes[id]) assert.equal(createHash('sha256').update(JSON.stringify(detail)).digest('hex'), publishedHashes[id], `Published content changed: ${id}`);
+    const authored = loadCppBasicsBundle().units.flatMap((unit) => unit.modules).find((module) => module.id === id)!;
+    if (detail.version.number === 1 && publishedHashes[id]) {
+      assert.equal(createHash('sha256').update(JSON.stringify(detail)).digest('hex'), publishedHashes[id], `Published content changed: ${id}`);
+    }
+    assert.equal(detail.version.id, authored.versionId);
+    assert.equal(detail.version.number, authored.version ?? 1);
+    assert.deepEqual(detail.parts.map((part) => part.blocks), authored.parts.map((part) => part.blocks));
     assert.equal(detail.parts.length, 3);
     assert.ok(detail.version.objectives.length > 0);
     assert.ok(detail.sources.some((source) => source.url === 'https://www.stroustrup.com/4th.html' && source.authors.includes('Bjarne Stroustrup')));
-    assert.ok(detail.sources.some((source) => source.url?.startsWith('https://eel.is/c++draft/')));
+    assert.ok(detail.sources.some((source) => source.url?.startsWith('https://timsong-cpp.github.io/cppwp/n4861/')
+      || source.url?.startsWith('https://eel.is/c++draft/')));
     assert.ok(detail.sources.every((source) => source.url?.startsWith('https://') && source.locator.length > 0));
     assert.doesNotMatch(JSON.stringify(detail), /\/run\/media|file:\/\/|\.pdf/i);
   }

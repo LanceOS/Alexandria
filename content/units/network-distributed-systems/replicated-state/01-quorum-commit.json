@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "network_distributed_systems_replicated_state_module",
-  "versionId": "network_distributed_systems_replicated_state_version_1",
+  "versionId": "network_distributed_systems_replicated_state_version_1_r2",
   "slug": "quorum-commit",
   "title": "Reason about a replicated log commitment",
   "summary": "Trace current-term majority commitment without confusing copies with agreement.",
@@ -65,15 +65,17 @@
   ],
   "sources": [
     {
-      "id": "network_distributed_systems_replicated_state_source_raft",
+      "id": "network_distributed_systems_replicated_state_source_raft_r2",
       "title": "In Search of an Understandable Consensus Algorithm",
       "authors": [
         "Diego Ongaro",
         "John Ousterhout"
       ],
       "url": "https://www.usenix.org/system/files/conference/atc14/atc14-paper-ongaro.pdf",
-      "locator": "Peer-reviewed research: USENIX ATC 2014, sections 5.3 and 5.4, especially 5.4.2; current-term commitment and election restrictions; consulted 2026-09-11",
-      "publicationYear": 2014
+      "locator": "Peer-reviewed research: USENIX ATC 2014, pp. 305–319, sections 5.3 and 5.4, especially 5.4.2; current-term commitment and election restrictions; consulted 2026-09-11",
+      "publicationYear": 2014,
+      "publisher": "USENIX Association"
     }
-  ]
+  ],
+  "version": 2
 }

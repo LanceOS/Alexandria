@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "performance_design_a_fair_benchmark_module",
-  "versionId": "performance_design_a_fair_benchmark_v1",
+  "versionId": "performance_design_a_fair_benchmark_v2",
   "slug": "design-a-fair-benchmark",
   "title": "Design a fair benchmark",
   "summary": "Plan a comparison that measures the intended operation and records uncertainty.",
@@ -85,9 +85,10 @@
         "Richard Jones"
       ],
       "url": "https://doi.org/10.1145/2464157.2464160",
-      "locator": "Peer-reviewed research: ISMM 2013, pp. 63–74; §§3–4 and §12 on repetition, sources of variation, and effect-size confidence intervals. Paper text inspected through ResearchGate 2026-09-11; ledger records access URL. Historical experiments are not reproduced here.",
+      "locator": "Peer-reviewed research: ISMM 2013, pp. 63–74; §§3–4 and §12 on repetition, variation, and effect-size confidence intervals. University of Kent accepted manuscript inspected at https://kar.kent.ac.uk/33611/45/p63-kaliber.pdf on 2026-09-11; repository describes it as a corrected version. Review process verified through the official ISMM 2013 Double-Blind Reviewing policy. Historical experiments are not reproduced here.",
       "publisher": "Association for Computing Machinery",
       "publicationYear": 2013
     }
-  ]
+  ],
+  "version": 2
 }

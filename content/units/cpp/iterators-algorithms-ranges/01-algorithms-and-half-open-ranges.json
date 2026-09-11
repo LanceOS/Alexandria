@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges",
-  "versionId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_v1",
+  "versionId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_v2",
   "slug": "algorithms-and-half-open-ranges",
   "title": "Algorithms and half-open ranges",
   "summary": "Search and sort with explicit boundaries and valid ordering requirements.",
@@ -105,6 +105,18 @@
       "edition": "N4861 (C++20 working draft)",
       "url": "https://timsong-cpp.github.io/cppwp/n4861/alg.sorting",
       "locator": "N4861, [alg.sorting]; consulted 2026-09-11. Ordering requirements and sorting complexity."
+    },
+    {
+      "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_source_audit_alg_count",
+      "title": "C++20 working draft N4861: alg.count",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/alg.count",
+      "locator": "N4861, [alg.count]; consulted 2026-09-11. Paragraphs 2–3: count/count_if return the number of matching positions and apply the predicate once per input position."
     }
-  ]
+  ],
+  "version": 2
 }

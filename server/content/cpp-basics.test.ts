@@ -7,7 +7,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import test, { type TestContext } from 'node:test';
 import { loadConfig } from '../config.js';
 import { assertDatabaseIntegrity, initializeDatabase, openDatabase } from '../db/database.js';
-import { cppBasicsIds, cppBasicsParts, installCppBasics } from './cpp-basics.js';
+import { cppBasicsIds, cppBasicsParts, installCppBasics, loadCppBasicsBundle } from './cpp-basics.js';
 
 async function fixture(t: TestContext) {
   const directory = await mkdtemp(join(tmpdir(), 'alexandria-cpp-starter-'));
@@ -44,7 +44,9 @@ test('explicit content installation publishes one topic, two nested units, and o
   assert.equal(count(db, 'lesson_part_versions'), 3);
   assert.equal(db.prepare('SELECT parent_unit_id FROM units WHERE id = ?').get(cppBasicsIds.basics)?.parent_unit_id, cppBasicsIds.unit);
   assert.equal(db.prepare('SELECT unit_id, status FROM modules WHERE id = ?').get(cppBasicsIds.module)?.unit_id, cppBasicsIds.basics);
-  const version = db.prepare('SELECT * FROM module_versions WHERE id = ?').get(cppBasicsIds.version);
+  const current = loadCppBasicsBundle().units.flatMap((unit) => unit.modules).find((module) => module.id === cppBasicsIds.module)!;
+  const version = db.prepare('SELECT * FROM module_versions WHERE id = ?').get(current.versionId);
+  assert.equal(version?.version, current.version ?? 1);
   assert.equal(version?.status, 'published');
   assert.equal(version?.revision, 2);
   assert.equal(version?.completion_policy_json, '{}');
@@ -77,7 +79,8 @@ test('an unrelated C++ topic or a partial starter record prevents installation w
   assert.equal(count(db, 'topics'), 1);
   assert.equal(count(db, 'units'), 0);
   db.prepare('UPDATE topics SET slug = ? WHERE id = ?').run('my-cpp', 'existing');
-  db.prepare('INSERT INTO source_references(id, title) VALUES (?, ?)').run('cpp_starter_source_book', 'My reference');
+  const current = loadCppBasicsBundle().units.flatMap((unit) => unit.modules).find((module) => module.id === cppBasicsIds.module)!;
+  db.prepare('INSERT INTO source_references(id, title) VALUES (?, ?)').run(current.sources[0]!.id, 'My reference');
   assert.throws(() => installCppBasics(db), /conflicts with existing/);
   assert.equal(count(db, 'topics'), 1);
   assert.equal(count(db, 'units'), 0);

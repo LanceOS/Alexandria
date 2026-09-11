@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "numerical_reason_about_rounded_numbers_module",
-  "versionId": "numerical_reason_about_rounded_numbers_v1",
+  "versionId": "numerical_reason_about_rounded_numbers_v2",
   "slug": "reason-about-rounded-numbers",
   "title": "Reason about rounded numbers",
   "summary": "Use a small decimal model to see why grouping can change an arithmetic result.",
@@ -23,7 +23,7 @@
         },
         {
           "type": "paragraph",
-          "text": "Finite representations cannot store every real number exactly. A computation therefore combines input approximation with rounding introduced by operations. More printed digits do not create information that was never represented. Goldberg’s peer-reviewed survey explains representation, rounding error, and cancellation; its historical discussion is useful conceptual background but is not a replacement for the current hardware and language specifications."
+          "text": "Finite representations cannot store every real number exactly. A computation therefore combines input approximation with rounding introduced by operations. More printed digits do not create information that was never represented. Goldberg’s published survey explains representation, rounding error, and cancellation; its historical discussion is useful conceptual background but is not a replacement for the current hardware and language specifications."
         },
         {
           "type": "paragraph",
@@ -38,7 +38,7 @@
         {
           "type": "code",
           "language": "text",
-          "code": "Teaching arithmetic: three significant decimal digits\na = 1.00 x 10^3; b = 1.00; c = -1.00 x 10^3\n\n(a + b) + c:\n  exact first sum 1001 -> rounded 1.00 x 10^3\n  1000 + (-1000) -> 0\n\n(a + c) + b:\n  1000 + (-1000) -> 0\n  0 + 1 -> 1\nExact real sum in either grouping: 1",
+          "code": "Teaching arithmetic: three significant decimal digits\na = 1.00 x 10^3; b = 1.00; c = -1.00 x 10^3\n\n(a + b) + c:\n  exact first sum 1001 -> rounded 1.00 x 10^3\n  1000 + (-1000) -> 0\n\na + (b + c):\n  1 + (-1000) -> -999 (exact at three significant digits)\n  1000 + (-999) -> 1\nExact real sum in either grouping: 1",
           "caption": "Worked trace — illustrative data, not measured output"
         },
         {
@@ -75,9 +75,10 @@
         "David Goldberg"
       ],
       "url": "https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html",
-      "locator": "Peer-reviewed research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text.",
+      "locator": "Published research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text.",
       "publisher": "Association for Computing Machinery",
       "publicationYear": 1991
     }
-  ]
+  ],
+  "version": 2
 }

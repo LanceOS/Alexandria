@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_basics_module_expressions",
-  "versionId": "cpp_basics_expressions_v1",
+  "versionId": "cpp_basics_expressions_v2",
   "slug": "expressions-arithmetic",
   "title": "Expressions and arithmetic",
   "summary": "Combine values, make grouping clear, and understand why the operand types matter.",
@@ -109,52 +109,63 @@
       "edition": "4th edition",
       "isbn": "9780321563842",
       "url": "https://www.stroustrup.com/4th.html",
-      "locator": "§2.2.2, printed pp. 40–42: arithmetic operators, conversions, assignment, and compound updates. The link opens the author’s book page."
+      "locator": "Further reading: §2.2.2 Types, Variables, and Arithmetic. Bibliographic metadata and section titles verified against the author’s edition page and extended table of contents on 2026-09-11; book passages and printed page numbers were not independently verified in this review."
     },
     {
-      "id": "cpp_basics_expressions_source_division",
-      "title": "C++ working draft — multiplication, division, and remainder",
+      "id": "cpp_basics_expressions_source_division_r2",
+      "title": "C++20 working draft N4861: multiplication, division, and remainder",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/expr.mul",
-      "locator": "[expr.mul]: integer division toward zero, remainder, and invalid divisors."
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.mul",
+      "locator": "Primary standards draft, [expr.mul], paragraphs 1–4 and footnote 75: multiplication, integer division toward zero, remainder, and invalid divisors. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     },
     {
-      "id": "cpp_basics_expressions_source_addition",
-      "title": "C++ working draft — addition and subtraction",
+      "id": "cpp_basics_expressions_source_addition_r2",
+      "title": "C++20 working draft N4861: addition and subtraction",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/expr.add",
-      "locator": "[expr.add]: additive-expression grammar and its relationship to multiplicative expressions."
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.add",
+      "locator": "Primary standards draft, [expr.add], paragraphs 1–3: additive-expression grammar, its relationship to multiplicative expressions, and arithmetic results. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     },
     {
-      "id": "cpp_basics_expressions_source_conversions",
-      "title": "C++ working draft — arithmetic conversions",
+      "id": "cpp_basics_expressions_source_conversions_r2",
+      "title": "C++20 working draft N4861: arithmetic conversions",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/expr.arith.conv",
-      "locator": "[expr.arith.conv]: how arithmetic operands acquire a common type, including the int and double case."
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.arith.conv",
+      "locator": "Primary standards draft, [expr.arith.conv], paragraph 1, especially 1.3: a common arithmetic type and conversion to double when either operand is double. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     },
     {
-      "id": "cpp_basics_expressions_source_limits",
-      "title": "C++ working draft — numeric types and limits",
+      "id": "cpp_basics_expressions_source_limits_r2",
+      "title": "C++20 working draft N4861: numeric types and limits",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/basic.fundamental",
-      "locator": "[basic.fundamental]: finite integer ranges, signed overflow, and floating-point representation."
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.fundamental",
+      "locator": "Primary standards draft, [basic.fundamental], paragraphs 1–4, 7, 10, and 12: integer ranges, signed overflow, char, bool, and floating-point types and representation. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     },
     {
-      "id": "cpp_basics_expressions_source_assignment",
-      "title": "C++ working draft — assignment and compound assignment",
+      "id": "cpp_basics_expressions_source_assignment_r2",
+      "title": "C++20 working draft N4861: assignment and compound assignment",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/expr.assign",
-      "locator": "[expr.assign]: storing a result with = and the behavior of compound updates such as +=."
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.ass",
+      "locator": "Primary standards draft, [expr.ass], paragraphs 1–3 and 6: assignment and compound updates such as +=; this clause is named expr.ass in N4861. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     }
-  ]
+  ],
+  "version": 2
 }

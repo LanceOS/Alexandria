@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "graphics_gpu_resource_dependencies_module",
-  "versionId": "graphics_gpu_resource_dependencies_version_1",
+  "versionId": "graphics_gpu_resource_dependencies_version_1_r2",
   "slug": "producer-consumer",
   "title": "Make GPU producer and consumer dependencies explicit",
   "summary": "Identify execution and memory dependencies before selecting synchronization.",
@@ -39,11 +39,11 @@
           "type": "code",
           "language": "text",
           "caption": "Original worked trace; finite assumptions, not executable platform code",
-          "code": "Dispatch W: write R = four vertex records\nDependency: W compute writes -> D vertex-input reads of R\nDraw D: consume the completed, visible records in R\nCompletion evidence: all submitted users of R have finished\nOnly after that evidence: reuse or destroy R"
+          "code": "Dispatch W: write R = four vertex records\nDependency: W compute writes -> D vertex-input reads of R\nDraw D: consume the completed, visible records in R\nCompletion evidence at the host: all submitted users of R have finished\nOnly after that evidence: the host recycles storage or destroys the buffer"
         },
         {
           "type": "paragraph",
-          "text": "The arrow names both access roles. A barrier aimed at unrelated stages or the wrong resource range would not express this dependency. The host can submit commands long before their device work completes, so returning from a recording function is insufficient evidence for deletion. This example has one queue to isolate the write/read hazard. Adding queue transfers or host mapping introduces additional contracts that must be checked against the specification."
+          "text": "The arrow names both access roles. A barrier aimed at unrelated stages or the wrong resource range would not express this dependency. The host can submit commands long before their device work completes, so returning from a recording function is insufficient evidence for deletion. This example has one queue to isolate the write/read hazard. Adding queue transfers or host mapping introduces additional contracts that must be checked against the specification. Later device-side reuse can instead be ordered with suitable execution and memory dependencies; it does not require a host wait between every use. The completion check in this trace governs host-side recycling and destruction."
         }
       ]
     },
@@ -58,7 +58,7 @@
         {
           "type": "reflection",
           "prompt": "Would putting a C++ mutex around the two host submission calls automatically make the GPU buffer safe to read and destroy?",
-          "explanation": "No. The mutex controls participating host threads. It does not replace the device execution, memory-visibility or completion requirements. The application still needs Vulkan synchronization that covers the intended accesses and evidence that all device users have finished before recycling the resource."
+          "explanation": "No. The mutex controls participating host threads. It does not replace the device execution, memory-visibility or completion requirements. The application still needs Vulkan synchronization that covers the intended accesses and evidence that all device users have finished before host-side recycling or destruction."
         }
       ]
     }
@@ -91,5 +91,6 @@
       "url": "https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyBuffer.html",
       "locator": "Primary specification: Valid Usage VUID-vkDestroyBuffer-buffer-00922; completion of submitted buffer users; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

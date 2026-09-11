@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_basics_module_variables",
-  "versionId": "cpp_basics_variables_v1",
+  "versionId": "cpp_basics_variables_v2",
   "slug": "variables-types-initialization",
   "title": "Variables, types, and initialization",
   "summary": "Give values useful names, choose simple types, and begin with a known value.",
@@ -110,52 +110,63 @@
       "edition": "4th edition",
       "isbn": "9780321563842",
       "url": "https://www.stroustrup.com/4th.html",
-      "locator": "§2.2.2, printed pp. 40–42: types, initialization, and auto; §2.2.3, printed p. 42: const. The link opens the author’s book page."
+      "locator": "Further reading: §2.2.2 Types, Variables, and Arithmetic and §2.2.3 Constants. Bibliographic metadata and section titles verified against the author’s edition page and extended table of contents on 2026-09-11; book passages and printed page numbers were not independently verified in this review."
     },
     {
-      "id": "cpp_basics_variables_source_initialization",
-      "title": "C++ working draft — list-initialization",
+      "id": "cpp_basics_variables_source_initialization_r2",
+      "title": "C++20 working draft N4861: list-initialization",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/dcl.init.list",
-      "locator": "[dcl.init.list]: brace initialization, empty initializers, and the definition of narrowing conversions."
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.init.list",
+      "locator": "Primary standards draft, [dcl.init.list], paragraphs 1, 3.9, 3.11, and 7: braces, scalar initialization, empty initializers, and narrowing conversions. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     },
     {
-      "id": "cpp_basics_variables_source_types",
-      "title": "C++ working draft — fundamental types",
+      "id": "cpp_basics_variables_source_types_r2",
+      "title": "C++20 working draft N4861: fundamental types",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/basic.fundamental",
-      "locator": "[basic.fundamental]: integer ranges, character types, bool, and floating-point types."
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.fundamental",
+      "locator": "Primary standards draft, [basic.fundamental], paragraphs 1–4, 7, 10, and 12: integer ranges, signed overflow, char, bool, and floating-point types and representation. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     },
     {
-      "id": "cpp_basics_variables_source_auto",
-      "title": "C++ working draft — auto and type deduction",
+      "id": "cpp_basics_variables_source_auto_r2",
+      "title": "C++20 working draft N4861: auto and type deduction",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/dcl.spec.auto",
-      "locator": "[dcl.spec.auto.general] and [dcl.type.auto.deduct]: deriving a variable’s type from its initializer."
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.spec.auto",
+      "locator": "Primary standards draft, [dcl.spec.auto], paragraphs 1 and 4, and [dcl.type.auto.deduct], paragraph 2.2: deducing a variable’s type from its initializer. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     },
     {
-      "id": "cpp_basics_variables_source_const",
-      "title": "C++ working draft — const qualification",
+      "id": "cpp_basics_variables_source_const_r2",
+      "title": "C++20 working draft N4861: const qualification",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/dcl.type.cv",
-      "locator": "[dcl.type.cv]: const-qualified objects and restrictions on modification."
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.type.cv",
+      "locator": "Primary standards draft, [dcl.type.cv], paragraphs 3 and 4: const-qualified access and restrictions on modifying const objects. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     },
     {
-      "id": "cpp_basics_variables_source_bool_output",
-      "title": "C++ working draft — numeric and Boolean output",
+      "id": "cpp_basics_variables_source_bool_output_r2",
+      "title": "C++20 working draft N4861: numeric and Boolean output",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/facet.num.put.virtuals",
-      "locator": "[facet.num.put.virtuals], Boolean overload: numeric output when boolalpha is unset. Compare the default stream flags in [basic.ios.cons]."
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/facet.num.put.virtuals",
+      "locator": "Primary standards draft, [facet.num.put.virtuals], paragraph 6: numeric Boolean output when boolalpha is unset; [basic.ios.cons], paragraph 4 and Table 122, specify default flags skipws | dec. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     }
-  ]
+  ],
+  "version": 2
 }

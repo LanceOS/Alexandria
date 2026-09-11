@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "build_model_a_build_as_a_graph_module",
-  "versionId": "build_model_a_build_as_a_graph_v1",
+  "versionId": "build_model_a_build_as_a_graph_v2",
   "slug": "model-a-build-as-a-graph",
   "title": "Model a build as a dependency graph",
   "summary": "Explain why a library requirement must reach the targets that consume it.",
@@ -75,7 +75,8 @@
         "Kitware and CMake contributors"
       ],
       "url": "https://cmake.org/cmake/help/v3.31/manual/cmake-buildsystem.7.html",
-      "locator": "Official versioned documentation: CMake 3.31, Binary Targets, Build Specification and Usage Requirements, and Transitive Usage Requirements; consulted 2026-09-11."
+      "locator": "Official versioned documentation: CMake 3.31 (page build 3.31.12), Binary Targets, Build Specification and Usage Requirements, Target Usage Requirements, Transitive Compile Properties, and Transitive Link Properties; consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

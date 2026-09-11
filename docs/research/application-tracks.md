@@ -19,9 +19,9 @@ Lesson words use whitespace splitting of block text, worked traces, and reflecti
 | embedded-realtime / task-timing | Separate release time from completion deadline | 418 | threads |
 | embedded-realtime / bounded-events | Design a bounded interrupt-to-worker queue | 438 | queue |
 | game-development / simulation-time | Separate simulation updates from rendered frames | 430 | gameloop |
-| game-development / scene-composition | Compose reusable entities without sharing their state | 452 | scene |
+| game-development / scene-composition | Compose reusable entities without sharing their state | 482 | scene |
 | graphics-gpu / rendering-pipeline | Follow geometry through a graphics pipeline | 425 | pipeline |
-| graphics-gpu / resource-dependencies | Make GPU producer and consumer dependencies explicit | 432 | sync, syncspec, bufferlife |
+| graphics-gpu / resource-dependencies | Make GPU producer and consumer dependencies explicit | 474 | sync, syncspec, bufferlife |
 | scientific-computing / experiment-provenance | Make a computational result reproducible | 428 | provenance |
 | scientific-computing / linear-systems | Solve a linear system and check its residual | 446 | eigen, lapack |
 | network-distributed-systems / stream-protocols | Recover messages from a byte stream | 415 | tcp |
@@ -36,7 +36,7 @@ Lesson words use whitespace splitting of block text, worked traces, and reflecti
 | audio-signal-processing / discrete-transforms | Interpret a discrete Fourier transform convention | 388 | dft |
 | gui-development / event-driven-state | Connect user actions to observable state changes | 427 | signals |
 | gui-development / responsive-work | Return background results to the GUI thread | 427 | qtthreads |
-| machine-learning-infrastructure / tensor-execution | Map a tensor computation onto an execution graph | 393 | tensorflow |
+| machine-learning-infrastructure / tensor-execution | Map a tensor computation onto an execution graph | 431 | tensorflow |
 | machine-learning-infrastructure / inference-contracts | Separate model evaluation behavior from gradient recording | 445 | autograd |
 | language-interoperability / cross-runtime-ownership | Define ownership when C++ objects cross into Python | 447 | policies |
 | language-interoperability / runtime-coordination | Separate Python access from independent native work | 421 | gil |
@@ -51,10 +51,10 @@ Lesson words use whitespace splitting of block text, worked traces, and reflecti
 | threads: [Zephyr: Threads](https://docs.zephyrproject.org/latest/kernel/services/threads/index.html) | Primary documentation | Thread States, Thread Priorities and Thread Suspension; readiness and execution eligibility | Sections named in locator were read; no platform execution or independent benchmark performed. |
 | queue: [Zephyr: Message Queues](https://docs.zephyrproject.org/latest/kernel/services/data_passing/message_queues.html) | Primary documentation | Concepts; fixed-size copied messages, capacity and ISR restrictions | Sections named in locator were read; no platform execution or independent benchmark performed. |
 | gameloop: [Godot: Idle and Physics Processing](https://docs.godotengine.org/en/stable/tutorials/scripting/idle_and_physics_processing.html) | Primary documentation | Processing types and delta; variable rendering frequency and fixed physics updates | Sections named in locator were read; no platform execution or independent benchmark performed. |
-| scene: [Godot: Nodes and scene instances](https://docs.godotengine.org/en/stable/tutorials/scripting/nodes_and_scene_instances.html) | Primary documentation | Getting nodes, Node paths, Creating nodes and Instancing scenes; tree composition and deferred deletion | Sections named in locator were read; no platform execution or independent benchmark performed. |
+| scene: [Godot: Nodes and scene instances](https://docs.godotengine.org/en/stable/tutorials/scripting/nodes_and_scene_instances.html) | Primary documentation | Getting nodes, Node paths, Creating nodes and Instancing scenes; composition and updating lookups after renaming nodes | The corrected trace keeps the public call stable while explicitly maintaining internal paths; no platform execution performed. |
 | pipeline: [Vulkan specification: Pipelines](https://docs.vulkan.org/spec/latest/chapters/pipelines.html) | Primary specification | Pipelines introduction, Primitive Shading and Common; vertex transformation, rasterization and fragment processing | Sections named in locator were read; no platform execution or independent benchmark performed. |
 | sync: [Vulkan Guide: Synchronization](https://docs.vulkan.org/guide/latest/synchronization.html) | Primary documentation | Synchronization, Validation and Pipeline Barriers; application-managed synchronization | Sections named in locator were read; no platform execution or independent benchmark performed. |
-| syncspec: [Vulkan specification: Synchronization and Cache Control](https://docs.vulkan.org/spec/latest/chapters/synchronization.html) | Primary specification | Execution and memory dependencies, availability, visibility and access scopes | Sections named in locator were read; no platform execution or independent benchmark performed. |
+| syncspec: [Vulkan specification: Synchronization and Cache Control](https://docs.vulkan.org/spec/latest/chapters/synchronization.html) | Primary specification | Execution and memory dependencies, availability, visibility and access scopes | Device-side reuse can use dependencies; the trace’s host completion check applies to recycling and destruction. No platform execution performed. |
 | bufferlife: [Vulkan reference: vkDestroyBuffer](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyBuffer.html) | Primary specification | Valid Usage VUID-vkDestroyBuffer-buffer-00922; completion of submitted buffer users | Sections named in locator were read; no platform execution or independent benchmark performed. |
 | lapack: [LAPACK Users Guide: How to Measure Errors](https://www.netlib.org/lapack/lug/node75.html) | Primary documentation | Error measures, vector norms and condition number; sensitivity and interpreting numerical errors | Sections named in locator were read; no platform execution or independent benchmark performed. |
 | provenance: [Good enough practices in scientific computing](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005510) | Scholarly guidance (journal Perspective) | Data management, Software and Keeping track of changes; raw data, processing records, dependencies and version tracking | Read article text and publication metadata; this is practice guidance, not a controlled causal study or a guarantee of scientific validity. |
@@ -82,7 +82,20 @@ The Open Group POSIX read/fork pages returned access errors, so the Linux man-pa
 
 The Eigen tutorial redirected to its official development documentation. Its citation supports mathematical workflow rather than a version-specific program. PyTorch’s stable URL redirected to 2.14, which was read and cited explicitly. Godot, Qt, Zephyr, Vulkan and pybind11 documentation was consulted on the date above; the modules avoid assuming that the current version is installed locally. The FFTW page exposes its transform scaling and frequency-order text; the original four-point calculations are derived from the definition written explicitly in the lesson.
 
-The Raft and TensorFlow peer-reviewed paper PDFs were read for the cited sections, and their conference landing pages supplied publication metadata. The Raft trace limits the simple majority argument to a current-term entry in a fixed-membership cluster with the remaining protocol assumptions stated. The TensorFlow paper is treated as a historical design study. The PLOS article is labeled as scholarly practice guidance (a journal Perspective), rather than an experimental research result. Its data and workflow recommendations support the provenance lesson. Numerical-error instruction is kept in the separate numerical-computing topic.
+The Raft and TensorFlow paper PDFs were read for the cited sections. Their official landing-page BibTeX records establish publisher, authors, title, year and page range, and their respective calls for papers establish the review processes; direct evidence links are recorded below. The Raft trace limits the simple majority argument to a current-term entry in a fixed-membership cluster with the remaining protocol assumptions stated. The TensorFlow paper is treated as a historical design study. The PLOS article is labeled as scholarly practice guidance (a journal Perspective), rather than an experimental research result. Its data and workflow recommendations support the provenance lesson. Numerical-error instruction is kept in the separate numerical-computing topic.
+
+## Paper metadata and review-process evidence
+
+The following official sources were freshly checked on 2026-09-11. Both lesson source records now name **USENIX Association** as publisher. These metadata and review-policy checks are distinct from reading the substantive paper passages.
+
+| Paper | Official publication metadata | Official review-process evidence |
+| --- | --- | --- |
+| Ongaro and Ousterhout, *In Search of an Understandable Consensus Algorithm* | [USENIX ATC 2014 record](https://www.usenix.org/conference/atc14/technical-sessions/presentation/ongaro): June 2014, pp. 305–319; proceedings ISBN 978-1-931971-10-2. | [ATC 2014 call for papers](https://www.usenix.org/conference/atc14/call-for-papers): refereed papers track, single-blind reviewing and program-committee shepherding. |
+| Abadi and colleagues, *TensorFlow: A System for Large-Scale Machine Learning* | [OSDI 2016 record](https://www.usenix.org/conference/osdi16/technical-sessions/presentation/abadi): November 2016, pp. 265–283; proceedings ISBN 978-1-931971-33-1. | [OSDI 2016 call for papers](https://www.usenix.org/conference/osdi16/call-for-papers): double-blind reviewing, author responses and program-committee editorial review. |
+
+## Applied deep-review corrections
+
+APP-001 and APP-002 were applied on 2026-09-11. The scene example now updates internal node paths after a rename. The tensor-graph reflection distinguishes direct edges from dependency paths and checks shared-state access before inferring independence. Optional APP-O01 distinguishes ordered device-side resource reuse from host recycling/destruction; APP-O02 records the publisher and the official paper metadata and review evidence above. The [baseline audit](../reviews/applications-audit.md) remains unchanged as history. Word counts above reflect the corrected lessons.
 
 ## Review boundaries
 

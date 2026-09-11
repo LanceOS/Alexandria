@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_starter_module_first_program",
-  "versionId": "cpp_starter_version_1",
+  "versionId": "cpp_starter_version_1_r2",
   "slug": "first-cpp-program",
   "title": "Your first C++ program",
   "summary": "Read a complete program, understand its output, and make one small change.",
@@ -127,52 +127,63 @@
       "edition": "4th edition",
       "isbn": "9780321563842",
       "url": "https://www.stroustrup.com/4th.html",
-      "locator": "§2.2 The Basics, p. 38; §2.2.1 Hello, World!, p. 39"
+      "locator": "Further reading: §2.2 The Basics and §2.2.1 Hello, World!. Bibliographic metadata and section titles verified against the author’s edition page and extended table of contents on 2026-09-11; book passages and printed page numbers were not independently verified in this review."
     },
     {
-      "id": "cpp_starter_source_main",
-      "title": "C++ working draft: main function",
+      "id": "cpp_starter_source_main_r2",
+      "title": "C++20 working draft N4861: main function",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/basic.start.main",
-      "locator": "[basic.start.main], paragraphs 1, 2, and 5; consulted 2026-09-11"
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.start.main",
+      "locator": "Primary standards draft, [basic.start.main], paragraphs 1, 2, and 5: hosted startup, main signatures, and implicit return 0. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     },
     {
-      "id": "cpp_starter_source_streams",
-      "title": "C++ working draft: standard iostream objects",
+      "id": "cpp_starter_source_streams_r2",
+      "title": "C++20 working draft N4861: standard iostream objects",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/iostream.objects",
-      "locator": "[iostream.syn], [iostream.objects.overview], and [narrow.stream.objects]; consulted 2026-09-11"
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/iostream.objects",
+      "locator": "Primary standards draft, [iostream.syn]; [iostream.objects.overview], paragraph 2; [narrow.stream.objects], paragraph 3: iostream declarations and cout associated with stdout. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     },
     {
-      "id": "cpp_starter_source_strings",
-      "title": "C++ working draft: string literals",
+      "id": "cpp_starter_source_strings_r2",
+      "title": "C++20 working draft N4861: string literals",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/lex.string",
-      "locator": "[lex.string], ordinary string literals and escape sequences; consulted 2026-09-11"
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/lex.string",
+      "locator": "Primary standards draft, [lex.string], paragraphs 5, 12, and 13: ordinary string literals, terminating null character, and escape sequences. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     },
     {
-      "id": "cpp_starter_source_escapes",
-      "title": "C++ working draft: character literals and escapes",
+      "id": "cpp_starter_source_escapes_r2",
+      "title": "C++20 working draft N4861: character literals and escapes",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/lex.ccon",
-      "locator": "[lex.ccon], simple escape sequences; consulted 2026-09-11"
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/lex.ccon",
+      "locator": "Primary standards draft, [lex.ccon], paragraphs 1 and 6 and Table 9: ordinary character literals and simple escape sequences. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     },
     {
-      "id": "cpp_starter_source_includes",
-      "title": "C++ working draft: source file inclusion",
+      "id": "cpp_starter_source_includes_r2",
+      "title": "C++20 working draft N4861: source file inclusion",
       "authors": [
         "ISO/IEC JTC1/SC22/WG21"
       ],
-      "url": "https://eel.is/c++draft/cpp.include",
-      "locator": "[cpp.include], header inclusion; consulted 2026-09-11"
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/cpp.include",
+      "locator": "Primary standards draft, [cpp.include], paragraphs 1 and 2: header inclusion with angle brackets. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     }
-  ]
+  ],
+  "version": 2
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "foundations_decompose_a_task_module",
-  "versionId": "foundations_decompose_a_task_v1",
+  "versionId": "foundations_decompose_a_task_v2",
   "slug": "decompose-a-task",
   "title": "Decompose a task before choosing syntax",
   "summary": "Translate a small requirement into a testable sequence of responsibilities.",
@@ -75,7 +75,7 @@
         "C. A. R. Hoare"
       ],
       "url": "https://sites.cs.ucsb.edu/~kemm/courses/cs266/acmhoare69.pdf",
-      "locator": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11.",
+      "locator": "Published research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11.",
       "publisher": "Association for Computing Machinery",
       "publicationYear": 1969
     },
@@ -89,5 +89,6 @@
       "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
       "locator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_program_organization_headers_and_modules",
-  "versionId": "cpp_core_program_organization_headers_and_modules_v1",
+  "versionId": "cpp_core_program_organization_headers_and_modules_v2",
   "slug": "headers-and-modules",
   "title": "Headers, namespaces, and module boundaries",
   "summary": "Design an interface boundary while distinguishing textual inclusion from C++20 modules.",
@@ -131,11 +131,23 @@
     {
       "id": "cpp_core_program_organization_headers_and_modules_source_6",
       "title": "C++20 working draft N4861: module.global.frag",
-      "authors": ["ISO/IEC JTC1/SC22/WG21"],
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
       "publicationYear": 2020,
       "edition": "N4861 (C++20 working draft)",
       "url": "https://timsong-cpp.github.io/cppwp/n4861/module.global.frag",
       "locator": "N4861, [module.global.frag], especially paragraph 6; consulted 2026-09-11. Optional global module fragment before the exported module declaration."
+    },
+    {
+      "id": "cpp_core_program_organization_headers_and_modules_source_audit_include_guards",
+      "title": "GCC preprocessor manual: Once-Only Headers",
+      "authors": [
+        "GCC contributors"
+      ],
+      "url": "https://gcc.gnu.org/onlinedocs/cpp/Once-Only-Headers.html",
+      "locator": "GCC preprocessor manual §2.4; consulted 2026-09-11. The wrapper #ifndef pattern and why a repeated include skips guarded contents. Implementation documentation describing a portable preprocessing pattern."
     }
-  ]
+  ],
+  "version": 2
 }

@@ -4,6 +4,8 @@ export interface ContentModule {
   $schema?: string;
   id: string;
   versionId: string;
+  /** Published release number. Omitted for the original release (version 1). */
+  version?: number;
   slug: string;
   title: string;
   summary: string;

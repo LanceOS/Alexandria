@@ -53,14 +53,15 @@ For example, a new `content/units/cpp/memory/unit.json` could start with:
 
 | Field | Meaning |
 | --- | --- |
-| `id`, `versionId` | Stable module identity and its first published release identity |
+| `id`, `versionId` | Stable module identity and the selected published release identity |
+| `version` | Positive module-local release number; omitted means 1 |
 | `slug`, `title`, `summary` | Module discovery and reader text |
 | `position` | Nonnegative order within its owning unit |
 | `objectives` | An array of learning objective strings |
 | `parts` | Ordered sections, each with `id`, `title`, and `blocks` |
 | `sources` | Ordered references, each with `id`, `title`, `authors`, `url`, and `locator` |
 
-There is no `version` field. The importer currently creates version 1 with content schema version 1 and an empty completion policy. It publishes content explicitly; JSON definitions do not have draft or publication-status switches.
+The importer creates the selected release with content schema version 1 and an empty completion policy. It publishes content explicitly; JSON definitions do not have draft or publication-status switches.
 
 The reader accepts these block shapes:
 
@@ -98,11 +99,15 @@ Validation checks JSON schemas and semantic rules before import. It catches unsu
 
 For `--all`, every root is validated before opening the database. All selected topics are installed within one outer transaction, so a failure in a later topic rolls back earlier topic additions too. The option must be used alone; it cannot be combined with a topic name. Importing a single topic retains the existing command output and behavior.
 
-Import is additive, not a synchronization that removes absent records. Deleting a source file does not delete the corresponding published database content. Editing an already published definition is also not an update mechanism. The database supports multiple releases, but importing later versions requires an explicit future workflow; changing only `versionId` will not publish an update.
+Import preserves absent records. Deleting a source file does not delete the corresponding published database content. To revise a lesson, retain its stable module and part IDs, increment `version` by one, and assign a new `versionId`. Keep existing module discovery metadata unchanged. The importer publishes a new release and retains every earlier release and learner record; the reader selects the latest published version. Changing content under an existing release ID remains a conflict.
+
+Keep a source ID when its bibliographic metadata is unchanged; its locator may differ between releases. A correction to a source title, authors, publisher, year, edition, ISBN, or URL requires a new source ID because prior releases retain their original bibliography. Added references also need new IDs. Never reuse an ID for a different module or entity.
+
+An existing installation accepts the next sequential version or an exact rerun of the latest version. Skipped versions, downgrades, conflicting identities, and partial releases are rejected. A fresh installation may begin with the selected version even when earlier releases are not included in the files. Import reports `addedModules`, `addedVersions`, and `revisedModules`; a matching rerun reports zero for all three.
 
 Published lesson JSON is compared after parsing and serialization. Whitespace is insignificant, but preserve object key order inside existing blocks as well as array order when reorganizing files; changing either can cause a conflict with the stored release.
 
-The included C++ JSON preserves the previously published lesson data and identities exactly. Reimporting a matching installation makes no curriculum writes and requires no database migration. `npm run content:cpp-basics` remains an alias for `npm run content:import -- cpp`.
+The included JSON contains the latest reviewed release of each lesson. Corrections preserve stable module and part identities while using new release identities. Reimporting a matching installation makes no curriculum writes and requires no database migration. `npm run content:cpp-basics` remains an alias for `npm run content:import -- cpp`.
 
 ## Build and runtime
 

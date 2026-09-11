@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_library_data_containers_sequences_and_invalidation",
-  "versionId": "cpp_core_library_data_containers_sequences_and_invalidation_v1",
+  "versionId": "cpp_core_library_data_containers_sequences_and_invalidation_v2",
   "slug": "sequences-and-invalidation",
   "title": "Sequence containers and invalidation",
   "summary": "Choose an owning sequence and keep references valid across its modifications.",
@@ -18,7 +18,7 @@
       "blocks": [
         {
           "type": "paragraph",
-          "text": "A container owns a collection of elements and defines how they are arranged and accessed. std::vector is a useful starting point for a sequence whose length can change. It stores ordinary elements contiguously and manages their storage automatically. std::array represents a fixed number of elements as part of its own value. Neither choice requires writing new or delete, so the first design question can focus on the application’s required operations."
+          "text": "A container owns a collection of elements and defines how they are arranged and accessed. std::vector is a useful starting point for a sequence whose length can change. For element types other than bool, vector is a contiguous container and manages its storage automatically. The vector<bool> specialization has different storage and reference behavior. std::array represents a fixed number of elements as part of its own value. Neither choice requires writing new or delete, so the first design question can focus on the application’s required operations."
         },
         {
           "type": "paragraph",
@@ -106,5 +106,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers",
       "locator": "N4861, [vector.modifiers]; consulted 2026-09-11. Insertion and erase invalidation requirements."
     }
-  ]
+  ],
+  "version": 2
 }
