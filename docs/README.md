@@ -7,6 +7,9 @@
 - [Curriculum map](curriculum-map.md): C++ core and advanced units, supporting subjects, application tracks, and the modules available in each.
 - [Curriculum evidence](curriculum-evidence.md): shared lesson pattern, primary documentation, peer-reviewed research, review records, and verification limits.
 - [C++ Basics content](cpp-basics-content.md): seven original introductory modules, documentation/book references, and explicit installation.
+- [Learning progress and quests](learning-progress.md): saved reading, XP, weekly goals, milestones, practice, and upgrade steps.
+- [Code area and runner](code-runner.md): editing C++20 examples, local execution, isolation, setup, and limits.
+- [Application review](reviews/2026-09-11-application-review.md): reviewed issues, corrections, and verification of the learning features.
 - [Database schema](database-schema.md): migrations, curriculum versioning, learner progress, and integrity rules.
 - [Direct service example](../deploy/README.md): optional Linux systemd setup for the compiled application.
 - [Self-hosting implementation plan](self-hosting-plan.md): cloud-free architecture, local SQLite storage, deployment, operations, and phased acceptance criteria.

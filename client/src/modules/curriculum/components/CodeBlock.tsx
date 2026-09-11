@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, Icon } from '../../../components/ui';
 import type { LessonBlock } from '../types';
+import { CodePlayground } from '../../code-runner';
 
 export function CodeBlock({ block }: { block: Extract<LessonBlock, { type: 'code' }> }) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
@@ -19,7 +20,7 @@ export function CodeBlock({ block }: { block: Extract<LessonBlock, { type: 'code
     resetRef.current = window.setTimeout(() => setCopyState('idle'), 3000);
   }
 
-  return <figure className="lesson-code">
+  return <><figure className="lesson-code">
     <div className="lesson-code-toolbar">
       <span>{label}</span>
       <Button variant="ghost" className="lesson-copy" aria-label={`Copy ${label === 'Output' ? 'output' : 'code'}`} onClick={() => void copy()}>
@@ -29,6 +30,5 @@ export function CodeBlock({ block }: { block: Extract<LessonBlock, { type: 'code
     <pre tabIndex={0} aria-label={`${label} example`}><code>{block.code}</code></pre>
     {copyState === 'failed' && <p className="lesson-copy-help" role="status">Select the text above to copy it.</p>}
     {block.caption && <figcaption>{block.caption}</figcaption>}
-  </figure>;
+  </figure>{block.language === 'cpp' && <CodePlayground key={block.code} initialSource={block.code} />}</>;
 }
-

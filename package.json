@@ -19,6 +19,8 @@
     "content:cpp-basics": "node --env-file-if-exists=.env --import tsx server/commands/content-cpp-basics.ts",
     "content:check": "node --import tsx server/commands/content-check.ts",
     "content:test-examples": "node scripts/check-cpp-examples.mjs",
+    "runner:setup": "node --env-file-if-exists=.env scripts/setup-code-runner.mjs",
+    "runner:check": "node --env-file-if-exists=.env --import tsx scripts/check-code-runner.mjs",
     "content:import": "node --env-file-if-exists=.env --import tsx server/commands/content-import.ts",
     "typecheck": "tsc --noEmit",
     "test": "node scripts/test.mjs",

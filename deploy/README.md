@@ -16,6 +16,7 @@ DATA_DIR=/srv/alexandria/data
 DATABASE_PATH=/srv/alexandria/data/database/alexandria.sqlite
 BACKUP_DIR=/srv/alexandria/backups
 LOG_LEVEL=info
+CODE_RUNNER_ENABLED=false
 ```
 
 Initialize a fresh database explicitly as the service account:
@@ -37,3 +38,5 @@ Open [Alexandria](http://localhost:3000) on the host. The example binds to loopb
 Before replacing a release, stop the service and run the compiled `backup.js` maintenance command using the same account and `--env-file`. Apply the new release's compiled `migrate.js` command before restarting. Keep the prior release and backup until the updated application passes a local check. Startup rejects a missing database or incompatible schema.
 
 Runtime data belongs on a local filesystem outside `/opt/alexandria`. Only application storage is needed; source-book directories are never mounted, copied, or served. Installation may download dependencies; a prepared release with Node and production dependencies already present runs without a package download.
+
+This hardened service example leaves code execution disabled. Optional C++ execution requires a separately provisioned compatible rootless Podman environment for the service account; see [Code area and runner](../docs/code-runner.md). The example's home, filesystem, and privilege restrictions are not a ready-made runner deployment.

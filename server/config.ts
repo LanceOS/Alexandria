@@ -12,6 +12,7 @@ export interface Config {
   backupDir: string;
   clientDir: string;
   projectRoot: string;
+  codeRunner?: { enabled: boolean; image: string };
   logLevel: 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace' | 'silent';
 }
 
@@ -81,6 +82,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, projectRoot = d
   if (!['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'].includes(logLevel)) {
     throw new Error('LOG_LEVEL must be fatal, error, warn, info, debug, trace, or silent.');
   }
+  if (env.CODE_RUNNER_ENABLED !== undefined && !['true', 'false'].includes(env.CODE_RUNNER_ENABLED)) {
+    throw new Error('CODE_RUNNER_ENABLED must be true or false.');
+  }
+  const codeRunnerImage = env.CODE_RUNNER_IMAGE ?? 'localhost/alexandria-cpp-runner:1';
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9._/:@-]{0,249}$/.test(codeRunnerImage)) {
+    throw new Error('CODE_RUNNER_IMAGE must be a local container image reference.');
+  }
 
   let appOrigin: string | undefined;
   if (env.APP_ORIGIN) {
@@ -102,6 +110,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, projectRoot = d
     backupDir,
     clientDir: join(projectRoot, 'dist', 'client'),
     projectRoot: resolve(projectRoot),
+    codeRunner: { enabled: env.CODE_RUNNER_ENABLED !== 'false', image: codeRunnerImage },
     logLevel: logLevel as Config['logLevel'],
   };
   validateStoragePaths(config);

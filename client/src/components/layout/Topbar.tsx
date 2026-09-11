@@ -1,4 +1,4 @@
-import type { RefObject } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { Button, Icon, IconButton } from '../ui';
 
 interface TopbarProps {
@@ -10,10 +10,11 @@ interface TopbarProps {
   connection: { loading: boolean; error: boolean };
   theme: 'light' | 'dark';
   onThemeChange: (theme: 'light' | 'dark') => void;
+  account?: ReactNode;
 }
 
 export function Topbar({ menuOpen, menuButtonRef, onToggleMenu, breadcrumbTitle, onLibrary,
-  connection, theme, onThemeChange }: TopbarProps) {
+  connection, theme, onThemeChange, account }: TopbarProps) {
   return <header className="topbar">
     <IconButton ref={menuButtonRef} className="mobile-menu" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
       aria-controls="library-navigation" aria-expanded={menuOpen} onClick={onToggleMenu}>
@@ -39,6 +40,7 @@ export function Topbar({ menuOpen, menuButtonRef, onToggleMenu, breadcrumbTitle,
           <Icon name="moon" size={15} />Dark
         </Button>
       </div>
+      {account}
     </div>
   </header>;
 }

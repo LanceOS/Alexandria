@@ -1,27 +1,44 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, EmptyState, Icon } from '../../../components/ui';
 import type { CurriculumProps } from '../types';
 import { CurriculumLink } from '../components/CurriculumLink';
 import { useCurriculumData } from '../hooks/useCurriculumData';
 import { ModuleReaderPage } from './ModuleReaderPage';
 import { OverviewPage } from './OverviewPage';
+import { nextReadingPart, useLearningProgress } from '../../progress';
 
 export function CurriculumPage({ topicSlug, moduleId, partId, onNavigate }: CurriculumProps) {
-  const { outline, detail, loading, error, missing, partIndex, part, missingPart, retry } = useCurriculumData({ topicSlug, moduleId, partId });
+  const { outline, detail, loading, error, missing, retry } = useCurriculumData({ topicSlug, moduleId, partId });
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const account = useLearningProgress();
+
+  // Resolve module-only links once per route, so marking a section read never moves the page.
+  const [resume, setResume] = useState<{ route: string; partId: string | null } | null>(null);
+  const route = JSON.stringify([topicSlug, moduleId, partId, detail?.version.id]);
+  const currentResume = resume?.route === route ? resume : null;
+  useEffect(() => {
+    if (detail && !loading && !account.loading && !currentResume) {
+      setResume({ route, partId: partId ?? nextReadingPart(detail, account.progress)?.id ?? null });
+    }
+  }, [detail, loading, account.loading, account.progress, currentResume, route, partId]);
+  const waitingForResume = Boolean(moduleId && !partId && !currentResume && !error && !missing && (account.loading || detail));
+  const selectedPartId = partId ?? currentResume?.partId;
+  const partIndex = detail ? (selectedPartId ? detail.parts.findIndex((section) => section.id === selectedPartId) : 0) : -1;
+  const part = detail?.parts[partIndex];
+  const missingPart = Boolean(moduleId && detail && !part);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || waitingForResume) return;
     headingRef.current?.focus({ preventScroll: true });
     window.scrollTo({ top: 0, behavior: 'auto' });
-  }, [loading, topicSlug, moduleId, partId]);
+  }, [loading, waitingForResume, topicSlug, moduleId, partId]);
 
   const overview = { topicSlug };
   const backLink = <CurriculumLink destination={moduleId ? overview : null} navigate={onNavigate} className="curriculum-back-link">
     <Icon name="arrow-left" size={16} />{moduleId ? `Back to ${outline?.topic.name ?? 'topic'}` : 'Back to library'}
   </CurriculumLink>;
 
-  if (loading) return <div className="curriculum-page" aria-busy="true">{backLink}<div className="curriculum-loading" role="status"><span className="loading-dot" />Opening {moduleId ? 'your module' : 'the learning path'}…</div></div>;
+  if (loading || waitingForResume) return <div className="curriculum-page" aria-busy="true">{backLink}<div className="curriculum-loading" role="status"><span className="loading-dot" />Opening {moduleId ? 'your module' : 'the learning path'}…</div></div>;
 
   if (missing || error || !outline || (moduleId && !detail)) return <div className="curriculum-page">
     {backLink}

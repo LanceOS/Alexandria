@@ -4,9 +4,14 @@ import { useAppNavigation } from '../hooks/useAppNavigation';
 import { useTheme } from '../hooks/useTheme';
 import { CurriculumPage } from '../modules/curriculum';
 import { LibraryNavigation, LibraryPage, useLibrary } from '../modules/library';
+import { AccountControls, ProgressProvider } from '../modules/progress';
 
 /** Compose feature entry points with the shared workspace and browser navigation. */
 export function WorkspacePage() {
+  return <ProgressProvider><WorkspaceContent /></ProgressProvider>;
+}
+
+function WorkspaceContent() {
   const navigation = useAppNavigation();
   const library = useLibrary();
   const { theme, chooseTheme } = useTheme();
@@ -20,6 +25,7 @@ export function WorkspacePage() {
   }, [breadcrumbTitle]);
 
   return <AppShell
+    account={<AccountControls />}
     theme={theme} onThemeChange={chooseTheme}
     breadcrumbTitle={breadcrumbTitle} onLibrary={() => navigation.navigate(null)}
     connection={{ loading: library.loading, error: library.error }} routeKey={navigation.routeKey}

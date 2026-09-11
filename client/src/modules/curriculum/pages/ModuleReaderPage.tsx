@@ -5,14 +5,19 @@ import { CurriculumLink } from '../components/CurriculumLink';
 import { SectionLinks } from '../components/SectionLinks';
 import { Sources } from '../components/Sources';
 import { getReaderNavigation } from '../utils/reader';
+import { currentModuleProgress, SectionQuest, useLearningProgress } from '../../progress';
+import { PracticeQuests } from '../components/PracticeQuests';
+import { CodePlayground, CPP_STARTER } from '../../code-runner';
 
 export function ModuleReaderPage({ outline, detail, topicSlug, moduleId, part, partIndex, onNavigate, headingRef }: {
   outline: TopicOutline; detail: ModuleDetail; topicSlug: string; moduleId: string;
   part: ModuleDetail['parts'][number]; partIndex: number; onNavigate: Navigate; headingRef: HeadingRef;
 }) {
   const overview = { topicSlug };
+  const { progress } = useLearningProgress();
+  const saved = currentModuleProgress(progress, detail.module);
   const { previous, next, finalSection, owningUnit, nextModule, nextDestination } = getReaderNavigation(outline, detail, partIndex, topicSlug);
-  const sectionLinks = <SectionLinks parts={detail.parts} activePartId={part.id} topicSlug={topicSlug} moduleId={moduleId} navigate={onNavigate} />;
+  const sectionLinks = <SectionLinks parts={detail.parts} activePartId={part.id} topicSlug={topicSlug} moduleId={moduleId} navigate={onNavigate} completedPartIds={saved?.completedPartIds} />;
 
   return <div className="curriculum-page curriculum-reader">
     <nav className="curriculum-breadcrumb" aria-label="Module breadcrumb">
@@ -29,13 +34,18 @@ export function ModuleReaderPage({ outline, detail, topicSlug, moduleId, part, p
       <nav aria-label="Module sections">{sectionLinks}</nav>
     </details>
     <div className="lesson-layout">
-      <article className="lesson-article" key={part.id} aria-labelledby="lesson-section-heading">
+      <article className="lesson-article" key={`${moduleId}-${detail.version.id}-${part.id}`} aria-labelledby="lesson-section-heading">
         {partIndex === 0 && detail.version.objectives.length > 0 && <section className="lesson-objectives" aria-labelledby="lesson-objectives-heading">
           <h2 id="lesson-objectives-heading">What you’ll learn</h2>
           <ul>{detail.version.objectives.map((objective, index) => <li key={index}><span aria-hidden="true">↗</span>{objective}</li>)}</ul>
         </section>}
         <div className="lesson-part-header"><span className="curriculum-label">SECTION {String(partIndex + 1).padStart(2, '0')}</span><h2 id="lesson-section-heading" ref={headingRef} tabIndex={-1}>{part.title}</h2></div>
         <div className="lesson-prose">{part.blocks.map((block, index) => <ContentBlock key={index} block={block} />)}</div>
+        {!part.blocks.some((block) => block.type === 'code' && block.language === 'cpp')
+          && (topicSlug === 'cpp' || detail.parts.some((section) => section.blocks.some((block) => block.type === 'code' && block.language === 'cpp')))
+          && <CodePlayground initialSource={CPP_STARTER} scratchpad />}
+        <SectionQuest detail={detail} partId={part.id} />
+        {finalSection && <PracticeQuests moduleId={moduleId} versionId={detail.version.id} />}
         {finalSection && !nextModule && <p className="lesson-unit-end">This is the last module currently available{owningUnit ? ` in ${owningUnit.name}` : ''}. You can revisit any module from the learning path.</p>}
         <nav className="lesson-pagination" aria-label="Lesson navigation">
           <CurriculumLink destination={previous ? { topicSlug, moduleId, partId: previous.id } : overview} navigate={onNavigate} className="lesson-pagination-previous">

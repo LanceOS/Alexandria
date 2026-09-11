@@ -16,10 +16,11 @@ export interface AppShellProps {
   theme: 'light' | 'dark';
   onThemeChange: (theme: 'light' | 'dark') => void;
   routeKey: string;
+  account?: ReactNode;
 }
 
 export function AppShell({ children, navigation, breadcrumbTitle, onLibrary, connection,
-  theme, onThemeChange, routeKey }: AppShellProps) {
+  theme, onThemeChange, routeKey, account }: AppShellProps) {
   const mainRef = useRef<HTMLElement>(null);
   const aboutRef = useRef<HTMLDialogElement>(null);
   const { menuOpen, closeMenu, toggleMenu, sidebarRef, menuButtonRef, closeMenuRef } = useMobileNavigation(routeKey, aboutRef);
@@ -41,6 +42,7 @@ export function AppShell({ children, navigation, breadcrumbTitle, onLibrary, con
     {menuOpen && <button className="sidebar-backdrop" aria-label="Close navigation" tabIndex={-1} onClick={closeMenu} />}
     <div className="workspace" inert={menuOpen}>
       <Topbar menuOpen={menuOpen} menuButtonRef={menuButtonRef} onToggleMenu={toggleMenu}
+        account={account}
         breadcrumbTitle={breadcrumbTitle} onLibrary={onLibrary} connection={connection} theme={theme} onThemeChange={onThemeChange} />
       <main id="main-content" className="main-content" ref={mainRef} tabIndex={-1}>
         {children}

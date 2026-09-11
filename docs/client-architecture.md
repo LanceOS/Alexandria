@@ -23,7 +23,7 @@ The old root `library/` UI package has moved to `components/ui/`. Its public `in
 
 ## Feature modules
 
-`modules/library/` owns subject navigation, library loading, filtering, topic cards, and the library page. `modules/curriculum/` owns curriculum loading, the unit overview, module reader, section navigation, content blocks, and further-reading links.
+`modules/library/` owns subject navigation, library loading, filtering, topic cards, and the library page. `modules/curriculum/` owns curriculum loading, the unit overview, module reader, section navigation, content blocks, self-check quests, and further-reading links. `modules/progress/` owns account controls, the authenticated request lifecycle, saved reading state, goals, and activity milestones.
 
 Each feature groups the code that changes with that feature:
 
@@ -39,6 +39,12 @@ Each feature groups the code that changes with that feature:
 | `index.ts` | The small public API used outside the feature |
 
 The library entry exports its page, navigation component, loading hook, and public prop types. The curriculum entry exports its page and public props. Components such as a code block or a topic card remain internal unless another consumer needs them.
+
+`WorkspacePage` installs the progress provider and passes account controls into the shell as a React node. Shared layout components do not import the progress feature. Curriculum consumes its public entry to display saved reading and explicit section-completion controls. Progress styles are composed by `global.css` so the feature's public TypeScript entry can also be used in server-rendered tests.
+
+Progress requests carry the normal API request marker and bind personal reads and writes to the current session with its CSRF token. The provider cancels superseded requests and invalidates account state across tabs; a request from an earlier session cannot restore stale personal data. Reading completion remains distinct from assessed understanding, and the server owns saved counts and XP. Self-check practice is public learning material with visit-local feedback and no saved grades.
+
+`modules/code-runner/` owns the reusable C++20 code area. Curriculum consumes its public entry beside C++ examples and offers a starter in C++ sections without code. Opening a code area lazily loads the editor, which uses labeled textareas and keeps drafts in component memory. It sends source and optional stdin to the authenticated local runner, with cancellation and session guards, and renders compiler diagnostics/output as plain text. Running code does not award XP or mark a lesson complete. See [Code area and runner](code-runner.md).
 
 The curriculum overview composes `LearningPath`, `LearningPathNavigation`, and `UnitBranch`. Subunit headers toggle their module lists and show a count that includes nested modules. The jump picker offers subunit overviews and individual modules; selecting an option does not navigate until the user chooses Go. Jumping to a subunit opens its ancestors, scrolls to its header, and moves keyboard focus there. `useLearningPath` keeps expansion preferences per topic in tab-scoped session storage so returning from a module preserves the view. Without a saved preference, only the branch containing the first module starts open. The hierarchy and preference helpers live in `utils/learningPath.ts`, and the path styles live in `styles/learning-path.css`.
 

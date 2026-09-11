@@ -1,0 +1,194 @@
+[
+  {
+    "moduleId": "cpp_starter_module_first_program",
+    "versionId": "cpp_starter_version_1_r3",
+    "quests": [
+      {
+        "id": "01-first-program-1",
+        "title": "The first signal",
+        "prompt": "Predict the standard output of this complete C++20 program.",
+        "code": "#include <iostream>\n\nint main() {\n    std::cout << \"Hello\";\n    std::cout << \" library\\n\";\n}",
+        "choices": [
+          "Hello library, followed by a newline",
+          "Hello and library on separate lines",
+          "No output, because return 0 is missing"
+        ],
+        "answerIndex": 0,
+        "explanation": "The insertions write to the same output stream. The second string begins with a space and ends with a newline. Reaching the end of main returns zero implicitly.",
+        "hint": "Look inside the string literals for spaces and newline escapes.",
+        "boss": false
+      }
+    ]
+  },
+  {
+    "moduleId": "cpp_basics_module_variables",
+    "versionId": "cpp_basics_variables_v3",
+    "quests": [
+      {
+        "id": "02-variables-1",
+        "title": "A value takes shape",
+        "prompt": "What does this C++20 program print?",
+        "code": "#include <iostream>\n\nint main() {\n    int pages{4};\n    auto saved = pages;\n    pages = 7;\n    std::cout << saved << ' ' << pages << '\\n';\n}",
+        "choices": [
+          "7 7",
+          "4 7",
+          "4 4"
+        ],
+        "answerIndex": 1,
+        "explanation": "auto deduces int here. saved receives a copy of the initial value 4; assigning 7 to pages does not change that copy.",
+        "hint": "Does saved contain its own value, or is it a reference to pages?",
+        "boss": false
+      }
+    ]
+  },
+  {
+    "moduleId": "cpp_basics_module_expressions",
+    "versionId": "cpp_basics_expressions_v3",
+    "quests": [
+      {
+        "id": "03-expressions-1",
+        "title": "Divide the supplies",
+        "prompt": "Predict the two values printed by this C++20 program.",
+        "code": "#include <iostream>\n\nint main() {\n    std::cout << 7 / 2 << ' ' << 7 / 2.0 << '\\n';\n}",
+        "choices": [
+          "3.5 3.5",
+          "3 3",
+          "3 3.5"
+        ],
+        "answerIndex": 2,
+        "explanation": "7 / 2 uses integer division, producing 3. In 7 / 2.0 the floating-point operand makes this a floating-point division, producing 3.5.",
+        "hint": "Identify the operand types separately for each division.",
+        "boss": false
+      }
+    ]
+  },
+  {
+    "moduleId": "cpp_basics_module_decisions",
+    "versionId": "cpp_basics_decisions_v3",
+    "quests": [
+      {
+        "id": "04-decisions-1",
+        "title": "Guard the boundary",
+        "prompt": "At this exact boundary, which message is printed?",
+        "code": "#include <iostream>\n\nint main() {\n    int score{10};\n    if (score > 10) {\n        std::cout << \"Above\\n\";\n    } else if (score == 10) {\n        std::cout << \"At\\n\";\n    } else {\n        std::cout << \"Below\\n\";\n    }\n}",
+        "choices": [
+          "Above",
+          "At",
+          "Both Above and At"
+        ],
+        "answerIndex": 1,
+        "explanation": "10 > 10 is false, so the first branch is skipped. 10 == 10 is true, so the second branch prints At. The final else is skipped.",
+        "hint": "Check each condition in order, including what > means when the values are equal.",
+        "boss": false
+      }
+    ]
+  },
+  {
+    "moduleId": "cpp_basics_module_loops",
+    "versionId": "cpp_basics_loops_v3",
+    "quests": [
+      {
+        "id": "05-loops-1",
+        "title": "Repair the extra step",
+        "prompt": "The mission is to print 0, 1, and 2, each on its own line. Which change fixes this loop?",
+        "code": "#include <iostream>\n\nint main() {\n    for (int i{0}; i <= 3; ++i) {\n        std::cout << i << '\\n';\n    }\n}",
+        "choices": [
+          "Change i <= 3 to i < 3",
+          "Start i at 1",
+          "Change ++i to --i"
+        ],
+        "answerIndex": 0,
+        "explanation": "i < 3 allows the values 0, 1, and 2. The current <= also allows 3. Starting at 1 loses the required 0; decrementing moves away from the stopping boundary.",
+        "hint": "Trace the first allowed value and the first value that should fail the condition.",
+        "boss": false
+      }
+    ]
+  },
+  {
+    "moduleId": "cpp_basics_module_functions",
+    "versionId": "cpp_basics_functions_v3",
+    "quests": [
+      {
+        "id": "06-functions-1",
+        "title": "Follow the copy",
+        "prompt": "What values reach standard output?",
+        "code": "#include <iostream>\n\nint advance(int value) {\n    value += 2;\n    return value;\n}\n\nint main() {\n    int position{3};\n    int next = advance(position);\n    std::cout << position << ' ' << next << '\\n';\n}",
+        "choices": [
+          "5 5",
+          "3 3",
+          "3 5"
+        ],
+        "answerIndex": 2,
+        "explanation": "value is an int parameter passed by value, so it is a separate local copy. The returned 5 initializes next; position remains 3.",
+        "hint": "Track the caller’s variable separately from the function parameter.",
+        "boss": false
+      }
+    ]
+  },
+  {
+    "moduleId": "cpp_basics_module_output",
+    "versionId": "cpp_basics_output_v3",
+    "quests": [
+      {
+        "id": "07-output-and-buffering-1",
+        "title": "Make the prompt visible",
+        "prompt": "Before a long calculation, the prompt should request an immediate stream flush without adding a newline. What should replace the comment?",
+        "code": "#include <iostream>\n\nint main() {\n    std::cout << \"Working...\" /* insert here */;\n}",
+        "choices": [
+          "<< '\\n'",
+          "<< std::endl",
+          "<< std::flush"
+        ],
+        "answerIndex": 2,
+        "explanation": "std::flush requests a stream flush without inserting a character. std::endl inserts a newline and then flushes; a newline by itself is not an explicit C++ stream flush request. This does not promise when an external display physically updates.",
+        "hint": "Separate the two decisions: inserting a newline and requesting a flush.",
+        "boss": false
+      },
+      {
+        "id": "07-output-and-buffering-2",
+        "title": "Boss challenge · Count the keepers",
+        "prompt": "Combine a function, a loop, and a decision. How many keepers does this C++20 program report?",
+        "code": "#include <iostream>\n\nbool keep(int value) {\n    return value % 2 == 0;\n}\n\nint main() {\n    int count{0};\n    for (int i{1}; i <= 5; ++i) {\n        if (keep(i)) {\n            ++count;\n        }\n    }\n    std::cout << count << '\\n';\n}",
+        "choices": [
+          "2",
+          "3",
+          "5"
+        ],
+        "answerIndex": 0,
+        "explanation": "The loop visits 1 through 5 inclusive. Only 2 and 4 have remainder zero when divided by 2, so count increases twice.",
+        "hint": "List the loop values, then apply keep to each one.",
+        "boss": true
+      },
+      {
+        "id": "07-output-and-buffering-3",
+        "title": "Boss challenge · Test the edge",
+        "prompt": "For the same keeper-counting loop, suppose the condition becomes i <= limit and i still starts at 1. Which expected counts correctly test limits 0, 1, and 2?",
+        "code": "// Fragment inside main; count starts at 0.\nfor (int i{1}; i <= limit; ++i) {\n    if (keep(i)) {\n        ++count;\n    }\n}",
+        "choices": [
+          "0, 1, 1",
+          "0, 0, 1",
+          "1, 1, 2"
+        ],
+        "answerIndex": 1,
+        "explanation": "Limit 0 gives zero iterations. Limit 1 visits only 1, which is odd. Limit 2 visits 1 and 2, so one value is kept. These small cases expose boundary mistakes.",
+        "hint": "The loop checks its condition before running the body.",
+        "boss": true
+      },
+      {
+        "id": "07-output-and-buffering-4",
+        "title": "Boss challenge · Explain the repair",
+        "prompt": "A helper should return the next keeper count. Which call correctly updates count in the caller?",
+        "code": "int recordKeeper(int count) {\n    return count + 1;\n}\n\n// In main:\nint count{0};\n// Choose a call below.",
+        "choices": [
+          "recordKeeper(count);",
+          "count = recordKeeper(count);",
+          "recordKeeper(count + 1);"
+        ],
+        "answerIndex": 1,
+        "explanation": "The parameter is passed by value and the helper returns a new value. Assigning that result back to count updates the caller. The other calls discard the returned value.",
+        "hint": "Where does the returned int go?",
+        "boss": true
+      }
+    ]
+  }
+]

@@ -1,0 +1,13 @@
+# Docker Official GCC 15.3.0, mirrored by Amazon ECR Public. Pin the
+# multi-platform OCI index so setup never silently changes the toolchain.
+FROM public.ecr.aws/docker/library/gcc@sha256:fb2568a8cc0609134396aeb1eae1f3a91c8ceec54aaee67c798d9602593abd66
+
+COPY compile.sh probe.sh /usr/local/lib/alexandria/
+RUN chmod 0555 /usr/local/lib/alexandria/compile.sh /usr/local/lib/alexandria/probe.sh \
+    && mkdir -p /work && chmod 0700 /work && chown 10001:10001 /work
+USER 10001:10001
+WORKDIR /work
+ENV HOME=/work TMPDIR=/tmp LANG=C.UTF-8
+LABEL io.alexandria.runner.version="1"
+ENTRYPOINT ["/usr/bin/sleep"]
+CMD ["35"]

@@ -41,6 +41,10 @@ test('configuration validates storage containment, symlinks, port, and origin', 
   const f = await fixture(t, false);
   assert.equal(f.config.host, '127.0.0.1');
   assert.equal(f.config.port, 3000);
+  assert.deepEqual(f.config.codeRunner, { enabled: true, image: 'localhost/alexandria-cpp-runner:1' });
+  assert.equal(loadConfig({ ...f.env, CODE_RUNNER_ENABLED: 'false' }, f.project).codeRunner?.enabled, false);
+  assert.throws(() => loadConfig({ ...f.env, CODE_RUNNER_ENABLED: 'yes' }, f.project), /CODE_RUNNER_ENABLED/);
+  assert.throws(() => loadConfig({ ...f.env, CODE_RUNNER_IMAGE: '--privileged' }, f.project), /CODE_RUNNER_IMAGE/);
   assert.equal(loadConfig({ ...f.env, APP_ORIGIN: 'http://localhost:3000/' }, f.project).appOrigin, 'http://localhost:3000');
   for (const value of ['0', '65536', '3.1', 'abc']) assert.throws(() => loadConfig({ ...f.env, PORT: value }, f.project), /PORT/);
   assert.throws(() => loadConfig({ ...f.env, DATA_DIR: 'relative' }, f.project), /absolute/);
@@ -106,7 +110,7 @@ test('database persists its instance and empty catalog with enforced SQLite sett
     'categories', 'exercise_attempt_results', 'exercise_attempts', 'exercise_drafts', 'exercise_grading_specs',
     'exercise_versions', 'exercises', 'instance_metadata', 'lesson_part_versions', 'lesson_parts',
     'module_version_sources', 'module_versions', 'modules', 'schema_migrations', 'sessions', 'source_references',
-    'topic_categories', 'topics', 'units', 'user_credentials', 'user_lesson_part_progress', 'user_module_progress',
+    'topic_categories', 'topics', 'units', 'user_credentials', 'user_learning_goals', 'user_lesson_part_progress', 'user_module_progress',
     'user_settings', 'users',
   ]);
   database.prepare('UPDATE categories SET description = ? WHERE id = ?').run('Persisted description', initial.categories[0]!.id);

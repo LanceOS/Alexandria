@@ -1,6 +1,6 @@
 # Getting started
 
-Alexandria's first implementation is a local application shell: a main page, library browsing, reusable UI components, and a server backed by SQLite. Initialization creates Software, AI, and Mathematics categories; the topic catalog is empty. The server also provides local authentication, per-user settings, and administrator catalog APIs. The optional curriculum includes C++ core and advanced units, supporting subjects, and application tracks using the same overview and three-section reader. Login screens, progress APIs, uploads, and graders remain future work.
+Alexandria's first implementation is a local application shell: a main page, library browsing, reusable UI components, and a server backed by SQLite. Initialization creates Software, AI, and Mathematics categories; the topic catalog is empty. The server also provides local authentication, per-user settings, and administrator catalog APIs. The optional curriculum includes C++ core and advanced units, supporting subjects, and application tracks using the same overview and three-section reader. The account menu supports sign-in and saved reading progress, weekly goals, XP, and activity milestones. C++ Basics includes optional self-check challenges. Uploads and assessment graders remain future work. See [Learning progress and quests](learning-progress.md).
 
 ## Requirements and rationale
 
@@ -108,7 +108,7 @@ The snapshot uses SQLite's backup API; do not copy the live database file as a s
 
 For an upgrade, stop the application, run `db:backup`, retain the current release, install/build the new release, run `db:migrate`, and restart. For a prepared release without development dependencies, invoke `dist/server/commands/init.js`, `migrate.js`, or `backup.js` directly with Node and the same environment used by the server.
 
-The [self-hosting plan](self-hosting-plan.md) covers the broader architecture and future operational work. The implemented boundaries are documented in [Server architecture](server-architecture.md) and [Database schema](database-schema.md). File storage, curriculum authoring APIs, execution workers, and automated recovery remain future work.
+The [self-hosting plan](self-hosting-plan.md) covers the broader architecture and future operational work. The implemented boundaries are documented in [Server architecture](server-architecture.md) and [Database schema](database-schema.md). File storage, curriculum authoring APIs, assessed exercise workers, and automated recovery remain future work. Optional local C++20 execution has a separate [runner setup](code-runner.md).
 
 
 ## Local accounts
@@ -123,16 +123,16 @@ The command asks for a password and confirmation without echoing it. Passwords r
 
 Use `npm run account:password -- --username lanceos` to reset a password; this invalidates all existing sessions for that account. Automation can use `--password-stdin` with a single password line from a protected input source. Never pass a password as a command-line argument. For a prepared production release, use `dist/server/commands/account-create.js` or `account-password.js` with Node and the same environment as the service.
 
-These commands prepare API access. The current library screen still uses its existing local theme preference; a sign-in interface and account-synced UI settings have not been added.
+Use **Sign in** in the application to save reading progress and run C++ examples. The library still uses its existing local theme preference; account-synced UI settings have not been added.
 
 
 ## C++ Basics path
 
 On an initialized, current database, validate the files with `npm run content:check`, stop the server, and run `npm run content:import -- --all`, then restart it. For C++ alone, use `npm run content:import -- cpp`. Open the library and choose C++, then open **Your first C++ program** under **C++ → Basics**. C++ contains the seven preserved Basics lessons plus core and advanced subunits; the other subjects follow the same layout. See the [curriculum map](curriculum-map.md) for the complete hierarchy and the [evidence policy](curriculum-evidence.md) for the source and example checks. Reimporting matching content leaves it untouched; conflicts stop the operation instead of overwriting authored material. Import creates a verified backup before installation.
 
-The reader provides section and next-module navigation, copyable code examples, ungraded reflection prompts, and module-specific further reading. Reading links are always visible at the bottom of each module's final section and expandable in earlier sections. Section position is represented in the URL, so direct links, reloads, and browser history work. It does not record completion, execute code, or create learner records. See [content provenance](cpp-basics-content.md) for the documentation and book references.
+The reader provides section and next-module navigation, copyable code examples, ungraded reflection prompts, and module-specific further reading. Reading links are always visible at the bottom of each module's final section and expandable in earlier sections. Section position is represented in the URL, so direct links, reloads, and browser history work. Signed-in learners can mark sections read, earn reading XP, and set a weekly goal. C++ examples include an **Edit and run** code area; execution requires the optional [local runner](code-runner.md). See [content provenance](cpp-basics-content.md) for the documentation and book references.
 
-Add curriculum with a unit folder, its `unit.json`, and one JSON file per module; see [Content authoring](../content/README.md). File validation is independent of the database. Import publishes new version-1 content and preserves matching records; editing an already published JSON definition does not update the database. A workflow for publishing later versions is future work.
+Add curriculum with a unit folder, its `unit.json`, and one JSON file per module; see [Content authoring](../content/README.md). File validation is independent of the database. Import publishes new content and explicit sequential releases while preserving matching records and previous published history.
 
 For a prepared release, use the same storage environment as the server:
 

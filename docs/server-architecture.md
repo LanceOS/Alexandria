@@ -24,6 +24,7 @@ flowchart LR
 | `server/routes/` | HTTP validation, authentication/authorization, response status |
 | `server/auth/` | Password hashing, sessions, login throttling, account and settings persistence |
 | `server/services/catalog.ts` | Catalog rules, publication checks, optimistic revisions, transactions |
+| `server/services/code-runner.ts` | Bounded local container execution, availability, cancellation, and cleanup |
 | `server/repositories/catalog.ts` | Prepared catalog queries and persistence |
 | `server/db/` | Connection policy, public library read model, migrations, transactions, backups |
 | `server/db/schema/` | Additive identity, curriculum, progress, and catalog SQL migrations |
@@ -33,7 +34,7 @@ flowchart LR
 | `content/schemas/` | JSON schemas for unit metadata and module definitions |
 | `shared/` | Public TypeScript contracts and request validation schemas |
 
-Request bodies are bounded to 16 KiB, validated without type coercion, and reject unknown fields. Each request receives a server-generated `X-Request-Id`. Errors include `error`, `code`, `message`, and `requestId`; internal database details stay out of client responses. SQL is parameterized. Related writes use synchronous `BEGIN IMMEDIATE` transactions; nested work uses savepoints.
+Request bodies default to 16 KiB, are validated without type coercion, and reject unknown fields. The code-runner route permits up to 256 KiB of JSON transport to accommodate escaping, then separately enforces 32 KiB source and 8 KiB stdin UTF-8 limits. Each request receives a server-generated `X-Request-Id`. Errors include `error`, `code`, `message`, and `requestId`; internal database details stay out of client responses. SQL is parameterized. Related writes use synchronous `BEGIN IMMEDIATE` transactions; nested work uses savepoints.
 
 ## Implemented API
 
@@ -42,6 +43,12 @@ Request bodies are bounded to 16 KiB, validated without type coercion, and rejec
 | `GET /health/live` | Public | Process liveness |
 | `GET /health/ready` | Public | Migration compatibility and library read check |
 | `GET /api/library` | Public | Published categories and placed published topics |
+| `GET /api/code-runner/status` | Public | Optional local C++20 runner availability and fixed limits |
+| `POST /api/code-runner/run` | Account + CSRF | Compile and execute bounded C++ source/input in an isolated container; return diagnostics and output |
+| `GET /api/modules/:id/practice` | Public | Version-matched self-check quests and explanations for a visible module |
+| `GET /api/progress` | Account + session CSRF token | Saved reading, earned XP, and current weekly goal/count; the token binds the read to the account loaded by the client |
+| `PUT /api/progress/modules/:id/sections/:partId` | Account + CSRF | Idempotent explicit section completion for the supplied current version |
+| `PATCH /api/progress/goal` | Account + CSRF | Choose a weekly target from 1 to 14 modules |
 | `GET /api/topics/:slug/outline` | Public | Published unit hierarchy, module summaries, and extra-reading references; every ancestor must be visible |
 | `GET /api/modules/:id` | Public | Latest published module version, structured lesson parts, objectives, and bibliographic citations |
 | `POST /api/auth/login` | Public | Authenticate username/password; set session cookie; return user and CSRF token |
@@ -105,4 +112,4 @@ The content loader recursively discovers `unit.json` metadata, child unit folder
 
 Builds validate curriculum and copy the content tree to `dist/content/`. Compiled content commands locate that packaged directory relative to their own files, not the current working directory. The HTTP server reads published curriculum from SQLite. JSON source files and schemas are not bundled into the frontend or exposed as static assets.
 
-Curriculum authoring APIs, learner progress APIs, completion policy, account UI, and exercise graders/runners are not implemented. The reader’s section counter describes location, not completion. Reflections reveal explanations without grading or saving attempts. No learner code executes in the API process. Unit/topic progress will be derived from module records; no per-user curriculum rows are preallocated. Bibliographic citations contain no source-file paths. Private source books remain outside runtime storage and backups.
+Curriculum authoring APIs and assessed exercise graders are not implemented. Optional C++20 scratchpad execution uses a fresh rootless container for compilation and execution; it does not save submissions or grade attempts. Runner setup failures leave library startup and reading available. See [Code area and runner](code-runner.md). The account UI and progress API save explicit reading completion. The reader distinguishes section position from saved completion. For current modules with an empty completion policy and no required exercises, completing all sections records reading completion. Other completion policies are rejected by this reading-only API. Reflections and practice quests reveal explanations without saving assessed attempts. No learner code executes in the API process. Unit/topic reading progress is derived from the current published module sections; no per-user curriculum rows are preallocated. Bibliographic citations contain no source-file paths. Private source books remain outside runtime storage and backups.

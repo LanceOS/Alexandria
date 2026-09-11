@@ -2,7 +2,7 @@
 
 A local, self-hosted learning library. This first implementation provides the application home page, library browsing shell, shared UI components, and a small server with SQLite persistence.
 
-The catalog starts with Software, AI, and Mathematics categories and no topics. The server includes local accounts, sessions, per-user settings, and administrator catalog APIs. The optional curriculum contains C++ core and advanced units, supporting computing subjects, and application tracks, all using the established three-section lesson format. All 89 modules provide detailed explanations, worked and contrasting examples, and practice with explained answers under the standing [curriculum depth standard](notes/curriculum-depth.md). The original seven C++ Basics lessons retain their identities and published history. The unit overview and section-based reader support both themes, next-module navigation, and further-reading links; learner progress and grading remain future work. Source books stay outside the application.
+The catalog starts with Software, AI, and Mathematics categories and no topics. The server includes local accounts, sessions, per-user settings, and administrator catalog APIs. The optional curriculum contains C++ core and advanced units, supporting computing subjects, and application tracks, all using the established three-section lesson format. All 89 modules provide detailed explanations, worked and contrasting examples, and practice with explained answers under the standing [curriculum depth standard](notes/curriculum-depth.md). The original seven C++ Basics lessons retain their identities and published history. The unit overview and section-based reader support both themes, next-module navigation, and further-reading links; signed-in learners can save section completion, earn reading XP, set a weekly goal, and collect activity milestones. C++ Basics also includes optional self-check quests and a final challenge. See [Learning progress and quests](docs/learning-progress.md) for the rules and upgrade steps. Source books stay outside the application.
 
 ## Start locally
 
@@ -18,6 +18,8 @@ npm run dev
 ```
 
 Open [Alexandria](http://localhost:5173). The development server proxies API requests to the local server on port 3000. Database creation is explicit: normal startup never creates a replacement for a missing database.
+
+C++ examples include an **Edit and run** area with editable source, program input, output, and compiler diagnostics. To enable execution on a Linux host with rootless Podman and cgroups v2, run `npm run runner:setup` and `npm run runner:check` as the account that runs Alexandria. The compiler image is downloaded during setup; learner code runs locally. See [Code area and runner](docs/code-runner.md) for requirements and limits.
 
 ```sh
 npm run typecheck

@@ -4,6 +4,7 @@ import { identitySql } from './schema/identity.js';
 import { curriculumSql } from './schema/curriculum.js';
 import { progressSql } from './schema/progress.js';
 import { catalogRevisionsSql } from './schema/catalog.js';
+import { learningGoalsSql } from './schema/learning-goals.js';
 
 export interface Migration {
   id: string;
@@ -66,6 +67,7 @@ export const migrations: readonly Migration[] = [
   defineMigration('0003_curriculum', curriculumSql),
   defineMigration('0004_progress', progressSql),
   defineMigration('0005_catalog_revisions', catalogRevisionsSql),
+  defineMigration('0006_learning_goals', learningGoalsSql),
 ];
 
 interface AppliedMigration {
