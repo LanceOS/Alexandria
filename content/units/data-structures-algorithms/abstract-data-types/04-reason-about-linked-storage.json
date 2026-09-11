@@ -1,0 +1,231 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "dsa_linked_storage_module",
+  "versionId": "dsa_linked_storage_v1",
+  "version": 1,
+  "slug": "reason-about-linked-storage",
+  "title": "Reason about linked storage",
+  "position": 3,
+  "summary": "Represent a FIFO sequence with owned nodes, preserve endpoint and reachability invariants, and distinguish a constant number of link changes from the cost of finding a position.",
+  "objectives": [
+    "Relate a linked node chain to its abstract sequence without exposing node addresses as part of the queue contract.",
+    "State and preserve reachability, acyclicity, count, head, and tail invariants through empty and singleton transitions.",
+    "Distinguish an owning link from a borrowed tail pointer and explain a deliberate copy, move, and teardown policy.",
+    "Separate link-update work from searching, allocation, traversal, and validation costs.",
+    "Diagnose an incorrect unlink on a safe state diagram and design checks against a sequence model."
+  ],
+  "parts": [
+    {
+      "id": "dsa_linked_storage_part_1",
+      "title": "Connect nodes to the abstract sequence",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Prerequisites and scope",
+          "text": "Continue from the queue contract, stack, and dynamic-array lessons. Use the invariant and cost-model ideas from Algorithm Analysis. The C++ listing assumes a small class with private fields, references, and loops. It introduces only the ownership operations needed to explain this representation; detailed smart-pointer and special-member rules belong to the C++ course. This is a single-threaded integer queue with a chosen limit of 64 items, not a general-purpose list library."
+        },
+        {
+          "type": "paragraph",
+          "text": "An abstract queue promises a sequence of values and first-in, first-out removal. A linked representation stores each value in a separate node and gives that node a link to its successor. The first node is the head; the last is the tail. Following next links from the head determines sequence order. Numeric address order does not: nodes may occupy unrelated memory locations. CLRS §10.2 develops this established representation and the distinction between locating a node and changing its links."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider three pending requests with values [14, 8, 14]. Name their nodes A, B, and C to distinguish identity from value. The two occurrences of 14 are separate queue entries. Our abstraction rule is: start at head, follow next until null, and read the values in that order. A null link means there is no successor. The public queue behavior depends on [14, 8, 14], not on the names A, B, C or their eventual addresses."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Logical node names, not physical addresses:\nhead owns A(14) -> B(8) -> C(14) -> null\ntail borrows C\nsize = 3\nabstract sequence = [14, 8, 14]\n\nEmpty representation:\nhead = null, tail = null, size = 0\n\nSingleton representation:\nhead owns D(21) -> null, tail borrows D, size = 1",
+          "caption": "Original representation diagrams: arrows between nodes are owning next links"
+        },
+        {
+          "type": "paragraph",
+          "text": "A node is reachable if repeatedly following next from head visits it. Require the traversal to terminate without revisiting a node: the chain is acyclic. Require exactly size reachable nodes, with size between zero and 64. For an empty queue both endpoints must be null. For a nonempty queue head must reach the final node named by tail, and that node's next must be null. Every live queue node belongs to this one reachable chain. These conditions establish a finite sequence and keep the cached count and endpoint consistent with it."
+        },
+        {
+          "type": "paragraph",
+          "text": "The chain also needs an ownership rule. head owns the first node, and each node's next owns its successor. Here ownership means responsibility for destroying the object. Each node has exactly one owning incoming link. tail merely borrows access to the last node; it neither allocates nor deletes that node. Several non-owning observations can name a node without giving it several owners. A cached pointer can still be wrong, so exclusive ownership alone does not prove the head/tail/count invariant."
+        },
+        {
+          "type": "callout",
+          "title": "Representation is not the public contract",
+          "text": "Neither contiguous storage nor linked nodes implies FIFO behavior by itself. Correct operations impose that behavior. A bounded ring and this chain can represent the same value sequence even though their storage and allocation behavior differ. Our queue exposes values, success/failure, size, and clear; clients cannot obtain a Node pointer or request an arbitrary unlink. The diagnostic checker later in this lesson is a teaching aid, not a promise that clients can inspect or edit links."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A snapshot has head=A, A.next=B, B.next=null, tail=A, and size=2. Reading the chain produces the intended two values. Which invariant fails, and what later operation could reveal the defect?",
+          "explanation": "The reachable count and termination are correct, but tail is not the final reachable node: B is. Appending through A.next could replace the link to B instead of extending after it. A snapshot can therefore return the expected current values yet be an invalid representation for the next operation. The endpoint cache must agree with the chain, not merely point somewhere inside it."
+        },
+        {
+          "type": "reflection",
+          "prompt": "In a diagram, head reaches A(5), then B(5), then A again. A proposed checker stops after two visits because size=2. Has it established a valid two-item queue?",
+          "explanation": "No. Equal values are allowed, but revisiting the same node creates a cycle. A valid traversal reaches null after exactly size distinct nodes; merely visiting size values is insufficient. A bounded checker must verify termination and the endpoint as well as its count. This is a diagnosis of a diagram, not an instruction to create an owning pointer cycle in a live C++ program."
+        }
+      ]
+    },
+    {
+      "id": "dsa_linked_storage_part_2",
+      "title": "Preserve ownership through endpoint changes",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Append begins by allocating an isolated node whose next is null. If the queue is empty, head becomes its owner. Otherwise the existing tail's empty next becomes its owner. Set tail to the new node and increase size. Earlier nodes keep their links, so the old sequence is followed by exactly the new value. The allocation occurs before any existing field changes: if it throws, the queue remains as it was. A full queue rejects the request before attempting an allocation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Removal has a different ownership transition. First move head's ownership into a local old_head, which keeps the original chain alive. Copy its integer into the output, then transfer old_head.next into head. The local now owns only the removed node, so destroying it cannot destroy the remaining queue. Decrease size. If the new head is null, clear tail before returning; otherwise the old tail still names the same surviving final node. The representation invariant must hold when each public operation returns; temporary local ownership during the operation makes the intermediate steps safe."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Starting state: head -> A(14) -> B(8) -> C(14) -> null; tail=C; size=3\nRemove one item:\n1. old_head owns A and its chain; head temporarily owns nothing.\n2. out=14; transfer A.next into head.\n3. head -> B -> C -> null; old_head owns A with A.next=null.\n4. size=2; tail remains C; destroy detached A.\n\nLater, remove the singleton C:\n1. old_head owns C; transfer its empty next into head.\n2. head=null; size=0; set tail=null.\n3. Destroy C. No borrowed tail remains to that removed node.\n\nAppend D(21) after draining:\nhead -> D -> null; tail=D; size=1",
+          "caption": "Worked ownership transitions for the program's request values"
+        },
+        {
+          "type": "callout",
+          "title": "The few C++ ownership operations used here",
+          "text": "std::unique_ptr<Node> is the owning handle. std::make_unique constructs a node; get() observes its address without transferring ownership. std::move allows a unique_ptr move operation, which transfers its pointer and leaves the source empty. The raw Node* tail_ is an observer maintained by this class. The C++20 N4861 clauses cited below supply these library rules. The Node constructor stores an int and leaves next empty; no queue algorithm depends on a specific pointer size."
+        },
+        {
+          "type": "paragraph",
+          "text": "try_push returns false only for the chosen capacity limit. An allocation failure can instead propagate std::bad_alloc; this example does not translate it into false. try_pop returns false on empty input and leaves its output argument unchanged. On success it writes the oldest value. clear empties the queue. The noexcept declarations identify operations that do not throw in this int/default-deleter example; they are not a claim about generic element types. The complete program takes no standard input."
+        },
+        {
+          "type": "paragraph",
+          "text": "In the listing, p->member accesses a member through a pointer; use it only when p designates a live node. nullptr denotes an absent pointer, such as the head and tail of an empty queue. auto asks the compiler to deduce the variable’s type from its initializer: fresh and old_head are still owning unique_ptr values, whereas fresh.get() yields a borrowed raw pointer. Deduction does not itself copy ownership or extend the lifetime of a pointed-to node."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <cstddef>\n#include <initializer_list>\n#include <iostream>\n#include <memory>\n#include <utility>\n\nclass SinglyQueue {\n    struct Node {\n        int value;\n        std::unique_ptr<Node> next;\n        explicit Node(int item) : value(item) {}\n    };\n\n    std::unique_ptr<Node> head_;\n    Node* tail_ = nullptr; // Borrowed: never deletes a node.\n    std::size_t size_ = 0;\n\npublic:\n    static constexpr std::size_t capacity = 64;\n    SinglyQueue() = default;\n    SinglyQueue(const SinglyQueue&) = delete;\n    SinglyQueue& operator=(const SinglyQueue&) = delete;\n    SinglyQueue(SinglyQueue&&) = delete;\n    SinglyQueue& operator=(SinglyQueue&&) = delete;\n    ~SinglyQueue() { clear(); }\n\n    std::size_t size() const noexcept { return size_; }\n\n    bool try_push(int value) {\n        if (size_ == capacity) return false;\n        auto fresh = std::make_unique<Node>(value);\n        Node* const added = fresh.get();\n        if (tail_ != nullptr) {\n            tail_->next = std::move(fresh);\n        } else {\n            head_ = std::move(fresh);\n        }\n        tail_ = added;\n        ++size_;\n        return true;\n    }\n\n    bool try_pop(int& out) noexcept {\n        if (!head_) return false;\n        auto old_head = std::move(head_);\n        out = old_head->value;\n        head_ = std::move(old_head->next);\n        --size_;\n        if (!head_) tail_ = nullptr;\n        return true; // old_head now owns just the removed node.\n    }\n\n    void clear() noexcept {\n        int ignored = 0;\n        while (try_pop(ignored)) {}\n    }\n\n    // Diagnostic for states produced by this class, not arbitrary memory.\n    bool invariant_holds() const noexcept {\n        if (size_ > capacity) return false;\n        const Node* current = head_.get();\n        const Node* last = nullptr;\n        std::size_t reached = 0;\n        while (current != nullptr) {\n            if (reached == capacity) return false;\n            ++reached;\n            last = current;\n            current = current->next.get();\n        }\n        return reached == size_ && last == tail_;\n    }\n};\n\nint main() {\n    SinglyQueue queue;\n    std::cout << std::boolalpha;\n    std::cout << \"empty: size=\" << queue.size()\n              << \" valid=\" << queue.invariant_holds() << '\\n';\n    int item = -99;\n    const bool empty_pop = queue.try_pop(item);\n    std::cout << \"pop empty: \" << empty_pop << \" out=\" << item << '\\n';\n\n    for (const int value : {14, 8, 14}) {\n        std::cout << \"push \" << value << \": \" << queue.try_push(value) << '\\n';\n    }\n    while (queue.try_pop(item)) {\n        std::cout << \"pop: value=\" << item << \" size=\" << queue.size() << '\\n';\n    }\n    std::cout << \"after drain: valid=\" << queue.invariant_holds() << '\\n';\n    std::cout << \"push after drain: \" << queue.try_push(21) << '\\n';\n    queue.clear();\n    std::cout << \"after clear: size=\" << queue.size()\n              << \" valid=\" << queue.invariant_holds() << '\\n';\n\n    std::size_t accepted = 0;\n    for (std::size_t i = 0; i < SinglyQueue::capacity; ++i) {\n        if (queue.try_push(static_cast<int>(i))) ++accepted;\n    }\n    const bool overflow = queue.try_push(999);\n    std::cout << \"accepted=\" << accepted << \" overflow=\" << overflow\n              << \" size=\" << queue.size()\n              << \" valid=\" << queue.invariant_holds() << '\\n';\n} // The destructor also clears a nonempty queue iteratively.\n",
+          "caption": "C++20: a bounded singly linked queue with explicit ownership and iterative cleanup"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "empty: size=0 valid=true\npop empty: false out=-99\npush 14: true\npush 8: true\npush 14: true\npop: value=14 size=2\npop: value=8 size=1\npop: value=14 size=0\nafter drain: valid=true\npush after drain: true\nafter clear: size=0 valid=true\naccepted=64 overflow=false size=64 valid=true\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The four deleted special members deliberately forbid copying and moving the queue object. Copying an owning chain would require a defined deep-copy operation. A move would have to transfer the chain and repair the source's borrowed tail and count; a default memberwise move would leave those cached source fields inconsistent. Those designs are possible, but this class chooses a smaller contract. Moving an internal unique_ptr during an operation remains allowed; it is distinct from moving a whole SinglyQueue."
+        },
+        {
+          "type": "paragraph",
+          "text": "The destructor calls clear, which repeatedly uses the safe one-node removal. Each removed node has an empty next before destruction, so cleanup does not nest one node destructor inside the next down the chain. This is iterative teardown with constant auxiliary call depth. Leaving a long owning chain to destroy itself through nested next members would make destruction depth depend on chain length. Our 64-item bound already limits the example, and the iterative policy also remains explicit if that limit later changes."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Suppose the singleton removal sets head=null and size=0 but forgets to set tail=null. Why is it wrong even if size() now reports zero? Describe a safe way to expose the error without dereferencing a freed node.",
+          "explanation": "tail would still name the removed node, violating the empty-state invariant. A later append might use that stale pointer instead of creating a new head. Diagnose the transition on labeled nodes, or check that the empty representation has both endpoints null before another mutation. Do not test the idea by intentionally dereferencing the stale pointer. In the implemented operation, tail is cleared while old_head still keeps the removed node alive."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The queue holds [14, 8]. Allocation for an append fails before fresh is created. A teammate proposes increasing size first to reserve the position. What guarantee does the displayed order preserve, and why would that change need extra work?",
+          "explanation": "The displayed code leaves head, tail, size, and the abstract sequence unchanged when allocation fails, because no queue field has changed yet. Increasing size first would leave the cached count wrong if the exception escapes. It would require a reliable rollback or a different commit protocol. An int node can be prepared before linking, so the current ordering avoids that extra state. Capacity rejection is a separate path that performs no allocation."
+        }
+      ]
+    },
+    {
+      "id": "dsa_linked_storage_part_3",
+      "title": "Separate local edits from search and validation",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Count work under a model where reading or writing one link, comparing an int, and updating size each have fixed cost. Given the valid tail, append changes a constant number of fields. Given the head, removal changes a constant number of fields. Neither searches for a node. Allocation and deallocation are separate costs without a fixed elapsed-time promise here. Thus the pointer manipulation per queue operation is constant; calling every possible linked-list operation constant-time would overstate the result."
+        },
+        {
+          "type": "paragraph",
+          "text": "If only the head is known, reaching zero-based position k requires k next steps, while searching by value may inspect all n nodes. A singly linked node has no back link: removing a known interior node generally also needs its predecessor or the owning link that reaches it. If only that node's address is given, finding the predecessor can require a traversal. Our public queue removes only the head, whose incoming owner is already known. A cached tail speeds append but does not supply arbitrary predecessor information."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Safe unlink audit using symbolic node names:\nBefore: head -> A(10) -> B(20) -> C(30) -> null; tail=C; size=3\nRequested abstract result after removing B: [10, 30]\n\nWrong idea: set B.next=null and reduce size to 2.\nHead still reaches A and B, so the value sequence is [10, 20].\nC is no longer reached from head; tail still names C.\n\nRequired relationship: A's next must become C; tail stays C.\nWith exclusive ownership, keep B alive temporarily, transfer B.next\ninto A.next, then destroy B after its next is empty.\n\nThis is a state diagram. No broken live pointers are executed.",
+          "caption": "Changed-contract diagnostic: an interior unlink needs the incoming link"
+        },
+        {
+          "type": "paragraph",
+          "text": "The wrong unlink destroys the connection needed to preserve the suffix and leaves the requested value in the chain. Under this owning-link design, resetting B.next would also destroy the suffix it owned; an observer to that suffix could become stale. Merely adjusting size cannot repair reachability or preserve values. This hypothetical operation is outside our public queue interface, but it exposes why 'just delete the node' is an incomplete algorithm description."
+        },
+        {
+          "type": "paragraph",
+          "text": "invariant_holds walks the chain and compares the reached count and final node with the cached fields. The capacity guard prevents an endless traversal if a symbolic cycle were translated into otherwise valid links; it does not make dangling pointers or arbitrary corrupt memory safe to read. The checker is intended for states produced by the class. On a valid n-node queue it visits n nodes, so it costs Θ(n+1), including the empty case. clear and destruction likewise process every current node. Instrumentation and cleanup must not be hidden inside a constant-time queue-operation claim."
+        },
+        {
+          "type": "paragraph",
+          "text": "For asymptotic comparisons, view the same representation as a family with a variable capacity bound and let n be its current length. The concrete program caps n at 64 to keep all runs small; that cap alone would make every bounded loop have some constant ceiling. The useful structural distinction is that append and removal touch a fixed number of nodes, whereas search, validation, and cleanup touch up to the whole chain. Live storage has one node per queued value plus fixed endpoint/count fields. Per-node links and allocator overhead differ from a contiguous array's spare slots; no universal byte count or cache-speed ratio follows from the representation alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Validate behavior with an independent sequence model. For each accepted push, append one value to the model; for each successful pop, compare with and remove its front. On rejected pushes and empty pops, require no model change and check the output sentinel where applicable. Check size and the internal invariant after every operation, then drain both sequences to expose delayed ordering errors. Include duplicates, repeated drain/refill cycles, capacity rejection, clear, and destruction of a nonempty queue. Allocation failure needs a controlled test path if that guarantee is to be exercised, not just a small successful run."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A reviewer measures only two link assignments when removing a node and reports O(1) deletion by value. The caller supplies value 30 but no node or predecessor. What part of the work is missing, and how does that differ from this queue's removal?",
+          "explanation": "The report omits locating the matching node and its incoming link. A value search can take Θ(n) in the worst case, and a singly linked removal needs a way to change the predecessor's next. Two final assignments do not erase that search. This queue's FIFO rule already chooses head, so its incoming owner is directly available and no value search is required. State what the operation receives before attaching a cost."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Compare a ring queue and the linked queue for a workload that alternates one push with one pop for a million operations, never holding more than one item. What remains equivalent, what differs, and what would you measure?",
+          "explanation": "With matching capacity and failure policies, successful values still come out in FIFO order and occupancy stays at most one. Both can update a fixed number of representation fields. The linked implementation allocates and destroys a node per successful pair, while a preallocated ring reuses storage. Compare allocation behavior, memory use, and measured latency for the actual workload instead of inferring a universal winner from equal asymptotic link/update counts. The linked queue's possible allocation exception is also an observable difference unless the chosen public contract accounts for it."
+        },
+        {
+          "type": "paragraph",
+          "text": "Linked storage changes how a sequence is represented, not which abstract behavior clients should rely on. A correct design connects its public result to a finite reachable chain, maintains all endpoint caches, and states who destroys each node. The next queue implementation combines simpler ADTs rather than managing node links directly; its analysis will again separate representation work from public behavior. Circular lists, shared ownership, custom allocators, stable public node handles, and concurrent mutation need additional invariants and are outside this module."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dsa_linked_storage_source_clrs4",
+      "title": "Introduction to Algorithms",
+      "authors": [
+        "Thomas H. Cormen",
+        "Charles E. Leiserson",
+        "Ronald L. Rivest",
+        "Clifford Stein"
+      ],
+      "publisher": "The MIT Press",
+      "publicationYear": 2022,
+      "edition": "4th edition",
+      "isbn": "9780262367509",
+      "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+      "locator": "Inspected §10.2, Linked lists: node links, endpoints, singly versus doubly linked forms, search versus known-position modification, and boundary handling. The local reflowed PDF coordinates are 352–359, not printed pages. Exercise 10.2-3 was inspected as an established linked-queue design context; this lesson's bounded ownership implementation and state-audit tasks are independently written, not a restatement of that exercise. Consulted 2026-09-11."
+    },
+    {
+      "id": "dsa_linked_storage_source_tcpl4",
+      "title": "The C++ Programming Language",
+      "authors": [
+        "Bjarne Stroustrup"
+      ],
+      "publisher": "Addison-Wesley",
+      "publicationYear": 2013,
+      "edition": "4th edition (C++11 baseline)",
+      "isbn": "9780321563842",
+      "url": "https://www.stroustrup.com/4th.html",
+      "locator": "Inspected §31.4.2, printed pp. 906–908 (PDF pp. 921–923), for list traversal and predecessor limitations; §34.3 and §34.3.1, printed pp. 986–990 (PDF pp. 1001–1005), for pointer ownership and unique_ptr. PDF pp. 1002 and 1005 visually checked. The old statement that make_unique is absent from the standard library is not used for C++20; N4861 checks current rules."
+    },
+    {
+      "id": "dsa_linked_storage_source_cpp20_owner",
+      "title": "C++20 working draft N4861: unique ownership",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr",
+      "locator": "Inspected [unique.ptr], [unique.ptr.single.ctor]/19–20, [unique.ptr.single.asgn]/3–5, [unique.ptr.single.dtor]/1–2, and [unique.ptr.single.observers]/3–8: ownership, moved-from null state, destruction, and borrowed get() observation. N4861 is a working draft, not the published ISO standard. The queue invariant and iterative-removal argument apply those rules to the displayed code."
+    },
+    {
+      "id": "dsa_linked_storage_source_cpp20_create",
+      "title": "C++20 working draft N4861: unique_ptr creation and allocation",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr.create",
+      "locator": "Inspected [unique.ptr.create]/1–2 and [new.delete.single]/1–4: make_unique for a single object and throwing allocation behavior. [dcl.fct.def.delete]/1–2 was inspected for the explicit deleted copy/move interface. The unchanged-on-allocation-failure result follows from this lesson's prepare-before-link ordering. Working-draft evidence, consulted 2026-09-11."
+    }
+  ]
+}

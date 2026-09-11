@@ -1,0 +1,191 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "dsa_dynamic_growth_module",
+  "versionId": "dsa_dynamic_growth_v1",
+  "version": 1,
+  "slug": "explain-dynamic-array-growth",
+  "title": "Explain dynamic array growth",
+  "position": 2,
+  "summary": "Separate size from capacity, derive the total cost of geometric growth, and connect the model to C++ allocation and lifetime rules.",
+  "objectives": [
+    "Trace live elements, spare capacity, relocation work, and peak storage during growth.",
+    "Prove a deterministic aggregate bound and distinguish amortized cost from one-call latency and average-case probability.",
+    "Explain which guarantees std::vector supplies and where overflow, invalidation, allocation failure, and workload changes require care."
+  ],
+  "parts": [
+    {
+      "id": "dsa_dynamic_growth_part_1",
+      "title": "Separate the sequence from its storage",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Before you begin",
+          "text": "Use the stack lesson’s push operation and the Algorithm Analysis unit’s fixed-cost model, sums, and asymptotic bounds. You need arrays, zero-based indices, and the difference between a stored value and its location. This lesson studies append-only growth; it does not implement a general-purpose replacement for std::vector."
+        },
+        {
+          "type": "paragraph",
+          "text": "Suppose a measurement collector receives integers over time. Its abstract sequence contains exactly the readings accepted so far, in arrival order. Appending one reading must preserve that prefix and add one value at the end. A fixed array requires a limit chosen in advance. A dynamic array can replace its storage with a larger contiguous block while keeping the same abstract sequence. Clients observe additional readings, even though the address holding a previous reading may change."
+        },
+        {
+          "type": "paragraph",
+          "text": "Let n denote size: the number of elements currently in the sequence. Let C denote capacity: the number that fit before storage must grow. The basic numerical invariant is 0<=n<=C. Indices 0 through n-1 identify elements; the remaining capacity is room for future elements. Capacity is not a second sequence of meaningful readings. In particular, reserving space in a C++ vector does not create elements that you may access with an out-of-range subscript."
+        },
+        {
+          "type": "paragraph",
+          "text": "Our original model begins empty with capacity three. It doubles capacity only when a requested append finds n=C. Each append counts one write for the new value, plus one relocation write for every existing value copied during growth. An append with spare room costs one counted write. Growing from a full capacity C costs C+1 counted writes. These units deliberately omit allocation timing, instruction overhead, and output. They are an accounting model, not elapsed time."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Initial: size 0, capacity 3, logical sequence []\nAccept readings 12, -4, 12: size 3, capacity 3, sequence [12, -4, 12]\nAccept 7: obtain capacity 6; preserve three readings; append 7.\nAfterward: size 4, capacity 6, sequence [12, -4, 12, 7]\nFourth append: 3 relocation writes + 1 new-value write = 4 writes.\nFirst four appends together: 1 + 1 + 1 + 4 = 7 writes.",
+          "caption": "Worked growth event in the stated model; duplicate readings remain distinct sequence positions"
+        },
+        {
+          "type": "paragraph",
+          "text": "A growth operation has an interval during which the old and new blocks both exist. At capacity three, obtaining six new slots can temporarily require nine slots of backing storage. Only after the new representation is ready can the old block be released. After this append, two of the six slots are spare. Neither the peak of nine nor the final capacity of six equals the four live readings. A memory budget must say which quantity it limits."
+        },
+        {
+          "type": "paragraph",
+          "text": "When allocation or element transfer can fail, replacement needs a commit point: construct a usable new representation before publishing it. For integer elements, copying values itself does not throw, which makes preserving the old sequence straightforward if allocation fails first. A generic element type can have a throwing move or copy; its guarantees need a separate argument. A mathematical relocation count alone says nothing about that exception contract."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A vector contains [6, 2] and has capacity eight. A developer writes v[5]=9 to use the spare room. What reasoning has failed?",
+          "explanation": "Size is two, so only indices zero and one identify elements. Spare capacity does not permit indexing nonexistent elements; index five violates the subscript precondition. Appending a value through push_back creates the next element. resize would change size too, but it creates all required intervening elements under that operation’s rules."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Our model is full at size six. An append requires a new twelve-slot block. How many live values must be preserved, what is the counted append cost, and what is the temporary storage demand?",
+          "explanation": "Preserve six readings, then write the seventh, so the selected cost is seven writes. If old and new blocks coexist, backing storage temporarily totals six plus twelve, or eighteen slots. Successful completion leaves size seven and capacity twelve. Counting only the final capacity misses the temporary allocation requirement."
+        }
+      ]
+    },
+    {
+      "id": "dsa_dynamic_growth_part_2",
+      "title": "Add the expensive events over the whole sequence",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The geometric-growth argument is an established application of aggregate amortized analysis, developed in CLRS chapter 16. We will derive it for our capacity-three collector. Ignore the simulator’s finite limit for this mathematical analysis, and assume all requested allocations succeed. After r doublings, capacity is C=3*2^r. The copied batch sizes are 3, 6, 12, and so on through C/2; no batch repeats because capacity never shrinks."
+        },
+        {
+          "type": "paragraph",
+          "text": "For r>=1, write R=3+6+...+C/2 for total relocation writes. Doubling this sum gives 2R=6+12+...+C. Subtract the first equation from the second: every shared middle term cancels, leaving R=C-3. For r=0 there were no relocations, and the same equation gives zero because C=3. Every accepted reading also has one initial write, so the total selected work after n appends is W(n)=n+C-3."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "After 14 appends: capacity 24\nRelocations occur on requests 4, 7, and 13.\nCopied batches: 3 + 6 + 12 = 21 = 24 - 3\nNew-reading writes: 14\nTotal W(14): 21 + 14 = 35\nRequest 13 alone costs 12 + 1 = 13 writes.\nRequest 14 alone costs 1 write.",
+          "caption": "Worked aggregate count and contrasting individual costs"
+        },
+        {
+          "type": "paragraph",
+          "text": "If n>3, the most recent expansion occurred because the previous capacity C/2 was insufficient. Therefore C/2<n<=C, and hence C<2n. Substituting into the exact total gives W(n)<3n-3. For 1<=n<=3, there is no growth and W(n)=n. Thus every nonempty prefix of successful appends has fewer than three selected writes per append on average. There is also a lower bound of n writes, since every reading must be stored. Total selected work is Θ(n), giving Θ(1) amortized work per append."
+        },
+        {
+          "type": "paragraph",
+          "text": "This average is over operations in a sequence, not over a probability distribution of inputs. The reading values could be identical, adversarial, or generated randomly; they do not change which requests trigger growth. The bound holds even if the caller stops immediately after a costly expansion. It does not say each append is fast. At size C in a full array, the next call still has Θ(C) relocation work, so an application with a strict per-call deadline must consider that latency separately."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now contrast a policy that adds exactly three slots when full. To accept fourteen readings, capacities are 3, 6, 9, 12, 15, and the copied batches total 3+6+9+12=30. Its fourteen initial writes give 44 counted writes, compared with 35 under doubling. More generally, after r such expansions the relocation sum is 3(1+2+...+r)=3r(r+1)/2. Because r grows in proportion to n, the total is quadratic. Similar behavior for the first few appends does not imply the same growth rate."
+        },
+        {
+          "type": "paragraph",
+          "text": "The proof’s scope matters. A more detailed fixed-cost implementation model can add a constant amount of bookkeeping per append, and linear allocation or initialization work per growing block; their total remains linear under geometric growth. But arbitrary allocator delays, unbounded payload-copy costs, or repeated failed allocation attempts are not covered by the write-count equation. Nor may we insert a shrinking policy into the proof: once capacity can decrease, a copied batch size might recur."
+        },
+        {
+          "type": "reflection",
+          "prompt": "At n=25 in the unlimited doubling model, determine capacity, relocation writes, total writes, and the cost of the last append. Does that single cost contradict constant amortized work?",
+          "explanation": "Capacity grows from twenty-four to forty-eight. Relocations total 3+6+12+24=45; with twenty-five initial writes, W=70. The twenty-fifth append costs twenty-five writes. There is no contradiction: the total is below 3*25, while one operation can still be linear in the current size. This is a mathematical extension beyond the runnable simulator’s limit."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A report says, “An append is constant time with high probability because doubling happens rarely.” Replace the claim with one that follows from our proof.",
+          "explanation": "For every successful append-only sequence starting from the specified empty state, total selected work is Θ(n), so the amortized work per append is Θ(1). No probability calculation was used. The worst single append can require Θ(n) work. “Rarely” by itself proves neither a probability statement nor the aggregate bound; the geometric sum supplies the actual argument."
+        }
+      ]
+    },
+    {
+      "id": "dsa_dynamic_growth_part_3",
+      "title": "Run the model and state the C++ limits",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "This complete program simulates counts and capacity; it does not allocate a dynamic array or store readings. That choice makes the selected work independent of a library’s allocation policy. Its artificial limit is twenty-four readings. Private state starts at size zero and capacity three, and only append can change it. It checks the limit before any mutation and checks whether doubling fits before multiplying. All reachable counters stay small: at most twenty-one relocations and forty-five writes. static constexpr declares one fixed class-wide limit that can be used as a compile-time constant; it is not a counter that changes as appends arrive."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <cstddef>\n#include <iostream>\n\nclass GrowthModel {\n    static constexpr std::size_t limit = 24;\n    std::size_t size_ = 0;\n    std::size_t capacity_ = 3;\n    std::size_t relocations_ = 0;\n    std::size_t writes_ = 0;\n\npublic:\n    bool append() {\n        if (size_ == limit) return false;\n        if (size_ == capacity_) {\n            if (capacity_ > limit / 2) return false;\n            relocations_ += size_;\n            writes_ += size_;\n            capacity_ *= 2;\n        }\n        ++size_;\n        ++writes_;\n        return true;\n    }\n\n    void print() const {\n        std::cout << \"size=\" << size_ << \" capacity=\" << capacity_\n                  << \" relocations=\" << relocations_\n                  << \" writes=\" << writes_ << '\\n';\n    }\n};\n\nint main() {\n    GrowthModel model;\n    model.print();\n    for (int request = 1; request <= 25; ++request) {\n        if (!model.append()) {\n            std::cout << \"request \" << request << \" rejected\\n\";\n            model.print();\n            break;\n        }\n        if (request == 3 || request == 4 || request == 7 ||\n            request == 13 || request == 14 || request == 24)\n            model.print();\n    }\n}\n",
+          "caption": "C++20 capacity-and-cost simulator with a fixed sequence of 25 requests"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "size=0 capacity=3 relocations=0 writes=0\nsize=3 capacity=3 relocations=0 writes=3\nsize=4 capacity=6 relocations=3 writes=7\nsize=7 capacity=12 relocations=9 writes=16\nsize=13 capacity=24 relocations=21 writes=34\nsize=14 capacity=24 relocations=21 writes=35\nsize=24 capacity=24 relocations=21 writes=45\nrequest 25 rejected\nsize=24 capacity=24 relocations=21 writes=45\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "Read the output as a sequence of observations of the same model. Between sizes thirteen and fourteen, relocations remain twenty-one while total writes increase by one. Filling to twenty-four adds no relocation. Request twenty-five is rejected before it changes any counter, so the final state repeats exactly. The mathematical proof above describes unlimited successful growth; this executable intentionally stops before that next expansion. It demonstrates accounting and a capacity-rejection contract, not real allocation failure."
+        },
+        {
+          "type": "paragraph",
+          "text": "In C++20, std::vector promises amortized constant insertion at the end, but the standard does not prescribe doubling or the initial capacity in our model. reserve(k) requests capacity for at least k elements without changing size. A successful call can obtain more than k. If it reallocates, existing element pointers, references, and iterators become invalid. Reacquire access after such a change; an unchanged numerical index can still identify a preserved element, whereas an old address does not become valid merely because the values look unchanged."
+        },
+        {
+          "type": "paragraph",
+          "text": "For example, suppose a program obtains a reference to its first reading and then performs enough appends to exceed capacity. The abstract first reading is preserved by a successful vector insertion, but using the old reference after reallocation is invalid. Reserving a known batch size before taking references can avoid reallocation within that batch. It does not promise unlimited reference stability, and reserve(size()+1) before every append can force repeated small growth and undermine the intended amortized behavior."
+        },
+        {
+          "type": "paragraph",
+          "text": "A real capacity calculation must check representable limits before addition or multiplication. If a design’s permitted maximum is L, test C>L/2 before evaluating 2*C, then choose an explicit policy such as rejection or a carefully bounded final growth. vector::max_size describes a representational limit, not currently available memory. reserve can report length_error for an excessive request or an allocation exception. For vector<int>, the relevant reserve and single-element end-insertion guarantees preserve the old vector on failure; this does not justify promising the same behavior for every throwing element type."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The unlimited model needs 48 slots for request 25, but an application permits at most 40. Is silently computing the doubled capacity and hoping allocation succeeds an adequate policy?",
+          "explanation": "No. The capacity limit and arithmetic must be checked before mutation or potentially overflowing multiplication. The application could reject with its old sequence unchanged, or specify final growth to forty and analyze that policy explicitly. Availability of forty-eight slots is irrelevant if the application’s own permitted limit is forty. The provided simulator chooses rejection at its stated limit."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A collector knows it will accept exactly eighteen readings, and addresses are handed to another component during collection. Where would you place a reserve call, and what limitation remains?",
+          "explanation": "Reserve space for the complete batch before accepting readings and before handing out element addresses. Then successful appends up to the resulting capacity avoid reallocation. Elements must still exist before their addresses are taken, and removal, destruction, or later growth can invalidate access. Reservation can fail upfront, and a count prediction that is exceeded needs a new contract rather than continued use of stale addresses."
+        },
+        {
+          "type": "paragraph",
+          "text": "Capacity trades spare storage for fewer relocations. Under this append-only model, once n>3, capacity is below twice size, but a growth event can temporarily hold old and new allocations together. When deletions are introduced, retained capacity and any shrinking thresholds require fresh analysis; CLRS section 16.4.2 develops that extension. Here the transferable skill is to separate the sequence contract, one-operation latency, aggregate work, and storage or failure limits before selecting an implementation."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dsa_dynamic_growth_source_clrs4",
+      "title": "Introduction to Algorithms",
+      "authors": [
+        "Thomas H. Cormen",
+        "Charles E. Leiserson",
+        "Ronald L. Rivest",
+        "Clifford Stein"
+      ],
+      "publisher": "The MIT Press",
+      "publicationYear": 2022,
+      "edition": "4th edition",
+      "isbn": "9780262367509",
+      "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+      "locator": "Chapter 16 introduction and section 16.1 (aggregate analysis without probability); section 16.4.1 (dynamic-table expansion and geometric cost); section 16.4.2 (scope of contraction, further study). Reflowed fourth-edition ebook consulted 2026-09-11. Capacity-three simulator, readings, failure scenarios, and practice are original teaching examples of established analysis."
+    },
+    {
+      "id": "dsa_dynamic_growth_source_n4861",
+      "title": "Working Draft, Standard for Programming Language C++ (N4861)",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "C++20 working draft N4861",
+      "url": "https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/n4861.pdf",
+      "locator": "C++20 working draft, not the published ISO text: 22.2.3 [sequence.reqmts], 22.3.11.1 [vector.overview], 22.3.11.3 [vector.capacity], 22.3.11.4 [vector.data], and 22.3.11.5 [vector.modifiers]; valid element access, amortized end insertion, reserve, size/capacity, invalidation, and int exception guarantees. Relevant draft passages inspected 2026-09-11."
+    }
+  ]
+}

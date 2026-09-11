@@ -1,112 +1,145 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "dsa_design_a_bounded_queue_module",
-  "versionId": "dsa_design_a_bounded_queue_v2",
+  "versionId": "dsa_design_a_bounded_queue_v3",
   "slug": "design-a-bounded-queue",
   "title": "Design a bounded queue from its contract",
   "summary": "Trace FIFO behavior and a circular representation with a clear capacity rule.",
   "position": 0,
   "objectives": [
-    "Define queue behavior independently of storage.",
-    "Trace head, count, and insertion position in a ring buffer.",
-    "Choose an explicit response to full and empty states."
+    "Specify a bounded FIFO queue through observable results and failure behavior.",
+    "Derive a circular representation and show why its operations preserve order.",
+    "Implement an integer queue in C++20 and distinguish bookkeeping, storage, and payload costs."
   ],
   "parts": [
     {
       "id": "dsa_design_a_bounded_queue_part_1",
-      "title": "Specify behavior first",
+      "title": "Define the observable sequence",
       "blocks": [
         {
           "type": "callout",
-          "title": "Prerequisites and the C++ boundary",
-          "text": "Prerequisites: arrays, indexing, and remainder arithmetic. C++ container adapters belong in the language track. Here the focus is the abstract contract, representation invariant, and the tradeoff behind a data structure."
+          "title": "The Abstract Data Types learning path",
+          "text": "This unit develops six connected lessons: a bounded queue, a stack for undo, dynamic array growth, linked storage, a queue built from stacks, and contract verification. Prerequisites are variables, functions, loops, array indexing, and the operation-count reasoning from Algorithm Analysis. Each lesson explains the C++ features its example needs. Ownership details receive their own lesson; this opening implementation stores only integers."
         },
         {
           "type": "paragraph",
-          "text": "A queue separates observable order from the storage arrangement that implements it. A client that enqueues jobs A, B, and C expects to receive them in that order, even if memory addresses or array indices change. For this lesson front observes the oldest job without removing it, dequeue returns and removes it, and enqueue either inserts the whole new job or reports full without changing the queue. Empty front and dequeue report empty. These explicit outcomes distinguish a valid empty queue from a broken representation."
+          "text": "An abstract data type describes values and allowed operations without committing its clients to a storage arrangement. For our queue, the abstract value is an ordered sequence Q of integers. If Q is [14, 8, 14], both copies of 14 matter, and reversing the sequence changes the value. A set or a sorted display cannot represent this promise. The operation that removes an item must return the oldest accepted item still present: first in, first out, abbreviated FIFO. NIST provides the standard terminology; the bounded failure policy below is a separate design choice."
         },
         {
           "type": "paragraph",
-          "text": "Let capacity be a positive integer C. Our representation uses C slots, a head in the range 0 through C-1, and a count in the range 0 through C. Logical item j, for 0 <= j < count, occupies slot (head + j) modulo C. This equation is the bridge between the public sequence and physical storage. When count is zero, head remains a valid index but does not identify an active item. When count equals C, every slot is active. We deliberately keep count so full and empty remain distinguishable."
+          "text": "Assume a fixed positive capacity C. An empty queue represents []. size returns the number of queued items. try_push(x) appends x and returns true when size is less than C; otherwise it returns false and leaves Q unchanged. try_front(out) copies the oldest item into out without removing it. try_pop(out) copies that item into out and removes it. On an empty queue, both observing and removing return false and leave out unchanged. False is an ordinary result in this interface, so callers must inspect it before treating out as a newly obtained item."
         },
         {
           "type": "paragraph",
-          "text": "On successful enqueue, calculate the next slot using the old count, establish the new stored value, then increase count. On successful dequeue, obtain the oldest value, finish the required element-lifetime work, move head to (head + 1) modulo C, and decrease count. These are conceptual steps, not exception-safe C++ code: a real implementation must specify what happens if creating or transferring an element fails. Finite index arithmetic also needs representability checks; a mathematical remainder formula does not automatically prevent overflow in head + count."
+          "text": "This contract separates membership from numeric value. Every int, including -1, is a valid item; no special integer means empty. An output parameter is a reference to a caller-owned variable, written as int& in C++. A boolean result reports success independently of that variable. Leaving it unchanged on failure prevents an unsuccessful call from manufacturing a replacement value, but it also means an old successful result may remain there. A client that ignores false still has a bug. Other interfaces could return an optional value; the important requirement is an unambiguous, consistently implemented outcome."
         },
         {
           "type": "paragraph",
-          "text": "A print service needs to preserve job arrival order. A queue promises that removal returns the oldest queued item, which is first-in, first-out behavior. That promise does not require linked nodes, a particular class, or contiguous storage. Define operations such as enqueue, front, and dequeue, then state what they do in empty and full states. The service in this lesson has capacity three and rejects a new job when full."
+          "text": "Work through the public behavior before choosing storage. At capacity four, accept 14, 8, 14, and 21. The abstract sequence is [14, 8, 14, 21]. A push of 99 now returns false and changes nothing. Two successful pops return 14 and 8, leaving [14, 21]. Accepting 34 and 55 produces [14, 21, 34, 55]. A front call returns 14 while size remains four. Notice that the second 14 survives the first removal: equal values do not merge, and a queue tracks separate accepted occurrences."
         },
         {
           "type": "paragraph",
-          "text": "A bounded queue can use three storage slots, a head index, and a count. Head identifies the oldest occupied slot; count ranges from zero through three. When space exists, the insertion slot is the remainder of head plus count divided by capacity. Slots outside the active sequence have no logical meaning, even if old bytes remain there. A real implementation must additionally manage the stored objects’ lifetimes."
+          "text": "A fixed limit is useful when an application can reject work it cannot hold. It does not decide how the application responds to that rejection: a caller might show a retry action or choose another destination. An overwrite-on-full event buffer would discard an older item; a blocking queue would wait for space. Both are different contracts. The sequential integer queue here has neither waiting nor shared-thread coordination. Adding a circular array does not by itself make concurrent producers safe."
         },
         {
           "type": "reflection",
-          "prompt": "A capacity-four queue has head=3 and count=2. Which slots are occupied, and where does the next successful enqueue write?",
-          "explanation": "Logical positions zero and one map to slots 3 and 0. The next insertion uses (3 + 2) modulo 4 = 1. After it succeeds, count becomes three while head stays three. Reading slots in ascending order would not preserve FIFO order."
+          "prompt": "An empty queue receives try_front(out) with out initially 42, followed by a successful push of 42. How can a client distinguish the two outcomes without reserving a special integer?",
+          "explanation": "The empty observation returns false and leaves out equal to 42. The push returns true and creates [42]. A subsequent front returns true with out equal to 42. The boolean result distinguishes absence from a stored value; comparing out with 42 cannot do that because the same value is valid data."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A full queue [14, 8, 14, 21] reports false when asked to push 99. Is that one result enough to establish that it followed the contract?",
+          "explanation": "No. It might have overwritten an item before reporting failure. Observing and draining afterward must still yield 14, 8, 14, 21 in order, with the same size immediately after rejection. The contract includes both the return value and the unchanged abstract state. The final lesson turns this distinction into a systematic test."
         }
       ]
     },
     {
       "id": "dsa_design_a_bounded_queue_part_2",
-      "title": "Follow wraparound",
+      "title": "Connect logical positions to a ring",
       "blocks": [
         {
-          "type": "code",
-          "language": "text",
-          "code": "Capacity = 3; initial head = 0, count = 0\nenqueue A -> slot 0; head 0, count 1; logical queue [A]\nenqueue B -> slot 1; head 0, count 2; logical queue [A, B]\ndequeue   -> returns A; head 1, count 1; logical queue [B]\nenqueue C -> slot 2; head 1, count 2; logical queue [B, C]\nenqueue D -> slot 0; head 1, count 3; logical queue [B, C, D]\nenqueue E -> rejected; queue remains [B, C, D]",
-          "caption": "Worked trace — illustrative data, not measured output"
+          "type": "paragraph",
+          "text": "Allocate C integer slots and keep two private numbers: head, the slot of the oldest active item, and count, the number of active items. A representation invariant is a condition that must hold whenever a public call begins or ends. Here 0 <= head < C and 0 <= count <= C. Logical item j, where 0 <= j < count, occupies physical slot (head + j) modulo C. This mapping, called an abstraction function, explains how storage denotes Q. When count is zero, head is still a valid index, but no slot denotes a queued item."
         },
         {
           "type": "paragraph",
-          "text": "The original wraparound trace is a sequence proof in miniature. After A and B, head is zero and count is two, so their logical positions are slots zero and one. Removing A changes head to one and count to one. Inserting C uses (1 + 1) modulo 3 = 2. Inserting D uses (1 + 2) modulo 3 = 0. The final logical positions are therefore one, two, zero: B, C, D. Rejection of E must happen before any occupied slot is overwritten. A raw storage dump [D, B, C] is not the queue's public order."
-        },
-        {
-          "type": "paragraph",
-          "text": "After wraparound, physical slot order differs from logical arrival order. Reading slots zero, one, and two would incorrectly present D before B. The head and count provide the interpretation that turns raw storage into a queue. Check the invariant after each successful operation: exactly count logical items begin at head and proceed cyclically, with each item removed at most once."
-        },
-        {
-          "type": "paragraph",
-          "text": "In this model, index updates take constant work and storage is fixed. Copying an arbitrarily large job payload need not take constant time, so distinguish queue bookkeeping from element operations. Fixed capacity bounds storage but introduces a rejection policy. Growing storage avoids this particular full state while introducing allocation and possible relocation costs."
-        },
-        {
-          "type": "paragraph",
-          "text": "Now drain that full queue and refill it. Removing B changes head from one to two and count from three to two. Removing C advances head from two to zero and leaves count one. Removing D advances head to one and leaves count zero. There may still be old slot contents in this abstract drawing, but no job remains logically queued. Enqueuing F next uses slot one, which is exactly the current head, and produces a one-item queue."
-        },
-        {
-          "type": "paragraph",
-          "text": "A different full policy would change this result. An overwrite-on-full ring could discard B to accept E; it may be useful for a recent-events buffer, but it violates this print service's rejection contract. Blocking until space exists introduces waiting, cancellation, and coordination obligations absent from our sequential queue. Those are alternatives to evaluate from the service's needs, not optimizations that can be substituted invisibly. Likewise, a ring alone is not a concurrent queue: multiple producers updating head or count need a separate synchronization design."
+          "text": "The representation deliberately stores count. Head alone cannot tell whether a circular sequence has filled every slot or has no items. Some queue designs leave one physical slot unused and interpret equal head and tail indices as empty; CLRS presents that convention. Our implementation instead uses all C slots and distinguishes full from empty by count. Both approaches can implement FIFO, but their capacity equations differ. Copying an insertion formula from one while using the other design’s full test can silently overwrite an active item."
         },
         {
           "type": "code",
           "language": "text",
-          "code": "Hypothetical continuation from head=1, count=3, logical [B,C,D]\ndequeue B -> head=2, count=2, logical [C,D]\ndequeue C -> head=0, count=1, logical [D]\ndequeue D -> head=1, count=0, logical []\nenqueue F -> write slot 1; head=1, count=1, logical [F]",
-          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+          "code": "Capacity 4; each line follows a completed call\nAfter pushes 14,8,14,21: head=0 count=4 slots=[14,8,14,21]\nAfter pop 14:           head=1 count=3 logical=[8,14,21]\nAfter pop 8:            head=2 count=2 logical=[14,21]\nAfter push 34:          head=2 count=3 slots=[34,8,14,21]\nAfter push 55:          head=2 count=4 slots=[34,55,14,21]\nLogical order is slots 2,3,0,1: [14,21,34,55]\n",
+          "caption": "Derived trace for the stated integer queue; slots outside the active sequence are not members"
+        },
+        {
+          "type": "paragraph",
+          "text": "Why does an insertion preserve the invariant? When count < C, logical offsets 0 through count-1 already occupy distinct slots around the ring. Offset count is the next distinct slot, so writing there cannot overwrite an active item. Incrementing count extends the logical sequence by exactly the new value without changing head or earlier items. A removal first copies the value at head, then advances head one slot and decreases count. The remaining logical positions now start at the previous item one. They keep their order without shifting their stored values."
+        },
+        {
+          "type": "paragraph",
+          "text": "The mathematical expression head + count can overflow a finite machine index before remainder is applied. The program avoids that sum when it would cross the array end. Let until_end = C - head. For an offset less than until_end, head + offset is less than C and is safe. Otherwise offset - until_end is the wrapped index. The helper is called only with offset < C, so the subtraction is nonnegative and the result is also below C. Head advances with a separate branch at C-1, preventing an overflowing increment at the largest index."
+        },
+        {
+          "type": "paragraph",
+          "text": "Capacity one exposes the boundary cleanly. Initially head=0 and count=0. Inserting 7 writes slot zero and raises count to one. Another push fails before writing. Popping returns 7, keeps head at zero, and lowers count to zero; the next push reuses the same slot. No special runtime singleton path is needed beyond the same head-advance branch. Capacity zero is excluded at compile time because it cannot satisfy the head range or store an item. These restrictions are part of the representation design, not conclusions drawn merely from one successful trace."
         },
         {
           "type": "reflection",
-          "prompt": "Design a short operation sequence that detects a queue which overwrites its oldest item when full, despite promising rejection.",
-          "explanation": "Enqueue A, B, and C into the capacity-three queue, then attempt E and require a full result. Drain the queue and require A, B, C in that order, followed by empty. Checking only the failure result is insufficient: the implementation might report full after already corrupting A."
+          "prompt": "For capacity four, head=3 and count=2, map every active logical item and the next insertion. Then explain why reading slots in increasing index order would be wrong.",
+          "explanation": "Logical offsets zero and one occupy slots 3 and 0. The next insertion uses offset two, which wraps to slot 1. If physical slot 0 were read before slot 3, the second logical item would be presented as the oldest. The mapping preserves order across the array boundary; a storage dump needs head and count to be interpreted."
+        },
+        {
+          "type": "reflection",
+          "prompt": "After draining a queue, must the program erase each old integer or reset head to zero for FIFO correctness?",
+          "explanation": "Neither is required. Count zero means there are no logical members; a later insertion begins at the current valid head. Old integers outside the active sequence are ignored. That answer relies on this always-live int array. A generic raw-storage container would also need correct construction and destruction of its elements, a different lifetime problem that the linked-storage lesson makes explicit."
         }
       ]
     },
     {
       "id": "dsa_design_a_bounded_queue_part_3",
-      "title": "Protect the contract",
+      "title": "Implement and account for the contract",
       "blocks": [
         {
+          "type": "paragraph",
+          "text": "The complete C++20 program below implements the representation just derived. A template parameter fixes Capacity for each queue type; RingQueue<4> has four physical slots. std::array<int, Capacity> owns those elements directly, and slots_{} initializes them to zero. They remain live int objects even while logically inactive. class keeps the representation and slot helper private; only the operations after public are available to a caller. The const on size and try_front means these calls do not modify the queue. noexcept is appropriate for these integer operations, which do not allocate or invoke user-defined element code."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <array>\n#include <cstddef>\n\ntemplate<std::size_t Capacity>\nclass RingQueue {\n    static_assert(Capacity > 0);\n    std::array<int, Capacity> slots_{};\n    std::size_t head_ = 0;\n    std::size_t count_ = 0;\n\n    std::size_t slot(std::size_t offset) const noexcept {\n        const std::size_t until_end = Capacity - head_;\n        return offset < until_end ? head_ + offset : offset - until_end;\n    }\npublic:\n    std::size_t size() const noexcept { return count_; }\n\n    bool try_push(int value) noexcept {\n        if (count_ == Capacity) return false;\n        slots_[slot(count_)] = value;\n        ++count_;\n        return true;\n    }\n\n    bool try_front(int& value) const noexcept {\n        if (count_ == 0) return false;\n        value = slots_[head_];\n        return true;\n    }\n\n    bool try_pop(int& value) noexcept {\n        if (count_ == 0) return false;\n        value = slots_[head_];\n        head_ = head_ == Capacity - 1 ? 0 : head_ + 1;\n        --count_;\n        return true;\n    }\n};\n\n#include <iostream>\n\nint main() {\n    RingQueue<4> queue;\n    std::cout << std::boolalpha;\n    for (int value : {14, 8, 14, 21}) {\n        std::cout << \"push \" << value << \": \" << queue.try_push(value) << '\\n';\n    }\n    std::cout << \"push 99: \" << queue.try_push(99) << '\\n';\n    int value = -1;\n    for (int i = 0; i < 2; ++i) {\n        if (queue.try_pop(value)) std::cout << \"pop \" << value << '\\n';\n    }\n    std::cout << \"push 34: \" << queue.try_push(34) << '\\n';\n    std::cout << \"push 55: \" << queue.try_push(55) << '\\n';\n    if (queue.try_front(value)) std::cout << \"front \" << value << '\\n';\n    std::cout << \"size \" << queue.size() << '\\n';\n    while (queue.try_pop(value)) std::cout << \"drain \" << value << '\\n';\n    value = -1;\n    const bool removed = queue.try_pop(value);\n    std::cout << \"empty pop: \" << removed << \"; output \" << value << '\\n';\n}\n",
+          "caption": "Complete C++20 program — bounded integer FIFO with explicit failure results"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "push 14: true\npush 8: true\npush 14: true\npush 21: true\npush 99: false\npop 14\npop 8\npush 34: true\npush 55: true\nfront 14\nsize 4\ndrain 14\ndrain 21\ndrain 34\ndrain 55\nempty pop: false; output -1\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The listing performs exactly the earlier wraparound scenario. Its front line demonstrates observation without removal; size is still four before draining. The four drain lines follow logical order despite the wrapped storage. Finally, assigning -1 before an empty pop makes the unchanged-output rule visible. The call’s success result is computed before the output statement, so reading value prints the completed operation’s result. -1 is only a chosen display value here, not an internal empty marker."
+        },
+        {
+          "type": "paragraph",
+          "text": "Guard order carries the failure guarantee. try_push checks full before calling slot or changing storage, so the offset precondition is satisfied and false leaves all fields untouched. Both front and pop check empty before touching the output reference. For a successful pop, copying the front integer happens before changing head and count. Integer assignment cannot throw; replacing int with an arbitrary object would require decisions about copies, moves, destruction, and exceptions before retaining this implementation’s guarantees. A template for capacity does not make the payload type generic."
+        },
+        {
+          "type": "paragraph",
+          "text": "Under the model that fixed-width integer arithmetic and assignment each cost constant work, each public queue operation uses O(1) work. Constructor initialization touches C integers, so creating the queue takes Θ(C) work, and its storage is Θ(C). A fixed capacity in one executable does not erase that distinction when comparing a family of capacities. The operations perform no dynamic allocation and move no other queued items. These are operation-count statements, not measured latency guarantees; processor behavior, scheduling, and the caller’s workload are outside this model."
+        },
+        {
+          "type": "paragraph",
+          "text": "C++ also supplies std::queue, a container adapter whose default underlying container is std::deque. It exposes front and pop separately, and pop returns void. A caller must establish nonemptiness before using either. It does not add this lesson’s application-specific fixed-capacity rejection rule. N4861, the identified C++20 working draft, supports those interface claims. Library reuse can remove implementation work, but it does not remove the need to specify capacity, overload handling, and the surrounding application’s behavior."
+        },
+        {
           "type": "reflection",
-          "prompt": "Why keep count instead of assuming head equals tail always means empty?",
-          "explanation": "In a ring representation, equal positions can describe either an empty ring or a completely full ring unless another convention distinguishes them. Count makes that distinction explicit. Another design may reserve one unused slot, but then usable capacity changes."
+          "prompt": "If the payload becomes a variable-length string, can the existing O(1) bookkeeping proof establish O(1) total insertion cost and the same noexcept guarantee?",
+          "explanation": "No. The proof counts index operations and an int assignment. Copying a string may depend on its length and may allocate or throw. A string-based design must define its element operations and failure guarantee first, then account for them separately. The ring’s location calculation can remain constant work while the whole operation costs more."
         },
         {
-          "type": "paragraph",
-          "text": "Write tests from the public behavior: empty removal, fill to capacity, rejected insertion, wraparound, and repeated drain-and-refill cycles. Tests should compare the logical removal sequence, not demand one internal slot arrangement. That separation lets the implementation change while the service contract remains stable. Choosing a structure starts with the required behavior, then checks whether its representation makes those operations affordable."
-        },
-        {
-          "type": "paragraph",
-          "text": "The reusable skill is to pair an abstract sequence with a representation equation and failure policy. Count constant-time index updates separately from payload transfer, allocation, and waiting. A small fixed ring offers bounded storage and predictable bookkeeping, but it makes overload visible to the caller. When using a C++ library container later, ask which parts of this contract it supplies and which service policies must still be written around it."
+          "type": "reflection",
+          "prompt": "A developer changes full rejection into replacement of the oldest item to avoid a false result. What must be reconsidered before accepting that change?",
+          "explanation": "The public sequence promise changes: an accepted item can disappear without being popped. Clients, tests, and the overload policy must explicitly accept that loss; preserving the same method names does not preserve behavior. The next lesson changes removal order deliberately to build a stack, illustrating why operation names, state transitions, and guarantees must be considered together."
         }
       ]
     }
@@ -129,7 +162,43 @@
       ],
       "url": "https://xlinux.nist.gov/dads/HTML/bigOnotation.html",
       "locator": "Official NIST reference documentation: formal definition, tight versus upper bounds, and computation models; entry modified 2019-09-06; consulted 2026-09-11."
+    },
+    {
+      "id": "dsa_design_a_bounded_queue_source_clrs4",
+      "title": "Introduction to Algorithms",
+      "authors": [
+        "Thomas H. Cormen",
+        "Charles E. Leiserson",
+        "Ronald L. Rivest",
+        "Clifford Stein"
+      ],
+      "publisher": "The MIT Press",
+      "publicationYear": 2022,
+      "edition": "4th edition",
+      "isbn": "9780262367509",
+      "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+      "locator": "Textbook: Part III introduction and §10.1.3, Stacks and queues; local reflowed e-book PDF pages 340 and 346–351 inspected, including the reserved-slot queue and adjacent exercises. FIFO and representation context; this count-based integer implementation and examples are independently written."
+    },
+    {
+      "id": "dsa_design_a_bounded_queue_source_n4861",
+      "title": "Working Draft, Standard for Programming Language C++ (N4861)",
+      "authors": [
+        "ISO/IEC JTC 1/SC 22/WG 21"
+      ],
+      "publicationYear": 2020,
+      "edition": "C++20 working draft N4861",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/",
+      "locator": "C++20 working draft: [array.overview] for fixed-size storage and [queue] for the default deque adapter, front and void pop. Official draft text inspected through the public N4861 rendering; consulted 2026-09-11."
+    },
+    {
+      "id": "dsa_design_a_bounded_queue_source_adt",
+      "title": "Dictionary of Algorithms and Data Structures: abstract data type",
+      "authors": [
+        "Paul E. Black"
+      ],
+      "url": "https://xlinux.nist.gov/dads/HTML/abstractDataType.html",
+      "locator": "Official NIST terminology: specification independent of implementation, with values and operations; entry modified 2005-02-10; consulted 2026-09-11. The bounded integer contract is an independently written application."
     }
   ],
-  "version": 2
+  "version": 3
 }

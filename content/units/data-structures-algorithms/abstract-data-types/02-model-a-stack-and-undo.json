@@ -1,0 +1,222 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "dsa_stack_undo_module",
+  "versionId": "dsa_stack_undo_v1",
+  "version": 1,
+  "slug": "model-a-stack-and-undo",
+  "title": "Model a stack and undo",
+  "summary": "Define LIFO behavior, implement a bounded history of prior states, and explain what an undo promise costs and excludes.",
+  "position": 1,
+  "objectives": [
+    "Distinguish a stack's LIFO contract from a queue's FIFO contract and from its storage representation.",
+    "Trace observation, insertion, removal, and explicit empty or full outcomes without losing logical state.",
+    "Implement and justify a bounded undo history with precise invalid-command and no-op policies.",
+    "Compare snapshots with inverse records and identify the limits of local undo, transaction grouping, and redo."
+  ],
+  "parts": [
+    {
+      "id": "dsa_stack_undo_part_1",
+      "title": "Choose the most recent pending item",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Build on the queue contract",
+          "text": "Read Design a bounded queue from its contract first. You need integer variables, function calls, conditions, and zero-based array indexing. A state is the information needed to describe the object now; a transition is the change caused by an operation. We will first specify a stack's public behavior, then use one to remember earlier states of a small local editor. The C++ syntax needed for the listing is explained before it."
+        },
+        {
+          "type": "paragraph",
+          "text": "A queue serves the oldest waiting item. A stack selects the most recently inserted item that has not yet been removed. This is last-in, first-out, abbreviated LIFO; FIFO selects the earliest pending insertion instead. The distinction concerns observable order. Neither rule by itself chooses an array, a linked representation, a capacity, or a response to failure. CLRS develops these established stack and queue policies; our undo scenario will apply them to a different question: which previous state should the next undo restore?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Write a stack as a sequence from bottom to top, so [A, B, C] has C at the top. Only the top is available for ordinary stack removal. The elements may have equal values: insertion records another occurrence rather than replacing an equal one. A stack is therefore not a set with a uniqueness rule. Counting stored occurrences, choosing a removal order, and deciding whether an application wants to insert a record are separate decisions."
+        },
+        {
+          "type": "list",
+          "items": [
+            "For our abstract bounded stack, size reports the number of stored occurrences and empty reports whether that number is zero. Neither changes the sequence.",
+            "peek observes the top value without removing it. On [] it reports empty; it never manufactures a value such as zero that could also be valid data.",
+            "try_push(x) appends x at the top when space exists. When the capacity is reached, it reports full and preserves the entire previous sequence.",
+            "For this abstract interface, try_pop returns and removes the top value, or reports empty without changing the stack. Other APIs may separate obtaining a value from removing it; the names alone do not determine a return type."
+          ]
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Bounded stack of two labels; sequence shown bottom -> top\nstart             []\ntry_push(review)  [review]\ntry_push(publish) [review, publish]\npeek              reports publish; [review, publish] remains\ntry_push(archive) reports full; [review, publish] remains\ntry_pop           returns publish; [review]\ntry_pop           returns review; []\npeek / try_pop    each reports empty; [] remains",
+          "caption": "Worked contract trace: observation and failed operations preserve the sequence"
+        },
+        {
+          "type": "paragraph",
+          "text": "Now consider a marker whose position is an integer from 0 through 9. A set operation changes the position; undo should restore the state immediately before the latest still-applied change. Store a snapshot, meaning a saved copy of the prior state, before each accepted change. The history stack contains prior positions, not a log of every requested command and not copies of the new positions. The current position is stored separately. Reading it is an observation and must not consume history."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Current position starts at 2; history is []\nset(5): save 2, then change to 5 -> current 5; history [2]\nset(1): save 5, then change to 1 -> current 1; history [2, 5]\nundo:   remove newest snapshot 5 -> current 5; history [2]\nundo:   remove newest snapshot 2 -> current 2; history []",
+          "caption": "Worked undo trace: restore predecessor states in reverse order of accepted changes"
+        },
+        {
+          "type": "paragraph",
+          "text": "Why does the ordering work? After one accepted change, the top snapshot is exactly the state it replaced. After another change, the newer snapshot covers that later transition, while the earlier snapshots retain their order. Removing the top and restoring it reverses one transition and exposes the next predecessor. Repeating this argument restores earlier states one at a time. This reasoning assumes every change to the modeled state passes through the history mechanism; an unrelated write could make the saved trajectory cease to describe what happened."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A marker starts at 0, then accepts set(4) and set(9). An implementation stores the old positions in a FIFO queue. What would its first undo restore, and why would that violate the intended contract?",
+          "explanation": "The saved positions are 0 followed by 4. FIFO removal returns 0, but undo of the most recent change must restore 4, the state just before set(9). Restoring the oldest state jumps over an intermediate accepted change. Both structures can store the same numbers; the removal order determines which transition is reversed."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A generic stack accepts two pushes of the value 7. What should size and two successive removals report? Would a rule that ignores duplicate values still implement this stack contract?",
+          "explanation": "Size becomes two, and each removal returns 7, leaving one occurrence and then none. Ignoring the second insertion would change both size and the number of successful removals. An editor may decide that setting an unchanged position creates no history entry, but that is an application policy before a push, not a stack rule that removes duplicates."
+        }
+      ]
+    },
+    {
+      "id": "dsa_stack_undo_part_2",
+      "title": "Preserve state through edits, limits, and undo",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Our editor starts at position 2 and can retain three undo snapshots. Its policy deliberately rejects a changing edit when history is full; it does not silently discard the oldest snapshot. Validity is checked first: a requested position outside 0 through 9 reports invalid. Setting the already current position then reports unchanged, a no-op, without consuming history. Only a valid request for a different position needs a free history slot. Therefore a no-op still succeeds as unchanged when history is full. These result labels distinguish different reasons for leaving the state alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "An invalid request, a no-op, or a full-history rejection preserves both the current position and the complete logical history. A successful set saves the old position and then installs the new one. Undo with no snapshots reports empty and changes nothing. Otherwise it restores the newest snapshot and removes exactly that entry. Undo itself does not push the state it is leaving. These choices define a sequential local-state service, with no redo operation or external side effects."
+        },
+        {
+          "type": "paragraph",
+          "text": "The representation is a fixed array before_ and a count used_. Logical history occupies indices [0, used_); if it is nonempty, its top is index used_-1. Maintain 0<=used_<=3, a current position in [0,9], and valid prior positions in the active history. Slots at or beyond used_ are inactive even if they retain old numbers. set writes at the old count only after checking space. undo checks for zero before decreasing the unsigned count, then reads the newly exposed index. Both paths therefore access an actual array element."
+        },
+        {
+          "type": "paragraph",
+          "text": "In the listing, class groups state with member functions. public members form the callable interface; private fields cannot be edited directly by main. The trailing const on position() and depth() means those observations do not modify this object. std::array<int, 3> contains exactly three integer slots; before_{} initializes them, while used_=0 says none are logically active. std::size_t is an unsigned size/index type. std::string_view holds a view of text rather than owning a new string; every returned label here is a string literal that remains alive throughout the program. The report helper takes a const reference to observe the existing editor after the requested operation finishes."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <array>\n#include <cstddef>\n#include <iostream>\n#include <string_view>\n\nclass UndoPosition {\npublic:\n    std::string_view set(int next) {\n        if (next < 0 || next > 9) return \"invalid\";\n        if (next == position_) return \"unchanged\";\n        if (used_ == before_.size()) return \"history full\";\n\n        before_[used_] = position_;\n        ++used_;\n        position_ = next;\n        return \"changed\";\n    }\n\n    std::string_view undo() {\n        if (used_ == 0) return \"empty\";\n        --used_;\n        position_ = before_[used_];\n        return \"undone\";\n    }\n\n    int position() const { return position_; }\n    std::size_t depth() const { return used_; }\n\nprivate:\n    int position_ = 2;\n    std::array<int, 3> before_{};\n    std::size_t used_ = 0;\n};\n\nvoid report(std::string_view request, std::string_view result,\n            const UndoPosition& editor) {\n    std::cout << request << \": \" << result\n              << \", position=\" << editor.position()\n              << \", depth=\" << editor.depth() << '\\n';\n}\n\nint main() {\n    UndoPosition editor;\n    report(\"undo\", editor.undo(), editor);\n    report(\"set(5)\", editor.set(5), editor);\n    report(\"set(5)\", editor.set(5), editor);\n    report(\"set(11)\", editor.set(11), editor);\n    report(\"set(1)\", editor.set(1), editor);\n    report(\"set(8)\", editor.set(8), editor);\n    report(\"set(8)\", editor.set(8), editor);\n    report(\"set(6)\", editor.set(6), editor);\n    report(\"undo\", editor.undo(), editor);\n    report(\"set(4)\", editor.set(4), editor);\n    report(\"undo\", editor.undo(), editor);\n    report(\"undo\", editor.undo(), editor);\n    report(\"undo\", editor.undo(), editor);\n    report(\"undo\", editor.undo(), editor);\n}\n",
+          "caption": "Complete C++20 program: bounded undo for local integer state, with embedded commands and no standard input"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "undo: empty, position=2, depth=0\nset(5): changed, position=5, depth=1\nset(5): unchanged, position=5, depth=1\nset(11): invalid, position=5, depth=1\nset(1): changed, position=1, depth=2\nset(8): changed, position=8, depth=3\nset(8): unchanged, position=8, depth=3\nset(6): history full, position=8, depth=3\nundo: undone, position=1, depth=2\nset(4): changed, position=4, depth=3\nundo: undone, position=1, depth=2\nundo: undone, position=5, depth=1\nundo: undone, position=2, depth=0\nundo: empty, position=2, depth=0\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "Reconcile the middle of the run with the logical history. After changing from 2 to 5 to 1 to 8, history is [2,5,1]. Repeating set(8) adds nothing; rejected set(6) also adds nothing. Undo restores 1 and leaves [2,5]. The later set(4) saves that current 1, producing [2,5,1] again. Further undos restore 1, then 5, then 2. There is no command here that restores 8 after it was undone: the subsequent edit follows a new trajectory, and this interface has no redo history."
+        },
+        {
+          "type": "paragraph",
+          "text": "The saved-before-change order establishes the undo promise. Immediately before a successful set, all earlier snapshots describe the pending trajectory. Copying position_ into the unused top slot extends that trajectory with exactly the state being replaced. Updating the count and position completes the transition. Every rejected path returns before any write. In undo, the newest snapshot is known to be valid, and removing it exposes the earlier trajectory. This argument relies on fixed integer copying and assignment, which do not throw, and on one caller operating at a time. It is not a general exception-safe algorithm for arbitrary documents or concurrent editors."
+        },
+        {
+          "type": "reflection",
+          "prompt": "At position 8 with history [2,5,1], predict set(8), set(11), and set(6), treating each as a separate request on that same starting state. What breaks if the implementation checks full history before the no-op condition?",
+          "explanation": "The results are unchanged, invalid, and history full respectively. All preserve position 8 and the three snapshots. A full check before the no-op check would reject set(8) even though it needs no snapshot. The intended result is part of the contract, so leaving the data unchanged is not sufficient if the wrong outcome is reported."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A revision assigns position_=next before saving the snapshot. Starting from position 2, trace set(5) followed by undo. What additional test would detect a full-history rejection that secretly corrupts an older snapshot?",
+          "explanation": "The faulty set saves 5 instead of 2, so undo restores 5 and fails to reverse the change. To check rejection, fill history through 2 -> 5 -> 1 -> 8, attempt a different position, then drain history. Require the full result, unchanged current position and depth, and successive undo positions 1,5,2. Observing only position and depth immediately after rejection could miss a corrupted hidden entry."
+        }
+      ]
+    },
+    {
+      "id": "dsa_stack_undo_part_3",
+      "title": "Account for restoration and define its limits",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A constant-time stack update does not make every undo constant-time. In this example, a snapshot is one fixed-size integer, every method performs a bounded number of comparisons and assignments, and its text labels have fixed length. Under that model each set, undo, or observation takes Θ(1) work, excluding printing. The history reserves three integer slots regardless of its current depth. If capacity were a parameter C, this array design would reserve Θ(C) slots and initializing all of them would take Θ(C) work once; individual integer-history operations would still take constant work."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a larger application, distinguish moving the history boundary from capturing and restoring state. Suppose a snapshot explicitly copies B bytes, each byte copy has constant cost, and h snapshots are retained. Capturing a complete snapshot and restoring one each require Θ(B) copying in that model, and the snapshots hold Θ(hB) bytes. Current state and per-entry metadata are additional storage. These are costs of this copy-everything representation. Sharing unchanged portions or storing changes can alter them, but then ownership, lifetime, and the meaning of a complete restoration need their own design."
+        },
+        {
+          "type": "paragraph",
+          "text": "An inverse record stores enough information to reverse a specific accepted change instead of saving all state. For a single-position replacement in a large integer sequence, recording the position and its previous value can be much smaller than copying the sequence. But the record must contain information the forward operation loses. Knowing only that set(7) happened does not reveal whether the former position was 2 or 6. Nor is every operation safely reversed by applying an opposite-looking operation: rounding, clamping, deletion, and external effects may discard information or change the conditions needed for an inverse."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Illustrative storage model: a state contains 200 integer cells.\nEach accepted edit replaces exactly one cell. Retain 40 edits.\nFull snapshots: 40 * 200 = 8,000 saved integer cells.\nInverse records: one index plus one old value per edit.\nAssume each of those fields costs one integer-sized storage unit:\n40 * 2 = 80 units, excluding metadata and current state.\nThe smaller record works only because each edit's location and\nprevious value suffice to reverse that particular replacement.",
+          "caption": "Worked representation comparison in declared storage units, not measured C++ object sizes"
+        },
+        {
+          "type": "paragraph",
+          "text": "C++ std::stack is a container adaptor: it exposes stack operations using another container's storage. Its public top() observes an element by reference, while pop() removes an element and returns void. It does not combine these into our earlier value-returning abstract try_pop. Check empty() before calling either top() or pop(); empty access is not a request for a default value or a portable empty exception. With a stack of integers, copy the top value while it exists, then pop. A reference to the removed element is no longer valid. For more complex elements, copying or moving may fail, so the value-transfer and failure policy need more care."
+        },
+        {
+          "type": "paragraph",
+          "text": "The library adaptor also does not supply this editor's three-entry capacity rule, validation, no-op handling, or undo semantics. An ordinary std::stack<int> uses a deque by default, and its growth depends on the underlying container and available resources. Our std::array is used directly with a count; it cannot simply be substituted as the adaptor's storage because array has no push_back or pop_back. Use the standard API within its preconditions when building the application's contract. Stroustrup explains that separation, and the cited C++20 draft supplies the exact API rules used here."
+        },
+        {
+          "type": "reflection",
+          "prompt": "An undo record stores only the command set(7). Give two possible predecessor states that show why this record is insufficient. In the 200-cell model, what must be added if a command replaces two different cells?",
+          "explanation": "Both position 2 and position 6 become 7, so the command alone cannot identify the state to restore. Record the old value. For the generalized two-cell replacement, record both affected indices and both previous values, or capture an adequate snapshot. Under the stated one-unit-per-field model that is four units per edit, or 160 for forty retained edits, before metadata. A smaller history must still contain every piece of information needed for the promised restoration."
+        },
+        {
+          "type": "paragraph",
+          "text": "Choose the boundary of an undoable action. If one button performs several changes, users may expect one undo to reverse the whole group. That requires an explicit commit policy: for example, validate the group, prepare its restoration information, and publish both the new state and one history entry only when the group succeeds. If preparation or execution can fail, keep a recoverable prior state and define how failure affects history. Our integer example avoids those failures inside its state-changing methods; saving arbitrary objects before mutation is not alone a proof that a multi-step operation is all-or-nothing."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Starting from position 2 with empty history, a button calls set(5) and then set(11), but promises that the pair is one all-or-nothing action. What does the displayed editor actually do? What should the promised grouped operation leave behind when validation fails?",
+          "explanation": "The first call changes the position to 5 and records [2]; the second reports invalid and leaves that first change intact. The displayed methods promise individual operations, not a transaction across calls. The promised group should instead leave position 2 and empty history when any required part is invalid. Validating all proposed steps before mutation can handle this particular failure; more general groups also need a policy for failures during execution and for retaining one correct undo record on success."
+        },
+        {
+          "type": "paragraph",
+          "text": "Undo here restores only modeled local state. Restoring an integer cannot unsend a notification or guarantee that a physical action was reversed. A compensating action attempts to offset an external effect; it can fail and is not the same promise as returning memory to an earlier snapshot. Similarly, redo needs information about the state or command just undone and a policy for new edits after undo. This lesson implements neither external compensation nor redo, persistence across restarts, or coordination between writers."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use the stack contract to decide which pending item is accessible, then use the application's contract to decide what that item means. Test complete histories, including failures and observations, rather than inspecting only the most recent displayed value. Count snapshot or inverse-record work alongside stack bookkeeping. Later ADTs will change which records may be selected and how they are found, while retaining the same discipline: define observable outcomes, preserve the representation's meaning, and make rejected operations leave exactly the state the contract promises."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dsa_stack_undo_source_clrs4",
+      "title": "Introduction to Algorithms",
+      "authors": ["Thomas H. Cormen", "Charles E. Leiserson", "Ronald L. Rivest", "Clifford Stein"],
+      "publisher": "The MIT Press",
+      "publicationYear": 2022,
+      "edition": "4th edition",
+      "isbn": "9780262367509",
+      "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+      "locator": "Inspected §10.1.3, Stacks and queues: LIFO/FIFO behavior, bounded array representation, empty/full conditions, and fixed-cost stack operations. Also compared the nearby exercises when reviewing originality. Section locators refer to the fourth-edition ebook; the local PDF has reflowed pagination. The marker editor, failure policies, traces, storage model, and explained practice apply established ideas through independently written examples."
+    },
+    {
+      "id": "dsa_stack_undo_source_tcpl4",
+      "title": "The C++ Programming Language",
+      "authors": ["Bjarne Stroustrup"],
+      "publisher": "Addison-Wesley",
+      "publicationYear": 2013,
+      "edition": "4th edition (C++11 baseline)",
+      "isbn": "9780321563842",
+      "url": "https://www.stroustrup.com/4th.html",
+      "locator": "Inspected §31.5–31.5.1, Container Adaptors and stack, printed pp. 920–922: restricted public interface, underlying storage, and separate top/pop operations. C++20 details were checked against N4861 rather than inferred from this C++11-era book. No book code listing or example is reproduced."
+    },
+    {
+      "id": "dsa_stack_undo_source_cpp20_stack",
+      "title": "C++20 working draft N4861: stack and sequence-container operations",
+      "authors": ["ISO/IEC JTC1/SC22/WG21"],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/stack.defn",
+      "locator": "Inspected [stack.defn] for the default deque, top returning back(), and void pop calling pop_back(); [sequence.reqmts] Table 78 for back, indexed access, and pop_back's nonempty precondition; [structure.specifications] for interpretation of library preconditions and equivalent operations. Working draft, not the published ISO standard."
+    },
+    {
+      "id": "dsa_stack_undo_source_cpp20_storage",
+      "title": "C++20 working draft N4861: fixed arrays and string views",
+      "authors": ["ISO/IEC JTC1/SC22/WG21"],
+      "publicationYear": 2020,
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/array.overview",
+      "locator": "Inspected [array.overview] for fixed element count and aggregate initialization, [string.view.template] and [string.view.cons] for a view's stored pointer/length and literal construction, and [lex.string]/5 for ordinary string literals' static storage duration. These rules check the example's storage and result-label lifetimes; the undo policy is the lesson's own specified application behavior."
+    }
+  ]
+}

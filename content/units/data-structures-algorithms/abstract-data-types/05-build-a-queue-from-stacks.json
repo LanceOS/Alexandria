@@ -1,0 +1,199 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "dsa_two_stack_queue_module",
+  "versionId": "dsa_two_stack_queue_v1",
+  "version": 1,
+  "slug": "build-a-queue-from-stacks",
+  "title": "Build a queue from two stacks",
+  "position": 4,
+  "summary": "Preserve FIFO order with two LIFO stacks, protect a transfer from allocation failure, and derive the aggregate cost across mixed operations.",
+  "objectives": [
+    "Express the logical queue as a sequence derived from two stack representations and prove each public operation preserves it.",
+    "Implement and trace an integer queue with empty results, non-removing front, and allocation-safe transfer.",
+    "Bound per-item movement and distinguish amortized queue cost from vector allocation cost and worst-call latency."
+  ],
+  "parts": [
+    {
+      "id": "dsa_two_stack_queue_part_1",
+      "title": "Use reversal to preserve arrival order",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Before you begin",
+          "text": "Use the earlier queue contract, stack push/pop behavior, and dynamic-array amortization. Read a vector’s back as the stack top. The C++ example uses classes, vector<int>, and optional<int>; an empty optional reports absence without reserving a special integer value. This is a sequential structure. Concurrent access would require a separate synchronization design."
+        },
+        {
+          "type": "paragraph",
+          "text": "A queue removes the oldest accepted item, while a stack exposes the newest. The established two-stack queue technique reconciles these orders by postponing a reversal. CLRS introduces this construction in exercises 10.1-7 and 16.3-5. We develop it here with an explicit integer contract: enqueue appends; front returns a copy of the oldest value without removing it; dequeue returns and removes that value. Empty front and dequeue return no value. Allocation failure propagates an exception while preserving the logical queue."
+        },
+        {
+          "type": "paragraph",
+          "text": "Name the stacks incoming and outgoing. Draw each from bottom to top, so its rightmost entry is the one popped next. Incoming stores newly accepted values in arrival order from left to right. Outgoing stores an older batch in reverse arrival order, so its top is the next queue value. At a public-operation boundary, the logical queue is reverse(outgoing) followed by incoming. Here reverse means read the drawn stack right to left, and followed by means concatenate the two sequences without changing either."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Stacks drawn bottom -> top; the rightmost item is the top.\nincoming = [26, 8]\noutgoing = [41b, 17]\nreverse(outgoing) = [17, 41b]\nLogical queue = [17, 41b, 26, 8]\nThe b label distinguishes the second arrival of value 41.",
+          "caption": "Representation equation for an original mixed-batch state"
+        },
+        {
+          "type": "paragraph",
+          "text": "Enqueue always pushes onto incoming. This adds a value to the end of the representation equation, exactly matching the queue contract. If outgoing is nonempty, front reads its top and dequeue pops it. These actions respectively preserve the whole sequence or remove its first value. New incoming values must stay behind that older outgoing batch, even if many arrive before the batch is exhausted."
+        },
+        {
+          "type": "paragraph",
+          "text": "When outgoing is empty but incoming is not, repeatedly pop incoming and push the value onto outgoing. For incoming [41a,17,41b], the transfer pushes 41b, then 17, then 41a. Outgoing becomes [41b,17,41a], whose top is the oldest item. Each input occurrence moves once, including duplicate integers. Equality of values does not allow two arrivals to collapse into one item."
+        },
+        {
+          "type": "paragraph",
+          "text": "The boundary equation is temporarily different while this reversal is in progress. After moving only 41b, remaining incoming [41a,17] followed by reverse(outgoing) [41b] still gives the original batch [41a,17,41b]. That is the transfer-loop invariant. Moving the last remaining incoming item to the top of outgoing preserves that combined sequence. When incoming becomes empty, the entire original batch is reverse(outgoing), restoring the public representation equation. The loop terminates because each iteration decreases incoming size by one."
+        },
+        {
+          "type": "paragraph",
+          "text": "Transfer only when outgoing is empty. If outgoing [41b,17] already contains older values and we push a reversed incoming batch [26,8] onto it, outgoing would become [41b,17,8,26]. Its top would be 26, incorrectly jumping ahead of 17. The empty check therefore protects FIFO correctness as well as avoiding unnecessary movement. This is a condition of the algorithm, not merely a speed optimization."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Given incoming [5,5,9] and outgoing [2,7], both drawn bottom to top, predict two dequeue results and the complete remaining logical queue. Should a transfer occur?",
+          "explanation": "The outgoing top supplies 7, then 2. No transfer is needed for either removal because outgoing was nonempty when each began. The remaining sequence is [5,5,9] in incoming. A later front or dequeue can reverse that batch. The two equal fives remain separate arrivals."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A developer checks incoming.empty() to decide whether the queue is empty. Produce a state showing why that loses valid work.",
+          "explanation": "After transferring incoming [13,4] into an initially empty outgoing, incoming is empty but outgoing is [4,13]. The logical queue still contains [13,4]. Queue emptiness requires both stacks empty; transfer changes the representation without removing any queued value."
+        }
+      ]
+    },
+    {
+      "id": "dsa_two_stack_queue_part_2",
+      "title": "Make the transfer safe before exposing its result",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The program below uses vector<int> for each stack, with push_back, back, and pop_back as the stack operations. prepare_front is the only transfer path, shared by front and dequeue. Before its first mutation, it reserves enough outgoing capacity for the whole incoming batch. Because outgoing is empty here, the request needs no addition of two sizes and cannot overflow through such an addition. The vector still checks its own capacity limits and may fail to allocate. In report, if(value) tests whether the optional contains an integer, even if that integer is zero. The expression *value accesses the contained integer only inside the branch where presence has been checked."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <iostream>\n#include <optional>\n#include <vector>\n\nclass QueueFromStacks {\n    std::vector<int> incoming_;\n    std::vector<int> outgoing_;\n\n    void prepare_front() {\n        if (!outgoing_.empty() || incoming_.empty()) return;\n        outgoing_.reserve(incoming_.size());\n        while (!incoming_.empty()) {\n            outgoing_.push_back(incoming_.back());\n            incoming_.pop_back();\n        }\n    }\n\npublic:\n    QueueFromStacks() = default;\n    QueueFromStacks(const QueueFromStacks&) = delete;\n    QueueFromStacks& operator=(const QueueFromStacks&) = delete;\n    QueueFromStacks(QueueFromStacks&&) = delete;\n    QueueFromStacks& operator=(QueueFromStacks&&) = delete;\n\n    void enqueue(int value) { incoming_.push_back(value); }\n\n    std::optional<int> front() {\n        prepare_front();\n        if (outgoing_.empty()) return std::nullopt;\n        return outgoing_.back();\n    }\n\n    std::optional<int> dequeue() {\n        prepare_front();\n        if (outgoing_.empty()) return std::nullopt;\n        const int value = outgoing_.back();\n        outgoing_.pop_back();\n        return value;\n    }\n\n    bool empty() const noexcept {\n        return incoming_.empty() && outgoing_.empty();\n    }\n};\n\nvoid report(const char* label, std::optional<int> value) {\n    std::cout << label << \": \";\n    if (value) std::cout << *value;\n    else std::cout << \"empty\";\n    std::cout << '\\n';\n}\n\nint main() {\n    QueueFromStacks queue;\n    report(\"empty front\", queue.front());\n    queue.enqueue(41);\n    queue.enqueue(17);\n    queue.enqueue(41);\n    report(\"first front\", queue.front());\n    report(\"repeat front\", queue.front());\n    report(\"dequeue\", queue.dequeue());\n    queue.enqueue(26);\n    queue.enqueue(8);\n    report(\"front after arrivals\", queue.front());\n    for (int attempt = 0; attempt < 5; ++attempt)\n        report(\"dequeue\", queue.dequeue());\n    queue.enqueue(-5);\n    report(\"reuse\", queue.dequeue());\n    std::cout << \"finally empty: \" << std::boolalpha << queue.empty() << '\\n';\n}\n",
+          "caption": "Complete C++20 integer queue; fixed arrivals include a duplicate and a negative value"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "empty front: empty\nfirst front: 41\nrepeat front: 41\ndequeue: 41\nfront after arrivals: 17\ndequeue: 17\ndequeue: 41\ndequeue: 26\ndequeue: 8\ndequeue: empty\nreuse: -5\nfinally empty: true\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The first front call on a nonempty queue transfers three items but removes none. Repeating front therefore returns 41 again. The first dequeue removes that occurrence, leaving outgoing [41,17]. Appending 26 and 8 affects only incoming, so the next front is still 17. The following two dequeues empty the old batch. Only then does the next dequeue transfer [26,8], return 26, and leave 8 waiting. Draining and accepting -5 demonstrates reuse after an empty state."
+        },
+        {
+          "type": "paragraph",
+          "text": "Reserve is part of the correctness argument under failure. For vector<int>, a failed reserve leaves the vector unchanged. As it occurs before the transfer loop, both stacks and their represented sequence remain unchanged. If reserve succeeds, it establishes capacity for every push in that loop. None of those pushes reallocates, and copying or destroying an int does not throw. The reversal therefore completes without an exception leaving the two stacks in a partial-transfer state."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider removing reserve and relying on push_back to allocate as needed. If an outgoing allocation fails after some items have already moved, the stacks describe a partly reversed batch. The public boundary equation no longer reconstructs the original FIFO sequence. Even pushing before popping does not solve that partial-batch problem: it protects one item from being lost on that individual push, but it does not restore the ordering of an earlier partial transfer. Planning the entire transfer before mutation addresses the stronger contract."
+        },
+        {
+          "type": "paragraph",
+          "text": "Enqueue’s single push_back on vector<int> also leaves the vector unchanged on failure under the cited C++20 guarantees. After prepare_front completes, dequeue copies an int into a local value, removes the stored occurrence, and returns an optional containing that value; these element steps do not throw. Neither front nor dequeue returns a reference into either vector. That choice avoids exposing an address that could later be invalidated by vector growth or destruction."
+        },
+        {
+          "type": "paragraph",
+          "text": "The empty outcome is distinct from failure. An empty optional means there was no oldest value; an allocation exception means preparing a nonempty queue could not complete. Even front may allocate and move storage, which explains why it is not const in this implementation although it preserves the abstract sequence. Generalizing the class to arbitrary T would require new copy/move, destruction, and return-value exception arguments. The integer proof does not establish a generic-container guarantee. Copying and moving queue objects are explicitly disabled: this example specifies construction of an empty queue and the listed operations, rather than a copy/assignment protocol for the two separate vectors. The deleted functions make that boundary visible to callers."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Assume incoming [22,6,15], outgoing empty, and outgoing allocation fails. What must a caller observe on a later successful retry, and why is that true in this implementation?",
+          "explanation": "The reserve call fails before either stack changes, so the queue still represents [22,6,15]. A later successful front returns 22 without removing it; a successful dequeue returns and removes 22. Checking only that an exception was thrown would miss a corrupted-order bug; the retry must also preserve all later values and duplicates."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A teammate replaces optional<int> with -1 as the empty result, and makes front remove the top to avoid a separate method. Which parts of the contract have changed?",
+          "explanation": "The sentinel makes a legitimate queued -1 indistinguishable from absence. Removing the top also turns front into a removal operation: two observations can now consume two values. Both changes affect clients even if the internal stacks remain consistent. Keep absence separate from the integer domain and require repeated front calls to preserve the logical sequence."
+        }
+      ]
+    },
+    {
+      "id": "dsa_two_stack_queue_part_3",
+      "title": "Count each item’s journey once",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Start from two empty stacks and consider a finite sequence of successful operations. Let E count enqueues, D count successful dequeues, and T count individual items transferred between stacks. Count only stack pushes and pops as selected mutations: an enqueue contributes one push, each transferred item contributes one pop and one push, and a successful dequeue contributes one final pop. The exact selected total is E+2T+D. Top reads, emptiness checks, allocation, and printing are separate costs."
+        },
+        {
+          "type": "paragraph",
+          "text": "An occurrence is pushed into incoming once. It can leave incoming only through transfer, never returns there, and can be removed from outgoing at most once. Therefore T<=E and D<=E, giving E+2T+D<=3E+D<=4E. This reasoning depends on an item’s one-way journey, not on the numerical values stored. It holds for arbitrary interleaving and for prefixes that stop while many items remain queued. We do not assume every enqueue is eventually followed by a dequeue."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Original prefix: enqueue 41, enqueue 17, enqueue 41, front\nE=3, D=0, T=3: selected mutations = 3 + 2*3 + 0 = 9.\nThe front call itself performs six transfer mutations.\nRepeat front 100 times: still E=3, D=0, T=3.\nThose observations add checks and reads, but no stack mutations.\nComplete the runnable example: E=6, D=6, T=6.\nSelected mutations = 6 + 12 + 6 = 24.",
+          "caption": "Exact abstract stack counts, excluding vector internals and per-call overhead"
+        },
+        {
+          "type": "paragraph",
+          "text": "For full abstract running time, add a constant amount of checking and return work for every public call, including empty dequeue attempts and front observations. With constant-cost primitive stack operations and integer payloads, a sequence of m public calls from empty has O(m) total work. This is the aggregate route to constant amortized cost. A single front or dequeue that transfers k items still costs Θ(k+1), and an already prepared outgoing stack makes the same call constant-time. Amortized is a bound across the sequence, not a deadline for each call."
+        },
+        {
+          "type": "paragraph",
+          "text": "The C++ implementation adds a second layer. incoming.push_back itself has an amortized constant guarantee, rather than a worst-case constant guarantee, because vector may relocate elements. Across all incoming pushes and pops its storage work is aggregate linear under the standard container cost model. Outgoing reserves while empty, and each reserved batch is subsequently filled without reallocation. Each batch of k has O(k) element-transfer work; summed across batches, these k values total T<=E. Thus the storage layer does not require multiplying the two amortized bounds together."
+        },
+        {
+          "type": "paragraph",
+          "text": "That conclusion assumes ordinary container cost accounting for fixed-size integers and successful allocations. The exact number 24 above is not an instruction or allocation count. Reserve can request a new block even with zero live outgoing elements; allocator delays and repeated allocation failures have no constant wall-clock guarantee. Capacity is retained after popping, so an empty queue can still hold two allocations from past peaks. Report storage in terms of the two capacities, or historical peak demand under a chosen growth policy, rather than claiming it always equals the current queue length."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a second workload, enqueue twelve items and then drain them. The first dequeue transfers twelve, contributing twenty-four transfer mutations plus one removal, for twenty-five selected mutations in that call. The other eleven dequeues contribute eleven more. With the twelve enqueue pushes, the complete workload costs forty-eight selected mutations. Alternating one enqueue with one dequeue twelve times also costs forty-eight, but each dequeue transfers only one item. Equal aggregate work can hide a very different latency distribution."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A test enqueues ten items, calls front once, then enqueues three more and stops. Find E, D, T and the exact selected mutation total. Why is 4E an upper bound rather than the exact answer?",
+          "explanation": "E=13, D=0, and T=10: the first front transfers the original ten, while the new three remain incoming behind the older batch. The exact total is 13+20=33, below 4*13=52. The upper bound allows every enqueued occurrence both a transfer and a later dequeue, which this prefix has not performed."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A service requires every dequeue to finish within a fixed small number of element operations, even after a long burst of enqueues. Does the aggregate proof meet that requirement? Contrast a fixed ring buffer.",
+          "explanation": "No. A long incoming batch can make one dequeue perform linear transfer work even though the whole sequence is linear. A fixed ring can provide constant queue bookkeeping per operation for fixed-size elements, with an explicit capacity/full policy instead of this delayed transfer. Actual deadlines also require accounting for scheduling and other runtime costs. Choose based on the per-call requirement, not the shared amortized label."
+        },
+        {
+          "type": "paragraph",
+          "text": "This construction separates three obligations: the sequence equation establishes FIFO behavior, reservation protects that equation during a fallible preparation step, and one-way per-item movement bounds aggregate work. It is a useful model for deferred work elsewhere in data structures. Persistent queues, generic element exception safety, memory reclamation policies, and concurrent queues need additional techniques; none follows merely from having two stacks."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dsa_two_stack_queue_source_clrs4",
+      "title": "Introduction to Algorithms",
+      "authors": [
+        "Thomas H. Cormen",
+        "Charles E. Leiserson",
+        "Ronald L. Rivest",
+        "Clifford Stein"
+      ],
+      "publisher": "The MIT Press",
+      "publicationYear": 2022,
+      "edition": "4th edition",
+      "isbn": "9780262367509",
+      "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+      "locator": "Section 10.1.3 (stack/queue behavior), exercises 10.1-7 and 16.3-5 (established two-stack queue construction and amortization), and chapter 16 introduction/section 16.1 (aggregate per-item analysis). Fourth-edition ebook consulted 2026-09-11. Boundary/transfer invariants, integer failure contract, C++ code, traces, and practice are independently developed teaching exposition, not reproduced exercise solutions."
+    },
+    {
+      "id": "dsa_two_stack_queue_source_n4861",
+      "title": "Working Draft, Standard for Programming Language C++ (N4861)",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "C++20 working draft N4861",
+      "url": "https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/n4861.pdf",
+      "locator": "C++20 working draft, not the published ISO text: 9.5.3 [dcl.fct.def.delete], 22.2.3 [sequence.reqmts], 22.3.11.1 [vector.overview], 22.3.11.3 [vector.capacity], 22.3.11.5 [vector.modifiers], 20.6.3.1 [optional.ctor], and 20.6.3.5 [optional.observe]; deleted operations, stack end operations, reserve, int exception guarantees, and optional presence/value semantics. Relevant draft passages inspected 2026-09-11."
+    }
+  ]
+}

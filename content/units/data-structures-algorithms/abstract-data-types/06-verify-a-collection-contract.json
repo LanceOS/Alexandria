@@ -1,0 +1,187 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "dsa_contract_verification_module",
+  "versionId": "dsa_contract_verification_v1",
+  "version": 1,
+  "slug": "verify-a-collection-contract",
+  "title": "Verify a collection contract",
+  "summary": "Compare operations and complete logical state with a reference model, then choose storage for a stated workload.",
+  "position": 5,
+  "objectives": [
+    "Translate a collection contract into independent checks of results and state.",
+    "Explain what bounded exhaustive testing establishes and what it leaves untested.",
+    "Choose a representation by relating workload, failure policy, and operation costs."
+  ],
+  "parts": [
+    {
+      "id": "dsa_contract_verification_part_1",
+      "title": "Check behavior against a simpler model",
+      "blocks": [
+        {
+          "type": "callout",
+          "title": "Bring the unit together",
+          "text": "Prerequisites: the bounded queue’s contract, the stack and linked-storage invariants, and worst-case versus amortized cost. This capstone returns to the integer ring from lesson one. It develops a reusable testing method and a design comparison; it does not introduce a new queue algorithm. Read a failing trace as a sequence of state transitions, not just a wrong final number."
+        },
+        {
+          "type": "paragraph",
+          "text": "An implementation can return a plausible value while leaving a damaged collection behind. Suppose a full capacity-three queue represents [14, 8, 14]. A faulty push of 8 writes into its oldest slot and then returns false. The success flag says rejected and size still says three, but a later pop returns 8 instead of 14. Checking only operation results or only item counts misses part of the promise. A useful check relates three things: the prior abstract sequence, the call’s result, and the abstract sequence afterward."
+        },
+        {
+          "type": "paragraph",
+          "text": "A reference model is a simpler implementation of the behavior used to predict the result. Our model uses std::deque<int> to hold the logical sequence directly. We add the same fixed limit C: append only when its size is less than C; observe or remove only when it is nonempty. The deque is not being tested for our custom capacity rule because it does not supply that rule itself. It provides trusted sequence operations around which we write a small model. This avoids repeating the ring’s head arithmetic in the oracle, the component that decides what outcome is expected."
+        },
+        {
+          "type": "paragraph",
+          "text": "This is an application of established model-based testing. Claessen and Hughes discuss comparing stateful operations with an abstract model in §5 of Testing Monadic Code with QuickCheck. Their paper develops property testing in Haskell; this lesson independently applies the idea to a bounded C++ queue using finite enumeration. We do not reproduce the paper’s implementations or use QuickCheck here. The relevant principle is to compare observable results and the corresponding state after a sequence of operations, while constructing states through valid interfaces."
+        },
+        {
+          "type": "paragraph",
+          "text": "For each test call, initialize separate actual and expected output variables to -777. Invoke the ring operation and the model operation, then compare their success flags and output values. The value comparison happens even on failure, because our contract preserves an output parameter in that case. Push has no output parameter; both variables remain untouched. Check the size and complete logical sequence as well. The repeated integer 14 in our traces matters: a test that sorts values or converts them to a set would throw away order or multiplicity and could accept a broken FIFO implementation."
+        },
+        {
+          "type": "paragraph",
+          "text": "The public interface has no iterator, so the test copies the queue and drains that copy to compare every item with the model. Copying is valid for this particular RingQueue: its array and integer fields have ordinary value semantics, and no borrowed pointer must be repaired. Destructive observation affects only the copies. This is deliberately different from the linked queue in the previous lesson, which disables copying because it owns unique nodes. Test helpers must respect the implementation’s ownership contract instead of assuming that every collection can be cloned."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A test compares size and the multiset of drained items. Would it detect a queue that swaps the two oldest distinct items after wraparound?",
+          "explanation": "No. Both size and the multiset remain equal. For example [14, 8, 14] and [8, 14, 14] contain the same values with the same multiplicities but promise different next removals. Compare each removal in sequence order, or compare a complete ordered observation, to test FIFO behavior."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why not build the expected sequence by reading the ring’s slots with the same slot helper used by try_push?",
+          "explanation": "That would couple the oracle to the implementation detail under test. If the mapping is wrong in a way shared by insertion and observation, both sides may agree for the wrong reason. The deque model follows only the public append/front/remove rules, while the queue must independently satisfy them. This reduces shared mistakes; it does not prove the model or the library infallible."
+        }
+      ]
+    },
+    {
+      "id": "dsa_contract_verification_part_2",
+      "title": "Explore short histories systematically",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Choose four commands: push 14, push 8, pop, and front. Enumerate every command history of lengths zero through six, starting each history with a fresh empty queue and model. For a length k there are 4^k histories because every one of its k positions has four independent choices. The total is 1 + 4 + 16 + 64 + 256 + 1,024 + 4,096 = 5,461. Run that set at capacity one and again at capacity three, giving 10,922 case executions. Empty operations and full pushes are valid calls with false outcomes, so we include them instead of filtering them away."
+        },
+        {
+          "type": "paragraph",
+          "text": "The generator represents each history as an integer pattern from zero through 4^k-1. Repeated remainder by four chooses a command, and integer division by four advances to the next digit. Reading the least significant digit first simply defines the command order. Keeping the length separately preserves leading zero digits, which represent push 14 rather than missing commands. Every length-k sequence appears exactly once. The fixed maximum length keeps the arithmetic small; an unbounded generator would need its own overflow and resource limits."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "code": "#include <array>\n#include <cstddef>\n\ntemplate<std::size_t Capacity>\nclass RingQueue {\n    static_assert(Capacity > 0);\n    std::array<int, Capacity> slots_{};\n    std::size_t head_ = 0;\n    std::size_t count_ = 0;\n\n    std::size_t slot(std::size_t offset) const noexcept {\n        const std::size_t until_end = Capacity - head_;\n        return offset < until_end ? head_ + offset : offset - until_end;\n    }\npublic:\n    std::size_t size() const noexcept { return count_; }\n\n    bool try_push(int value) noexcept {\n        if (count_ == Capacity) return false;\n        slots_[slot(count_)] = value;\n        ++count_;\n        return true;\n    }\n\n    bool try_front(int& value) const noexcept {\n        if (count_ == 0) return false;\n        value = slots_[head_];\n        return true;\n    }\n\n    bool try_pop(int& value) noexcept {\n        if (count_ == 0) return false;\n        value = slots_[head_];\n        head_ = head_ == Capacity - 1 ? 0 : head_ + 1;\n        --count_;\n        return true;\n    }\n};\n\n#include <deque>\n#include <iostream>\n\n// Test-only observer: compare the entire logical state without changing it.\ntemplate<std::size_t Capacity>\nbool same_sequence(RingQueue<Capacity> actual, std::deque<int> expected) {\n    if (actual.size() != expected.size()) return false;\n    while (!expected.empty()) {\n        int value = -777;\n        if (!actual.try_pop(value) || value != expected.front()) return false;\n        expected.pop_front();\n    }\n    int value = -777;\n    return !actual.try_pop(value) && value == -777 && actual.size() == 0;\n}\n\ntemplate<std::size_t Capacity>\nbool check_all(std::size_t& checked) {\n    std::size_t patterns = 1;\n    for (int length = 0; length <= 6; ++length) {\n        for (std::size_t pattern = 0; pattern < patterns; ++pattern) {\n            RingQueue<Capacity> actual;\n            std::deque<int> expected;\n            if (!same_sequence(actual, expected)) return false;\n            std::size_t remaining = pattern;\n            for (int step = 0; step < length; ++step) {\n                const unsigned op = static_cast<unsigned>(remaining % 4);\n                remaining /= 4;\n                int actual_value = -777;\n                int expected_value = -777;\n                bool actual_ok = false;\n                bool expected_ok = false;\n                if (op < 2) {\n                    const int value = op == 0 ? 14 : 8;\n                    actual_ok = actual.try_push(value);\n                    expected_ok = expected.size() < Capacity;\n                    if (expected_ok) expected.push_back(value);\n                } else {\n                    actual_ok = op == 2 ? actual.try_pop(actual_value)\n                                        : actual.try_front(actual_value);\n                    expected_ok = !expected.empty();\n                    if (expected_ok) {\n                        expected_value = expected.front();\n                        if (op == 2) expected.pop_front();\n                    }\n                }\n                if (actual_ok != expected_ok || actual_value != expected_value ||\n                    !same_sequence(actual, expected)) {\n                    std::cout << \"mismatch: capacity=\" << Capacity\n                              << \" length=\" << length << \" pattern=\" << pattern\n                              << \" step=\" << step << '\\n';\n                    return false;\n                }\n            }\n            ++checked;\n        }\n        patterns *= 4;\n    }\n    return true;\n}\n\nint main() {\n    std::size_t checked = 0;\n    if (!check_all<1>(checked) || !check_all<3>(checked)) return 1;\n    std::cout << \"verified \" << checked << \" operation sequences\\n\";\n}\n",
+          "caption": "Complete C++20 program — original bounded enumeration and deque model for the lesson-one queue"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "verified 10922 operation sequences\n",
+          "caption": "Expected standard output"
+        },
+        {
+          "type": "paragraph",
+          "text": "The checker compares both returned information and the entire sequence after every command, not just at the end of a history. A failed push must leave its previous sequence intact; a front call must leave every item in place; a pop must remove exactly the oldest item. A mismatch identifies capacity, history length, pattern, and zero-based step. Decode pattern with the same base-four convention to reproduce the calls. The helper also compares the fresh empty states before executing a history, so the length-zero case is a real constructor-state check."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a short wraparound history at capacity three: push 14, push 8, pop, push 14, push 8, front. After the pop the ring head has advanced; the final push wraps into the earlier slot. The model expects [8, 14, 8] and front returns 8 without removal. At capacity one, the same command history includes rejected pushes and a different logical state. Running both capacities exercises different branches without assuming that behavior at one size represents every possible size."
+        },
+        {
+          "type": "paragraph",
+          "text": "The printed total establishes agreement only for those two capacities, those two inserted values, and those bounded histories in this execution. It does not establish correctness for every int, longer repeated wraps, all template capacities, or altered element types. Even a complete search of these cases is not a formal proof of the implementation. The invariant argument in lesson one explains arbitrary operation sequences under its assumptions; this checker supplies independent evidence that the code follows that argument on a useful finite domain. Allocation behavior of the deque test oracle is also outside the ring’s no-allocation operation promise."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Change the operation alphabet to five commands while retaining lengths zero through six and two capacities. How many case executions result, and what must change in the code?",
+          "explanation": "There are 1 + 5 + 25 + 125 + 625 + 3,125 + 15,625 = 19,531 histories per capacity, or 39,062 cases. Both the remainder/division base and patterns multiplier must become five, and the fifth command needs explicit model and implementation handling. Changing only the multiplier would generate duplicate four-command histories instead of the intended five-command space."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A failure appears only after 100 drain-and-refill cycles at capacity four. Does the successful 10,922-case run contradict that report?",
+          "explanation": "No. Neither capacity four nor that history length is in the run. Preserve the reported sequence as a focused regression case, locate the violated invariant, and decide which broader histories to add. The existing result remains useful within its stated domain. Increasing a number of cases without including the failing conditions would not resolve the discrepancy."
+        }
+      ]
+    },
+    {
+      "id": "dsa_contract_verification_part_3",
+      "title": "Choose storage from the workload",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Behavioral agreement lets us compare representations without silently changing what the application receives. Suppose a queue starts full with n integers, then performs q successful pop-and-push cycles, always returning to n items. Compare the ring with a packed array implementation that shifts all remaining items one place left on every pop. Both preserve FIFO and can reject pushes when full. Define the cost narrowly as writes of item values into queue storage. Count the initial fill, but exclude prior storage initialization (including the ring array’s zero-initialization), output-variable assignments, and index metadata in both designs. This is a hypothetical operation-count model, not a timed benchmark."
+        },
+        {
+          "type": "paragraph",
+          "text": "The packed array makes n-1 element writes during each left shift and one write for the following push, so each cycle costs n writes. Including the initial fill gives n + qn. The ring’s pop shifts no stored items, and each push writes one slot, giving n + q. For n=6 and q=10 the totals are 66 and 16. At n=1, each design needs 11 writes: there is nothing to shift. The second case explains the mechanism behind the difference rather than suggesting that a ring wins by a fixed multiplier on every workload. This count omits additional bookkeeping; a packed-array shift loop also performs loop-control and indexing work for the shifted items."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now choose from the unit’s structures for concrete requirements. A service holding at most 64 integer requests in arrival order, with immediate rejection when full, fits the bounded ring’s contract and fixed storage. A local editor that restores the last accepted position change needs LIFO behavior and an explicit undo-history policy, as in the stack lesson. For a sequence with frequent indexed reads and no small fixed bound, a growable array makes indexing direct, but a growth event can relocate many items. Its low amortized append cost does not promise a short individual pause."
+        },
+        {
+          "type": "paragraph",
+          "text": "A linked representation becomes interesting when an operation already has access to the relevant node or predecessor and stable node storage matters. Finding an arbitrary value still requires traversal in the singly linked example. Node allocation, pointer ownership, empty-to-singleton transitions, and destruction must be included in the design. The queue built from two stacks is appropriate when those stack operations are the available building blocks. Its aggregate bound comes from transferring each accepted item at most once between stacks; a front or removal that triggers a transfer can still do linear work in the current queue length."
+        },
+        {
+          "type": "paragraph",
+          "text": "Those descriptions are conditional recommendations, not a ranking of containers. If the service must wait instead of reject, store noncopyable objects, allow concurrent access, or offer stable iterators, its contract has changed beyond this unit’s examples. Add those requirements before choosing a representation. A fixed item count also does not necessarily bound external memory owned by each item, and constant link changes do not automatically bound an allocator’s latency. The useful habit is to name the operation, input domain, failure outcome, and cost model together."
+        },
+        {
+          "type": "paragraph",
+          "text": "A complete design explanation can now connect four pieces: a client-visible abstract value, the operations and their outcomes, a representation invariant, and evidence for both correctness and cost. For the bounded ring, the abstract sequence explains FIFO, head and count explain storage, guard order explains rejected calls, and the trace checker exercises these promises independently. For another collection, derive the corresponding pieces again. Reusing a tested component is valuable, but its guarantees must match the new application rather than merely resemble its method names."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Under the storage-write model, derive the totals for n=9 and q=4. Would those totals alone justify predicting the ring’s elapsed time to be five times faster?",
+          "explanation": "The packed array makes 9 + 4×9 = 45 writes; the ring makes 9 + 4 = 13. The ratio is not five, and even the correct ratio 45/13 describes only the selected write count. Metadata, cache effects, compiler choices, and surrounding work are excluded. Use the arithmetic to explain avoided shifts, then measure an actual workload if elapsed time is the decision criterion."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A team needs FIFO, occasional large bursts, and a strict maximum time for every removal. They propose two stacks because removal is amortized O(1). What is missing from the argument?",
+          "explanation": "Amortized O(1) bounds aggregate work, so one removal can still transfer the entire incoming stack. The team needs a bound on each operation under a specified machine and payload model, plus allocation and scheduling assumptions. A preallocated ring may offer bounded bookkeeping if a fixed capacity and rejection policy are acceptable; otherwise the design needs additional work. The contract, rather than the amortized label alone, determines whether the choice fits."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dsa_contract_verification_source_clrs4",
+      "title": "Introduction to Algorithms",
+      "authors": [
+        "Thomas H. Cormen",
+        "Charles E. Leiserson",
+        "Ronald L. Rivest",
+        "Clifford Stein"
+      ],
+      "publisher": "The MIT Press",
+      "publicationYear": 2022,
+      "edition": "4th edition",
+      "isbn": "9780262367509",
+      "url": "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+      "locator": "Textbook: Part III introduction (operation requirements), §10.1.3 (stack and queue representations), and §16.1 and §16.4.1 (aggregate analysis and expansion); relevant passages inspected for this unit. The finite enumeration, queue model implementation, and packed-array write-count comparison are independently written."
+    },
+    {
+      "id": "dsa_contract_verification_source_n4861",
+      "title": "Working Draft, Standard for Programming Language C++ (N4861)",
+      "authors": [
+        "ISO/IEC JTC 1/SC 22/WG 21"
+      ],
+      "publicationYear": 2020,
+      "edition": "C++20 working draft N4861",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/",
+      "locator": "C++20 working draft: [array.overview], [sequence.reqmts], and [deque.overview] for the value-storage and model-container operations used here; [queue] distinguishes the library adapter from our bounded policy. Consulted 2026-09-11."
+    },
+    {
+      "id": "dsa_contract_verification_source_model_testing",
+      "title": "Testing Monadic Code with QuickCheck",
+      "authors": [
+        "Koen Claessen",
+        "John Hughes"
+      ],
+      "publicationYear": 2002,
+      "publisher": "ACM",
+      "url": "https://research.chalmers.se/en/publication/170517",
+      "locator": "Research paper presented at the 2002 Haskell Workshop. Publication identity verified through Chalmers and the workshop program. Inspected author-manuscript §1 and §5, Model-based testing (manuscript mirror PDF pages 2 and 5; §5 also rendered). Supports the established comparison method, not a guarantee for this lesson’s independently written finite C++ checker."
+    }
+  ]
+}

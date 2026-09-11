@@ -1,0 +1,76 @@
+{
+  "date": "2026-09-11",
+  "scope": "Data Structures and Algorithms / Abstract Data Types",
+  "modules": [
+    {
+      "path": "content/units/data-structures-algorithms/abstract-data-types/01-design-a-bounded-queue.json",
+      "sha256": "9bd6927f31cae3bbea15548d3889a11b586435e2f475b174c37406291672375b",
+      "id": "dsa_design_a_bounded_queue_module",
+      "versionId": "dsa_design_a_bounded_queue_v3",
+      "version": 3,
+      "parts": 3,
+      "reflections": 6,
+      "cppPrograms": 1,
+      "sources": 5
+    },
+    {
+      "path": "content/units/data-structures-algorithms/abstract-data-types/02-model-a-stack-and-undo.json",
+      "sha256": "ff631b8fc0ba820dbad3c3bf157cf1b3c708de321df4d812ce86231e15f42350",
+      "id": "dsa_stack_undo_module",
+      "versionId": "dsa_stack_undo_v1",
+      "version": 1,
+      "parts": 3,
+      "reflections": 6,
+      "cppPrograms": 1,
+      "sources": 4
+    },
+    {
+      "path": "content/units/data-structures-algorithms/abstract-data-types/03-explain-dynamic-array-growth.json",
+      "sha256": "f9364f40507cd3f2b2042fde60c0a6e0bbc6f4a5ee03c8ec44d6ecb4471a356f",
+      "id": "dsa_dynamic_growth_module",
+      "versionId": "dsa_dynamic_growth_v1",
+      "version": 1,
+      "parts": 3,
+      "reflections": 6,
+      "cppPrograms": 1,
+      "sources": 2
+    },
+    {
+      "path": "content/units/data-structures-algorithms/abstract-data-types/04-reason-about-linked-storage.json",
+      "sha256": "1e9352771e44f50a731db159c7f7567929911f88f2cb14473b0d3db0b42e6d55",
+      "id": "dsa_linked_storage_module",
+      "versionId": "dsa_linked_storage_v1",
+      "version": 1,
+      "parts": 3,
+      "reflections": 6,
+      "cppPrograms": 1,
+      "sources": 4
+    },
+    {
+      "path": "content/units/data-structures-algorithms/abstract-data-types/05-build-a-queue-from-stacks.json",
+      "sha256": "707687e2a2a862aef8f6649c22c3486ae4de9311f0b91cb35a372467589304c2",
+      "id": "dsa_two_stack_queue_module",
+      "versionId": "dsa_two_stack_queue_v1",
+      "version": 1,
+      "parts": 3,
+      "reflections": 6,
+      "cppPrograms": 1,
+      "sources": 2
+    },
+    {
+      "path": "content/units/data-structures-algorithms/abstract-data-types/06-verify-a-collection-contract.json",
+      "sha256": "b561fb9ed5ab554402f9946bb73b4f1ca32a5456fd926803b8ac1969d392c0c5",
+      "id": "dsa_contract_verification_module",
+      "versionId": "dsa_contract_verification_v1",
+      "version": 1,
+      "parts": 3,
+      "reflections": 6,
+      "cppPrograms": 1,
+      "sources": 3
+    }
+  ],
+  "totalParts": 18,
+  "totalReflections": 36,
+  "totalCppPrograms": 6,
+  "sourceCitations": 20
+}

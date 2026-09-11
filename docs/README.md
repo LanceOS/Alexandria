@@ -6,6 +6,7 @@
 - [Content authoring](../content/README.md): unit folders, JSON modules, validation, and explicit imports.
 - [Curriculum map](curriculum-map.md): C++ core and advanced units, supporting subjects, application tracks, and the modules available in each.
 - [Algorithm Analysis unit](reviews/2026-09-11-algorithm-analysis.md): a focused six-module expansion using inspected algorithm and C++ books.
+- [Abstract Data Types unit](reviews/2026-09-11-abstract-data-types.md): six connected lessons with runnable collection examples and a reference-backed verification capstone.
 - [Curriculum evidence](curriculum-evidence.md): shared lesson pattern, primary documentation, peer-reviewed research, review records, and verification limits.
 - [C++ Basics content](cpp-basics-content.md): seven original introductory modules, documentation/book references, and explicit installation.
 - [Learning progress and quests](learning-progress.md): saved reading, XP, weekly goals, milestones, practice, and upgrade steps.

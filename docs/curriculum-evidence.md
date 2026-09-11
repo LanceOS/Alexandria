@@ -29,6 +29,7 @@ The current evidence ledgers are:
 - [Advanced C++](research/cpp-advanced.md)
 - [Supporting subjects](research/supporting-subjects.md)
 - [Algorithm Analysis book study](research/algorithm-analysis.md)
+- [Abstract Data Types book and research study](research/abstract-data-types.md)
 - [Application tracks](research/application-tracks.md)
 
 ## Verify lessons as well as files
@@ -64,3 +65,7 @@ The [depth expansion report](reviews/2026-09-11-curriculum-depth.md) records 89 
 ## Focused Algorithm Analysis expansion — 2026-09-11
 
 The [unit review](reviews/2026-09-11-algorithm-analysis.md) records six connected modules, 18 sections, 36 explained practice prompts, and eight runnable C++20 examples grounded in inspected book passages. Five modules were added and one existing module revised within Algorithm Analysis, bringing the catalog to 94 modules and 282 parts. The application suite passed 163 tests; the build, all 54 current C++ examples, and the unit's eight programs in the application sandbox were verified. Local publication preserved all 2,271 existing database rows. The [source ledger](research/algorithm-analysis.md) distinguishes source material from independently written explanations of established proof methods, examples, and hypothetical cost models. The [source-comparison review](reviews/2026-09-11-algorithm-analysis-originality.md) records the subsequent checks for direct copying and distinctive source examples before commit.
+
+## Focused Abstract Data Types expansion — 2026-09-11
+
+The [unit review](reviews/2026-09-11-abstract-data-types.md) records the second six-module study: 18 sections, 36 explained practice prompts, and six runnable C++20 programs. Five modules were added and one existing queue lesson revised, bringing the catalog to 99 modules and 297 parts. All 163 application tests passed with one optional suite skipped; the build, all 60 current examples, and the six unit programs in the application sandbox were verified. Local publication preserved all 2,343 existing database rows. The [source ledger](research/abstract-data-types.md) records actual book, standards-draft, and research passages inspected; the review documents manual comparison and a whole-book wording scan without claiming an exhaustive plagiarism guarantee.

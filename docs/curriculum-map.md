@@ -1,6 +1,6 @@
 # Curriculum map
 
-The catalog contains **25 topics, 25 root units, 66 subunits, and 94 modules (282 lesson parts)**. Every module uses the established C++ layout: objectives, three ordered sections, worked examples, explained reflection, and sources. These are substantive initial lessons in each area, not a claim that two lessons exhaust an entire discipline.
+The catalog contains **25 topics, 25 root units, 66 subunits, and 99 modules (297 lesson parts)**. Every module uses the established C++ layout: objectives, three ordered sections, worked examples, explained reflection, and sources. These are substantive initial lessons in each area, not a claim that two lessons exhaust an entire discipline.
 
 The [curriculum depth standard](../notes/curriculum-depth.md) applies to every unit and module. The [depth expansion review](reviews/2026-09-11-curriculum-depth.md) records the detailed walkthroughs, contrasting cases, and explained practice added throughout all 89 modules while preserving the hierarchy.
 
@@ -52,6 +52,11 @@ Subunits 1–12 form the core progression; 13–18 are advanced. The reader pres
 | [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Algorithm Analysis | [Analyze insertion sort](../content/units/data-structures-algorithms/algorithm-analysis/05-analyze-insertion-sort.json) |
 | [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Algorithm Analysis | [Explain merge sort with a recurrence](../content/units/data-structures-algorithms/algorithm-analysis/06-explain-merge-sort.json) |
 | [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Abstract Data Types | [Design a bounded queue from its contract](../content/units/data-structures-algorithms/abstract-data-types/01-design-a-bounded-queue.json) |
+| [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Abstract Data Types | [Model a stack and undo](../content/units/data-structures-algorithms/abstract-data-types/02-model-a-stack-and-undo.json) |
+| [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Abstract Data Types | [Explain dynamic array growth](../content/units/data-structures-algorithms/abstract-data-types/03-explain-dynamic-array-growth.json) |
+| [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Abstract Data Types | [Reason about linked storage](../content/units/data-structures-algorithms/abstract-data-types/04-reason-about-linked-storage.json) |
+| [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Abstract Data Types | [Build a queue from two stacks](../content/units/data-structures-algorithms/abstract-data-types/05-build-a-queue-from-stacks.json) |
+| [Data Structures and Algorithms](../content/units/data-structures-algorithms/unit.json) | Abstract Data Types | [Verify a collection contract](../content/units/data-structures-algorithms/abstract-data-types/06-verify-a-collection-contract.json) |
 | [Computer Architecture and Operating Systems](../content/units/computer-architecture-operating-systems/unit.json) | Memory Hierarchy | [Trace locality with a tiny cache](../content/units/computer-architecture-operating-systems/memory-hierarchy/01-trace-cache-locality.json) |
 | [Computer Architecture and Operating Systems](../content/units/computer-architecture-operating-systems/unit.json) | Process Memory | [Separate virtual addresses from physical storage](../content/units/computer-architecture-operating-systems/process-memory/01-separate-addresses-from-storage.json) |
 | [Software Design and Architecture](../content/units/software-design-architecture/unit.json) | Responsibility Boundaries | [Hide a changing decision behind a stable boundary](../content/units/software-design-architecture/responsibility-boundaries/01-hide-a-changing-decision.json) |
@@ -103,6 +108,8 @@ Subunits 1–12 form the core progression; 13–18 are advanced. The reader pres
 | [Language interoperability](../content/units/language-interoperability/unit.json) | Runtime Coordination | [Separate Python access from independent native work](../content/units/language-interoperability/runtime-coordination/01-gil-boundary.json) |
 
 Algorithm Analysis is the first focused book-supported unit expansion: six connected modules, from cost models through correctness and growth bounds to binary search and sorting. Its [source ledger](research/algorithm-analysis.md) records the actual passages inspected; the [release review](reviews/2026-09-11-algorithm-analysis.md) records teaching and execution checks.
+
+Abstract Data Types is the second focused study: six connected modules linking behavior, storage, ownership, amortized cost, and contract verification. Its [source ledger](research/abstract-data-types.md) and [release review](reviews/2026-09-11-abstract-data-types.md) record inspected references and checks.
 
 ## Evidence and installation
 
