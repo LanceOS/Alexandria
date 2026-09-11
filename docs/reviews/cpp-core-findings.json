@@ -1,0 +1,1585 @@
+{
+  "audit": "C++ core curriculum deep accuracy and reference audit",
+  "baseline_commit": "99a387f9cdb8a58c65b9a8160f0059ed2a51bd27",
+  "consulted": "2026-09-11",
+  "status": "complete_findings_proposed_no_lesson_or_database_edits",
+  "scope": {
+    "modules": 22,
+    "subunits": 11,
+    "excluded": [
+      "Basics",
+      "six advanced C++ subunits"
+    ],
+    "citation_instances": 83,
+    "distinct_cited_urls": 69,
+    "distinct_cited_pages_ignoring_fragments": 68,
+    "cited_urls_with_relevant_passages_read": 69,
+    "additional_corroborating_urls_read": 17,
+    "additional_fetches_unavailable": 1
+  },
+  "assessment": {
+    "unsafe_worked_examples_found": 0,
+    "incorrect_Cpp20_Cpp23_version_claims_found": 0,
+    "high_or_medium_severity_technical_errors_found": 0,
+    "technical_precision_findings": 1,
+    "citation_deficiency_findings": 6,
+    "optional_enrichment_findings": 3,
+    "compiler_execution_in_this_audit": false
+  },
+  "method": "Fresh reading of the baseline JSON and actual linked primary passages; semantic and lifetime traces independent of previous ledgers or compilation. Whole large documents were not read end to end. References were checked for claim relevance and metadata, with corroborating primary clauses where needed. No empirical speed or universal pedagogical-effectiveness claim is certified.",
+  "findings": [
+    {
+      "id": "CORE-001",
+      "category": "technical_precision",
+      "priority": "low",
+      "status": "proposed_not_applied",
+      "title": "Qualify variant’s one-alternative description",
+      "explanation": "The general description implies a variant always contains one alternative. The C++20 contract also permits no contained value after some throwing modifications. The const Reading sample is safe and its expected output is correct; the correction prevents a misleading general guarantee.",
+      "patches": [
+        {
+          "op": "replace",
+          "file": "content/units/cpp/library-data-containers/02-keys-and-vocabulary-types.json",
+          "json_pointer": "/parts/2/blocks/0/text",
+          "current": "A vocabulary type supplies a common relationship between values. pair and tuple group several values; a named struct can explain their roles more clearly when those roles matter. optional represents the presence or absence of a value. variant represents one value chosen from a declared set of alternative types. Here Reading stores either a page count or a textual status, keeping those two meanings distinguishable.",
+          "replacement": "A vocabulary type supplies a common relationship between values. pair and tuple group several values; a named struct can explain their roles more clearly when those roles matter. optional represents the presence or absence of a value. variant normally holds one value chosen from a declared set of alternative types. Certain throwing modifications can instead leave it valueless_by_exception, so generic handling must account for that possibility. Here Reading stores either a page count or a textual status, keeping those two meanings distinguishable."
+        }
+      ],
+      "supporting_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/variant#variant.variant-2",
+        "https://timsong-cpp.github.io/cppwp/n4861/variant#variant.status"
+      ]
+    },
+    {
+      "id": "CORE-002",
+      "category": "citation_deficiency",
+      "priority": "low",
+      "status": "proposed_not_applied",
+      "title": "Cite the rule that defines defaulted equality’s result",
+      "explanation": "The existing [class.compare.default] citation correctly covers declarations, restrictions, and the list of subobjects, but the actual comparison algorithm used by the lesson and reflection is in [class.eq]/3. Add that passage without removing the relevant existing citation.",
+      "patches": [
+        {
+          "op": "add",
+          "file": "content/units/cpp/classes-value-semantics/02-copy-move-and-comparison.json",
+          "json_pointer": "/sources/-",
+          "current": null,
+          "replacement": {
+            "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_audit_class_eq",
+            "title": "C++20 working draft N4861: class.eq",
+            "authors": [
+              "ISO/IEC JTC1/SC22/WG21"
+            ],
+            "publicationYear": 2020,
+            "edition": "N4861 (C++20 working draft)",
+            "url": "https://timsong-cpp.github.io/cppwp/n4861/class.eq",
+            "locator": "N4861, [class.eq]; consulted 2026-09-11. Paragraphs 1–3: defaulted equality requirements and comparison of corresponding subobjects, stopping at the first unequal pair."
+          }
+        }
+      ],
+      "supporting_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/class.compare.default",
+        "https://timsong-cpp.github.io/cppwp/n4861/class.eq"
+      ]
+    },
+    {
+      "id": "CORE-003",
+      "category": "citation_deficiency",
+      "priority": "low",
+      "status": "proposed_not_applied",
+      "title": "Support the unordered-container comparison with its own requirements",
+      "explanation": "The ordered-map reference [associative.reqmts] does not define unordered-container hashing, equality compatibility, or iteration order. The prose is correct, but its comparison needs [unord.req]/2–6.",
+      "patches": [
+        {
+          "op": "add",
+          "file": "content/units/cpp/library-data-containers/02-keys-and-vocabulary-types.json",
+          "json_pointer": "/sources/-",
+          "current": null,
+          "replacement": {
+            "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_source_audit_unord_req",
+            "title": "C++20 working draft N4861: unord.req",
+            "authors": [
+              "ISO/IEC JTC1/SC22/WG21"
+            ],
+            "publicationYear": 2020,
+            "edition": "N4861 (C++20 working draft)",
+            "url": "https://timsong-cpp.github.io/cppwp/n4861/unord.req",
+            "locator": "N4861, [unord.req]; consulted 2026-09-11. Paragraphs 2–6: hash and equality requirements, equal hashes for equivalent keys, and unspecified absolute iteration order."
+          }
+        }
+      ],
+      "supporting_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/associative.reqmts",
+        "https://timsong-cpp.github.io/cppwp/n4861/unord.req"
+      ]
+    },
+    {
+      "id": "CORE-004",
+      "category": "citation_deficiency",
+      "priority": "low",
+      "status": "proposed_not_applied",
+      "title": "Support count_if’s behavior and linear predicate bound",
+      "explanation": "The lesson explicitly teaches count_if and its linear traversal. Its current sources cover iterators, find, and sorting, but not the counting contract. [alg.count]/2–3 gives the result and exact predicate-application bound.",
+      "patches": [
+        {
+          "op": "add",
+          "file": "content/units/cpp/iterators-algorithms-ranges/01-algorithms-and-half-open-ranges.json",
+          "json_pointer": "/sources/-",
+          "current": null,
+          "replacement": {
+            "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_source_audit_alg_count",
+            "title": "C++20 working draft N4861: alg.count",
+            "authors": [
+              "ISO/IEC JTC1/SC22/WG21"
+            ],
+            "publicationYear": 2020,
+            "edition": "N4861 (C++20 working draft)",
+            "url": "https://timsong-cpp.github.io/cppwp/n4861/alg.count",
+            "locator": "N4861, [alg.count]; consulted 2026-09-11. Paragraphs 2–3: count/count_if return the number of matching positions and apply the predicate once per input position."
+          }
+        }
+      ],
+      "supporting_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/alg.count"
+      ]
+    },
+    {
+      "id": "CORE-005",
+      "category": "citation_deficiency",
+      "priority": "low",
+      "status": "proposed_not_applied",
+      "title": "Point the exception lesson’s vector citation to swap",
+      "explanation": "The URL is relevant: [vector.capacity] contains swap and its conditional noexcept specification. The current locator discusses reserve, size, and invalidation, none of which explains this lesson’s commit step. Identify swap and supply the default-allocator trait used to justify non-throwing behavior.",
+      "patches": [
+        {
+          "op": "replace",
+          "file": "content/units/cpp/error-handling/02-exceptions-and-state-guarantees.json",
+          "json_pointer": "/sources/2/locator",
+          "current": "N4861, [vector.capacity]; consulted 2026-09-11. size versus capacity; reserve and invalidation on reallocation.",
+          "replacement": "N4861, [vector.capacity], swap declaration and paragraphs 12–13; consulted 2026-09-11. Swapping contents and capacity, with the conditional noexcept specification used by the prepare-then-commit example."
+        },
+        {
+          "op": "add",
+          "file": "content/units/cpp/error-handling/02-exceptions-and-state-guarantees.json",
+          "json_pointer": "/sources/-",
+          "current": null,
+          "replacement": {
+            "id": "cpp_core_error_handling_exceptions_and_state_guarantees_source_audit_default_allocator",
+            "title": "C++20 working draft N4861: default.allocator",
+            "authors": [
+              "ISO/IEC JTC1/SC22/WG21"
+            ],
+            "publicationYear": 2020,
+            "edition": "N4861 (C++20 working draft)",
+            "url": "https://timsong-cpp.github.io/cppwp/n4861/default.allocator",
+            "locator": "N4861, [default.allocator]; consulted 2026-09-11. std::allocator declares is_always_equal as true_type, making the vector<int> swap specification non-throwing in this example."
+          }
+        }
+      ],
+      "supporting_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity",
+        "https://timsong-cpp.github.io/cppwp/n4861/default.allocator"
+      ]
+    },
+    {
+      "id": "CORE-006",
+      "category": "citation_deficiency",
+      "priority": "low",
+      "status": "proposed_not_applied",
+      "title": "Limit the ws locator’s no-failbit statement to the relevant condition",
+      "explanation": "The current locator can be read as saying ws never sets failbit when input is exhausted. ws itself adds eofbit when exhaustion occurs while consuming whitespace; its sentry can add failbit if the stream already has eofbit before the call. The sample has trailing spaces and is correct. A record ending immediately after the number remains accepted by its explicit eof check, even though ws can leave failbit set.",
+      "patches": [
+        {
+          "op": "replace",
+          "file": "content/units/cpp/library-services/01-text-streams-and-extraction.json",
+          "json_pointer": "/sources/2/locator",
+          "current": "N4861, [istream.manip], ws consumes whitespace and sets eofbit without failbit at exhausted input; consulted 2026-09-11.",
+          "replacement": "N4861, [istream.manip]; consulted 2026-09-11. ws consumes whitespace and adds eofbit without adding failbit when exhaustion occurs during that extraction; sentry construction can add failbit when the stream is already not good."
+        },
+        {
+          "op": "add",
+          "file": "content/units/cpp/library-services/01-text-streams-and-extraction.json",
+          "json_pointer": "/sources/-",
+          "current": null,
+          "replacement": {
+            "id": "cpp_core_library_services_text_streams_and_extraction_source_audit_istream_sentry",
+            "title": "C++20 working draft N4861: istream.sentry",
+            "authors": [
+              "ISO/IEC JTC1/SC22/WG21"
+            ],
+            "publicationYear": 2020,
+            "edition": "N4861 (C++20 working draft)",
+            "url": "https://timsong-cpp.github.io/cppwp/n4861/istream.sentry",
+            "locator": "N4861, [istream.sentry]; consulted 2026-09-11. Paragraphs 2–3: sentry state checks, failbit when the input is already not good, and locale-based whitespace handling."
+          }
+        }
+      ],
+      "supporting_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/istream.manip",
+        "https://timsong-cpp.github.io/cppwp/n4861/istream.sentry"
+      ]
+    },
+    {
+      "id": "CORE-007",
+      "category": "citation_deficiency",
+      "priority": "low",
+      "status": "proposed_not_applied",
+      "title": "Add the direct deletion and construction-dispatch contracts",
+      "explanation": "The runtime-polymorphism lessons give correct advice, but their [class.dtor] locators cover implicit invocation and destruction order rather than the exact base-pointer deletion precondition. [expr.delete]/3 states the ordinary virtual-destructor requirement, including its destroying-delete exception. [class.cdtor]/4 directly supports the first lesson’s construction/destruction dispatch caveat. Keep the current scoped prose and add the precise clauses.",
+      "patches": [
+        {
+          "op": "add",
+          "file": "content/units/cpp/runtime-polymorphism/01-interfaces-and-overriding.json",
+          "json_pointer": "/sources/-",
+          "current": null,
+          "replacement": {
+            "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding_source_audit_expr_delete",
+            "title": "C++20 working draft N4861: expr.delete",
+            "authors": [
+              "ISO/IEC JTC1/SC22/WG21"
+            ],
+            "publicationYear": 2020,
+            "edition": "N4861 (C++20 working draft)",
+            "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.delete",
+            "locator": "N4861, [expr.delete]; consulted 2026-09-11. Paragraph 3: ordinary single-object deletion through a base type requires its virtual destructor when static and dynamic types differ."
+          }
+        },
+        {
+          "op": "add",
+          "file": "content/units/cpp/runtime-polymorphism/01-interfaces-and-overriding.json",
+          "json_pointer": "/sources/-",
+          "current": null,
+          "replacement": {
+            "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding_source_audit_class_cdtor",
+            "title": "C++20 working draft N4861: class.cdtor",
+            "authors": [
+              "ISO/IEC JTC1/SC22/WG21"
+            ],
+            "publicationYear": 2020,
+            "edition": "N4861 (C++20 working draft)",
+            "url": "https://timsong-cpp.github.io/cppwp/n4861/class.cdtor",
+            "locator": "N4861, [class.cdtor]; consulted 2026-09-11. Paragraph 4: a virtual call on an object under construction or destruction uses the final overrider in the constructor’s or destructor’s class."
+          }
+        },
+        {
+          "op": "add",
+          "file": "content/units/cpp/runtime-polymorphism/02-owning-polymorphic-objects.json",
+          "json_pointer": "/sources/-",
+          "current": null,
+          "replacement": {
+            "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_source_audit_expr_delete",
+            "title": "C++20 working draft N4861: expr.delete",
+            "authors": [
+              "ISO/IEC JTC1/SC22/WG21"
+            ],
+            "publicationYear": 2020,
+            "edition": "N4861 (C++20 working draft)",
+            "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.delete",
+            "locator": "N4861, [expr.delete]; consulted 2026-09-11. Paragraph 3: the virtual-destructor contract for ordinary deletion through a base pointer, as used by unique_ptr<Notice>."
+          }
+        }
+      ],
+      "supporting_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/expr.delete",
+        "https://timsong-cpp.github.io/cppwp/n4861/class.cdtor"
+      ]
+    },
+    {
+      "id": "CORE-008",
+      "category": "optional_enrichment",
+      "priority": "optional",
+      "status": "proposed_not_applied",
+      "title": "Make the Guidelines locators specific and identify editorial roles",
+      "explanation": "The source names and June 14, 2026 date are verified. The page calls Stroustrup and Sutter editors, and the shared locator phrase “RAII or the Rule of Zero” is unnecessarily vague. The RAII lesson also uses recommendations directly discussed in R.21 and R.24 on the same page. This is bibliographic precision, not a false source or a normative-language error.",
+      "patches": [
+        {
+          "op": "replace",
+          "file": "content/units/cpp/lifetime-ownership/02-raii-and-unique-ownership.json",
+          "json_pointer": "/sources/3/title",
+          "current": "C++ Core Guidelines: R.1",
+          "replacement": "C++ Core Guidelines: R.1, R.21, and R.24"
+        },
+        {
+          "op": "replace",
+          "file": "content/units/cpp/lifetime-ownership/02-raii-and-unique-ownership.json",
+          "json_pointer": "/sources/3/locator",
+          "current": "R.1; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII or the Rule of Zero, distinct from normative C++ language requirements.",
+          "replacement": "R.1, R.21, and R.24; edited by Bjarne Stroustrup and Herb Sutter; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII, preferring exclusive ownership when sharing is unnecessary, and breaking shared-ownership cycles with weak_ptr; not normative language requirements."
+        },
+        {
+          "op": "replace",
+          "file": "content/units/cpp/classes-value-semantics/02-copy-move-and-comparison.json",
+          "json_pointer": "/sources/5/locator",
+          "current": "C.20; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII or the Rule of Zero, distinct from normative C++ language requirements.",
+          "replacement": "C.20; edited by Bjarne Stroustrup and Herb Sutter; page dated June 14, 2026; consulted 2026-09-11. Advisory Rule of Zero guidance: resource-managing members can supply the surrounding type’s default operations; not normative language requirements."
+        }
+      ],
+      "supporting_urls": [
+        "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-raii",
+        "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-unique",
+        "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-weak_ptr",
+        "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero"
+      ]
+    },
+    {
+      "id": "CORE-009",
+      "category": "optional_enrichment",
+      "priority": "optional",
+      "status": "proposed_not_applied",
+      "title": "Link an actual include-guard explanation",
+      "explanation": "The source list establishes inclusion and ODR behavior, but a beginner would benefit from a direct explanation of the guard pattern rather than reconstructing it from preprocessing clauses. GCC’s primary manual gives the small pattern and its scope. The existing lesson does not falsely claim a guard solves cross-translation-unit ODR violations.",
+      "patches": [
+        {
+          "op": "add",
+          "file": "content/units/cpp/program-organization/02-headers-and-modules.json",
+          "json_pointer": "/sources/-",
+          "current": null,
+          "replacement": {
+            "id": "cpp_core_program_organization_headers_and_modules_source_audit_include_guards",
+            "title": "GCC preprocessor manual: Once-Only Headers",
+            "authors": [
+              "GCC contributors"
+            ],
+            "url": "https://gcc.gnu.org/onlinedocs/cpp/Once-Only-Headers.html",
+            "locator": "GCC preprocessor manual §2.4; consulted 2026-09-11. The wrapper #ifndef pattern and why a repeated include skips guarded contents. Implementation documentation describing a portable preprocessing pattern."
+          }
+        }
+      ],
+      "supporting_urls": [
+        "https://gcc.gnu.org/onlinedocs/cpp/Once-Only-Headers.html",
+        "https://gcc.gnu.org/onlinedocs/cpp/Pragmas.html"
+      ]
+    },
+    {
+      "id": "CORE-010",
+      "category": "optional_enrichment",
+      "priority": "optional",
+      "status": "proposed_not_applied",
+      "title": "Name vector<bool> as the contiguity exception",
+      "explanation": "“Ordinary elements” signals a qualification, and the vector<string> example is fully contiguous. Naming the bool specialization would keep beginners from treating the statement as a guarantee for every possible vector<T>. [vector.overview]/2 expressly excludes bool from the contiguous-container requirement.",
+      "patches": [
+        {
+          "op": "replace",
+          "file": "content/units/cpp/library-data-containers/01-sequences-and-invalidation.json",
+          "json_pointer": "/parts/0/blocks/0/text",
+          "current": "A container owns a collection of elements and defines how they are arranged and accessed. std::vector is a useful starting point for a sequence whose length can change. It stores ordinary elements contiguously and manages their storage automatically. std::array represents a fixed number of elements as part of its own value. Neither choice requires writing new or delete, so the first design question can focus on the application’s required operations.",
+          "replacement": "A container owns a collection of elements and defines how they are arranged and accessed. std::vector is a useful starting point for a sequence whose length can change. For element types other than bool, vector is a contiguous container and manages its storage automatically. The vector<bool> specialization has different storage and reference behavior. std::array represents a fixed number of elements as part of its own value. Neither choice requires writing new or delete, so the first design question can focus on the application’s required operations."
+        }
+      ],
+      "supporting_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/vector.overview"
+      ]
+    }
+  ],
+  "module_coverage": [
+    {
+      "file": "content/units/cpp/types-initialization/01-initialization-and-deduction.json",
+      "title": "Initialize values and read deduced types",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Initialization, narrowing, auto versus auto&, vector braces versus count/value, and reference invalidation checked. Trace: Atlas: 18 12; 2 3. Scalar initialization and constructor selection are correctly distinguished.",
+      "result": "No correction required. A narrower vector constructor passage was also inspected.",
+      "findings": [],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/dcl.init",
+        "https://timsong-cpp.github.io/cppwp/n4861/dcl.init.list",
+        "https://timsong-cpp.github.io/cppwp/n4861/dcl.spec.auto",
+        "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity"
+      ]
+    },
+    {
+      "file": "content/units/cpp/types-initialization/02-conversions-and-domain-types.json",
+      "title": "Conversions and domain types",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked alias identity, scoped enum distinction, C++20 integral conversion, floating-to-integer representability, and division order. Inputs 5 and 2 make 2.5 exactly representable; integer-first division would give 2.",
+      "result": "No correction required. No platform integer-width guarantee is invented.",
+      "findings": [],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/conv.integral",
+        "https://timsong-cpp.github.io/cppwp/n4861/dcl.enum",
+        "https://timsong-cpp.github.io/cppwp/n4861/dcl.typedef",
+        "https://timsong-cpp.github.io/cppwp/n4861/conv.fpint",
+        "https://timsong-cpp.github.io/cppwp/n4861/expr.mul"
+      ]
+    },
+    {
+      "file": "content/units/cpp/functions-interfaces/01-parameters-and-results.json",
+      "title": "Parameters, results, and borrowing",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked value/reference parameter initialization and lifetime constraints. The only sum is 4+6+5=15, with the representability limitation stated. Returned string owns its result; no dangling reference is returned.",
+      "result": "No correction required. Efficiency language says can, not a universal copy-elision or speed guarantee.",
+      "findings": [],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/expr.call",
+        "https://timsong-cpp.github.io/cppwp/n4861/dcl.init.ref",
+        "https://timsong-cpp.github.io/cppwp/n4861/basic.life"
+      ]
+    },
+    {
+      "file": "content/units/cpp/functions-interfaces/02-overloads-and-lambdas.json",
+      "title": "Overloads and local callable objects",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked exact-match overload ranking, by-value capture at closure creation, reference-capture lifetime, closure identity, and literal storage. Snapshot limit 10 produces false/true after the outside limit changes to 20.",
+      "result": "No correction required. Added audit corroboration for closure type and literal lifetime.",
+      "findings": [],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/over.ics.rank",
+        "https://timsong-cpp.github.io/cppwp/n4861/expr.prim.lambda.capture",
+        "https://timsong-cpp.github.io/cppwp/n4861/dcl.spec.auto"
+      ]
+    },
+    {
+      "file": "content/units/cpp/lifetime-ownership/01-owners-and-borrowers.json",
+      "title": "Owners, borrowers, and scope",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked lifetime versus scope, non-owning span/string_view representation, const view versus const elements, and vector storage invalidation. Both owners outlive views; the unchanged allocation exposes pages[0]=9 safely.",
+      "result": "No correction required. The span is explicitly span<const int>; indexed access preconditions are met.",
+      "findings": [],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+        "https://timsong-cpp.github.io/cppwp/n4861/span.overview",
+        "https://timsong-cpp.github.io/cppwp/n4861/string.view.template",
+        "https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers"
+      ]
+    },
+    {
+      "file": "content/units/cpp/lifetime-ownership/02-raii-and-unique-ownership.json",
+      "title": "RAII and exclusive ownership",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked make_unique, unique_ptr noncopyability, move postcondition, destructor cleanup, std::move cast semantics, and advisory ownership guidance. first is guaranteed empty; the owned string is released once.",
+      "result": "CORE-008 is optional bibliographic precision. No unsafe ownership or unwinding claim found.",
+      "findings": [
+        "CORE-008"
+      ],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/class.dtor",
+        "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr",
+        "https://timsong-cpp.github.io/cppwp/n4861/forward",
+        "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-raii"
+      ]
+    },
+    {
+      "file": "content/units/cpp/classes-value-semantics/01-invariants-and-operations.json",
+      "title": "Classes that maintain a useful invariant",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked member declaration order, default initialization of completed_, explicit construction, and implicit memberwise copying. The invariant proves total_-completed_ and every accepted addition are representable for every int argument.",
+      "result": "No correction required. Rejection preserves state; true/false and 4/6 trace is correct.",
+      "findings": [],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/class.base.init",
+        "https://timsong-cpp.github.io/cppwp/n4861/class.ctor",
+        "https://timsong-cpp.github.io/cppwp/n4861/class.copy.ctor"
+      ]
+    },
+    {
+      "file": "content/units/cpp/classes-value-semantics/02-copy-move-and-comparison.json",
+      "title": "Copying, moving, and comparing values",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked generated copy/move conditions, independent string state, assignment versus construction, moved-from library guarantees, and C++20 equality. Output Atlas Revised / true is justified without inspecting the moved-from string.",
+      "result": "CORE-002 adds the equality result clause; CORE-008 optionally sharpens the Guidelines locator.",
+      "findings": [
+        "CORE-002",
+        "CORE-008"
+      ],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/class.copy.ctor",
+        "https://timsong-cpp.github.io/cppwp/n4861/class.copy.assign",
+        "https://timsong-cpp.github.io/cppwp/n4861/class.compare.default",
+        "https://timsong-cpp.github.io/cppwp/n4861/forward",
+        "https://timsong-cpp.github.io/cppwp/n4861/lib.types.movedfrom",
+        "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero"
+      ]
+    },
+    {
+      "file": "content/units/cpp/library-data-containers/01-sequences-and-invalidation.json",
+      "title": "Sequence containers and invalidation",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked vector storage ownership, capacity lower bound, reserve versus resize, erase invalidation, nonempty front access, and reallocation. The program retains no invalidated iterator and prints 2 true / Orbits 1.",
+      "result": "CORE-010 optionally makes the bool exception explicit. No unsafe access or unsupported exact capacity assumption.",
+      "findings": [
+        "CORE-010"
+      ],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/vector.overview",
+        "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity",
+        "https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers"
+      ]
+    },
+    {
+      "file": "content/units/cpp/library-data-containers/02-keys-and-vocabulary-types.json",
+      "title": "Keys, records, and alternative values",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked ordered equivalence, key-order iteration, zero initialization by map indexing, structured-binding references, and get_if. The fixed three-element input prevents count overflow; all cast pointers are checked.",
+      "result": "CORE-001 corrects a general variant-state overstatement; CORE-003 adds unordered requirements. Sample behavior is correct.",
+      "findings": [
+        "CORE-001",
+        "CORE-003"
+      ],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/associative.reqmts",
+        "https://timsong-cpp.github.io/cppwp/n4861/variant",
+        "https://timsong-cpp.github.io/cppwp/n4861/dcl.struct.bind",
+        "https://timsong-cpp.github.io/cppwp/n4861/map.access"
+      ]
+    },
+    {
+      "file": "content/units/cpp/iterators-algorithms-ranges/01-algorithms-and-half-open-ranges.json",
+      "title": "Algorithms and half-open ranges",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked half-open validity, past-the-end non-dereference, sort requirements, strict weak ordering, find failure representation, and count_if. Sorting produces 2,4,6,9; finding 6 and counting three evens are correct.",
+      "result": "CORE-004 supplies the missing count contract. Complexity claims are library bounds, not empirical performance claims.",
+      "findings": [
+        "CORE-004"
+      ],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/iterator.requirements.general",
+        "https://timsong-cpp.github.io/cppwp/n4861/alg.find",
+        "https://timsong-cpp.github.io/cppwp/n4861/alg.sorting"
+      ]
+    },
+    {
+      "file": "content/units/cpp/iterators-algorithms-ranges/02-lazy-range-pipelines.json",
+      "title": "Lazy range pipelines",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked C++20 filter and transform definitions, views::all/ref_view selection for an lvalue, deferred dereference computation, cached filter begin, and output materialization. Lifetimes and finite multiplication range are safe.",
+      "result": "No correction required. No claim that every view owns or that every view is non-owning; no later ranges::to dependency.",
+      "findings": [],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/range.filter",
+        "https://timsong-cpp.github.io/cppwp/n4861/range.transform",
+        "https://timsong-cpp.github.io/cppwp/n4861/iterator.requirements.general"
+      ]
+    },
+    {
+      "file": "content/units/cpp/error-handling/01-optional-results-and-parsing.json",
+      "title": "Optional results and complete parsing",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked optional engagement, unchecked versus throwing access, complete from_chars consumption, no leading-whitespace skipping, and representability failure. Empty input is rejected before range construction; 24 succeeds and 12x fails.",
+      "result": "No correction required. expected is explicitly a C++23 discussion and not used by the C++20 sample.",
+      "findings": [],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/optional",
+        "https://timsong-cpp.github.io/cppwp/n4861/optional.observe",
+        "https://timsong-cpp.github.io/cppwp/n4861/charconv.from.chars",
+        "https://timsong-cpp.github.io/cppwp/n4950/expected"
+      ]
+    },
+    {
+      "file": "content/units/cpp/error-handling/02-exceptions-and-state-guarantees.json",
+      "title": "Exceptions and state guarantees",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked unwinding, target-only strong guarantee, prepared copy/validation, default-allocator vector swap, and noexcept termination. Failure leaves 4,6; success commits 8,10; no external side effects are included in the guarantee.",
+      "result": "CORE-005 sharpens the commit citation and supplies the allocator trait. No exception-safety defect found.",
+      "findings": [
+        "CORE-005"
+      ],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/except.ctor",
+        "https://timsong-cpp.github.io/cppwp/n4861/except.spec",
+        "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity"
+      ]
+    },
+    {
+      "file": "content/units/cpp/library-services/01-text-streams-and-extraction.json",
+      "title": "Text streams and extraction state",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked string stream ownership, formatted extraction conditions, locale handling, ws/end checks, and C++23 print separation. The fixed record succeeds; an extra token is rejected. Existing eofbit before ws was independently assessed.",
+      "result": "CORE-006 qualifies the citation’s state claim; the runnable record parser is correct for its stated in-memory format.",
+      "findings": [
+        "CORE-006"
+      ],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/string.streams",
+        "https://timsong-cpp.github.io/cppwp/n4861/istream.formatted.reqmts",
+        "https://timsong-cpp.github.io/cppwp/n4861/istream.manip",
+        "https://timsong-cpp.github.io/cppwp/n4950/print.fun"
+      ]
+    },
+    {
+      "file": "content/units/cpp/library-services/02-time-and-path-values.json",
+      "title": "Time durations and filesystem paths",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked duration tick units, addition/conversion, integral division at a coarser period, lexical normalization, generic path syntax, and steady_clock. The trace is 2500 ms / 2 seconds / library/atlas.txt with no filesystem access.",
+      "result": "No correction required. Symlink, encoding, overflow, and filesystem-state limits are explicitly separated from lexical operations.",
+      "findings": [],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/time.duration",
+        "https://timsong-cpp.github.io/cppwp/n4861/fs.path.gen",
+        "https://timsong-cpp.github.io/cppwp/n4861/fs.path.generic",
+        "https://timsong-cpp.github.io/cppwp/n4861/time.clock.steady"
+      ]
+    },
+    {
+      "file": "content/units/cpp/templates-generic-programming/01-typed-families.json",
+      "title": "Templates as families of typed operations",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked template parameter syntax, repeated T deduction, const-reference inputs, result copying, and implicit instantiation. larger selects 9 and Orbits and returns owning values; mixed int/double deduction conflicts.",
+      "result": "No correction required. Definition reachability is described as the usual model, not as a ban on explicit instantiation or modules.",
+      "findings": [],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/temp.param",
+        "https://timsong-cpp.github.io/cppwp/n4861/temp.deduct.call",
+        "https://timsong-cpp.github.io/cppwp/n4861/temp.inst"
+      ]
+    },
+    {
+      "file": "content/units/cpp/templates-generic-programming/02-concepts-and-requirements.json",
+      "title": "Concepts and explicit requirements",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked constraint satisfaction, requires unevaluated operands, const-compatible size call, convertible_to syntax and semantic requirements, and the distinction between satisfaction and modeling.",
+      "result": "No correction required. The custom concept does not claim to prove true counts, ordering laws, or arbitrary runtime behavior.",
+      "findings": [],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/temp.constr",
+        "https://timsong-cpp.github.io/cppwp/n4861/expr.prim.req",
+        "https://timsong-cpp.github.io/cppwp/n4861/concept.convertible"
+      ]
+    },
+    {
+      "file": "content/units/cpp/runtime-polymorphism/01-interfaces-and-overriding.json",
+      "title": "Interfaces and virtual dispatch",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked abstractness, override matching including const, dynamic dispatch through a base reference, literal-backed views, slicing distinction, and construction/destruction dispatch. No sliced abstract value is constructed.",
+      "result": "CORE-007 adds precise deletion and construction-dispatch citations. Existing advice and expected output are correct.",
+      "findings": [
+        "CORE-007"
+      ],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/class.virtual",
+        "https://timsong-cpp.github.io/cppwp/n4861/class.abstract",
+        "https://timsong-cpp.github.io/cppwp/n4861/class.dtor"
+      ]
+    },
+    {
+      "file": "content/units/cpp/runtime-polymorphism/02-owning-polymorphic-objects.json",
+      "title": "Owning a collection of implementations",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked converting unique_ptr ownership, virtual destruction, checked pointer downcasts, reference-cast failure, owner relocation versus pointee lifetime, and owner erasure. Welcome fails the optional cast; Reminder reports 3.",
+      "result": "CORE-007 adds the direct deletion contract. All owners in the example are non-null and all borrowed casts are tested.",
+      "findings": [
+        "CORE-007"
+      ],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr",
+        "https://timsong-cpp.github.io/cppwp/n4861/expr.dynamic.cast",
+        "https://timsong-cpp.github.io/cppwp/n4861/class.virtual",
+        "https://timsong-cpp.github.io/cppwp/n4861/class.dtor"
+      ]
+    },
+    {
+      "file": "content/units/cpp/program-organization/01-declarations-and-linkage.json",
+      "title": "Declarations, definitions, and linkage",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked declaration-before-use, later definition, unnamed-namespace internal linkage, ODR consistency, and GCC’s separate compile/link phases. The bounded addition is 12; tool behavior is labeled as implementation-specific.",
+      "result": "No correction required. The prose does not promise that every ODR problem must be diagnosed by a linker.",
+      "findings": [],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/basic.def.odr",
+        "https://timsong-cpp.github.io/cppwp/n4861/basic.link",
+        "https://timsong-cpp.github.io/cppwp/n4861/namespace.def",
+        "https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html"
+      ]
+    },
+    {
+      "file": "content/units/cpp/program-organization/02-headers-and-modules.json",
+      "title": "Headers, namespaces, and module boundaries",
+      "reviewed": "all objectives, parts, explanatory text, code, expected output, reflection, and source metadata",
+      "checks": "Checked include/ODR distinction, inline meaning, nested namespaces, exported primary-module declaration, optional preceding global fragment, and partitions. The previous first-declaration overstatement is already fixed in baseline.",
+      "result": "CORE-009 optionally adds a direct guard tutorial. The [module.global.frag]/6 citation really does show module; and an include before export module M;.",
+      "findings": [
+        "CORE-009"
+      ],
+      "source_urls": [
+        "https://timsong-cpp.github.io/cppwp/n4861/cpp.include",
+        "https://timsong-cpp.github.io/cppwp/n4861/basic.def.odr",
+        "https://timsong-cpp.github.io/cppwp/n4861/module.unit",
+        "https://timsong-cpp.github.io/cppwp/n4861/namespace.def",
+        "https://timsong-cpp.github.io/cppwp/n4861/dcl.inline",
+        "https://timsong-cpp.github.io/cppwp/n4861/module.global.frag"
+      ]
+    }
+  ],
+  "source_inventory": [
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.init",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Default/value initialization and initialization contexts; relevant to starting scalar state. Read the rules, not merely the heading.",
+      "cited_by": [
+        "content/units/cpp/types-initialization/01-initialization-and-deduction.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.init.list",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Paragraphs 1–3 and narrowing rules: braces, scalar empty initialization, and preference for initializer-list constructors.",
+      "cited_by": [
+        "content/units/cpp/types-initialization/01-initialization-and-deduction.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.spec.auto",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Placeholder type deduction, including the invented template parameter and reference declarator behavior.",
+      "cited_by": [
+        "content/units/cpp/types-initialization/01-initialization-and-deduction.json",
+        "content/units/cpp/functions-interfaces/02-overloads-and-lambdas.json"
+      ],
+      "citation_instances": 2
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "size/capacity, reserve lower bound and invalidation, resize, plus swap declaration and paragraphs 12–13. Exception-lesson locator needs CORE-005.",
+      "cited_by": [
+        "content/units/cpp/types-initialization/01-initialization-and-deduction.json",
+        "content/units/cpp/library-data-containers/01-sequences-and-invalidation.json",
+        "content/units/cpp/error-handling/02-exceptions-and-state-guarantees.json"
+      ],
+      "citation_instances": 3
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/conv.integral",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Destination integer value is congruent modulo the destination width under this C++20 draft; no out-of-range float conversion inference made.",
+      "cited_by": [
+        "content/units/cpp/types-initialization/02-conversions-and-domain-types.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.enum",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Distinct enumeration types, scoped enumerators, and underlying-type rules; supports the type distinction without treating enumerator names as exhaustive runtime values.",
+      "cited_by": [
+        "content/units/cpp/types-initialization/02-conversions-and-domain-types.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.typedef",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "An alias declaration gives a typedef-name and does not introduce a new type.",
+      "cited_by": [
+        "content/units/cpp/types-initialization/02-conversions-and-domain-types.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/conv.fpint",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Truncation and representability preconditions for floating-integral conversion; also integral-to-floating conversion limits.",
+      "cited_by": [
+        "content/units/cpp/types-initialization/02-conversions-and-domain-types.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.mul",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Usual arithmetic conversions, integral division truncation, and invalid zero/unrepresentable quotient cases.",
+      "cited_by": [
+        "content/units/cpp/types-initialization/02-conversions-and-domain-types.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.call",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Parameter initialization, reference access effects, and function-call rules relevant to the worked parameter trace.",
+      "cited_by": [
+        "content/units/cpp/functions-interfaces/01-parameters-and-results.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.init.ref",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Reference binding and assignment through a reference; no claim that const universally extends a reached object’s lifetime.",
+      "cited_by": [
+        "content/units/cpp/functions-interfaces/01-parameters-and-results.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Paragraphs 1–4 and post-lifetime restrictions: lifetime start/end and limits on accessing destroyed objects.",
+      "cited_by": [
+        "content/units/cpp/functions-interfaces/01-parameters-and-results.json",
+        "content/units/cpp/lifetime-ownership/01-owners-and-borrowers.json"
+      ],
+      "citation_instances": 2
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/over.ics.rank",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Exact match, promotion, and conversion ordering and identity-conversion preference for the simple overload set.",
+      "cited_by": [
+        "content/units/cpp/functions-interfaces/02-overloads-and-lambdas.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.prim.lambda.capture",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "By-copy closure members and initialization at lambda evaluation; reference-capture lifetime obligations.",
+      "cited_by": [
+        "content/units/cpp/functions-interfaces/02-overloads-and-lambdas.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/span.overview",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Non-owning contiguous sequence, element/reference types, and const observer signatures. Supports const span<int> versus span<const int>.",
+      "cited_by": [
+        "content/units/cpp/lifetime-ownership/01-owners-and-borrowers.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/string.view.template",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Paragraph 2 underlying-pointer invalidation, pointer/length representation, constructor valid-range preconditions, and observers. An initial find miss was resolved by opening the text.",
+      "cited_by": [
+        "content/units/cpp/lifetime-ownership/01-owners-and-borrowers.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Reallocation and non-reallocation insertion invalidation; erase invalidates at/after the erased position.",
+      "cited_by": [
+        "content/units/cpp/lifetime-ownership/01-owners-and-borrowers.json",
+        "content/units/cpp/library-data-containers/01-sequences-and-invalidation.json"
+      ],
+      "citation_instances": 2
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.dtor",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Implicit destructor invocation, member/base destruction, reverse order, virtual destructors, and explicit destructor-call example. Exact delete preconditions are in [expr.delete].",
+      "cited_by": [
+        "content/units/cpp/lifetime-ownership/02-raii-and-unique-ownership.json",
+        "content/units/cpp/runtime-polymorphism/01-interfaces-and-overriding.json",
+        "content/units/cpp/runtime-polymorphism/02-owning-polymorphic-objects.json"
+      ],
+      "citation_instances": 3
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Ownership and noncopyability overview; move construction, source-null postcondition, destruction, observers, and make_unique definitions.",
+      "cited_by": [
+        "content/units/cpp/lifetime-ownership/02-raii-and-unique-ownership.json",
+        "content/units/cpp/runtime-polymorphism/02-owning-polymorphic-objects.json"
+      ],
+      "citation_instances": 2
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/forward",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "move and forward return casts to specified reference types; move does not perform an independent object relocation.",
+      "cited_by": [
+        "content/units/cpp/lifetime-ownership/02-raii-and-unique-ownership.json",
+        "content/units/cpp/classes-value-semantics/02-copy-move-and-comparison.json"
+      ],
+      "citation_instances": 2
+    },
+    {
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-raii",
+      "classification": "Primary advisory guidance (living document, not normative specification)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "R.1 rationale and resource-wrapper examples; additionally R.21 and R.24 passages read. Header verifies Jun 14, 2026 and identifies the named people as editors. CORE-008 is optional locator precision.",
+      "cited_by": [
+        "content/units/cpp/lifetime-ownership/02-raii-and-unique-ownership.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.base.init",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Default member initializers and paragraph 13 declaration-order initialization before the body.",
+      "cited_by": [
+        "content/units/cpp/classes-value-semantics/01-invariants-and-operations.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.ctor",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Constructor declaration/initialization and default/copy/move construction subclauses; consistent with the Progress interface.",
+      "cited_by": [
+        "content/units/cpp/classes-value-semantics/01-invariants-and-operations.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.copy.ctor",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Implicit declaration conditions and memberwise copy/move construction; user-declared destructor/copy operations affect implicit moves.",
+      "cited_by": [
+        "content/units/cpp/classes-value-semantics/01-invariants-and-operations.json",
+        "content/units/cpp/classes-value-semantics/02-copy-move-and-comparison.json"
+      ],
+      "citation_instances": 2
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.copy.assign",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Implicit assignment conditions and memberwise subobject assignment.",
+      "cited_by": [
+        "content/units/cpp/classes-value-semantics/02-copy-move-and-comparison.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.compare.default",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Defaulted declaration restrictions and expanded subobject list; does not itself specify the complete == result algorithm (CORE-002).",
+      "cited_by": [
+        "content/units/cpp/classes-value-semantics/02-copy-move-and-comparison.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/lib.types.movedfrom",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Valid but unspecified states for moved-from standard-library types unless an operation says otherwise.",
+      "cited_by": [
+        "content/units/cpp/classes-value-semantics/02-copy-move-and-comparison.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero",
+      "classification": "Primary advisory guidance (living document, not normative specification)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "C.20 rationale, Named_map example, and Rule of Zero note; header date and editor roles verified. CORE-008 is optional locator precision.",
+      "cited_by": [
+        "content/units/cpp/classes-value-semantics/02-copy-move-and-comparison.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.overview",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Automatic storage management and contiguous-container requirement for element types other than bool.",
+      "cited_by": [
+        "content/units/cpp/library-data-containers/01-sequences-and-invalidation.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/associative.reqmts",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Ordered-container strict weak ordering, key equivalence, operations, and ordered iteration. Does not substantiate unordered-container claims (CORE-003).",
+      "cited_by": [
+        "content/units/cpp/library-data-containers/02-keys-and-vocabulary-types.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/variant",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Value-or-no-value state, inline contained storage, and get_if’s pointer/null behavior. Reveals CORE-001’s qualification need.",
+      "cited_by": [
+        "content/units/cpp/library-data-containers/02-keys-and-vocabulary-types.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.struct.bind",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Hidden binding object, reference-qualified binding, tuple_size/tuple_element/get rules; supports the const map-element binding.",
+      "cited_by": [
+        "content/units/cpp/library-data-containers/02-keys-and-vocabulary-types.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/map.access",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "operator[] equivalent to try_emplace and at behavior; supports insertion on indexing, with ordered-container requirements as context.",
+      "cited_by": [
+        "content/units/cpp/library-data-containers/02-keys-and-vocabulary-types.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/iterator.requirements.general",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Past-the-end, reachable sentinels, valid half-open ranges, and invalid-range consequences.",
+      "cited_by": [
+        "content/units/cpp/iterators-algorithms-ranges/01-algorithms-and-half-open-ranges.json",
+        "content/units/cpp/iterators-algorithms-ranges/02-lazy-range-pipelines.json"
+      ],
+      "citation_instances": 2
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/alg.find",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "First matching iterator or last when absent, with at-most-linear predicate bound.",
+      "cited_by": [
+        "content/units/cpp/iterators-algorithms-ranges/01-algorithms-and-half-open-ranges.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/alg.sorting",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Strict weak ordering including irreflexivity/transitivity; sort’s random-access contract and comparison bound. Count is a separate clause.",
+      "cited_by": [
+        "content/units/cpp/iterators-algorithms-ranges/01-algorithms-and-half-open-ranges.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/range.filter",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Construction, predicate search, cached begin for forward ranges, and element-modification caveat. Read the cache paragraph after an initial search miss.",
+      "cited_by": [
+        "content/units/cpp/iterators-algorithms-ranges/02-lazy-range-pipelines.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/range.transform",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Callable storage and invocation during iterator dereference, with regular_invocable constraints.",
+      "cited_by": [
+        "content/units/cpp/iterators-algorithms-ranges/02-lazy-range-pipelines.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/optional",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Contained value/storage lifetime and engagement semantics; optional<int> zero remains engaged.",
+      "cited_by": [
+        "content/units/cpp/error-handling/01-optional-results-and-parsing.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/optional.observe",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Engagement tests, dereference preconditions, value’s bad_optional_access alternative, and value_or.",
+      "cited_by": [
+        "content/units/cpp/error-handling/01-optional-results-and-parsing.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/charconv.from.chars",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Valid input range, stop pointer, error codes, integer pattern/sign rules, and non-throwing conversion.",
+      "cited_by": [
+        "content/units/cpp/error-handling/01-optional-results-and-parsing.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4950/expected",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "N4950 overview and synopsis: value/error representation. Relevant only to the marked C++23 discussion.",
+      "cited_by": [
+        "content/units/cpp/error-handling/01-optional-results-and-parsing.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/except.ctor",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Unwinding of constructed automatic objects and completed subobjects in reverse completion order.",
+      "cited_by": [
+        "content/units/cpp/error-handling/02-exceptions-and-state-guarantees.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/except.spec",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Non-throwing exception specifications and termination when the handler search crosses the function boundary.",
+      "cited_by": [
+        "content/units/cpp/error-handling/02-exceptions-and-state-guarantees.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/string.streams",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "istringstream/ostringstream construction, owned string buffer, and str result interfaces.",
+      "cited_by": [
+        "content/units/cpp/library-services/01-text-streams-and-extraction.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/istream.formatted.reqmts",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Sentry construction and extraction conditioned on sentry state; stream error propagation. Additional sentry evidence informs CORE-006.",
+      "cited_by": [
+        "content/units/cpp/library-services/01-text-streams-and-extraction.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/istream.manip",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "ws extraction and eofbit behavior. Does not erase the effects of constructing a sentry on a stream already not good.",
+      "cited_by": [
+        "content/units/cpp/library-services/01-text-streams-and-extraction.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4950/print.fun",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "N4950 print/println signatures and stdout delegation. Relevant only to the marked C++23 discussion.",
+      "cited_by": [
+        "content/units/cpp/library-services/01-text-streams-and-extraction.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/time.duration",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Tick count/period, arithmetic return type, duration_cast integer division, and literal suffixes. Fixed positive inputs avoid overflow and rounding ambiguity.",
+      "cited_by": [
+        "content/units/cpp/library-services/02-time-and-path-values.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/fs.path.gen",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "lexically_normal returns the normal form; lexical relative/proximate discussions distinguish symlink resolution.",
+      "cited_by": [
+        "content/units/cpp/library-services/02-time-and-path-values.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/fs.path.generic",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Generic pathname grammar, platform-dependent root/name rules, and normalization steps including dot/dot-dot removal.",
+      "cited_by": [
+        "content/units/cpp/library-services/02-time-and-path-values.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/time.clock.steady",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Clock values do not decrease as physical time advances and advance at a steady rate; not a benchmark-methodology claim.",
+      "cited_by": [
+        "content/units/cpp/library-services/02-time-and-path-values.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.param",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Type and non-type template-parameter syntax and constraints; class and typename equivalence in a type parameter.",
+      "cited_by": [
+        "content/units/cpp/templates-generic-programming/01-typed-families.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.deduct.call",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Deduction from each call argument and reference/cv adjustments; conflicting deductions are not automatic common-type selection.",
+      "cited_by": [
+        "content/units/cpp/templates-generic-programming/01-typed-families.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.inst",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Contexts requiring implicit instantiation; class-member declarations versus definitions and reachable/declared specialization qualifications.",
+      "cited_by": [
+        "content/units/cpp/templates-generic-programming/01-typed-families.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.constr",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Associated constraints, satisfaction, and substitution behavior. The simplified lesson stays within its template substitution context.",
+      "cited_by": [
+        "content/units/cpp/templates-generic-programming/02-concepts-and-requirements.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.prim.req",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Requires-expression local parameters and unevaluated requirements; simple, type, and compound requirements.",
+      "cited_by": [
+        "content/units/cpp/templates-generic-programming/02-concepts-and-requirements.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/concept.convertible",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Both implicit and explicit conversion syntax plus semantic equality of results; not a proof that a size value is meaningful.",
+      "cited_by": [
+        "content/units/cpp/templates-generic-programming/02-concepts-and-requirements.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.virtual",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Overriding signature requirements, final overriders, override diagnostics, polymorphic types, and dynamic versus static selection.",
+      "cited_by": [
+        "content/units/cpp/runtime-polymorphism/01-interfaces-and-overriding.json",
+        "content/units/cpp/runtime-polymorphism/02-owning-polymorphic-objects.json"
+      ],
+      "citation_instances": 2
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.abstract",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Pure virtual functions, abstract complete-object restrictions, permitted pointers/references, and pure-call construction caveat.",
+      "cited_by": [
+        "content/units/cpp/runtime-polymorphism/01-interfaces-and-overriding.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.dynamic.cast",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Runtime checking for the shown polymorphic downcast; pointer failure is null, reference failure throws bad_cast.",
+      "cited_by": [
+        "content/units/cpp/runtime-polymorphism/02-owning-polymorphic-objects.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.def.odr",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "One definition per translation unit, required odr-used definitions, allowed consistent repetitions, and diagnostic qualifications.",
+      "cited_by": [
+        "content/units/cpp/program-organization/01-declarations-and-linkage.json",
+        "content/units/cpp/program-organization/02-headers-and-modules.json"
+      ],
+      "citation_instances": 2
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.link",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Internal/external/module linkage, namespace-scope variables, and unnamed-namespace consequences.",
+      "cited_by": [
+        "content/units/cpp/program-organization/01-declarations-and-linkage.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/namespace.def",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Namespace definitions, reopening, nesting, and unnamed namespaces; appropriate to the grouping/linkage examples.",
+      "cited_by": [
+        "content/units/cpp/program-organization/01-declarations-and-linkage.json",
+        "content/units/cpp/program-organization/02-headers-and-modules.json"
+      ],
+      "citation_instances": 2
+    },
+    {
+      "url": "https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html",
+      "classification": "Primary implementation documentation",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "GCC manual §3.2 compilation stages, -c skipping linking, and object-file output. Explicitly implementation documentation.",
+      "cited_by": [
+        "content/units/cpp/program-organization/01-declarations-and-linkage.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/cpp.include",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Header/source inclusion, search paths, replacement semantics, and importable-header qualification; does not teach the wrapper guard itself.",
+      "cited_by": [
+        "content/units/cpp/program-organization/02-headers-and-modules.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/module.unit",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Module interface versus implementation units, one primary interface, partitions, and internal partition import scope.",
+      "cited_by": [
+        "content/units/cpp/program-organization/02-headers-and-modules.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.inline",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Inline function/variable declaration and definition-domain rules; body substitution is not required.",
+      "cited_by": [
+        "content/units/cpp/program-organization/02-headers-and-modules.json"
+      ],
+      "citation_instances": 1
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/module.global.frag",
+      "classification": "Primary specification text, frozen working-draft mirror (not the published ISO standard)",
+      "access": "relevant_passages_retrieved_and_read",
+      "consulted": "2026-09-11",
+      "inspected_material_and_relevance": "Grammar and paragraphs 1–2; paragraph 6 really contains an interface example with a global fragment before export module M.",
+      "cited_by": [
+        "content/units/cpp/program-organization/02-headers-and-modules.json"
+      ],
+      "citation_instances": 1
+    }
+  ],
+  "additional_source_inventory": [
+    {
+      "url": "https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/n4861.pdf",
+      "classification": "Primary committee draft PDF",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Title page only for metadata: N4861, dated 2020-04-01, working draft. No claim of reading all 1,834 PDF pages."
+    },
+    {
+      "url": "https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/n4951.html",
+      "classification": "Primary committee editorial report",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Opening metadata and New papers section identify N4950 as the final C++23 working draft and date the report 2023-05-10."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.eq",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Paragraphs 1–3 supply defaulted equality semantics (CORE-002)."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unord.req",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Paragraphs 2–6 supply hash/equality compatibility and unspecified absolute order (CORE-003)."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.delete",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Paragraph 3 gives ordinary base-pointer deletion’s virtual-destructor requirement, with the destroying-delete qualification (CORE-007)."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/class.cdtor",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Paragraph 4 gives construction/destruction dispatch; subsequent examples and dynamic_cast qualifications inspected (CORE-007)."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/istream.sentry",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Paragraphs 2–3 give state and locale handling before extraction (CORE-006)."
+    },
+    {
+      "url": "https://gcc.gnu.org/onlinedocs/cpp/Once-Only-Headers.html",
+      "classification": "Primary implementation documentation",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Complete short wrapper #ifndef explanation, macro naming, and scope (CORE-009)."
+    },
+    {
+      "url": "https://gcc.gnu.org/onlinedocs/cpp/Pragmas.html",
+      "classification": "Primary implementation documentation",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "The #pragma once entry calls it a less-portable alternative to #ifndef; no claim that the C++ standard specifies once."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.cons",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Count/value constructor constructs n copies, corroborating the initialization example."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/alg.count",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Counting result and exact predicate bound (CORE-004)."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/range.all",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "views::all chooses ref_view when its expression is well-formed; no later owning_view wording imported into C++20."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/range.ref.view",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Non-owning reference to another range and address capture; corroborates the local-lvalue lifetime trace."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/concepts.equality",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Syntactic satisfaction versus modeling example and semantic requirements; corroborates the concepts lesson."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.prim.lambda.closure",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Unique unnamed closure type and const call operator without mutable; corroborates the lambda example."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/lex.string",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "Ordinary literal array type and static storage duration; corroborates returned views in functions and runtime lessons."
+    },
+    {
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/default.allocator",
+      "classification": "Primary specification text, frozen draft mirror",
+      "access": "relevant_passages_retrieved_and_read",
+      "inspected_material_and_limits": "std::allocator declares is_always_equal=true_type; validates the non-throwing swap reasoning (CORE-005)."
+    }
+  ],
+  "unavailable_evidence": [
+    {
+      "url": "https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/n4950.pdf",
+      "status": "two direct open attempts timed out",
+      "impact": "Supplementary original PDF was unavailable; both actually cited N4950 HTML passages were accessible and read. N4951 supplies independent official C++23 draft metadata. Search returned the PDF title-page metadata, but this audit does not count the PDF body as inspected."
+    }
+  ]
+}

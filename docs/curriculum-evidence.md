@@ -2,6 +2,8 @@
 
 All subjects use the existing C++ layout: a topic and root unit, child subunits, modules with objectives and exactly three lesson parts, worked examples, explained reflections, and public sources. The same client components render every subject. The curriculum map distinguishes C++ language mechanisms, broader computing principles, and domain applications.
 
+The [follow-up audit of commit 99a387f](reviews/2026-09-11-curriculum-audit.md) covers all 89 modules and records outstanding corrections, source additions and verification limits. Read it alongside the initial ledgers below: it identifies mistaken Parnas inspection provenance and other citation issues. The proposed lesson corrections have not yet been published.
+
 ## Match a claim to the right evidence
 
 1. **Language or protocol rules:** inspect the applicable standard, a clearly identified standards draft, or a normative API specification. Record the edition and section. A working draft is not the published ISO standard, and a proposal is not an adopted feature.

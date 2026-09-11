@@ -1,0 +1,98 @@
+{
+  "baselineCommit": "99a387f",
+  "reviewDate": "2026-09-11",
+  "scope": {
+    "applicationRoots": 13,
+    "modules": 26,
+    "uniqueCitedSources": 30
+  },
+  "status": "Proposed corrections only; no lesson JSON or database was changed by this audit.",
+  "findings": [
+    {
+      "id": "APP-001",
+      "kind": "content_error",
+      "severity": "medium",
+      "title": "A stable public scene operation does not automatically repair internal node paths",
+      "rationale": "The trace renames HealthLabel and attributes continued operation solely to the root-level interface. A root method may itself look up HealthLabel, which becomes stale after the rename. State the internal-maintenance assumption explicitly so learners do not mistake encapsulation for automatic path rewriting. Health arithmetic is correct.",
+      "evidence": [
+        {
+          "url": "https://docs.godotengine.org/en/stable/tutorials/scripting/nodes_and_scene_instances.html",
+          "passage": "Getting nodes / Node paths: lookup uses the node name; the documentation explicitly requires changing get_node when the node is renamed.",
+          "support": "Direct API-contract support for the qualification; the proposed interface design is an original application of that contract."
+        }
+      ],
+      "corrections": [
+        {
+          "path": "content/units/game-development/scene-composition/01-instance-state.json",
+          "jsonPointer": "/parts/1/blocks/1/code",
+          "current": "Definition Target: root + Visual + HealthLabel\nInstantiate A -> health 10, shared immutable mesh M\nInstantiate B -> health 10, shared immutable mesh M\nA.apply_damage(3) -> A health 7; B health 10\nRename A presentation child HealthLabel to StatusText\nExternal call A.apply_damage(2) -> A health 5; B health 10",
+          "proposedReplacement": "Definition Target: root + Visual + HealthLabel\nInstantiate A -> health 10, shared immutable mesh M\nInstantiate B -> health 10, shared immutable mesh M\nA.apply_damage(3) -> A health 7; B health 10\nRename A presentation child HealthLabel to StatusText\nUpdate any internal node-path lookup to StatusText; callers keep using apply_damage\nExternal call A.apply_damage(2) -> A health 5; B health 10"
+        },
+        {
+          "path": "content/units/game-development/scene-composition/01-instance-state.json",
+          "jsonPointer": "/parts/1/blocks/2/text",
+          "current": "The second damage call survives the presentation rename because the caller depends on the root behavior. An external path ending in HealthLabel would have become stale. Sharing an immutable asset is different from sharing the mutable health field. A common template does not imply common instance state. Conversely, deliberately shared resource objects must be treated according to their own mutability and lifetime rules, rather than assumed private because two scene instances exist.",
+          "proposedReplacement": "The external call remains unchanged because the caller depends on the root behavior. The scene implementation must still update any internal node-path lookup affected by the rename, or use a retained reference that remains valid. An external path ending in HealthLabel would have become stale. Sharing an immutable asset is different from sharing the mutable health field. A common template does not imply common instance state. Conversely, deliberately shared resource objects must be treated according to their own mutability and lifetime rules, rather than assumed private because two scene instances exist."
+        }
+      ]
+    },
+    {
+      "id": "APP-002",
+      "kind": "content_error",
+      "severity": "medium",
+      "title": "No direct edge does not imply independent graph nodes",
+      "rationale": "The reflection equates the absence of an edge with independence. MatVec and ReLU in the lesson have no direct edge but remain ordered through Add. The intended performance question should assume genuine independence; the explanation should identify indirect dependencies.",
+      "evidence": [
+        {
+          "url": "https://www.usenix.org/system/files/conference/osdi16/osdi16-abadi.pdf",
+          "passage": "Section 3 opening and section 3.1: operations consume tensor inputs, graph edges connect outputs to inputs, and independent computations can execute in parallel.",
+          "support": "The counterexample is an independent deduction from the lesson graph MatVec -> Add -> ReLU, consistent with the paper execution model."
+        }
+      ],
+      "corrections": [
+        {
+          "path": "content/units/machine-learning-infrastructure/tensor-execution/01-graph-and-data.json",
+          "jsonPointer": "/parts/2/blocks/1/prompt",
+          "current": "If two graph nodes have no dependency edge between them, must running them in parallel make the program faster?",
+          "proposedReplacement": "If two graph operations are independent, with no direct or indirect data or control dependency between them and no conflicting shared-state access, must running them in parallel make the program faster?"
+        },
+        {
+          "path": "content/units/machine-learning-infrastructure/tensor-execution/01-graph-and-data.json",
+          "jsonPointer": "/parts/2/blocks/1/explanation",
+          "current": "No. Independence makes parallel scheduling possible, not automatically beneficial. They may compete for the same device, memory bandwidth or limited working space, and scheduling adds overhead. Correct dependencies establish allowed execution orders; measurements under the actual workload establish performance.",
+          "proposedReplacement": "No. Independent operations may be eligible for parallel execution, but that does not guarantee a speedup. An absent direct edge alone does not establish independence: MatVec and ReLU here are connected indirectly through Add. Independent operations may still compete for the same device, memory bandwidth or working space, and scheduling adds overhead. Check dependencies and shared-state access first, then measure performance under the actual workload."
+        }
+      ]
+    }
+  ],
+  "citationDeficiencies": [],
+  "limitations": [
+    "All 26 examples are conceptual text traces. Arithmetic and state-machine checks do not establish executable API conformance, timing bounds, device behavior, or measured speedups.",
+    "Freshly inspected relevant passages of all 30 cited sources, not every page of the two papers or their bibliography. Official conference metadata and review policies were checked separately.",
+    "Rolling documentation was inspected on 2026-09-11. This is a dated review, not a guarantee that stable/latest/nightly URLs remain immutable.",
+    "FFTW formula images were not extracted; adjacent normative documentation text supplies sign, order and scaling, while the lesson writes its complete DFT formula explicitly.",
+    "No independent reproduction of the papers experiments or broad completeness review of each application discipline was attempted."
+  ],
+  "optionalEnrichment": [
+    {
+      "id": "APP-O01",
+      "path": "content/units/graphics-gpu/resource-dependencies/01-producer-consumer.json",
+      "suggestion": "When expanding this lesson, distinguish host recycling/destruction after device completion from ordered device-side reuse. The existing wait-for-completion policy is conservative and safe under its stated finite schedule.",
+      "evidenceUrls": [
+        "https://docs.vulkan.org/spec/latest/chapters/synchronization.html",
+        "https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyBuffer.html"
+      ]
+    },
+    {
+      "id": "APP-O02",
+      "path": "docs/research/application-tracks.md",
+      "suggestion": "Optionally record the official conference landing pages and review-policy URLs alongside the two papers, and add structured publisher metadata. Existing titles, authors, publication years and classifications are correct.",
+      "evidenceUrls": [
+        "https://www.usenix.org/conference/atc14/technical-sessions/presentation/ongaro",
+        "https://www.usenix.org/conference/atc14/call-for-papers",
+        "https://www.usenix.org/conference/osdi16/technical-sessions/presentation/abadi",
+        "https://www.usenix.org/conference/osdi16/call-for-papers"
+      ]
+    }
+  ]
+}

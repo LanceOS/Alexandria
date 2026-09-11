@@ -1,0 +1,1354 @@
+{
+  "auditDate": "2026-09-11",
+  "baselineCommit": "99a387f",
+  "scope": "22 supporting-subject lessons; 38 reference records; 25 distinct cited works",
+  "method": "All lesson prose, objectives, prerequisites, example traces, reflections and source metadata inspected. Actual primary passages reopened; arithmetic independently recomputed. No curriculum JSON, database, or source research ledger edited.",
+  "coverage": [
+    {
+      "lesson": 1,
+      "path": "content/units/programming-foundations/problem-solving/01-decompose-a-task.json",
+      "title": "Decompose a task before choosing syntax",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "94−31=63; ceil(63/15)=5; completed=total gives 0; zero target rejected.",
+      "sourceIds": [
+        "S01",
+        "S02"
+      ],
+      "findingIds": [
+        "SUP-010"
+      ]
+    },
+    {
+      "lesson": 2,
+      "path": "content/units/programming-foundations/state-correctness/01-reason-about-a-loop.json",
+      "title": "Reason about a loop using an invariant",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Prefix invariant and decreasing remaining count checked; [8,0,12] totals 20.",
+      "sourceIds": [
+        "S01"
+      ],
+      "findingIds": [
+        "SUP-010"
+      ]
+    },
+    {
+      "lesson": 3,
+      "path": "content/units/data-structures-algorithms/abstract-data-types/01-design-a-bounded-queue.json",
+      "title": "Design a bounded queue from its contract",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Capacity-three ring wraps correctly; dequeue A leaves final [B,C,D]; extra enqueue rejected.",
+      "sourceIds": [
+        "S03",
+        "S04"
+      ],
+      "findingIds": []
+    },
+    {
+      "lesson": 4,
+      "path": "content/units/data-structures-algorithms/algorithm-analysis/01-count-search-work.json",
+      "title": "Count the work in a search",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Target 31 visits midpoints 4,6,5 (24,40,31); three comparisons; complexity cost model explicit.",
+      "sourceIds": [
+        "S04",
+        "S05"
+      ],
+      "findingIds": []
+    },
+    {
+      "lesson": 5,
+      "path": "content/units/computer-architecture-operating-systems/memory-hierarchy/01-trace-cache-locality.json",
+      "title": "Trace locality with a tiny cache",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Two-line LRU: AABBCC gives 3 misses; ABCABC gives 6; three-line cache gives 3.",
+      "sourceIds": [
+        "S06"
+      ],
+      "findingIds": [
+        "SUP-001"
+      ]
+    },
+    {
+      "lesson": 6,
+      "path": "content/units/computer-architecture-operating-systems/process-memory/01-separate-addresses-from-storage.json",
+      "title": "Separate virtual addresses from physical storage",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "4 KiB pages: physical frame 9 plus offset 0x028 gives 0x9028; frame C gives 0xC028.",
+      "sourceIds": [
+        "S07"
+      ],
+      "findingIds": [
+        "SUP-008"
+      ]
+    },
+    {
+      "lesson": 7,
+      "path": "content/units/software-design-architecture/interface-contracts/01-make-a-service-contract-explicit.json",
+      "title": "Make a service contract explicit",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Availability 4: reserve3 leaves1; reserve2 capacity failure and reserve0 invalid both preserve state.",
+      "sourceIds": [
+        "S01",
+        "S02"
+      ],
+      "findingIds": [
+        "SUP-010",
+        "SUP-014"
+      ]
+    },
+    {
+      "lesson": 8,
+      "path": "content/units/software-design-architecture/responsibility-boundaries/01-hide-a-changing-decision.json",
+      "title": "Hide a changing decision behind a stable boundary",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Changing representation remains behind repository operations; no benchmark or universal design proof claimed.",
+      "sourceIds": [
+        "S02",
+        "S08"
+      ],
+      "findingIds": [
+        "SUP-006"
+      ]
+    },
+    {
+      "lesson": 9,
+      "path": "content/units/testing-software-quality/generated-testing/01-combine-properties-and-fuzzing.json",
+      "title": "Combine properties with fuzzing",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "[4,0,9] decodes incorrectly to [4,9]; minimal retained [0] produces []; shared reversal blind spot valid.",
+      "sourceIds": [
+        "S09",
+        "S10"
+      ],
+      "findingIds": [
+        "SUP-007"
+      ]
+    },
+    {
+      "lesson": 10,
+      "path": "content/units/testing-software-quality/test-design/01-test-a-partitioned-input-domain.json",
+      "title": "Test the boundaries of an input domain",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Digits-only 1..120 with leading zero policy: all listed valid, invalid and boundary cases checked.",
+      "sourceIds": [
+        "S10",
+        "S11"
+      ],
+      "findingIds": []
+    },
+    {
+      "lesson": 11,
+      "path": "content/units/build-release-engineering/build-graphs/01-model-a-build-as-a-graph.json",
+      "title": "Model a build as a dependency graph",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "app→library→codec graph, transitive compile properties, and incremental rebuild reasoning consistent.",
+      "sourceIds": [
+        "S12"
+      ],
+      "findingIds": [
+        "SUP-011"
+      ]
+    },
+    {
+      "lesson": 12,
+      "path": "content/units/build-release-engineering/release-reproducibility/01-define-a-reproducible-artifact.json",
+      "title": "Define a reproducible release artifact",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Different embedded absolute paths imply different bytes under the explicit hypothetical premises.",
+      "sourceIds": [
+        "S13",
+        "S14"
+      ],
+      "findingIds": [
+        "SUP-005"
+      ]
+    },
+    {
+      "lesson": 13,
+      "path": "content/units/performance-engineering/locality-optimization/01-reason-about-useful-bytes.json",
+      "title": "Reason about useful bytes in a layout",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "1,024×64=65,536; 1,024×4=4,096; 64 packed lines; traffic ratio16, not runtime ratio.",
+      "sourceIds": [
+        "S06",
+        "S15"
+      ],
+      "findingIds": [
+        "SUP-001",
+        "SUP-013"
+      ]
+    },
+    {
+      "lesson": 14,
+      "path": "content/units/performance-engineering/measurement-design/01-design-a-fair-benchmark.json",
+      "title": "Design a fair benchmark",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Sample means10.0667 and9.8000; ratio1.0272; invented data correctly disclaimed.",
+      "sourceIds": [
+        "S15",
+        "S16"
+      ],
+      "findingIds": [
+        "SUP-015"
+      ]
+    },
+    {
+      "lesson": 15,
+      "path": "content/units/concurrency-parallel-computing/parallel-work/01-estimate-a-parallel-speedup-limit.json",
+      "title": "Estimate the limit of parallel speedup",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Times1,000/600/400 ms; speedups1/1.67/2.5; limit5; overhead40 yields440 ms and2.27.",
+      "sourceIds": [
+        "S17",
+        "S18"
+      ],
+      "findingIds": [
+        "SUP-002",
+        "SUP-004"
+      ]
+    },
+    {
+      "lesson": 16,
+      "path": "content/units/concurrency-parallel-computing/shared-state/01-protect-a-complete-state-transition.json",
+      "title": "Protect a complete state transition",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Indivisible-action interleaving oversells one item twice; full locked transition prevents that trace.",
+      "sourceIds": [
+        "S02",
+        "S19",
+        "S20"
+      ],
+      "findingIds": []
+    },
+    {
+      "lesson": 17,
+      "path": "content/units/numerical-computing/representation-error/01-reason-about-rounded-numbers.json",
+      "title": "Reason about rounded numbers",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Three-digit decimal paths give0 and1; both exact-real sums1; rounding assumptions checked.",
+      "sourceIds": [
+        "S21"
+      ],
+      "findingIds": [
+        "SUP-010",
+        "SUP-012"
+      ]
+    },
+    {
+      "lesson": 18,
+      "path": "content/units/numerical-computing/stable-algorithms/01-rearrange-a-sensitive-calculation.json",
+      "title": "Rearrange a calculation to retain useful information",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Four-digit model direct result0; rationalized result5.000e−9; x>0 and exponent limits explicit.",
+      "sourceIds": [
+        "S21"
+      ],
+      "findingIds": [
+        "SUP-003",
+        "SUP-010"
+      ]
+    },
+    {
+      "lesson": 19,
+      "path": "content/units/text-data-formats/interchange-contracts/01-design-an-interoperable-record.json",
+      "title": "Design an interoperable data record",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "9,007,199,254,740,993 exceeds binary64 contiguous integer range; string ID preserves digits; app policies explicit.",
+      "sourceIds": [
+        "S11",
+        "S22"
+      ],
+      "findingIds": []
+    },
+    {
+      "lesson": 20,
+      "path": "content/units/text-data-formats/unicode-text/01-count-the-right-text-unit.json",
+      "title": "Count the right unit of text",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "U+00E9→C3 A9; U+0065 U+0301→65 CC81; one versus two code points, one grapheme in this example.",
+      "sourceIds": [
+        "S23"
+      ],
+      "findingIds": []
+    },
+    {
+      "lesson": 21,
+      "path": "content/units/security-engineering/resource-resilience/01-bound-resource-consumption.json",
+      "title": "Bound resource consumption at every stage",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "64,000/64=1,000 elements; 1,001 rejected;800 needs51,200 bytes; overflow-safe precheck conditions stated.",
+      "sourceIds": [
+        "S11",
+        "S24"
+      ],
+      "findingIds": []
+    },
+    {
+      "lesson": 22,
+      "path": "content/units/security-engineering/trust-boundaries/01-validate-before-changing-state.json",
+      "title": "Validate before changing state",
+      "readAllParts": true,
+      "prerequisites": "clear and appropriate; parent/subunit order checked",
+      "exampleCheck": "Trailing junk, out-of-range value and wrong owner rejected before mutation; authn/authz separated.",
+      "sourceIds": [
+        "S11",
+        "S25"
+      ],
+      "findingIds": [
+        "SUP-009"
+      ]
+    }
+  ],
+  "sourceInventory": [
+    {
+      "id": "S01",
+      "url": "https://sites.cs.ucsb.edu/~kemm/courses/cs266/acmhoare69.pdf",
+      "title": "An Axiomatic Basis for Computer Programming",
+      "references": [
+        {
+          "lesson": 1,
+          "path": "content/units/programming-foundations/problem-solving/01-decompose-a-task.json",
+          "sourceId": "foundations_decompose_a_task_source_hoare",
+          "currentLocator": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11."
+        },
+        {
+          "lesson": 2,
+          "path": "content/units/programming-foundations/state-correctness/01-reason-about-a-loop.json",
+          "sourceId": "foundations_reason_about_a_loop_source_hoare",
+          "currentLocator": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11."
+        },
+        {
+          "lesson": 7,
+          "path": "content/units/software-design-architecture/interface-contracts/01-make-a-service-contract-explicit.json",
+          "sourceId": "design_make_a_service_contract_explicit_source_hoare",
+          "currentLocator": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11."
+        }
+      ],
+      "kind": "Primary published paper; university-hosted journal scan",
+      "access": "Accessible; §§3.3–3.4, §4 and paper metadata inspected",
+      "support": "Composition, iteration invariants and partial-correctness limits support the teaching reasoning.",
+      "metadata": "Hoare; CACM 12(10), October 1969. Scan and Oxford author bibliography include continuation p. 583, although ACM indexed metadata lists 576–580.",
+      "limits": "No proof of a particular C++ program is claimed. Separate termination argument is supplied in the lesson; official historical peer-review policy remains unverified."
+    },
+    {
+      "id": "S02",
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
+      "title": "C++ Core Guidelines",
+      "references": [
+        {
+          "lesson": 1,
+          "path": "content/units/programming-foundations/problem-solving/01-decompose-a-task.json",
+          "sourceId": "foundations_decompose_a_task_source_guidelines",
+          "currentLocator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
+        },
+        {
+          "lesson": 7,
+          "path": "content/units/software-design-architecture/interface-contracts/01-make-a-service-contract-explicit.json",
+          "sourceId": "design_make_a_service_contract_explicit_source_guidelines",
+          "currentLocator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
+        },
+        {
+          "lesson": 8,
+          "path": "content/units/software-design-architecture/responsibility-boundaries/01-hide-a-changing-decision.json",
+          "sourceId": "design_hide_a_changing_decision_source_guidelines",
+          "currentLocator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
+        },
+        {
+          "lesson": 16,
+          "path": "content/units/concurrency-parallel-computing/shared-state/01-protect-a-complete-state-transition.json",
+          "sourceId": "parallel_protect_a_complete_state_transition_source_guidelines",
+          "currentLocator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: CP.20 (scoped lock ownership), CP.21 (multiple mutexes and deadlock), CP.22 (callbacks under a lock); page dated 2026-06-14, consulted 2026-09-11."
+        }
+      ],
+      "kind": "Expert recommendations; official project",
+      "access": "Accessible; I.1,I.4,I.5,I.7,F.2 and CP.20–22 inspected",
+      "support": "Explicit interfaces, pre/postconditions, focused functions, RAII locking and avoiding unknown code under a lock.",
+      "metadata": "Editors Bjarne Stroustrup and Herb Sutter; live page dated 2026-06-14.",
+      "limits": "Advisory, not normative or experimental evidence. Original service and design examples are applications."
+    },
+    {
+      "id": "S03",
+      "url": "https://xlinux.nist.gov/dads/HTML/queue.html",
+      "title": "Dictionary of Algorithms and Data Structures: queue",
+      "references": [
+        {
+          "lesson": 3,
+          "path": "content/units/data-structures-algorithms/abstract-data-types/01-design-a-bounded-queue.json",
+          "sourceId": "dsa_design_a_bounded_queue_source_queue",
+          "currentLocator": "Official NIST reference documentation: FIFO definition and abstract queue operations; entry modified 2020-12-14; consulted 2026-09-11."
+        }
+      ],
+      "kind": "Official NIST technical dictionary",
+      "access": "Accessible; full queue entry inspected",
+      "support": "FIFO behavior and abstract queue operations.",
+      "metadata": "Paul E. Black; modified 2020-12-14.",
+      "limits": "The ring-buffer representation is an independently checked original construction, not a NIST implementation."
+    },
+    {
+      "id": "S04",
+      "url": "https://xlinux.nist.gov/dads/HTML/bigOnotation.html",
+      "title": "Dictionary of Algorithms and Data Structures: big-O notation",
+      "references": [
+        {
+          "lesson": 3,
+          "path": "content/units/data-structures-algorithms/abstract-data-types/01-design-a-bounded-queue.json",
+          "sourceId": "dsa_design_a_bounded_queue_source_bigO",
+          "currentLocator": "Official NIST reference documentation: formal definition, tight versus upper bounds, and computation models; entry modified 2019-09-06; consulted 2026-09-11."
+        },
+        {
+          "lesson": 4,
+          "path": "content/units/data-structures-algorithms/algorithm-analysis/01-count-search-work.json",
+          "sourceId": "dsa_count_search_work_source_bigO",
+          "currentLocator": "Official NIST reference documentation: formal definition, tight versus upper bounds, and computation models; entry modified 2019-09-06; consulted 2026-09-11."
+        }
+      ],
+      "kind": "Official NIST technical dictionary",
+      "access": "Accessible; full big-O entry inspected",
+      "support": "Asymptotic upper bounds and dependence on the cost model.",
+      "metadata": "Paul E. Black; modified 2019-09-06.",
+      "limits": "Big-O is not an exact runtime or necessarily a tight bound."
+    },
+    {
+      "id": "S05",
+      "url": "https://xlinux.nist.gov/dads/HTML/binarySearch.html",
+      "title": "Dictionary of Algorithms and Data Structures: binary search",
+      "references": [
+        {
+          "lesson": 4,
+          "path": "content/units/data-structures-algorithms/algorithm-analysis/01-count-search-work.json",
+          "sourceId": "dsa_count_search_work_source_binary",
+          "currentLocator": "Official NIST reference documentation: sorted input, repeated interval halving, and logarithmic comparisons; consulted 2026-09-11."
+        }
+      ],
+      "kind": "Official NIST technical dictionary",
+      "access": "Accessible; full binary-search entry inspected",
+      "support": "Sorted-array search, logarithmic comparison count, midpoint-overflow caution, and linked-list traversal distinction.",
+      "metadata": "Paul E. Black; modified 2022-04-21.",
+      "limits": "The specific eight-element trace is original. Unit-cost assumptions are explicit."
+    },
+    {
+      "id": "S06",
+      "url": "https://valgrind.org/docs/manual/cg-manual.html",
+      "title": "Valgrind User Manual: Cachegrind",
+      "references": [
+        {
+          "lesson": 5,
+          "path": "content/units/computer-architecture-operating-systems/memory-hierarchy/01-trace-cache-locality.json",
+          "sourceId": "archos_trace_cache_locality_source_cachegrind",
+          "currentLocator": "Official tool documentation: §5.7 cache simulation and §5.8.1–5.8.3 simulation model and accuracy limits; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
+        },
+        {
+          "lesson": 13,
+          "path": "content/units/performance-engineering/locality-optimization/01-reason-about-useful-bytes.json",
+          "sourceId": "performance_reason_about_useful_bytes_source_cachegrind",
+          "currentLocator": "Official tool documentation: §5.7 cache simulation and §5.8.1–5.8.3 simulation model and accuracy limits; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
+        }
+      ],
+      "kind": "Official tool documentation",
+      "access": "Accessible; §§5.2.11,5.7,5.8.1–5.8.3 inspected",
+      "support": "Cache simulation, line-based counting and simulator limitations.",
+      "metadata": "The live section numbers differ from both lesson locators: §5.7 is Client Requests.",
+      "limits": "Toy LRU traces and traffic estimates are not Cachegrind measurements or modern-CPU promises; SUP-001, SUP-013."
+    },
+    {
+      "id": "S07",
+      "url": "https://www.kernel.org/doc/html/latest/admin-guide/mm/concepts.html",
+      "title": "Linux memory management: Concepts overview",
+      "references": [
+        {
+          "lesson": 6,
+          "path": "content/units/computer-architecture-operating-systems/process-memory/01-separate-addresses-from-storage.json",
+          "sourceId": "archos_separate_addresses_from_storage_source_linuxmem",
+          "currentLocator": "Official implementation documentation, not portable C++ guarantees: Virtual Memory Primer, Huge Pages, Page cache, and Anonymous Memory; MMU-equipped Linux systems; consulted 2026-09-11."
+        }
+      ],
+      "kind": "Official Linux implementation documentation",
+      "access": "Accessible; Virtual Memory Primer, Huge Pages, Page cache, Anonymous Memory inspected",
+      "support": "Page mappings, page offsets, process isolation and anonymous-demand allocation.",
+      "metadata": "The URL is latest rather than a pinned kernel release; access date is recorded.",
+      "limits": "Does not establish C++ lifetime or user-space allocator retention; SUP-008. Lesson correctly scopes the example to MMU-equipped Linux."
+    },
+    {
+      "id": "S08",
+      "url": "https://doi.org/10.1145/361598.361623",
+      "title": "On the Criteria To Be Used in Decomposing Systems into Modules",
+      "references": [
+        {
+          "lesson": 8,
+          "path": "content/units/software-design-architecture/responsibility-boundaries/01-hide-a-changing-decision.json",
+          "sourceId": "design_hide_a_changing_decision_source_parnas",
+          "currentLocator": "Peer-reviewed research: Communications of the ACM 15(12), 1972, pp. 1053–1058; comparison of decompositions and Conclusion. Author-uploaded paper text inspected on ResearchGate 2026-09-11; access URL recorded in research ledger."
+        }
+      ],
+      "kind": "Primary published paper; original journal scan via university mirror",
+      "access": "DOI blocked; original scan freshly inspected at https://www.cse.sc.edu/~mgv/csce330f22/ParnasCriteria.pdf",
+      "support": "Comparison pp.1055–1056, The Criteria p.1056 and Conclusion p.1058 support hiding changeable decisions.",
+      "metadata": "D.L.Parnas, CACM 15(12), December 1972, pp.1053–1058; journal received/revised stamp present.",
+      "limits": "Old ResearchGate access URL is a different 2002 retrospective. SUP-006. Official historical review policy unverified; do not equate received/revised with complete review verification."
+    },
+    {
+      "id": "S09",
+      "url": "https://releases.llvm.org/18.1.8/docs/LibFuzzer.html",
+      "title": "libFuzzer: a library for coverage-guided fuzz testing",
+      "references": [
+        {
+          "lesson": 9,
+          "path": "content/units/testing-software-quality/generated-testing/01-combine-properties-and-fuzzing.json",
+          "sourceId": "quality_combine_properties_and_fuzzing_source_fuzzer",
+          "currentLocator": "Official versioned documentation: LLVM 18.1.8, Introduction, Fuzz Target, Corpus, and Sanitizers; consulted 2026-09-11."
+        }
+      ],
+      "kind": "Official versioned project documentation",
+      "access": "Accessible; Introduction, Fuzz Target, Corpus and Sanitizers inspected",
+      "support": "Coverage-guided bytes, repeated same-process target calls, seed corpus and sanitizers.",
+      "metadata": "LLVM 18.1.8 matches the citation.",
+      "limits": "Not a source for a full property-generation/shrinking method; SUP-007. No current libFuzzer maintenance-status claim is made."
+    },
+    {
+      "id": "S10",
+      "url": "https://google.github.io/googletest/primer.html",
+      "title": "GoogleTest Primer",
+      "references": [
+        {
+          "lesson": 9,
+          "path": "content/units/testing-software-quality/generated-testing/01-combine-properties-and-fuzzing.json",
+          "sourceId": "quality_combine_properties_and_fuzzing_source_gtest",
+          "currentLocator": "Official project documentation: assertions, independent and repeatable tests, and fixtures; consulted 2026-09-11. No claim that framework use establishes correctness."
+        },
+        {
+          "lesson": 10,
+          "path": "content/units/testing-software-quality/test-design/01-test-a-partitioned-input-domain.json",
+          "sourceId": "quality_test_a_partitioned_input_domain_source_gtest",
+          "currentLocator": "Official project documentation: assertions, independent and repeatable tests, and fixtures; consulted 2026-09-11. No claim that framework use establishes correctness."
+        }
+      ],
+      "kind": "Official project documentation",
+      "access": "Accessible; assertions, test independence and repeatability, fixtures inspected",
+      "support": "Assertions and isolated, repeatable examples.",
+      "metadata": "Title and contributor attribution match the live project documentation.",
+      "limits": "Framework use does not prove correctness; generic domain partition and round-trip examples are original."
+    },
+    {
+      "id": "S11",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+      "title": "OWASP Input Validation Cheat Sheet",
+      "references": [
+        {
+          "lesson": 10,
+          "path": "content/units/testing-software-quality/test-design/01-test-a-partitioned-input-domain.json",
+          "sourceId": "quality_test_a_partitioned_input_domain_source_owasp",
+          "currentLocator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
+        },
+        {
+          "lesson": 19,
+          "path": "content/units/text-data-formats/interchange-contracts/01-design-an-interoperable-record.json",
+          "sourceId": "textdata_design_an_interoperable_record_source_owasp",
+          "currentLocator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
+        },
+        {
+          "lesson": 21,
+          "path": "content/units/security-engineering/resource-resilience/01-bound-resource-consumption.json",
+          "sourceId": "security_bound_resource_consumption_source_owasp",
+          "currentLocator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
+        },
+        {
+          "lesson": 22,
+          "path": "content/units/security-engineering/trust-boundaries/01-validate-before-changing-state.json",
+          "sourceId": "security_validate_before_changing_state_source_owasp",
+          "currentLocator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
+        }
+      ],
+      "kind": "Expert security guidance; official project",
+      "access": "Accessible; Goals, Input Validation Strategies, syntax/semantics, allowlists, lengths/ranges and server-side validation inspected",
+      "support": "Early validation, complete accepted formats, bounds and defense layers.",
+      "metadata": "OWASP Cheat Sheet Series; no unsupported publication year.",
+      "limits": "Does not replace destination-specific encoding or authorization. Separate authorization source recommended in SUP-009."
+    },
+    {
+      "id": "S12",
+      "url": "https://cmake.org/cmake/help/v3.31/manual/cmake-buildsystem.7.html",
+      "title": "cmake-buildsystem(7)",
+      "references": [
+        {
+          "lesson": 11,
+          "path": "content/units/build-release-engineering/build-graphs/01-model-a-build-as-a-graph.json",
+          "sourceId": "build_model_a_build_as_a_graph_source_cmake",
+          "currentLocator": "Official versioned documentation: CMake 3.31, Binary Targets, Build Specification and Usage Requirements, and Transitive Usage Requirements; consulted 2026-09-11."
+        }
+      ],
+      "kind": "Official versioned build-tool documentation",
+      "access": "Accessible; Binary Targets, Build Specification and Usage Requirements, Target Usage Requirements, transitive compile/link properties inspected",
+      "support": "Target dependency modeling and PUBLIC/PRIVATE/INTERFACE usage requirements.",
+      "metadata": "CMake 3.31 documentation resolves to page build 3.31.12.",
+      "limits": "Static link dependencies are not identical to compile-interface propagation; lesson caveat is correct. Heading precision improvement SUP-011."
+    },
+    {
+      "id": "S13",
+      "url": "https://reproducible-builds.org/docs/definition/",
+      "title": "Reproducible Builds: Definitions",
+      "references": [
+        {
+          "lesson": 12,
+          "path": "content/units/build-release-engineering/release-reproducibility/01-define-a-reproducible-artifact.json",
+          "sourceId": "build_define_a_reproducible_artifact_source_repro",
+          "currentLocator": "Official project guidance: reproducible builds, artifacts, source code, and build environment definitions; consulted 2026-09-11. Reproducibility is not a security proof."
+        }
+      ],
+      "kind": "Official project definition",
+      "access": "Accessible; complete Definitions page inspected",
+      "support": "Specified artifacts, source, environment and bit-for-bit reproducibility.",
+      "metadata": "Reproducible Builds project attribution is appropriate.",
+      "limits": "Not security or authenticity proof. Equivalence-transformation wording needs precision; SUP-005."
+    },
+    {
+      "id": "S14",
+      "url": "https://reproducible-builds.org/docs/build-path/",
+      "title": "Reproducible Builds: Build path",
+      "references": [
+        {
+          "lesson": 12,
+          "path": "content/units/build-release-engineering/release-reproducibility/01-define-a-reproducible-artifact.json",
+          "sourceId": "build_define_a_reproducible_artifact_source_buildpath",
+          "currentLocator": "Official project guidance: source paths in debug information and compiler prefix-map options; consulted 2026-09-11."
+        }
+      ],
+      "kind": "Official project guidance",
+      "access": "Accessible; complete Build path page inspected",
+      "support": "Embedded source/debug paths and supported compiler prefix mappings can affect build output.",
+      "metadata": "Correct title and project authorship.",
+      "limits": "Tool/format-specific options are not automatic reproducibility guarantees; toy paths are not an executed experiment."
+    },
+    {
+      "id": "S15",
+      "url": "https://google.github.io/benchmark/user_guide.html",
+      "title": "Google Benchmark User Guide",
+      "references": [
+        {
+          "lesson": 13,
+          "path": "content/units/performance-engineering/locality-optimization/01-reason-about-useful-bytes.json",
+          "sourceId": "performance_reason_about_useful_bytes_source_benchmark",
+          "currentLocator": "Official project documentation: Runtime and Reporting Considerations, Preventing Optimization, Reporting Statistics, and Random Interleaving; consulted 2026-09-11."
+        },
+        {
+          "lesson": 14,
+          "path": "content/units/performance-engineering/measurement-design/01-design-a-fair-benchmark.json",
+          "sourceId": "performance_design_a_fair_benchmark_source_benchmark",
+          "currentLocator": "Official project documentation: Runtime and Reporting Considerations, Preventing Optimization, Reporting Statistics, and Random Interleaving; consulted 2026-09-11."
+        }
+      ],
+      "kind": "Official project documentation",
+      "access": "Accessible; Runtime and Reporting Considerations, Preventing Optimization, repeated statistics and random-interleaving option inspected",
+      "support": "Timing controls, compiler-elision caveats, repeats, warmup and run-order controls.",
+      "metadata": "Current statistics heading is longer than the locator’s descriptive Reporting Statistics label.",
+      "limits": "DoNotOptimize does not forbid every optimization. Lesson appropriately gives no universal measurement recipe or benchmark result."
+    },
+    {
+      "id": "S16",
+      "url": "https://doi.org/10.1145/2464157.2464160",
+      "title": "Rigorous Benchmarking in Reasonable Time",
+      "references": [
+        {
+          "lesson": 14,
+          "path": "content/units/performance-engineering/measurement-design/01-design-a-fair-benchmark.json",
+          "sourceId": "performance_design_a_fair_benchmark_source_benchpaper",
+          "currentLocator": "Peer-reviewed research: ISMM 2013, pp. 63–74; §§3–4 and §12 on repetition, sources of variation, and effect-size confidence intervals. Paper text inspected through ResearchGate 2026-09-11; ledger records access URL. Historical experiments are not reproduced here."
+        }
+      ],
+      "kind": "Primary research; official institutional accepted manuscript",
+      "access": "DOI blocked; Kent accepted manuscript cover and §§3,4,12 inspected",
+      "support": "Repetition levels, variation, performance-ratio uncertainty and practical effect-size interpretation.",
+      "metadata": "Tomas Kalibera and Richard Jones; ISMM 2013, pp.63–74. Kent calls its version corrected. Official ISMM 2013 site explicitly describes double-blind review.",
+      "limits": "Historic workload measurements are not reproduced. Recommended access-locator update SUP-015; no source-content error found."
+    },
+    {
+      "id": "S17",
+      "url": "https://hpc.llnl.gov/documentation/tutorials/introduction-parallel-computing-tutorial",
+      "title": "Introduction to Parallel Computing Tutorial",
+      "references": [
+        {
+          "lesson": 15,
+          "path": "content/units/concurrency-parallel-computing/parallel-work/01-estimate-a-parallel-speedup-limit.json",
+          "sourceId": "parallel_estimate_a_parallel_speedup_limit_source_llnl",
+          "currentLocator": "Official institutional tutorial: task decomposition, communication, granularity, and Amdahl’s Law; consulted 2026-09-11. Teaching timing values are explicitly hypothetical."
+        }
+      ],
+      "kind": "Official institutional tutorial",
+      "access": "Accessible; Amdahl’s Law, task decomposition, communication, granularity and Authors inspected",
+      "support": "Fixed-work speedup denominator and overhead/granularity limitations.",
+      "metadata": "Names Blaise Barney (retired), Donald Frederick, LLNL.",
+      "limits": "Missing Frederick in current metadata; SUP-004. Prose formula grouping SUP-002. Numeric values are teaching assumptions."
+    },
+    {
+      "id": "S18",
+      "url": "https://www.openmp.org/spec-html/5.2/openmpse3.html",
+      "title": "OpenMP Application Programming Interface 5.2: Execution Model",
+      "references": [
+        {
+          "lesson": 15,
+          "path": "content/units/concurrency-parallel-computing/parallel-work/01-estimate-a-parallel-speedup-limit.json",
+          "sourceId": "parallel_estimate_a_parallel_speedup_limit_source_openmp",
+          "currentLocator": "Normative API specification for OpenMP 5.2, §1.3 Execution Model; task execution and fork-join model, not a specification of std::thread; consulted 2026-09-11."
+        }
+      ],
+      "kind": "Normative API specification",
+      "access": "Accessible; complete §1.3 Execution Model inspected",
+      "support": "OpenMP 5.2 fork-join execution, tasks and floating-point reduction-order caveat.",
+      "metadata": "Version 5.2 and section 1.3 correct.",
+      "limits": "Applies to OpenMP, not std::thread or all parallel runtimes; lesson respects that boundary."
+    },
+    {
+      "id": "S19",
+      "url": "https://www.openmp.org/spec-html/5.2/openmpsu9.html",
+      "title": "OpenMP 5.2: Structure of the Memory Model",
+      "references": [
+        {
+          "lesson": 16,
+          "path": "content/units/concurrency-parallel-computing/shared-state/01-protect-a-complete-state-transition.json",
+          "sourceId": "parallel_protect_a_complete_state_transition_source_openmpmem",
+          "currentLocator": "Normative API specification for OpenMP 5.2, §1.4.1; shared and private data, unordered conflicts, synchronization, and lifetime; consulted 2026-09-11. Language-neutral traces are not an implementation of this model."
+        }
+      ],
+      "kind": "Normative API specification",
+      "access": "Accessible; complete §1.4.1 Structure of the OpenMP Memory Model inspected",
+      "support": "Shared/private memory, temporarily inconsistent views, synchronization and race concerns.",
+      "metadata": "OpenMP 5.2 and section 1.4.1 correct.",
+      "limits": "Language-neutral interleaving table is a declared model; not a valid execution claim for racy C++."
+    },
+    {
+      "id": "S20",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/intro.races",
+      "title": "C++20 working draft N4861: Data races",
+      "references": [
+        {
+          "lesson": 16,
+          "path": "content/units/concurrency-parallel-computing/shared-state/01-protect-a-complete-state-transition.json",
+          "sourceId": "parallel_protect_a_complete_state_transition_source_cpp_races",
+          "currentLocator": "Primary standards draft, not the published ISO edition: N4861 [intro.races] paragraphs 2–6 and 21; conflicting actions, synchronization, atomic operations, and undefined behavior from a data race. Pinned C++20 text inspected 2026-09-11."
+        }
+      ],
+      "kind": "Primary C++20 working draft",
+      "access": "Accessible; N4861 [intro.races]/2–6 and /21 inspected",
+      "support": "Conflicting accesses, synchronization and undefined behavior from a C++ data race.",
+      "metadata": "Pinned N4861, 2020-04-01; §6.9.2.1. Third-party HTML rendering of committee draft.",
+      "limits": "Draft language rules, not official publisher final standard. Atomic individual actions do not by themselves protect a compound invariant."
+    },
+    {
+      "id": "S21",
+      "url": "https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html",
+      "title": "What Every Computer Scientist Should Know About Floating-Point Arithmetic",
+      "references": [
+        {
+          "lesson": 17,
+          "path": "content/units/numerical-computing/representation-error/01-reason-about-rounded-numbers.json",
+          "sourceId": "numerical_reason_about_rounded_numbers_source_goldberg",
+          "currentLocator": "Peer-reviewed research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text."
+        },
+        {
+          "lesson": 18,
+          "path": "content/units/numerical-computing/stable-algorithms/01-rearrange-a-sensitive-calculation.json",
+          "sourceId": "numerical_rearrange_a_sensitive_calculation_source_goldberg",
+          "currentLocator": "Peer-reviewed research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text."
+        }
+      ],
+      "kind": "Primary survey; authorized edited reprint",
+      "access": "Accessible; reprint note, Rounding Error, Floating-point Formats, Relative Error and Ulps, Guard Digits, Cancellation inspected",
+      "support": "Finite representation, intermediate rounding, cancellation and algebraic reformulation rationale.",
+      "metadata": "Oracle explicitly identifies David Goldberg, Computing Surveys, March 1991, authorized edited reprint. Exact volume/pages and historical review classification were not freshly established through accessible official ACM metadata.",
+      "limits": "Not the current IEEE 754 normative text. Toy decimal computations independently verified. SUP-003, SUP-010, optional SUP-012."
+    },
+    {
+      "id": "S22",
+      "url": "https://www.rfc-editor.org/rfc/rfc8259",
+      "title": "RFC 8259: The JavaScript Object Notation (JSON) Data Interchange Format",
+      "references": [
+        {
+          "lesson": 19,
+          "path": "content/units/text-data-formats/interchange-contracts/01-design-an-interoperable-record.json",
+          "sourceId": "textdata_design_an_interoperable_record_source_json",
+          "currentLocator": "Normative Internet standard: RFC 8259, December 2017, §§4, 6, 8.1 and 9 on objects, numbers, UTF-8 and parser limits; consulted 2026-09-11."
+        }
+      ],
+      "kind": "Primary Internet standard",
+      "access": "Accessible; §§4,6,8.1,9 and status metadata inspected",
+      "support": "Duplicate-name interoperability, binary64 exact-integer range, external UTF-8 interchange and parser limits.",
+      "metadata": "RFC 8259, STD 90, Internet Standard, December 2017, T. Bray (editor).",
+      "limits": "Rejecting duplicate names and string IDs are application policy choices, not universal JSON syntax requirements; lesson says so."
+    },
+    {
+      "id": "S23",
+      "url": "https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-2/",
+      "title": "The Unicode Standard, Version 16.0: General Structure",
+      "references": [
+        {
+          "lesson": 20,
+          "path": "content/units/text-data-formats/unicode-text/01-count-the-right-text-unit.json",
+          "sourceId": "textdata_count_the_right_text_unit_source_unicode",
+          "currentLocator": "Official standard exposition, Unicode 16.0.0: §2.5 Encoding Forms, §2.11.5 Characters and Grapheme Clusters, §2.12 Equivalent Sequences; consulted 2026-09-11."
+        }
+      ],
+      "kind": "Primary Unicode standard",
+      "access": "Accessible; Unicode 16.0.0 chapter 2, §§2.4–2.5,2.11.5,2.12 inspected",
+      "support": "Code points, code units, grapheme clusters, canonical equivalence and normalization distinction.",
+      "metadata": "Pinned Unicode 16.0.0. Chapter and cited subsection numbers correct.",
+      "limits": "Bytes independently recomputed. General grapheme handling needs UAX #29 for implementation; lesson does not claim C++ string.size counts graphemes."
+    },
+    {
+      "id": "S24",
+      "url": "https://cwe.mitre.org/data/definitions/400.html",
+      "title": "CWE-400: Uncontrolled Resource Consumption",
+      "references": [
+        {
+          "lesson": 21,
+          "path": "content/units/security-engineering/resource-resilience/01-bound-resource-consumption.json",
+          "sourceId": "security_bound_resource_consumption_source_cwe400",
+          "currentLocator": "Official weakness reference, CWE 4.20: Description, Common Consequences, and Potential Mitigations on limiting resource allocation; consulted 2026-09-11. Guidance is not a proof that a system is secure."
+        }
+      ],
+      "kind": "Official weakness taxonomy",
+      "access": "Accessible; definition, examples, potential mitigations and version data inspected",
+      "support": "Finite-resource abuse, bounds and throttling; more than memory can be exhausted.",
+      "metadata": "CWE-400; displayed content version 4.20 matches locator.",
+      "limits": "Mitigations reduce risk, not a proof against all denial of service. Original budget arithmetic assumes positive element size."
+    },
+    {
+      "id": "S25",
+      "url": "https://csrc.nist.gov/pubs/sp/800/218/final",
+      "title": "Secure Software Development Framework Version 1.1",
+      "references": [
+        {
+          "lesson": 22,
+          "path": "content/units/security-engineering/trust-boundaries/01-validate-before-changing-state.json",
+          "sourceId": "security_validate_before_changing_state_source_ssdf",
+          "currentLocator": "Official NIST guidance: SP 800-218, February 2022, SSDF 1.1 overview and abstract on integrating security practices into development; consulted 2026-09-11. Only the publication overview inspected; no uninspected practice-level claims attributed."
+        }
+      ],
+      "kind": "Official NIST publication overview",
+      "access": "Accessible; final publication page, abstract and metadata inspected",
+      "support": "Integrating security practices through the development lifecycle.",
+      "metadata": "SP 800-218, SSDF 1.1, February 2022; Souppaya, Scarfone, Dodson.",
+      "limits": "Only overview/abstract is cited and was used; no unseen practice-level claims attributed. Does not provide object-level authorization policy."
+    }
+  ],
+  "findings": [
+    {
+      "id": "SUP-001",
+      "category": "deficient_citation",
+      "severity": "P2",
+      "title": "Correct the two Cachegrind section locators",
+      "rationale": "The current locator identifies §5.7 as cache simulation, but that section is Client Requests. The relevant simulation and accuracy material is elsewhere. Both lessons correctly distinguish the original toy models from hardware guarantees.",
+      "locations": [
+        {
+          "path": "content/units/computer-architecture-operating-systems/memory-hierarchy/01-trace-cache-locality.json",
+          "jsonPointer": "/sources/0/locator",
+          "current": "Official tool documentation: §5.7 cache simulation and §5.8.1–5.8.3 simulation model and accuracy limits; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model.",
+          "proposedReplacement": "Official tool documentation: §5.2.11 Cache and Branch Simulation, §5.8.1 Cache simulation specifics, and §5.8.3 Accuracy; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
+        },
+        {
+          "path": "content/units/performance-engineering/locality-optimization/01-reason-about-useful-bytes.json",
+          "jsonPointer": "/sources/0/locator",
+          "current": "Official tool documentation: §5.7 cache simulation and §5.8.1–5.8.3 simulation model and accuracy limits; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model.",
+          "proposedReplacement": "Official tool documentation: §5.2.11 Cache and Branch Simulation, §5.8.1 Cache simulation specifics, and §5.8.3 Accuracy; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://valgrind.org/docs/manual/cg-manual.html",
+          "locator": "Current manual §§5.2.11, 5.7, 5.8.1 and 5.8.3",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied"
+    },
+    {
+      "id": "SUP-002",
+      "category": "error",
+      "severity": "P2",
+      "title": "Group the full denominator in Amdahl’s formula",
+      "rationale": "The prose can be read as 1/s + (1-s)/p, which disagrees with the worked table. The table itself is correct. Explicit parentheses remove a potentially material mathematical ambiguity.",
+      "locations": [
+        {
+          "path": "content/units/concurrency-parallel-computing/parallel-work/01-estimate-a-parallel-speedup-limit.json",
+          "jsonPointer": "/parts/1/blocks/1/text",
+          "current": "The unaccelerated portion limits the result. Expressing the serial fraction as s gives the fixed-workload ideal speedup 1 divided by s plus (1 minus s) divided by p. LLNL’s tutorial presents this reasoning as Amdahl’s Law. The assumptions matter: changing the problem size, algorithm, memory behavior, or serial fraction changes what comparison the formula describes.",
+          "proposedReplacement": "The unaccelerated portion limits the result. Expressing the serial fraction as s gives the fixed-workload ideal speedup 1 / (s + (1 - s) / p). LLNL’s tutorial presents this reasoning as Amdahl’s Law. The assumptions matter: changing the problem size, algorithm, memory behavior, or serial fraction changes what comparison the formula describes."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://hpc.llnl.gov/documentation/tutorials/introduction-parallel-computing-tutorial",
+          "locator": "Amdahl’s Law: Speedup = 1 / (P/N + S)",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied"
+    },
+    {
+      "id": "SUP-003",
+      "category": "error",
+      "severity": "P2",
+      "title": "Group the denominator of the rationalized square-root expression",
+      "rationale": "The prose “x divided by sqrt(1 + x) plus 1” can mean x/sqrt(1+x)+1. The intended identity and the worked trace use x/(sqrt(1+x)+1). This is a notation defect, not an incorrect numeric trace.",
+      "locations": [
+        {
+          "path": "content/units/numerical-computing/stable-algorithms/01-rearrange-a-sensitive-calculation.json",
+          "jsonPointer": "/parts/0/blocks/2/text",
+          "current": "Multiply numerator and denominator by sqrt(1 + x) plus 1. The product of the two conjugates is x, giving x divided by sqrt(1 + x) plus 1. The equivalent expression keeps the small x in its numerator and divides it by a quantity close to two. This is an original worked application of the cancellation principles discussed in Goldberg’s survey.",
+          "proposedReplacement": "Multiply numerator and denominator by (sqrt(1 + x) + 1). The product of the two conjugates is x, giving x / (sqrt(1 + x) + 1). The equivalent expression keeps the small x in its numerator and divides it by a quantity close to two. This is an original worked application of the cancellation principles discussed in Goldberg’s survey."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html",
+          "locator": "Cancellation; algebraic rationalization independently checked for x > 0",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied"
+    },
+    {
+      "id": "SUP-004",
+      "category": "error",
+      "severity": "P3",
+      "title": "Credit both named LLNL tutorial authors",
+      "rationale": "The live institutional page names Blaise Barney (retired) and Donald Frederick, followed by LLNL. The current authors array omits Frederick.",
+      "locations": [
+        {
+          "path": "content/units/concurrency-parallel-computing/parallel-work/01-estimate-a-parallel-speedup-limit.json",
+          "jsonPointer": "/sources/0/authors",
+          "current": [
+            "Blaise Barney",
+            "Lawrence Livermore National Laboratory"
+          ],
+          "proposedReplacement": [
+            "Blaise Barney",
+            "Donald Frederick",
+            "Lawrence Livermore National Laboratory"
+          ]
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://hpc.llnl.gov/documentation/tutorials/introduction-parallel-computing-tutorial",
+          "locator": "Authors line at end of tutorial",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied"
+    },
+    {
+      "id": "SUP-005",
+      "category": "error",
+      "severity": "P2",
+      "title": "Keep reproducible-build comparison bit for bit",
+      "rationale": "The source’s definition requires bit-for-bit identical specified artifacts. An unspecified “equivalence transformation” risks weakening that to behavioral or normalized equivalence after production. Normalization may legitimately be part of producing the declared artifact, but the comparison contract must remain explicit.",
+      "locations": [
+        {
+          "path": "content/units/build-release-engineering/release-reproducibility/01-define-a-reproducible-artifact.json",
+          "jsonPointer": "/parts/1/blocks/2/text",
+          "current": "A cryptographic digest is a compact artifact identifier, not an explanation of a mismatch. Keep the actual artifacts and inspect their differences when a comparison fails. Build separately from clean inputs so one build cannot simply reuse the other’s output. Define the allowed environment variation and document any required equivalence transformation before seeing the result.",
+          "proposedReplacement": "A cryptographic digest is a compact artifact identifier, not an explanation of a mismatch. Keep the actual artifacts and inspect their differences when a comparison fails. Build separately from clean inputs so one build cannot simply reuse the other’s output. Define the allowed environment variation before comparing results. Require the specified release artifacts to match bit for bit. If normalization is part of artifact production, document it in the build instructions and compare the resulting artifacts; do not ignore differences in the published bytes."
+        },
+        {
+          "path": "content/units/build-release-engineering/release-reproducibility/01-define-a-reproducible-artifact.json",
+          "jsonPointer": "/parts/0/blocks/1/text",
+          "current": "A reproducible build allows the same source and defined build instructions and environment to produce matching specified artifacts. Decide what the artifact is: an executable, an archive, a container image, or a package with debug symbols. Comparing only the executable while ignoring changing package metadata supports a narrower claim than reproducing the complete release. Record that scope before comparing results.",
+          "proposedReplacement": "A reproducible build allows the same source and defined build instructions and environment to produce bit-for-bit identical specified artifacts. Decide what the artifact is: an executable, an archive, a container image, or a package with debug symbols. Comparing only the executable while ignoring changing package metadata supports a narrower claim than reproducing the complete release. Record that scope before comparing results."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://reproducible-builds.org/docs/definition/",
+          "locator": "Reproducible builds and Artifacts definitions",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied"
+    },
+    {
+      "id": "SUP-006",
+      "category": "deficient_citation",
+      "severity": "P1",
+      "title": "Replace the mistaken Parnas inspection provenance",
+      "rationale": "The ResearchGate URL recorded for the 1972 work actually contains the 2002 retrospective The Secret History of Information Hiding, with the older title in a running header. The original six-page 1972 article has now been inspected at the University of South Carolina mirror and supports the lesson. Repair the provenance rather than changing the design explanation.",
+      "locations": [
+        {
+          "path": "content/units/software-design-architecture/responsibility-boundaries/01-hide-a-changing-decision.json",
+          "jsonPointer": "/sources/0/locator",
+          "current": "Peer-reviewed research: Communications of the ACM 15(12), 1972, pp. 1053–1058; comparison of decompositions and Conclusion. Author-uploaded paper text inspected on ResearchGate 2026-09-11; access URL recorded in research ledger.",
+          "proposedReplacement": "Published research: Communications of the ACM 15(12), December 1972, pp. 1053–1058; Comparison of the Two Modularizations, The Criteria, and Conclusion. Original journal scan inspected at https://www.cse.sc.edu/~mgv/csce330f22/ParnasCriteria.pdf on 2026-09-11. Publisher DOI access was blocked; official historical review-policy verification remains unresolved."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://www.cse.sc.edu/~mgv/csce330f22/ParnasCriteria.pdf",
+          "locator": "Original article pp. 1053–1058; comparison pp. 1055–1056, criteria p. 1056, conclusion p. 1058",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        },
+        {
+          "url": "https://www.researchgate.net/profile/David-Parnas/publication/200085877_On_the_Criteria_To_Be_Used_in_Decomposing_Systems_into_Modules/links/55956a7408ae99aa62c72622/On-the-Criteria-To-Be-Used-in-Decomposing-Systems-into-Modules.pdf",
+          "locator": "PDF pp. 1–2: 2002 Springer collection and The Secret History of Information Hiding",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied",
+      "relatedDocumentation": "The supporting-subject research ledger must also identify the mistaken URL and retain this correction as audit history."
+    },
+    {
+      "id": "SUP-007",
+      "category": "deficient_citation",
+      "severity": "P2",
+      "title": "Add a primary source for generated properties and counterexample shrinking",
+      "rationale": "libFuzzer supports coverage guidance and harness constraints; GoogleTest supports assertions and repeatability. Neither cited passage supplies the lesson’s central generator and shrinking method. A versioned property-testing project reference closes that gap without requiring students to learn Haskell.",
+      "locations": [
+        {
+          "path": "content/units/testing-software-quality/generated-testing/01-combine-properties-and-fuzzing.json",
+          "jsonPointer": "/parts/1/blocks/1/text",
+          "current": "The smaller case explains the fault without unrelated values. Store it as a regression test, record the generator seed or input bytes needed to reproduce the failure, and fix the underlying behavior. Minimization is useful because the shortest clear failure often reveals a missing branch or a mistaken assumption about empty and zero values.",
+          "proposedReplacement": "The smaller case explains the fault without unrelated values. Store it as a regression test, record the generator seed or input bytes needed to reproduce the failure, and fix the underlying behavior. Minimization is useful because the shortest clear failure often reveals a missing branch or a mistaken assumption about empty and zero values."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://hackage-content.haskell.org/package/QuickCheck-2.16.0.0/docs/Test-QuickCheck-Arbitrary.html",
+          "locator": "Arbitrary and CoArbitrary classes; arbitrary and shrink methods",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied",
+      "proposedSourceAdditions": [
+        {
+          "path": "content/units/testing-software-quality/generated-testing/01-combine-properties-and-fuzzing.json",
+          "jsonPointer": "/sources/-",
+          "source": {
+            "id": "quality_combine_properties_and_fuzzing_source_quickcheck",
+            "title": "QuickCheck 2.16.0.0: Test.QuickCheck.Arbitrary",
+            "authors": [
+              "QuickCheck contributors"
+            ],
+            "url": "https://hackage-content.haskell.org/package/QuickCheck-2.16.0.0/docs/Test-QuickCheck-Arbitrary.html",
+            "locator": "Official versioned API documentation: Arbitrary, arbitrary, shrink, generator quality and invariant-preserving shrinking; consulted 2026-09-11. A Haskell implementation illustrates the general testing method, not a C++ API."
+          }
+        }
+      ],
+      "action": "Keep the valid original example and explanation; append the source to the module bibliography."
+    },
+    {
+      "id": "SUP-008",
+      "category": "deficient_citation",
+      "severity": "P2",
+      "title": "Support the language-lifetime and allocator boundary with matching primary sources",
+      "rationale": "The Linux concepts overview supports virtual pages, physical pages, and demand allocation. It does not establish C++ object-lifetime rules or the user-space allocator retention claim. These claims are correct but cross the sole cited source’s scope.",
+      "locations": [
+        {
+          "path": "content/units/computer-architecture-operating-systems/process-memory/01-separate-addresses-from-storage.json",
+          "jsonPointer": "/parts/1/blocks/2/text",
+          "current": "Reserving virtual space also does not necessarily allocate one physical page immediately for every address. Linux anonymous mappings can obtain physical pages on demand. Consequently, virtual size and resident physical memory describe different quantities. Releasing a language-level allocation may leave allocator storage reserved for later reuse, so a process memory graph does not directly count live C++ objects.",
+          "proposedReplacement": "Reserving virtual space also does not necessarily allocate one physical page immediately for every address. Linux anonymous mappings can obtain physical pages on demand. Consequently, virtual size and resident physical memory describe different quantities. Releasing a language-level allocation may leave allocator storage reserved for later reuse, so a process memory graph does not directly count live C++ objects."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+          "locator": "N4861 [basic.life]/1,4,6",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        },
+        {
+          "url": "https://sourceware.org/glibc/manual/latest/html_node/Freeing-after-Malloc.html",
+          "locator": "§3.2.3.4, paragraph beginning Occasionally, free can actually return memory",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied",
+      "proposedSourceAdditions": [
+        {
+          "path": "content/units/computer-architecture-operating-systems/process-memory/01-separate-addresses-from-storage.json",
+          "jsonPointer": "/sources/-",
+          "source": {
+            "id": "archos_separate_addresses_from_storage_source_lifetime",
+            "title": "C++20 working draft N4861: Lifetime",
+            "authors": [
+              "ISO/IEC JTC1/SC22/WG21"
+            ],
+            "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+            "locator": "C++20 working draft N4861 (2020-04-01), §6.7.3 [basic.life]/1,4,6: object lifetime and limits on use of retained storage; consulted 2026-09-11. Language rules are distinct from Linux mappings."
+          }
+        },
+        {
+          "path": "content/units/computer-architecture-operating-systems/process-memory/01-separate-addresses-from-storage.json",
+          "jsonPointer": "/sources/-",
+          "source": {
+            "id": "archos_separate_addresses_from_storage_source_glibcfree",
+            "title": "The GNU C Library: Freeing Memory Allocated with malloc",
+            "authors": [
+              "GNU C Library contributors"
+            ],
+            "url": "https://sourceware.org/glibc/manual/latest/html_node/Freeing-after-Malloc.html",
+            "locator": "Official implementation documentation, §3.2.3.4: freed allocations may be retained for reuse instead of returned immediately to the operating system; consulted 2026-09-11. GNU allocator behavior is an implementation example, not an ISO C++ guarantee."
+          }
+        }
+      ],
+      "action": "Retain the existing distinction; append these sources. Do not turn the GNU implementation example into a portable allocator guarantee."
+    },
+    {
+      "id": "SUP-009",
+      "category": "deficient_citation",
+      "severity": "P2",
+      "title": "Cite authorization guidance for object-level access decisions",
+      "rationale": "The input-validation source covers syntax and semantics; the SSDF publication abstract covers lifecycle integration. The central distinction between authentication and authorization and per-resource permission checks needs the matching OWASP reference.",
+      "locations": [
+        {
+          "path": "content/units/security-engineering/trust-boundaries/01-validate-before-changing-state.json",
+          "jsonPointer": "/parts/2/blocks/0/explanation",
+          "current": "Authentication establishes an identity; it does not authorize every action on every object. The server must evaluate the relationship between the caller, the operation, and the specific resource before updating it.",
+          "proposedReplacement": "Authentication establishes an identity; it does not authorize every action on every object. The server must evaluate the relationship between the caller, the operation, and the specific resource before updating it."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html",
+          "locator": "Introduction; Enforce Least Privileges; Validate the Permissions on Every Request",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied",
+      "proposedSourceAdditions": [
+        {
+          "path": "content/units/security-engineering/trust-boundaries/01-validate-before-changing-state.json",
+          "jsonPointer": "/sources/-",
+          "source": {
+            "id": "security_validate_before_changing_state_source_authorization",
+            "title": "OWASP Authorization Cheat Sheet",
+            "authors": [
+              "OWASP Cheat Sheet Series contributors"
+            ],
+            "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html",
+            "locator": "Expert security guidance: Introduction, Enforce Least Privileges, Deny by Default, and Validate the Permissions on Every Request; consulted 2026-09-11. Application policy determines which caller/resource/action combinations are permitted."
+          }
+        }
+      ],
+      "action": "Keep the explanation and original application policy; append the source."
+    },
+    {
+      "id": "SUP-010",
+      "category": "inaccessible_evidence",
+      "severity": "P3",
+      "title": "Do not mark historical journal review status as freshly verified",
+      "rationale": "Relevant primary paper content is accessible, and published venue identity is established. However, the fresh official ACM/CACM/CSUR pages needed to verify historical peer-review classification returned 403 or a tool access error. Received/revised stamps, a publisher name, and old ledger labels are not a complete official review-policy check. This is an evidence limit, not a claim that these papers were unreviewed. Parnas is handled by SUP-006; ISMM 2013 is positively verified.",
+      "locations": [
+        {
+          "path": "content/units/programming-foundations/problem-solving/01-decompose-a-task.json",
+          "jsonPointer": "/sources/0/locator",
+          "current": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11.",
+          "proposedReplacement": "Published research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11."
+        },
+        {
+          "path": "content/units/programming-foundations/state-correctness/01-reason-about-a-loop.json",
+          "jsonPointer": "/sources/0/locator",
+          "current": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11.",
+          "proposedReplacement": "Published research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11."
+        },
+        {
+          "path": "content/units/software-design-architecture/interface-contracts/01-make-a-service-contract-explicit.json",
+          "jsonPointer": "/sources/1/locator",
+          "current": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11.",
+          "proposedReplacement": "Published research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11."
+        },
+        {
+          "path": "content/units/numerical-computing/representation-error/01-reason-about-rounded-numbers.json",
+          "jsonPointer": "/sources/0/locator",
+          "current": "Peer-reviewed research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text.",
+          "proposedReplacement": "Published research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text."
+        },
+        {
+          "path": "content/units/numerical-computing/stable-algorithms/01-rearrange-a-sensitive-calculation.json",
+          "jsonPointer": "/sources/0/locator",
+          "current": "Peer-reviewed research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text.",
+          "proposedReplacement": "Published research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text."
+        },
+        {
+          "path": "content/units/numerical-computing/representation-error/01-reason-about-rounded-numbers.json",
+          "jsonPointer": "/parts/0/blocks/1/text",
+          "current": "Finite representations cannot store every real number exactly. A computation therefore combines input approximation with rounding introduced by operations. More printed digits do not create information that was never represented. Goldberg’s peer-reviewed survey explains representation, rounding error, and cancellation; its historical discussion is useful conceptual background but is not a replacement for the current hardware and language specifications.",
+          "proposedReplacement": "Finite representations cannot store every real number exactly. A computation therefore combines input approximation with rounding introduced by operations. More printed digits do not create information that was never represented. Goldberg’s published survey explains representation, rounding error, and cancellation; its historical discussion is useful conceptual background but is not a replacement for the current hardware and language specifications."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://dl.acm.org/journal/csur/author-guidelines",
+          "locator": "Official CSUR venue guidance requested 2026-09-11",
+          "accessStatus": "403 Forbidden"
+        },
+        {
+          "url": "https://cacm.acm.org/author-guidelines/",
+          "locator": "Official CACM venue guidance requested 2026-09-11",
+          "accessStatus": "403 Forbidden"
+        },
+        {
+          "url": "https://dl.acm.org/doi/10.1145/363235.363259",
+          "locator": "Official Hoare article metadata requested 2026-09-11",
+          "accessStatus": "direct open blocked; search index exposed bibliographic metadata only"
+        },
+        {
+          "url": "https://dl.acm.org/doi/10.1145/103162.103163",
+          "locator": "Official Goldberg article requested 2026-09-11",
+          "accessStatus": "403 Forbidden"
+        }
+      ],
+      "status": "proposed; not applied",
+      "action": "Use the neutral proposed wording until official historical evidence is attached, or retain the wording only with a clearly disclosed unresolved verification status. Do not discard the technically relevant sources."
+    },
+    {
+      "id": "SUP-011",
+      "category": "optional_enrichment",
+      "severity": "P3",
+      "title": "Use the exact CMake usage-requirement headings",
+      "rationale": "The current phrase Transitive Usage Requirements is understandable but is not the exact heading in the inspected CMake 3.31.12 page. This is a locator precision improvement; the PUBLIC/PRIVATE/INTERFACE compile-property lesson and static-link caveat are sound.",
+      "locations": [
+        {
+          "path": "content/units/build-release-engineering/build-graphs/01-model-a-build-as-a-graph.json",
+          "jsonPointer": "/sources/0/locator",
+          "current": "Official versioned documentation: CMake 3.31, Binary Targets, Build Specification and Usage Requirements, and Transitive Usage Requirements; consulted 2026-09-11.",
+          "proposedReplacement": "Official versioned documentation: CMake 3.31 (page build 3.31.12), Binary Targets, Build Specification and Usage Requirements, Target Usage Requirements, Transitive Compile Properties, and Transitive Link Properties; consulted 2026-09-11."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://cmake.org/cmake/help/v3.31/manual/cmake-buildsystem.7.html",
+          "locator": "Build Specification and Usage Requirements and Target Usage Requirements",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied"
+    },
+    {
+      "id": "SUP-012",
+      "category": "optional_enrichment",
+      "severity": "P3",
+      "title": "Demonstrate reassociation without also permuting operands",
+      "rationale": "The existing decimal trace is numerically correct, but its second expression changes operand order as well as grouping. Keeping a,b,c in the same order makes the non-associativity lesson direct and avoids an unnecessary commutativity inference.",
+      "locations": [
+        {
+          "path": "content/units/numerical-computing/representation-error/01-reason-about-rounded-numbers.json",
+          "jsonPointer": "/parts/1/blocks/0/code",
+          "current": "Teaching arithmetic: three significant decimal digits\na = 1.00 x 10^3; b = 1.00; c = -1.00 x 10^3\n\n(a + b) + c:\n  exact first sum 1001 -> rounded 1.00 x 10^3\n  1000 + (-1000) -> 0\n\n(a + c) + b:\n  1000 + (-1000) -> 0\n  0 + 1 -> 1\nExact real sum in either grouping: 1",
+          "proposedReplacement": "Teaching arithmetic: three significant decimal digits\na = 1.00 x 10^3; b = 1.00; c = -1.00 x 10^3\n\n(a + b) + c:\n  exact first sum 1001 -> rounded 1.00 x 10^3\n  1000 + (-1000) -> 0\n\na + (b + c):\n  1 + (-1000) -> -999 (exact at three significant digits)\n  1000 + (-999) -> 1\nExact real sum in either grouping: 1"
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html",
+          "locator": "Floating-point Formats and Rounding Error; decimal trace independently recomputed",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied"
+    },
+    {
+      "id": "SUP-013",
+      "category": "optional_enrichment",
+      "severity": "P3",
+      "title": "Make array-base alignment explicit in the traffic model",
+      "rationale": "The model’s 64-line packed scan assumes the packed array begins on a cache-line boundary. The phrase 64-byte aligned cache lines can be made more precise. This is not a correction to the model’s arithmetic.",
+      "locations": [
+        {
+          "path": "content/units/performance-engineering/locality-optimization/01-reason-about-useful-bytes.json",
+          "jsonPointer": "/parts/1/blocks/0/code",
+          "current": "Assumptions: 1,024 records; 64-byte aligned cache lines; cold scan\nEach record is 64 bytes; each page count is 4 bytes\n\nRecord layout: 1,024 lines = 65,536 bytes fetched\nPacked counts: 64 lines = 4,096 bytes fetched\nUseful page-count data in either layout: 4,096 bytes\nTraffic ratio in this model: 16 to 1\nThis is a traffic estimate, not a 16x runtime claim.",
+          "proposedReplacement": "Assumptions: 1,024 records; 64-byte cache lines; cold scan\nRecord storage and packed counts both begin on cache-line boundaries\nEach record is 64 bytes; each page count is 4 bytes\n\nRecord layout: 1,024 lines = 65,536 bytes fetched\nPacked counts: 64 lines = 4,096 bytes fetched\nUseful page-count data in either layout: 4,096 bytes\nTraffic ratio in this model: 16 to 1\nThis is a traffic estimate, not a 16x runtime claim."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://valgrind.org/docs/manual/cg-manual.html",
+          "locator": "§5.8.1: cache lines and model limits; original count independently derived",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied"
+    },
+    {
+      "id": "SUP-014",
+      "category": "optional_enrichment",
+      "severity": "P3",
+      "title": "Distinguish valid requests from requests with enough capacity",
+      "rationale": "The opening sentence could make insufficient capacity an invalid input even though the next sentences and worked trace treat it as a separate outcome. State the positive input domain separately from the condition for success.",
+      "locations": [
+        {
+          "path": "content/units/software-design-architecture/interface-contracts/01-make-a-service-contract-explicit.json",
+          "jsonPointer": "/parts/0/blocks/2/text",
+          "current": "For our small in-memory service, accept counts from one through the available capacity. A success subtracts exactly that count and returns a new reservation identifier. A capacity failure leaves availability unchanged. Invalid input is reported distinctly. We deliberately exclude network failures and persistent transactions here, because those add uncertainty about what happened after a request was sent.",
+          "proposedReplacement": "For our small in-memory service, a valid request contains a positive count. It succeeds only when that count does not exceed the available capacity. A success subtracts exactly that count and returns a new reservation identifier. A capacity failure leaves availability unchanged. Invalid input is reported distinctly. We deliberately exclude network failures and persistent transactions here, because those add uncertainty about what happened after a request was sent."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
+          "locator": "I.5 preconditions and I.7 postconditions; application contract is original",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied"
+    },
+    {
+      "id": "SUP-015",
+      "category": "optional_enrichment",
+      "severity": "P3",
+      "title": "Record the accessible accepted benchmarking manuscript",
+      "rationale": "The DOI is the correct publication identity but direct ACM access failed. Kent supplies an institutional accepted manuscript and labels the repository version as correcting the ISMM version. The lesson’s methodological claims are supported; no historical experimental results are repeated.",
+      "locations": [
+        {
+          "path": "content/units/performance-engineering/measurement-design/01-design-a-fair-benchmark.json",
+          "jsonPointer": "/sources/1/locator",
+          "current": "Peer-reviewed research: ISMM 2013, pp. 63–74; §§3–4 and §12 on repetition, sources of variation, and effect-size confidence intervals. Paper text inspected through ResearchGate 2026-09-11; ledger records access URL. Historical experiments are not reproduced here.",
+          "proposedReplacement": "Peer-reviewed research: ISMM 2013, pp. 63–74; §§3–4 and §12 on repetition, variation, and effect-size confidence intervals. University of Kent accepted manuscript inspected at https://kar.kent.ac.uk/33611/45/p63-kaliber.pdf on 2026-09-11; repository describes it as a corrected version. Review process verified through the official ISMM 2013 Double-Blind Reviewing policy. Historical experiments are not reproduced here."
+        }
+      ],
+      "supportingSources": [
+        {
+          "url": "https://kar.kent.ac.uk/33611/45/p63-kaliber.pdf",
+          "locator": "Accepted-manuscript cover; §§3,4,12",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        },
+        {
+          "url": "https://kar.kent.ac.uk/33611/",
+          "locator": "Repository version note",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        },
+        {
+          "url": "https://csaws.cs.technion.ac.il/~erez/ismm13/",
+          "locator": "Submission Information and Double-Blind Reviewing",
+          "accessStatus": "relevant passage freshly inspected 2026-09-11"
+        }
+      ],
+      "status": "proposed; not applied"
+    }
+  ],
+  "limitations": [
+    "Historical journal peer-review verification is incomplete for Hoare, Parnas and Goldberg because official venue pages were inaccessible. This does not establish that any was unreviewed.",
+    "Original Parnas text was eventually accessed through a university-hosted scan. Original DOI failures do not imply the citation identity is invalid.",
+    "No empirical benchmark, release build, cache hardware run, network attack or formal proof of an implementation was performed; examples are explicitly pedagogical models.",
+    "Goldberg reprint verifies author, title, venue and month/year; the exact volume/page metadata remains a fresh official-metadata verification gap."
+  ],
+  "validation": "All independently recomputed numerical toy checks passed; JSON paths/current values verified against committed lesson files."
+}

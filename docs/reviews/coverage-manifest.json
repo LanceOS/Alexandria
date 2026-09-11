@@ -1,0 +1,3008 @@
+{
+  "baselineCommit": "99a387f9cdb8a58c65b9a8160f0059ed2a51bd27",
+  "reviewDate": "2026-09-11",
+  "purpose": "Coverage and baseline identity manifest. Consult the linked human audit for claim-level findings and source-access limits; a source entry here alone is not a verified-pass status.",
+  "counts": {
+    "topics": 25,
+    "rootUnits": 25,
+    "subunits": 66,
+    "modules": 89,
+    "lessonParts": 267,
+    "sourceRecords": 228,
+    "distinctCitedUrls": 179,
+    "modulesByReport": {
+      "applications-audit.md": 26,
+      "supporting-audit.md": 22,
+      "cpp-basics-advanced-audit.md": 19,
+      "cpp-core-audit.md": 22
+    }
+  },
+  "units": [
+    {
+      "path": "content/units/audio-signal-processing/callback-deadlines/unit.json",
+      "id": "audio_signal_processing_callback_deadlines_unit",
+      "name": "Audio Callback Deadlines",
+      "sha256": "b0ab7e5384b2e53af089c20a899b3715d1217dff30ed48dcb18fe65c1a6b540e",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/audio-signal-processing/discrete-transforms/unit.json",
+      "id": "audio_signal_processing_discrete_transforms_unit",
+      "name": "Discrete Transforms",
+      "sha256": "a3d1d8a26834b7b99d9e1d55c8a1e85cb78118a2a2bb3f94d11ceb355509b749",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/audio-signal-processing/unit.json",
+      "id": "audio_signal_processing_unit_root",
+      "name": "Audio and signal processing",
+      "sha256": "9a9b014ac988117cd0efd114f3b57e2b03b5baa8d13bd0ba4b0d1c8cc0227579",
+      "level": "root"
+    },
+    {
+      "path": "content/units/build-release-engineering/build-graphs/unit.json",
+      "id": "build_unit_build_graphs",
+      "name": "Build Graphs",
+      "sha256": "a9ba7d67cc47f34243450c3808d635fd9f1b2da47c157bbdbd2d72af97bc4006",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/build-release-engineering/release-reproducibility/unit.json",
+      "id": "build_unit_release_reproducibility",
+      "name": "Release Reproducibility",
+      "sha256": "a36c1482c5601fe1313a97ad575b74ec11965ced5eb0c9572dcb7eb58b41f56f",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/build-release-engineering/unit.json",
+      "id": "build_unit",
+      "name": "Build and Release Engineering",
+      "sha256": "67fcdf7b378c524d62147f240b3ec5c927a5c60adea5e45b283d96d74af6c044",
+      "level": "root"
+    },
+    {
+      "path": "content/units/compilers-language-tools/lexical-analysis/unit.json",
+      "id": "compilers_language_tools_lexical_analysis_unit",
+      "name": "Lexical Analysis",
+      "sha256": "290a846abcb6487c8d69cbfa7414f94615ce57d1f30b39895258e3a23f0e6405",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/compilers-language-tools/syntax-trees/unit.json",
+      "id": "compilers_language_tools_syntax_trees_unit",
+      "name": "Syntax Trees",
+      "sha256": "a38a2b57e598ed02efd3c439e327c25c3b256e65b0a162a2a2a7014d96b82954",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/compilers-language-tools/unit.json",
+      "id": "compilers_language_tools_unit_root",
+      "name": "Compilers and language tools",
+      "sha256": "f0a75142fb7f69054456c3a539a7aee92245a8541293e93c70d1727685c6c0a8",
+      "level": "root"
+    },
+    {
+      "path": "content/units/computer-architecture-operating-systems/memory-hierarchy/unit.json",
+      "id": "archos_unit_memory_hierarchy",
+      "name": "Memory Hierarchy",
+      "sha256": "e12758ab8c502f72b6b64dd6c325b12d492e00ff499a260f8ec2865c43d00d6b",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/computer-architecture-operating-systems/process-memory/unit.json",
+      "id": "archos_unit_process_memory",
+      "name": "Process Memory",
+      "sha256": "f2f13e9588db39852917357760df2da1abb40d0f72fe68c7df0cc56adb281157",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/computer-architecture-operating-systems/unit.json",
+      "id": "archos_unit",
+      "name": "Computer Architecture and Operating Systems",
+      "sha256": "52da09853851ee51285ce721f3476e390a003ac31194c73be099eae1ee8acb89",
+      "level": "root"
+    },
+    {
+      "path": "content/units/concurrency-parallel-computing/parallel-work/unit.json",
+      "id": "parallel_unit_parallel_work",
+      "name": "Parallel Work and Scalability",
+      "sha256": "545e5fb2fd6984d07c828dc069c5d3c8a73340aedde85d76c09c9ffc64f5d311",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/concurrency-parallel-computing/shared-state/unit.json",
+      "id": "parallel_unit_shared_state",
+      "name": "Shared State and Coordination",
+      "sha256": "0ac500dd5fd4f0bb8a113b3c50f11b99f668182fc9b58accb3562b232fe7d0cf",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/concurrency-parallel-computing/unit.json",
+      "id": "parallel_unit",
+      "name": "Concurrency and Parallel Computing",
+      "sha256": "15a7cd2ff14fd9c562234db40e7710291c0879ebd06f5f0da3411361d3866c0d",
+      "level": "root"
+    },
+    {
+      "path": "content/units/cpp/advanced-templates/unit.json",
+      "id": "cpp_unit_advanced_templates",
+      "name": "Advanced templates and library construction",
+      "sha256": "67ce94b0c2b74396ee498a82faff90a127add17d4de7f115042d0d4b6ce2c7b8",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/basics/unit.json",
+      "id": "cpp_starter_unit_basics",
+      "name": "Basics",
+      "sha256": "e3376495b6be376433d41175bc16717d4ad41a3b891587da529e95cb134e1c13",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/classes-value-semantics/unit.json",
+      "id": "cpp_core_unit_classes_value_semantics",
+      "name": "Classes and Value Semantics",
+      "sha256": "81efdfbfed0efd79c348a215e75979ea3b7dd4369c847549d31c8865e7ebb96a",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/compile-time-programming/unit.json",
+      "id": "cpp_unit_compile_time_programming",
+      "name": "Compile-time programming",
+      "sha256": "f4efb54bd45530dba052480f2d7e3d86a39d17593acd18967b76bdacf19e6140",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/concurrency-cpp/unit.json",
+      "id": "cpp_unit_concurrency_cpp",
+      "name": "Concurrency in C++",
+      "sha256": "f87a3f5bc68ecd22becec366b47a720d25796c54b9984e36b1f93f6eda91dca0",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/coroutines-async/unit.json",
+      "id": "cpp_unit_coroutines_async",
+      "name": "Coroutines and asynchronous C++",
+      "sha256": "cbb6b62e8b4c78a356644e265784cdee9b5a5468043b8181439475c2e163ad53",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/error-handling/unit.json",
+      "id": "cpp_core_unit_error_handling",
+      "name": "Error Handling",
+      "sha256": "84f3ad75a3343f3468ccd68d53014419d2db6b9bfb7cf20e1943c125e56565be",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/functions-interfaces/unit.json",
+      "id": "cpp_core_unit_functions_interfaces",
+      "name": "Functions and Interfaces",
+      "sha256": "d0f07b48da3626c844dcec2939a6ef22ccd31aa6a7f0f072a26555fc78e59d0d",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/iterators-algorithms-ranges/unit.json",
+      "id": "cpp_core_unit_iterators_algorithms_ranges",
+      "name": "Iterators, Algorithms, and Ranges",
+      "sha256": "6e0e448c5430e146028283bf5e6936d145ebdbbbaf7ecf700e24b2fbbdd92148",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/library-data-containers/unit.json",
+      "id": "cpp_core_unit_library_data_containers",
+      "name": "Library Data and Containers",
+      "sha256": "a1196f5d73009c8e6a8a198fc6afe33f48c3415e66390e31fe6ee6f823c98729",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/library-engineering/unit.json",
+      "id": "cpp_unit_library_engineering",
+      "name": "Production library engineering",
+      "sha256": "2bfa7c997b8510f2963c7270dd4df80b245b84061e03e261c21f3a38e707e2e2",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/library-services/unit.json",
+      "id": "cpp_core_unit_library_services",
+      "name": "Standard Library Services",
+      "sha256": "4cc80081d6173af1cd6f5aae78db128ed41d5bb8acfd3819cdcf552dbc012a85",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/lifetime-ownership/unit.json",
+      "id": "cpp_core_unit_lifetime_ownership",
+      "name": "Lifetime and Ownership",
+      "sha256": "dc5d295eab6fe5e0e0bb214b8e78fe2361611c6be49f590be66c7725f7089078",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/object-model-memory/unit.json",
+      "id": "cpp_unit_object_model_memory",
+      "name": "The object model and memory customization",
+      "sha256": "aed00e6db894654d0193e6ed47b8a65209ca21164fd716d823bfe4e204e23b06",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/program-organization/unit.json",
+      "id": "cpp_core_unit_program_organization",
+      "name": "Program Organization",
+      "sha256": "bab0e006ab2620c1d329145a2a8dd2041d4cd5179112670a6ed394a908c9b687",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/runtime-polymorphism/unit.json",
+      "id": "cpp_core_unit_runtime_polymorphism",
+      "name": "Runtime Polymorphism",
+      "sha256": "68666586eb3fe33da895d9c1242cc2b26b3c24a5f225d96b938f031f63679242",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/templates-generic-programming/unit.json",
+      "id": "cpp_core_unit_templates_generic_programming",
+      "name": "Templates and Generic Programming",
+      "sha256": "8b3cf7bf8d4c6137e620ae66fd8c71cea6f3b0a6fe4da3f5efaa06500eda617b",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/types-initialization/unit.json",
+      "id": "cpp_core_unit_types_initialization",
+      "name": "Types and Initialization",
+      "sha256": "bd8853d8d9c11184658b70367da6714b75133cf561f215c67b9afe2e7af4ff3e",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/cpp/unit.json",
+      "id": "cpp_starter_unit_cpp",
+      "name": "C++",
+      "sha256": "3e1fb2744c2c445e30d5fc3ec52377427fb185e1f8e33e11ba471d81cd47eb2c",
+      "level": "root"
+    },
+    {
+      "path": "content/units/data-structures-algorithms/abstract-data-types/unit.json",
+      "id": "dsa_unit_abstract_data_types",
+      "name": "Abstract Data Types",
+      "sha256": "5bf5489fe1683fb05c967c8637df1e2675ec49ccb0655e69b4245bf166b72bc3",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/data-structures-algorithms/algorithm-analysis/unit.json",
+      "id": "dsa_unit_algorithm_analysis",
+      "name": "Algorithm Analysis",
+      "sha256": "9afda3055849e934f3122110d219462e382763550111376dfc8f5322fe3a8223",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/data-structures-algorithms/unit.json",
+      "id": "dsa_unit",
+      "name": "Data Structures and Algorithms",
+      "sha256": "d678cd49c107895e74c5a145488984d3eb9e8f85501e2d8bed43b416de82242e",
+      "level": "root"
+    },
+    {
+      "path": "content/units/databases-storage/logging-snapshots/unit.json",
+      "id": "databases_storage_logging_snapshots_unit",
+      "name": "Logging and Snapshots",
+      "sha256": "57a5283a13bceaf44137186694bb04627cad65fb5440f6723cfc40b18b5a5010",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/databases-storage/transaction-boundaries/unit.json",
+      "id": "databases_storage_transaction_boundaries_unit",
+      "name": "Transaction Boundaries",
+      "sha256": "21aaa502ac50fc89c4efc846dff6097c679cab981b754cff8a31d6abe2ed2b45",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/databases-storage/unit.json",
+      "id": "databases_storage_unit_root",
+      "name": "Databases and storage engines",
+      "sha256": "c8c71b91b57738ef63c383fa03d14dda646884983cc9521441cb927501f70620",
+      "level": "root"
+    },
+    {
+      "path": "content/units/embedded-realtime/bounded-events/unit.json",
+      "id": "embedded_realtime_bounded_events_unit",
+      "name": "Bounded Event Handling",
+      "sha256": "05e9b881542c51022792042696137693a51495bc12d265f6b0f7ba7bf897bd75",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/embedded-realtime/task-timing/unit.json",
+      "id": "embedded_realtime_task_timing_unit",
+      "name": "Task Timing",
+      "sha256": "b6f1a256d71d76de6a977da82aaf826cebc72f58cbd5e1343921abff9697eb8a",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/embedded-realtime/unit.json",
+      "id": "embedded_realtime_unit_root",
+      "name": "Embedded and real-time systems",
+      "sha256": "c4ba7effbbfcc20ffa5e2bca7a286d0f33ecf3b6853b166de10dbefb3b28220f",
+      "level": "root"
+    },
+    {
+      "path": "content/units/game-development/scene-composition/unit.json",
+      "id": "game_development_scene_composition_unit",
+      "name": "Scene Composition",
+      "sha256": "5584fe94b7059c139bb289b051e6257d7b33bcaca121a71a47bfb0b78ad72ebb",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/game-development/simulation-time/unit.json",
+      "id": "game_development_simulation_time_unit",
+      "name": "Simulation Time",
+      "sha256": "27f25b2712e8706fbe5175c178fc5d214fc3ad7dd11d223cf3ccf62acbe3d29f",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/game-development/unit.json",
+      "id": "game_development_unit_root",
+      "name": "Game development",
+      "sha256": "4d1e9543c4a37312e2abb87af01942f59ff6f49ce15285115d4431c1d4367fbe",
+      "level": "root"
+    },
+    {
+      "path": "content/units/graphics-gpu/rendering-pipeline/unit.json",
+      "id": "graphics_gpu_rendering_pipeline_unit",
+      "name": "Rendering Pipeline",
+      "sha256": "0d0abd4b8b0149842c240d9ef012dfa8a31c7ff1965a1046e9761b57c9a6f0fb",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/graphics-gpu/resource-dependencies/unit.json",
+      "id": "graphics_gpu_resource_dependencies_unit",
+      "name": "GPU Resource Dependencies",
+      "sha256": "2f2dfc9ae14c9a10f3ba8560940d7056456a51f6f87d0c64796dde7a6d57a737",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/graphics-gpu/unit.json",
+      "id": "graphics_gpu_unit_root",
+      "name": "Graphics and GPU programming",
+      "sha256": "769961771d0bcfcefbdbad4d04ff7cd8c6915e59d3ad26fef5db09a610ec3af6",
+      "level": "root"
+    },
+    {
+      "path": "content/units/gui-development/event-driven-state/unit.json",
+      "id": "gui_development_event_driven_state_unit",
+      "name": "Event-driven State",
+      "sha256": "a2b0faa72075b0de069d9f2e94e609f0e016248b0f96bc045086c0cc711fd3e1",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/gui-development/responsive-work/unit.json",
+      "id": "gui_development_responsive_work_unit",
+      "name": "Responsive Background Work",
+      "sha256": "86c4ae67648a8ee771d0a7b774f75d86a29b031fd7d80e508e937a7866ea5fd8",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/gui-development/unit.json",
+      "id": "gui_development_unit_root",
+      "name": "GUI and desktop applications",
+      "sha256": "9151fd48883990ad9430da8bee7739aa7b0f61410b4f19ce5ff04635c8aafb23",
+      "level": "root"
+    },
+    {
+      "path": "content/units/language-interoperability/cross-runtime-ownership/unit.json",
+      "id": "language_interoperability_cross_runtime_ownership_unit",
+      "name": "Cross-runtime Ownership",
+      "sha256": "79e83d53a200aab1dfc8fbc0b3c91575cef28d9e829010107f86b4b17c37a3ab",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/language-interoperability/runtime-coordination/unit.json",
+      "id": "language_interoperability_runtime_coordination_unit",
+      "name": "Runtime Coordination",
+      "sha256": "71dbb3319c7c4cf0d28b341157b28a606e98d9c7409049e8a2a58ccc64ee435e",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/language-interoperability/unit.json",
+      "id": "language_interoperability_unit_root",
+      "name": "Language interoperability",
+      "sha256": "808ae857462b17aa85d220e1a85d0d3a6b4e8a2b8a5d2513edeefaafb9bc1e7e",
+      "level": "root"
+    },
+    {
+      "path": "content/units/machine-learning-infrastructure/inference-contracts/unit.json",
+      "id": "machine_learning_infrastructure_inference_contracts_unit",
+      "name": "Inference Contracts",
+      "sha256": "f699bfa429219bba82b70b8bb23e9dcb4942915969d0b00d3004e330b1454a4a",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/machine-learning-infrastructure/tensor-execution/unit.json",
+      "id": "machine_learning_infrastructure_tensor_execution_unit",
+      "name": "Tensor Execution",
+      "sha256": "b94c22cdf569c8d3da426ba6ce6e01433f7e67fac8e6acf07cbe709f073a710d",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/machine-learning-infrastructure/unit.json",
+      "id": "machine_learning_infrastructure_unit_root",
+      "name": "Machine learning infrastructure",
+      "sha256": "3e5aa3019245bd1d7f6cb1e8051f9f465507e7ae6e3dee86515149b83fdeff20",
+      "level": "root"
+    },
+    {
+      "path": "content/units/network-distributed-systems/replicated-state/unit.json",
+      "id": "network_distributed_systems_replicated_state_unit",
+      "name": "Replicated State",
+      "sha256": "7e57d54b46f8450a915ff0e189f98e4cfc71be176470a4bdf1ba1944dda71bc6",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/network-distributed-systems/stream-protocols/unit.json",
+      "id": "network_distributed_systems_stream_protocols_unit",
+      "name": "Stream Protocols",
+      "sha256": "367ef3ac6dcd203f4b4b0c6db79072962cbee394c5a7a1439eaa0341f891b7b2",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/network-distributed-systems/unit.json",
+      "id": "network_distributed_systems_unit_root",
+      "name": "Network and distributed systems",
+      "sha256": "01a32c222dfdc0268f498b23cf4010864c865e3752a46baba3ab0d5de9d5d97c",
+      "level": "root"
+    },
+    {
+      "path": "content/units/numerical-computing/representation-error/unit.json",
+      "id": "numerical_unit_representation_error",
+      "name": "Representation and Error",
+      "sha256": "88b2d23866b80c084b0a58e41d5b8775aaa8f3c21324928389b491f86cb6dd41",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/numerical-computing/stable-algorithms/unit.json",
+      "id": "numerical_unit_stable_algorithms",
+      "name": "Stable Algorithms",
+      "sha256": "8dc252696bf61238c9095043dafc2f8a8fba2fc6a55fdc46097b86e85ee98aa4",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/numerical-computing/unit.json",
+      "id": "numerical_unit",
+      "name": "Numerical Computing",
+      "sha256": "464188704ac2704efd22241ff0af1b836a31273e779004a5931e1d8cbfe8a2c3",
+      "level": "root"
+    },
+    {
+      "path": "content/units/performance-engineering/locality-optimization/unit.json",
+      "id": "performance_unit_locality_optimization",
+      "name": "Locality and Optimization",
+      "sha256": "143000714f3faf53277a9c95db74c7006743efea455af192b30b5b2c791b1468",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/performance-engineering/measurement-design/unit.json",
+      "id": "performance_unit_measurement_design",
+      "name": "Measurement Design",
+      "sha256": "2b025a2d87b231551a385d78a43e41a260dcf43497126e42e6278726ee7341c8",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/performance-engineering/unit.json",
+      "id": "performance_unit",
+      "name": "Performance Engineering",
+      "sha256": "902514fb5285133ea2ad67fb3eb38b29ca444559165bf65823c206d9c0444b50",
+      "level": "root"
+    },
+    {
+      "path": "content/units/programming-foundations/problem-solving/unit.json",
+      "id": "foundations_unit_problem_solving",
+      "name": "Problem Solving",
+      "sha256": "733066d12e87379824ddf5fdb00196c995e206b788c8525c3d681cd0c01ddd4d",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/programming-foundations/state-correctness/unit.json",
+      "id": "foundations_unit_state_correctness",
+      "name": "State and Correctness",
+      "sha256": "285c9510e7c1620e6fb865cb7e5d6a434f64707791afbefc0388e718a0c63df2",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/programming-foundations/unit.json",
+      "id": "foundations_unit",
+      "name": "Programming Foundations",
+      "sha256": "abc8f98436048b4394041db0c328165766b40f21faab3cfc4575ed81c34bea90",
+      "level": "root"
+    },
+    {
+      "path": "content/units/robotics/coordinate-frames/unit.json",
+      "id": "robotics_coordinate_frames_unit",
+      "name": "Coordinate Frames",
+      "sha256": "262381a8420ed5ea1399b994af9dc2d78ec5eaabbcac20b07cd543b8a10ce08c",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/robotics/sensor-communication/unit.json",
+      "id": "robotics_sensor_communication_unit",
+      "name": "Sensor Communication",
+      "sha256": "fcd99207af3548361622f82f2fddba63e7430e674a06f2f1c27f5abd00bf1f07",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/robotics/unit.json",
+      "id": "robotics_unit_root",
+      "name": "Robotics",
+      "sha256": "f6c6ec37cead4dde24427ce1f837f402b0c7fc746fdeef90827d12cbf3ba2544",
+      "level": "root"
+    },
+    {
+      "path": "content/units/scientific-computing/experiment-provenance/unit.json",
+      "id": "scientific_computing_experiment_provenance_unit",
+      "name": "Experiment Provenance",
+      "sha256": "a17a4fb8db5c48cdd3c1b7f2b171247ac735265bfb38f714f9ff69d4b1a8ab9b",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/scientific-computing/linear-systems/unit.json",
+      "id": "scientific_computing_linear_systems_unit",
+      "name": "Linear Systems",
+      "sha256": "024414d7415e0485744746faed2efa1cd73bd5d2fc5006f82c8b62d84d4209de",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/scientific-computing/unit.json",
+      "id": "scientific_computing_unit_root",
+      "name": "Scientific computing",
+      "sha256": "515ab3f9a1426cf1ab0fe2f0671cfcd23bd1f694d3a30f9e389927e9934d910e",
+      "level": "root"
+    },
+    {
+      "path": "content/units/security-engineering/resource-resilience/unit.json",
+      "id": "security_unit_resource_resilience",
+      "name": "Resource Resilience",
+      "sha256": "bac0430a0861197854f5919aa2a873a1748e26790a594f902597892eff34fc16",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/security-engineering/trust-boundaries/unit.json",
+      "id": "security_unit_trust_boundaries",
+      "name": "Trust Boundaries",
+      "sha256": "1eace864b9a8cb28bdca1f2f7f5e46ff03ef85afb6eeea5534e6131be11d53d7",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/security-engineering/unit.json",
+      "id": "security_unit",
+      "name": "Security Engineering",
+      "sha256": "c9ec45092f252689fcf6784158188ce04c42aee17d06b39d49f151a868f6ddcf",
+      "level": "root"
+    },
+    {
+      "path": "content/units/software-design-architecture/interface-contracts/unit.json",
+      "id": "design_unit_interface_contracts",
+      "name": "Interface Contracts",
+      "sha256": "961d58d37416f22298e8a33eaa0999eea9d48d5c602437f0ee2934479b9f213f",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/software-design-architecture/responsibility-boundaries/unit.json",
+      "id": "design_unit_responsibility_boundaries",
+      "name": "Responsibility Boundaries",
+      "sha256": "d3e5f07439408cd0e7c5f2543d022fdd801068807bdd609fb2cfe4d975d615b1",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/software-design-architecture/unit.json",
+      "id": "design_unit",
+      "name": "Software Design and Architecture",
+      "sha256": "5cf36a5fb778567e6ab813c681f8f2dc9aa3b5dbae94c5768e9263358e0726bd",
+      "level": "root"
+    },
+    {
+      "path": "content/units/systems-programming/descriptor-io/unit.json",
+      "id": "systems_programming_descriptor_io_unit",
+      "name": "Descriptor I/O",
+      "sha256": "23a605e23c76d7e2c9fe84ecf2fcd72b407fb0caed328c674e8eaa992d1e5010",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/systems-programming/process-resources/unit.json",
+      "id": "systems_programming_process_resources_unit",
+      "name": "Processes and Resources",
+      "sha256": "5753e86525a50f24fc9d878ff5f7a7b566e7ed0521ba67fc3268fe0385c9e033",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/systems-programming/unit.json",
+      "id": "systems_programming_unit_root",
+      "name": "Systems programming",
+      "sha256": "bfb3ac151a4dc5da7618c130017730b64020b5cdf3c9175a9ccc0de9b07fd369",
+      "level": "root"
+    },
+    {
+      "path": "content/units/testing-software-quality/generated-testing/unit.json",
+      "id": "quality_unit_generated_testing",
+      "name": "Generated Testing",
+      "sha256": "aca02eb51abcafee07d312fb8c7c2d4e9f2d1ed06283cdac6601d3aac08fd677",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/testing-software-quality/test-design/unit.json",
+      "id": "quality_unit_test_design",
+      "name": "Test Design",
+      "sha256": "b2e26c28ed98d8c5c5e8f8d3a6d5fdaa9be9904a343184d64ac6dee34be0361a",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/testing-software-quality/unit.json",
+      "id": "quality_unit",
+      "name": "Testing and Software Quality",
+      "sha256": "c94ae207c32b7db8ff59413655bfabe12559c6e1a84746eae6e007e3c5f9e40c",
+      "level": "root"
+    },
+    {
+      "path": "content/units/text-data-formats/interchange-contracts/unit.json",
+      "id": "textdata_unit_interchange_contracts",
+      "name": "Interchange Contracts",
+      "sha256": "1fcd25cd02e7b20fe66fc761041ce30df5dcc91cc372508b8fb66d233e4a6ec0",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/text-data-formats/unicode-text/unit.json",
+      "id": "textdata_unit_unicode_text",
+      "name": "Unicode Text",
+      "sha256": "01144b526703117bf96b897500a75df30a8405309bd6ade7a5c4f105aa68d201",
+      "level": "subunit"
+    },
+    {
+      "path": "content/units/text-data-formats/unit.json",
+      "id": "textdata_unit",
+      "name": "Text Processing and Data Formats",
+      "sha256": "cd3afb1bff1b3ff78b291671aec8678a5153d1037d7323a5ceca685fe935aceb",
+      "level": "root"
+    }
+  ],
+  "modules": [
+    {
+      "path": "content/units/audio-signal-processing/callback-deadlines/01-buffer-budget.json",
+      "moduleId": "audio_signal_processing_callback_deadlines_module",
+      "versionId": "audio_signal_processing_callback_deadlines_version_1",
+      "title": "Budget work inside an audio callback",
+      "sha256": "2debad5c7eb40bebc6ab11911694c5a69df0df8141ddc19682cf246eed986c37",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "audio_signal_processing_callback_deadlines_source_callback",
+          "title": "PortAudio: Writing a Callback Function",
+          "url": "https://portaudio.com/docs/v19-doxydocs/writing_a_callback.html",
+          "locator": "Primary documentation: Callback responsibilities and operations with unbounded execution time; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/audio-signal-processing/discrete-transforms/01-dft-conventions.json",
+      "moduleId": "audio_signal_processing_discrete_transforms_module",
+      "versionId": "audio_signal_processing_discrete_transforms_version_1",
+      "title": "Interpret a discrete Fourier transform convention",
+      "sha256": "cd9c3a00f5e0ed43c667c56dc807ceaf1756b067eb725fe976d84468a3bf7781",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "audio_signal_processing_discrete_transforms_source_dft",
+          "title": "FFTW: The 1d Discrete Fourier Transform (DFT)",
+          "url": "https://www.fftw.org/fftw3_doc/The-1d-Discrete-Fourier-Transform-_0028DFT_0029.html",
+          "locator": "Primary documentation: Section 4.8.1; sign, bin order and unnormalized forward/backward transforms; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/build-release-engineering/build-graphs/01-model-a-build-as-a-graph.json",
+      "moduleId": "build_model_a_build_as_a_graph_module",
+      "versionId": "build_model_a_build_as_a_graph_v1",
+      "title": "Model a build as a dependency graph",
+      "sha256": "d1fdb144c9dd01befe97a7e432ddb1a3ca4f2d9201c288ababcdc36f818c2375",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "build_model_a_build_as_a_graph_source_cmake",
+          "title": "cmake-buildsystem(7)",
+          "url": "https://cmake.org/cmake/help/v3.31/manual/cmake-buildsystem.7.html",
+          "locator": "Official versioned documentation: CMake 3.31, Binary Targets, Build Specification and Usage Requirements, and Transitive Usage Requirements; consulted 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/build-release-engineering/release-reproducibility/01-define-a-reproducible-artifact.json",
+      "moduleId": "build_define_a_reproducible_artifact_module",
+      "versionId": "build_define_a_reproducible_artifact_v1",
+      "title": "Define a reproducible release artifact",
+      "sha256": "cb39fd8fa586bb5d90be85a82b1a5925a6ef1e8e8cc4d03f1db986fb7cbf87ad",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "build_define_a_reproducible_artifact_source_repro",
+          "title": "Reproducible Builds: Definitions",
+          "url": "https://reproducible-builds.org/docs/definition/",
+          "locator": "Official project guidance: reproducible builds, artifacts, source code, and build environment definitions; consulted 2026-09-11. Reproducibility is not a security proof."
+        },
+        {
+          "sourceId": "build_define_a_reproducible_artifact_source_buildpath",
+          "title": "Reproducible Builds: Build path",
+          "url": "https://reproducible-builds.org/docs/build-path/",
+          "locator": "Official project guidance: source paths in debug information and compiler prefix-map options; consulted 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/compilers-language-tools/lexical-analysis/01-token-boundaries.json",
+      "moduleId": "compilers_language_tools_lexical_analysis_module",
+      "versionId": "compilers_language_tools_lexical_analysis_version_1",
+      "title": "Turn characters into a token stream",
+      "sha256": "9dfd1a774132b20727eb7eca36a94e641baddf9c82e5663eb8006966afc36276",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "compilers_language_tools_lexical_analysis_source_lexer",
+          "title": "LLVM Kaleidoscope: Introduction and the Lexer",
+          "url": "https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl01.html",
+          "locator": "Primary documentation: Section 1.2 The Lexer; tokenization and lexical information; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/compilers-language-tools/syntax-trees/01-precedence-tree.json",
+      "moduleId": "compilers_language_tools_syntax_trees_module",
+      "versionId": "compilers_language_tools_syntax_trees_version_1",
+      "title": "Build an expression tree that preserves precedence",
+      "sha256": "c91e50c0615314358784f6ed1cc4b1890123ade888f0cd53f57c0d0b82760819",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "compilers_language_tools_syntax_trees_source_parser",
+          "title": "LLVM Kaleidoscope: Implementing a Parser and AST",
+          "url": "https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl02.html",
+          "locator": "Primary documentation: Sections 2.2, 2.4 and 2.5; AST representation and expression precedence; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/computer-architecture-operating-systems/memory-hierarchy/01-trace-cache-locality.json",
+      "moduleId": "archos_trace_cache_locality_module",
+      "versionId": "archos_trace_cache_locality_v1",
+      "title": "Trace locality with a tiny cache",
+      "sha256": "232134b45d2073fbf6c3138685b36271620756376ef946d99ac08d9a461a7192",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "archos_trace_cache_locality_source_cachegrind",
+          "title": "Valgrind User Manual: Cachegrind",
+          "url": "https://valgrind.org/docs/manual/cg-manual.html",
+          "locator": "Official tool documentation: §5.7 cache simulation and §5.8.1–5.8.3 simulation model and accuracy limits; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
+        }
+      ]
+    },
+    {
+      "path": "content/units/computer-architecture-operating-systems/process-memory/01-separate-addresses-from-storage.json",
+      "moduleId": "archos_separate_addresses_from_storage_module",
+      "versionId": "archos_separate_addresses_from_storage_v1",
+      "title": "Separate virtual addresses from physical storage",
+      "sha256": "1edf339a8bca867a133fd53937371599f04558abc3a78b69ff63f331d8d4fe88",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "archos_separate_addresses_from_storage_source_linuxmem",
+          "title": "Linux memory management: Concepts overview",
+          "url": "https://www.kernel.org/doc/html/latest/admin-guide/mm/concepts.html",
+          "locator": "Official implementation documentation, not portable C++ guarantees: Virtual Memory Primer, Huge Pages, Page cache, and Anonymous Memory; MMU-equipped Linux systems; consulted 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/concurrency-parallel-computing/parallel-work/01-estimate-a-parallel-speedup-limit.json",
+      "moduleId": "parallel_estimate_a_parallel_speedup_limit_module",
+      "versionId": "parallel_estimate_a_parallel_speedup_limit_v1",
+      "title": "Estimate the limit of parallel speedup",
+      "sha256": "5542f72bb9d7dab63d64f1bf65d33b7cba1451145e78b9cdef0ab5990e41859b",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "parallel_estimate_a_parallel_speedup_limit_source_llnl",
+          "title": "Introduction to Parallel Computing Tutorial",
+          "url": "https://hpc.llnl.gov/documentation/tutorials/introduction-parallel-computing-tutorial",
+          "locator": "Official institutional tutorial: task decomposition, communication, granularity, and Amdahl’s Law; consulted 2026-09-11. Teaching timing values are explicitly hypothetical."
+        },
+        {
+          "sourceId": "parallel_estimate_a_parallel_speedup_limit_source_openmp",
+          "title": "OpenMP Application Programming Interface 5.2: Execution Model",
+          "url": "https://www.openmp.org/spec-html/5.2/openmpse3.html",
+          "locator": "Normative API specification for OpenMP 5.2, §1.3 Execution Model; task execution and fork-join model, not a specification of std::thread; consulted 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/concurrency-parallel-computing/shared-state/01-protect-a-complete-state-transition.json",
+      "moduleId": "parallel_protect_a_complete_state_transition_module",
+      "versionId": "parallel_protect_a_complete_state_transition_v1",
+      "title": "Protect a complete state transition",
+      "sha256": "4e3ab814b047eb0a8f9e950a5f60776a44b68dbc30f77dc69197d66f959108c0",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "parallel_protect_a_complete_state_transition_source_openmpmem",
+          "title": "OpenMP 5.2: Structure of the Memory Model",
+          "url": "https://www.openmp.org/spec-html/5.2/openmpsu9.html",
+          "locator": "Normative API specification for OpenMP 5.2, §1.4.1; shared and private data, unordered conflicts, synchronization, and lifetime; consulted 2026-09-11. Language-neutral traces are not an implementation of this model."
+        },
+        {
+          "sourceId": "parallel_protect_a_complete_state_transition_source_guidelines",
+          "title": "C++ Core Guidelines",
+          "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
+          "locator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: CP.20 (scoped lock ownership), CP.21 (multiple mutexes and deadlock), CP.22 (callbacks under a lock); page dated 2026-06-14, consulted 2026-09-11."
+        },
+        {
+          "sourceId": "parallel_protect_a_complete_state_transition_source_cpp_races",
+          "title": "C++20 working draft N4861: Data races",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/intro.races",
+          "locator": "Primary standards draft, not the published ISO edition: N4861 [intro.races] paragraphs 2–6 and 21; conflicting actions, synchronization, atomic operations, and undefined behavior from a data race. Pinned C++20 text inspected 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/advanced-templates/01-dependent-names.json",
+      "moduleId": "cpp_dependent_names_module",
+      "versionId": "cpp_dependent_names_v1",
+      "title": "Reading dependent names",
+      "sha256": "aceb0b670705b2e6b2c7166bad654d3b0d7f076ddef10995a5e11df25bd7ad03",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_dependent_names_source_1",
+          "title": "C++20 working draft N4861: temp.res",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.res",
+          "locator": "Primary standards draft, [temp.res]: dependent type names and typename. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_dependent_names_source_2",
+          "title": "C++20 working draft N4861: temp.dep",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.dep",
+          "locator": "Primary standards draft, [temp.dep]: dependent names and dependent base classes. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_dependent_names_source_3",
+          "title": "C++20 working draft N4861: temp.names",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.names",
+          "locator": "Primary standards draft, [temp.names]: the template disambiguator. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/advanced-templates/02-forwarding-arguments.json",
+      "moduleId": "cpp_forwarding_arguments_module",
+      "versionId": "cpp_forwarding_arguments_v1",
+      "title": "Forwarding arguments without changing their category",
+      "sha256": "b2180be51a28198004b2cabb7fddf3367b46dcd4b5c06e76eaf545f16a7df202",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_forwarding_arguments_source_1",
+          "title": "C++20 working draft N4861: temp.deduct.call",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.deduct.call",
+          "locator": "Primary standards draft, [temp.deduct.call]: forwarding-reference deduction. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_forwarding_arguments_source_2",
+          "title": "C++20 working draft N4861: forward",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/forward",
+          "locator": "Primary standards draft, [forward]: std::forward and std::move return expressions. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_forwarding_arguments_source_3",
+          "title": "C++20 working draft N4861: basic.life",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+          "locator": "Primary standards draft, [basic.life]: object and reference lifetime boundaries. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/basics/01-first-program.json",
+      "moduleId": "cpp_starter_module_first_program",
+      "versionId": "cpp_starter_version_1",
+      "title": "Your first C++ program",
+      "sha256": "64eff4fc6c0a3e61a7ac465d8c40402d33a79c47f446d8017c21256187438175",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_starter_source_book",
+          "title": "The C++ Programming Language",
+          "url": "https://www.stroustrup.com/4th.html",
+          "locator": "§2.2 The Basics, p. 38; §2.2.1 Hello, World!, p. 39"
+        },
+        {
+          "sourceId": "cpp_starter_source_main",
+          "title": "C++ working draft: main function",
+          "url": "https://eel.is/c++draft/basic.start.main",
+          "locator": "[basic.start.main], paragraphs 1, 2, and 5; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_starter_source_streams",
+          "title": "C++ working draft: standard iostream objects",
+          "url": "https://eel.is/c++draft/iostream.objects",
+          "locator": "[iostream.syn], [iostream.objects.overview], and [narrow.stream.objects]; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_starter_source_strings",
+          "title": "C++ working draft: string literals",
+          "url": "https://eel.is/c++draft/lex.string",
+          "locator": "[lex.string], ordinary string literals and escape sequences; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_starter_source_escapes",
+          "title": "C++ working draft: character literals and escapes",
+          "url": "https://eel.is/c++draft/lex.ccon",
+          "locator": "[lex.ccon], simple escape sequences; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_starter_source_includes",
+          "title": "C++ working draft: source file inclusion",
+          "url": "https://eel.is/c++draft/cpp.include",
+          "locator": "[cpp.include], header inclusion; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/basics/02-variables.json",
+      "moduleId": "cpp_basics_module_variables",
+      "versionId": "cpp_basics_variables_v1",
+      "title": "Variables, types, and initialization",
+      "sha256": "b047f9faa64b35bff28d15ab5b5f5c1f47500dd981eb609e713ee583eca45d4c",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_basics_variables_source_book",
+          "title": "The C++ Programming Language — types, variables, and constants",
+          "url": "https://www.stroustrup.com/4th.html",
+          "locator": "§2.2.2, printed pp. 40–42: types, initialization, and auto; §2.2.3, printed p. 42: const. The link opens the author’s book page."
+        },
+        {
+          "sourceId": "cpp_basics_variables_source_initialization",
+          "title": "C++ working draft — list-initialization",
+          "url": "https://eel.is/c++draft/dcl.init.list",
+          "locator": "[dcl.init.list]: brace initialization, empty initializers, and the definition of narrowing conversions."
+        },
+        {
+          "sourceId": "cpp_basics_variables_source_types",
+          "title": "C++ working draft — fundamental types",
+          "url": "https://eel.is/c++draft/basic.fundamental",
+          "locator": "[basic.fundamental]: integer ranges, character types, bool, and floating-point types."
+        },
+        {
+          "sourceId": "cpp_basics_variables_source_auto",
+          "title": "C++ working draft — auto and type deduction",
+          "url": "https://eel.is/c++draft/dcl.spec.auto",
+          "locator": "[dcl.spec.auto.general] and [dcl.type.auto.deduct]: deriving a variable’s type from its initializer."
+        },
+        {
+          "sourceId": "cpp_basics_variables_source_const",
+          "title": "C++ working draft — const qualification",
+          "url": "https://eel.is/c++draft/dcl.type.cv",
+          "locator": "[dcl.type.cv]: const-qualified objects and restrictions on modification."
+        },
+        {
+          "sourceId": "cpp_basics_variables_source_bool_output",
+          "title": "C++ working draft — numeric and Boolean output",
+          "url": "https://eel.is/c++draft/facet.num.put.virtuals",
+          "locator": "[facet.num.put.virtuals], Boolean overload: numeric output when boolalpha is unset. Compare the default stream flags in [basic.ios.cons]."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/basics/03-expressions.json",
+      "moduleId": "cpp_basics_module_expressions",
+      "versionId": "cpp_basics_expressions_v1",
+      "title": "Expressions and arithmetic",
+      "sha256": "1dc62752489f61f32077e3bdb7a6bada32fc23235d35d1e7e05a635fd7be2f0a",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_basics_expressions_source_book",
+          "title": "The C++ Programming Language — arithmetic and updates",
+          "url": "https://www.stroustrup.com/4th.html",
+          "locator": "§2.2.2, printed pp. 40–42: arithmetic operators, conversions, assignment, and compound updates. The link opens the author’s book page."
+        },
+        {
+          "sourceId": "cpp_basics_expressions_source_division",
+          "title": "C++ working draft — multiplication, division, and remainder",
+          "url": "https://eel.is/c++draft/expr.mul",
+          "locator": "[expr.mul]: integer division toward zero, remainder, and invalid divisors."
+        },
+        {
+          "sourceId": "cpp_basics_expressions_source_addition",
+          "title": "C++ working draft — addition and subtraction",
+          "url": "https://eel.is/c++draft/expr.add",
+          "locator": "[expr.add]: additive-expression grammar and its relationship to multiplicative expressions."
+        },
+        {
+          "sourceId": "cpp_basics_expressions_source_conversions",
+          "title": "C++ working draft — arithmetic conversions",
+          "url": "https://eel.is/c++draft/expr.arith.conv",
+          "locator": "[expr.arith.conv]: how arithmetic operands acquire a common type, including the int and double case."
+        },
+        {
+          "sourceId": "cpp_basics_expressions_source_limits",
+          "title": "C++ working draft — numeric types and limits",
+          "url": "https://eel.is/c++draft/basic.fundamental",
+          "locator": "[basic.fundamental]: finite integer ranges, signed overflow, and floating-point representation."
+        },
+        {
+          "sourceId": "cpp_basics_expressions_source_assignment",
+          "title": "C++ working draft — assignment and compound assignment",
+          "url": "https://eel.is/c++draft/expr.assign",
+          "locator": "[expr.assign]: storing a result with = and the behavior of compound updates such as +=."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/basics/04-decisions.json",
+      "moduleId": "cpp_basics_module_decisions",
+      "versionId": "cpp_basics_decisions_v1",
+      "title": "Making decisions",
+      "sha256": "65e621a5220b5d13d009b7d8962d01a4ea628445e666f1b88deec914f6c8ddec",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_basics_decisions_source_book",
+          "title": "The C++ Programming Language",
+          "url": "https://www.stroustrup.com/4th.html",
+          "locator": "§9.4.1 if Statements, pp. 228–229"
+        },
+        {
+          "sourceId": "cpp_basics_decisions_source_if",
+          "title": "C++ working draft: the if statement",
+          "url": "https://eel.is/c++draft/stmt.if",
+          "locator": "[stmt.if], branch selection and else association; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_basics_decisions_source_and",
+          "title": "C++ working draft: logical AND",
+          "url": "https://eel.is/c++draft/expr.log.and",
+          "locator": "[expr.log.and], Boolean result and short-circuit evaluation; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_basics_decisions_source_or",
+          "title": "C++ working draft: logical OR",
+          "url": "https://eel.is/c++draft/expr.log.or",
+          "locator": "[expr.log.or], Boolean result and short-circuit evaluation; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/basics/05-loops.json",
+      "moduleId": "cpp_basics_module_loops",
+      "versionId": "cpp_basics_loops_v1",
+      "title": "Repeating work",
+      "sha256": "2192a0eac9e4a505ffdee1044edc56f687d448b81926de9a9157d16b4acd2cc3",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_basics_loops_source_book",
+          "title": "The C++ Programming Language",
+          "url": "https://www.stroustrup.com/4th.html",
+          "locator": "§9.5.2 for Statements, p. 235; §9.5.3 while Statements, p. 236"
+        },
+        {
+          "sourceId": "cpp_basics_loops_source_for",
+          "title": "C++ working draft: the for statement",
+          "url": "https://eel.is/c++draft/stmt.for",
+          "locator": "[stmt.for], initialization, condition, and iteration expression; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_basics_loops_source_while",
+          "title": "C++ working draft: the while statement",
+          "url": "https://eel.is/c++draft/stmt.while",
+          "locator": "[stmt.while], condition tested before each execution; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/basics/06-functions.json",
+      "moduleId": "cpp_basics_module_functions",
+      "versionId": "cpp_basics_functions_v1",
+      "title": "Functions",
+      "sha256": "af5fc614a19587ba820dc4ed8c9a9b0204653a643b603bdd564e94e50a0d3606",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_basics_functions_source_book",
+          "title": "The C++ Programming Language",
+          "url": "https://www.stroustrup.com/4th.html",
+          "locator": "§12.1.1 Why Functions?, p. 306; §12.1.3 Function Definitions, pp. 307–308; §12.1.4 Returning Values, pp. 308–310; §12.2 Argument Passing, p. 315"
+        },
+        {
+          "sourceId": "cpp_basics_functions_source_call",
+          "title": "C++ working draft: function call",
+          "url": "https://eel.is/c++draft/expr.call",
+          "locator": "[expr.call], declarations, parameter initialization, and the call result; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_basics_functions_source_return",
+          "title": "C++ working draft: the return statement",
+          "url": "https://eel.is/c++draft/stmt.return",
+          "locator": "[stmt.return], returning control and values; reaching the end of a function; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/basics/07-output-and-buffering.json",
+      "moduleId": "cpp_basics_module_output",
+      "versionId": "cpp_basics_output_v1",
+      "title": "Output and buffering",
+      "sha256": "33c2ebf1571e245a885d93a7a96a2aeb961151ad0c8dc5499b591e94f9cd5952",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_basics_output_source_book",
+          "title": "The C++ Programming Language",
+          "url": "https://www.stroustrup.com/4th.html",
+          "locator": "Further reading: §38.4.3 Manipulators and §38.6 Buffering; section titles verified against the author’s extended table of contents"
+        },
+        {
+          "sourceId": "cpp_basics_output_source_manip",
+          "title": "C++ working draft: output manipulators",
+          "url": "https://eel.is/c++draft/ostream.manip",
+          "locator": "[ostream.manip], std::endl and std::flush effects; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_basics_output_source_buffer",
+          "title": "C++ working draft: unformatted output",
+          "url": "https://eel.is/c++draft/ostream.unformatted",
+          "locator": "[ostream.unformatted], basic_ostream::flush and error handling; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_basics_output_source_objects",
+          "title": "C++ working draft: standard narrow streams",
+          "url": "https://eel.is/c++draft/narrow.stream.objects",
+          "locator": "[narrow.stream.objects], the default connection between cin and cout; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_basics_output_source_sentry",
+          "title": "C++ working draft: input preparation",
+          "url": "https://eel.is/c++draft/istream.sentry",
+          "locator": "[istream.sentry], tied stream flushing and permitted optimizations; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_basics_output_source_literal",
+          "title": "C++ working draft: string literals",
+          "url": "https://eel.is/c++draft/lex.string",
+          "locator": "[lex.string], string literal contents and terminating null character; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_basics_output_source_guidelines",
+          "title": "C++ Core Guidelines: avoid endl",
+          "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rio-endl",
+          "locator": "SL.io.50: Avoid endl; unnecessary flushing and buffering caveats; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/classes-value-semantics/01-invariants-and-operations.json",
+      "moduleId": "cpp_core_classes_value_semantics_invariants_and_operations",
+      "versionId": "cpp_core_classes_value_semantics_invariants_and_operations_v1",
+      "title": "Classes that maintain a useful invariant",
+      "sha256": "212f6a9050af1c13e120e1b0c3f657638f97c81d51c76c080b8d18cf82aa5d5a",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_classes_value_semantics_invariants_and_operations_source_1",
+          "title": "C++20 working draft N4861: class.base.init",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/class.base.init",
+          "locator": "N4861, [class.base.init]; consulted 2026-09-11. Member initialization order precedes the constructor body."
+        },
+        {
+          "sourceId": "cpp_core_classes_value_semantics_invariants_and_operations_source_2",
+          "title": "C++20 working draft N4861: class.ctor",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/class.ctor",
+          "locator": "N4861, [class.ctor], constructor declaration and initialization of class objects; consulted 2026-09-11."
+        },
+        {
+          "sourceId": "cpp_core_classes_value_semantics_invariants_and_operations_source_3",
+          "title": "C++20 working draft N4861: class.copy.ctor",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/class.copy.ctor",
+          "locator": "N4861, [class.copy.ctor]; consulted 2026-09-11. Implicit memberwise copy/move and special-member declaration conditions."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/classes-value-semantics/02-copy-move-and-comparison.json",
+      "moduleId": "cpp_core_classes_value_semantics_copy_move_and_comparison",
+      "versionId": "cpp_core_classes_value_semantics_copy_move_and_comparison_v1",
+      "title": "Copying, moving, and comparing values",
+      "sha256": "8fdce3f55da350a37c0bb6850e0f07b093029974fa3bf2680d50a4ea8974ea9a",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_1",
+          "title": "C++20 working draft N4861: class.copy.ctor",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/class.copy.ctor",
+          "locator": "N4861, [class.copy.ctor]; consulted 2026-09-11. Implicit memberwise copy/move and special-member declaration conditions."
+        },
+        {
+          "sourceId": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_2",
+          "title": "C++20 working draft N4861: class.copy.assign",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/class.copy.assign",
+          "locator": "N4861, [class.copy.assign]; consulted 2026-09-11. Memberwise copy/move assignment of bases and members."
+        },
+        {
+          "sourceId": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_3",
+          "title": "C++20 working draft N4861: class.compare.default",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/class.compare.default",
+          "locator": "N4861, [class.compare.default]; consulted 2026-09-11. C++20 defaulted comparison declarations and restrictions."
+        },
+        {
+          "sourceId": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_4",
+          "title": "C++20 working draft N4861: forward",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/forward",
+          "locator": "N4861, [forward]; consulted 2026-09-11. std::move and std::forward are casts with specified reference results."
+        },
+        {
+          "sourceId": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_5",
+          "title": "C++20 working draft N4861: lib.types.movedfrom",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/lib.types.movedfrom",
+          "locator": "N4861, [lib.types.movedfrom]; consulted 2026-09-11. Valid but unspecified states of moved-from standard-library objects."
+        },
+        {
+          "sourceId": "cpp_core_classes_value_semantics_copy_move_and_comparison_source_guidelines",
+          "title": "C++ Core Guidelines: C.20",
+          "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-zero",
+          "locator": "C.20; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII or the Rule of Zero, distinct from normative C++ language requirements."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/compile-time-programming/01-constant-evaluation.json",
+      "moduleId": "cpp_constant_evaluation_module",
+      "versionId": "cpp_constant_evaluation_v1",
+      "title": "Computing and checking constants",
+      "sha256": "2f3a7a35e77e546d77fa81a3bead029c8fafacb43c39ef2aa030e77c640dc896",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_constant_evaluation_source_1",
+          "title": "C++20 working draft N4861: dcl.constexpr",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.constexpr",
+          "locator": "Primary standards draft, [dcl.constexpr]: constexpr variables and functions; immediate functions. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_constant_evaluation_source_2",
+          "title": "C++20 working draft N4861: expr.const",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.const",
+          "locator": "Primary standards draft, [expr.const]: constant expression requirements and disallowed evaluated operations. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_constant_evaluation_source_3",
+          "title": "C++20 working draft N4861: dcl.constinit",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.constinit",
+          "locator": "Primary standards draft, [dcl.constinit]: static initialization without implied const qualification. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/compile-time-programming/02-type-directed-branches.json",
+      "moduleId": "cpp_type_directed_branches_module",
+      "versionId": "cpp_type_directed_branches_v1",
+      "title": "Selecting an implementation with if constexpr",
+      "sha256": "e7c88db3832c145a1871a040df2c64ee5c0a0b1b2e79742da5fb3cf9608cd30b",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_type_directed_branches_source_1",
+          "title": "C++20 working draft N4861: stmt.if",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/stmt.if",
+          "locator": "Primary standards draft, [stmt.if]: discarded substatements during template instantiation. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_type_directed_branches_source_2",
+          "title": "C++20 working draft N4861: expr.prim.req",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.prim.req",
+          "locator": "Primary standards draft, [expr.prim.req]: requires expressions. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_type_directed_branches_source_3",
+          "title": "C++20 working draft N4861: concept.convertible",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/concept.convertible",
+          "locator": "Primary standards draft, [concept.convertible]: convertible_to constraints. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_type_directed_branches_source_4",
+          "title": "C++ working draft N4950: stmt.if",
+          "url": "https://timsong-cpp.github.io/cppwp/n4950/stmt.if",
+          "locator": "Primary standards draft: C++23 if consteval, paragraphs 4–6; edition boundary only. Consulted 2026-09-11; not the published ISO edition."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/concurrency-cpp/01-scoped-threads-locks.json",
+      "moduleId": "cpp_scoped_threads_locks_module",
+      "versionId": "cpp_scoped_threads_locks_v1",
+      "title": "Own threads and protect shared state",
+      "sha256": "4c214d20f39baf4c1cd7ce40db4805726a51aef82aa649476e6bca5f8a531f04",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_scoped_threads_locks_source_1",
+          "title": "C++20 working draft N4861: thread.jthread.class",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/thread.jthread.class",
+          "locator": "Primary standards draft, [thread.jthread.class]: thread ownership, cooperative stop requests, and joining. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_scoped_threads_locks_source_2",
+          "title": "C++20 working draft N4861: thread.lock.guard",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/thread.lock.guard",
+          "locator": "Primary standards draft, [thread.lock.guard]: scope-based lock ownership. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_scoped_threads_locks_source_3",
+          "title": "C++20 working draft N4861: intro.races",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/intro.races",
+          "locator": "Primary standards draft, [intro.races]: conflicting accesses and data races. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_scoped_threads_locks_source_4",
+          "title": "Foundations of the C++ Concurrency Memory Model",
+          "url": "https://doi.org/10.1145/1375581.1375591",
+          "locator": "Peer-reviewed PLDI 2008 paper, pp. 68–78; abstract and introduction inspected in the SFU-hosted full-text copy. Historical rationale for language-level race semantics, not the C++20 specification; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/concurrency-cpp/02-atomic-publication.json",
+      "moduleId": "cpp_atomic_publication_module",
+      "versionId": "cpp_atomic_publication_v1",
+      "title": "Publish a result with release and acquire",
+      "sha256": "e5f61f9ce80c0fd6a8632c230782d68ae7486b26c836d5bc4a96d291e9f27bfa",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_atomic_publication_source_1",
+          "title": "C++20 working draft N4861: atomics.order",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/atomics.order",
+          "locator": "Primary standards draft, [atomics.order]: release/acquire synchronization and relaxed ordering. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_atomic_publication_source_2",
+          "title": "C++20 working draft N4861: atomics.wait",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/atomics.wait",
+          "locator": "Primary standards draft, [atomics.wait]: value checks, notification, and transient changes. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_atomic_publication_source_3",
+          "title": "C++20 working draft N4861: intro.races",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/intro.races",
+          "locator": "Primary standards draft, [intro.races]: happens-before and non-atomic accesses. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_atomic_publication_source_4",
+          "title": "C++ working draft N4861: atomics.types.operations",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/atomics.types.operations",
+          "locator": "Primary standards draft: atomic::wait effects and notify_one; paragraphs 29–33. Consulted 2026-09-11; not the published ISO edition."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/coroutines-async/01-coroutine-suspension.json",
+      "moduleId": "cpp_coroutine_suspension_module",
+      "versionId": "cpp_coroutine_suspension_v1",
+      "title": "Trace a coroutine’s suspension points",
+      "sha256": "993bd23838d437be312285e6eeff0c54b84f5664b729a6c3b39c918d619550a9",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_coroutine_suspension_source_1",
+          "title": "C++20 working draft N4861: dcl.fct.def.coroutine",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.fct.def.coroutine",
+          "locator": "Primary standards draft, [dcl.fct.def.coroutine]: promise interface, initial and final suspension. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_coroutine_suspension_source_2",
+          "title": "C++20 working draft N4861: expr.await",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.await",
+          "locator": "Primary standards draft, [expr.await]: awaiter protocol. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_coroutine_suspension_source_3",
+          "title": "C++20 working draft N4861: coroutine.handle.resumption",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/coroutine.handle.resumption",
+          "locator": "Primary standards draft, [coroutine.handle.resumption]: resume/destroy preconditions and thread identity. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/coroutines-async/02-coroutine-lifetimes.json",
+      "moduleId": "cpp_coroutine_lifetimes_module",
+      "versionId": "cpp_coroutine_lifetimes_v1",
+      "title": "Keep coroutine inputs alive across suspension",
+      "sha256": "51542ff2cd2347576cedc16aa5d8ae70d657c11fed7e312af8fe49a14a18ed49",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_coroutine_lifetimes_source_1",
+          "title": "C++20 working draft N4861: dcl.fct.def.coroutine",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.fct.def.coroutine",
+          "locator": "Primary standards draft, [dcl.fct.def.coroutine]: parameter copies and coroutine state destruction. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_coroutine_lifetimes_source_2",
+          "title": "C++20 working draft N4861: basic.life",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+          "locator": "Primary standards draft, [basic.life]: reference and object lifetime. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_coroutine_lifetimes_source_3",
+          "title": "C++20 working draft N4861: coroutine.handle.resumption",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/coroutine.handle.resumption",
+          "locator": "Primary standards draft, [coroutine.handle.resumption]: destruction requires a suspended coroutine. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_coroutine_lifetimes_source_4",
+          "title": "C++ working draft N4950: coro.generator",
+          "url": "https://timsong-cpp.github.io/cppwp/n4950/coro.generator",
+          "locator": "Primary standards draft: C++23 generator overview; later-library distinction only. Consulted 2026-09-11; not the published ISO edition."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/error-handling/01-optional-results-and-parsing.json",
+      "moduleId": "cpp_core_error_handling_optional_results_and_parsing",
+      "versionId": "cpp_core_error_handling_optional_results_and_parsing_v1",
+      "title": "Optional results and complete parsing",
+      "sha256": "6e1d67173557d89e84c5e188540bd9a6db64c9e89f7b6eb8454ae6a124d39952",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_error_handling_optional_results_and_parsing_source_1",
+          "title": "C++20 working draft N4861: optional",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/optional",
+          "locator": "N4861, [optional], optional owns storage for a contained value and tracks its initialization state; consulted 2026-09-11."
+        },
+        {
+          "sourceId": "cpp_core_error_handling_optional_results_and_parsing_source_2",
+          "title": "C++20 working draft N4861: optional.observe",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/optional.observe",
+          "locator": "N4861, [optional.observe]; consulted 2026-09-11. Engagement tests, dereference preconditions, and value access."
+        },
+        {
+          "sourceId": "cpp_core_error_handling_optional_results_and_parsing_source_3",
+          "title": "C++20 working draft N4861: charconv.from.chars",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/charconv.from.chars",
+          "locator": "N4861, [charconv.from.chars]; consulted 2026-09-11. Error codes, the stopping pointer, and integer conversion behavior."
+        },
+        {
+          "sourceId": "cpp_core_error_handling_optional_results_and_parsing_source_cpp23",
+          "title": "C++23 working draft N4950: expected",
+          "url": "https://timsong-cpp.github.io/cppwp/n4950/expected",
+          "locator": "N4950, [expected]; consulted 2026-09-11. Supports the explicitly marked C++23 facility discussion only; not used in the C++20 program."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/error-handling/02-exceptions-and-state-guarantees.json",
+      "moduleId": "cpp_core_error_handling_exceptions_and_state_guarantees",
+      "versionId": "cpp_core_error_handling_exceptions_and_state_guarantees_v1",
+      "title": "Exceptions and state guarantees",
+      "sha256": "5530bfcb9fdf8668afd7558977062e0d8904d6d65ec54c34c44893b934fe1c83",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_error_handling_exceptions_and_state_guarantees_source_1",
+          "title": "C++20 working draft N4861: except.ctor",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/except.ctor",
+          "locator": "N4861, [except.ctor]; consulted 2026-09-11. Stack unwinding and destruction of constructed subobjects."
+        },
+        {
+          "sourceId": "cpp_core_error_handling_exceptions_and_state_guarantees_source_2",
+          "title": "C++20 working draft N4861: except.spec",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/except.spec",
+          "locator": "N4861, [except.spec]; consulted 2026-09-11. Non-throwing exception specifications and termination."
+        },
+        {
+          "sourceId": "cpp_core_error_handling_exceptions_and_state_guarantees_source_3",
+          "title": "C++20 working draft N4861: vector.capacity",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity",
+          "locator": "N4861, [vector.capacity]; consulted 2026-09-11. size versus capacity; reserve and invalidation on reallocation."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/functions-interfaces/01-parameters-and-results.json",
+      "moduleId": "cpp_core_functions_interfaces_parameters_and_results",
+      "versionId": "cpp_core_functions_interfaces_parameters_and_results_v1",
+      "title": "Parameters, results, and borrowing",
+      "sha256": "9e964023a3b4f98b139a8fb1dfa11410dee76aa4cd83c823708fdbab1fdaf6b3",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_functions_interfaces_parameters_and_results_source_1",
+          "title": "C++20 working draft N4861: expr.call",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.call",
+          "locator": "N4861, [expr.call]; consulted 2026-09-11. Parameter initialization and function calls."
+        },
+        {
+          "sourceId": "cpp_core_functions_interfaces_parameters_and_results_source_2",
+          "title": "C++20 working draft N4861: dcl.init.ref",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.init.ref",
+          "locator": "N4861, [dcl.init.ref]; consulted 2026-09-11. Reference initialization and assignment through a reference."
+        },
+        {
+          "sourceId": "cpp_core_functions_interfaces_parameters_and_results_source_3",
+          "title": "C++20 working draft N4861: basic.life",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+          "locator": "N4861, [basic.life]; consulted 2026-09-11. Object lifetime begins and ends; access outside lifetime is restricted."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/functions-interfaces/02-overloads-and-lambdas.json",
+      "moduleId": "cpp_core_functions_interfaces_overloads_and_lambdas",
+      "versionId": "cpp_core_functions_interfaces_overloads_and_lambdas_v1",
+      "title": "Overloads and local callable objects",
+      "sha256": "046038026eddcf5d17f1b38db47016d013c05bc71aeec054c133ccbec8694ebe",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_functions_interfaces_overloads_and_lambdas_source_1",
+          "title": "C++20 working draft N4861: over.ics.rank",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/over.ics.rank",
+          "locator": "N4861, [over.ics.rank]; consulted 2026-09-11. Ranking exact matches, promotions, and other conversions."
+        },
+        {
+          "sourceId": "cpp_core_functions_interfaces_overloads_and_lambdas_source_2",
+          "title": "C++20 working draft N4861: expr.prim.lambda.capture",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.prim.lambda.capture",
+          "locator": "N4861, [expr.prim.lambda.capture]; consulted 2026-09-11. Value and reference captures and their relationship to object lifetime."
+        },
+        {
+          "sourceId": "cpp_core_functions_interfaces_overloads_and_lambdas_source_3",
+          "title": "C++20 working draft N4861: dcl.spec.auto",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.spec.auto",
+          "locator": "N4861, [dcl.spec.auto]; consulted 2026-09-11. Placeholder type deduction from initializers."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/iterators-algorithms-ranges/01-algorithms-and-half-open-ranges.json",
+      "moduleId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges",
+      "versionId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_v1",
+      "title": "Algorithms and half-open ranges",
+      "sha256": "d64d7576c3c2d30973621e1168c0aa72933526bf7ba35298c0e475f245400f8c",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_source_1",
+          "title": "C++20 working draft N4861: iterator.requirements.general",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/iterator.requirements.general",
+          "locator": "N4861, [iterator.requirements.general]; consulted 2026-09-11. Half-open ranges, sentinels, and dereferenceability."
+        },
+        {
+          "sourceId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_source_2",
+          "title": "C++20 working draft N4861: alg.find",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/alg.find",
+          "locator": "N4861, [alg.find]; consulted 2026-09-11. Search returns the first match or the end iterator."
+        },
+        {
+          "sourceId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_source_3",
+          "title": "C++20 working draft N4861: alg.sorting",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/alg.sorting",
+          "locator": "N4861, [alg.sorting]; consulted 2026-09-11. Ordering requirements and sorting complexity."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/iterators-algorithms-ranges/02-lazy-range-pipelines.json",
+      "moduleId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines",
+      "versionId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_v1",
+      "title": "Lazy range pipelines",
+      "sha256": "7479487b37d47289b97e502a628c506f5995511232f0fb0c5dfc399e5a871eac",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_source_1",
+          "title": "C++20 working draft N4861: range.filter",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/range.filter",
+          "locator": "N4861, [range.filter]; consulted 2026-09-11. Predicate filtering and iteration behavior."
+        },
+        {
+          "sourceId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_source_2",
+          "title": "C++20 working draft N4861: range.transform",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/range.transform",
+          "locator": "N4861, [range.transform]; consulted 2026-09-11. Transformation of elements through a view."
+        },
+        {
+          "sourceId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_source_3",
+          "title": "C++20 working draft N4861: iterator.requirements.general",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/iterator.requirements.general",
+          "locator": "N4861, [iterator.requirements.general]; consulted 2026-09-11. Half-open ranges, sentinels, and dereferenceability."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/library-data-containers/01-sequences-and-invalidation.json",
+      "moduleId": "cpp_core_library_data_containers_sequences_and_invalidation",
+      "versionId": "cpp_core_library_data_containers_sequences_and_invalidation_v1",
+      "title": "Sequence containers and invalidation",
+      "sha256": "1e7d1264f8471fdf37ea674e8a05bef1418a29b8c95007a19e16bfee490fe568",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_library_data_containers_sequences_and_invalidation_source_1",
+          "title": "C++20 working draft N4861: vector.overview",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.overview",
+          "locator": "N4861, [vector.overview]; consulted 2026-09-11. Storage management and operation complexity."
+        },
+        {
+          "sourceId": "cpp_core_library_data_containers_sequences_and_invalidation_source_2",
+          "title": "C++20 working draft N4861: vector.capacity",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity",
+          "locator": "N4861, [vector.capacity]; consulted 2026-09-11. size versus capacity; reserve and invalidation on reallocation."
+        },
+        {
+          "sourceId": "cpp_core_library_data_containers_sequences_and_invalidation_source_3",
+          "title": "C++20 working draft N4861: vector.modifiers",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers",
+          "locator": "N4861, [vector.modifiers]; consulted 2026-09-11. Insertion and erase invalidation requirements."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/library-data-containers/02-keys-and-vocabulary-types.json",
+      "moduleId": "cpp_core_library_data_containers_keys_and_vocabulary_types",
+      "versionId": "cpp_core_library_data_containers_keys_and_vocabulary_types_v1",
+      "title": "Keys, records, and alternative values",
+      "sha256": "a6d52be86c66fbc52ca3895c366f446e0793a773efbc7849546b9c5f6f2b9780",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_library_data_containers_keys_and_vocabulary_types_source_1",
+          "title": "C++20 working draft N4861: associative.reqmts",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/associative.reqmts",
+          "locator": "N4861, [associative.reqmts]; consulted 2026-09-11. Unique keys, comparison ordering, and operation complexity."
+        },
+        {
+          "sourceId": "cpp_core_library_data_containers_keys_and_vocabulary_types_source_2",
+          "title": "C++20 working draft N4861: variant",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/variant",
+          "locator": "N4861, [variant]; consulted 2026-09-11. A variant manages a value of one of its declared alternative types."
+        },
+        {
+          "sourceId": "cpp_core_library_data_containers_keys_and_vocabulary_types_source_3",
+          "title": "C++20 working draft N4861: dcl.struct.bind",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.struct.bind",
+          "locator": "N4861, [dcl.struct.bind], structured binding of tuple-like values, hidden object, and reference qualification; consulted 2026-09-11."
+        },
+        {
+          "sourceId": "cpp_core_library_data_containers_keys_and_vocabulary_types_source_4",
+          "title": "C++20 working draft N4861: map.access",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/map.access",
+          "locator": "N4861, [map.access]; consulted 2026-09-11. map indexing delegates to try_emplace; at reports missing keys."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/library-engineering/01-implementation-boundaries.json",
+      "moduleId": "cpp_implementation_boundaries_module",
+      "versionId": "cpp_implementation_boundaries_v1",
+      "title": "Separate a public interface from its implementation",
+      "sha256": "8f4ed4cc88593daf08ca9dfac166687d4c4ec76864458eab07a875f4cf942513",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_implementation_boundaries_source_1",
+          "title": "C++ Core Guidelines: I.27, consider Pimpl for a stable library ABI",
+          "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Ri-pimpl",
+          "locator": "Expert guidance, I.27; an idiom with allocation/indirection tradeoffs, not normative language wording; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_implementation_boundaries_source_2",
+          "title": "GNU libstdc++ ABI Policy and Guidelines",
+          "url": "https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html",
+          "locator": "Official toolchain documentation, ABI definition and compatibility policy; GNU-specific scope; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_implementation_boundaries_source_3",
+          "title": "C++20 working draft N4861: unique.ptr.single.dtor",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr.single.dtor",
+          "locator": "Primary standards draft, [unique.ptr.single.dtor]: unique_ptr destructor and deleter requirements. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_implementation_boundaries_source_4",
+          "title": "C++20 working draft N4861: unique.ptr.dltr.dflt",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr.dltr.dflt",
+          "locator": "Primary standards draft, [unique.ptr.dltr.dflt]: default deletion requires a complete type. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/library-engineering/02-feature-compatibility.json",
+      "moduleId": "cpp_feature_compatibility_module",
+      "versionId": "cpp_feature_compatibility_v1",
+      "title": "Declare and check a library’s feature baseline",
+      "sha256": "705d5e0e0f5d9f0932c2a96ace7ae6085c86381519cb389a9a2de37ce8761c38",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_feature_compatibility_source_1",
+          "title": "C++20 working draft N4861: version.syn",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/version.syn",
+          "locator": "Primary standards draft, [version.syn]: feature-test macro definitions, including __cpp_lib_span. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_feature_compatibility_source_2",
+          "title": "C++20 working draft N4861: views.span",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/views.span",
+          "locator": "Primary standards draft, [views.span]: non-owning views over contiguous objects. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_feature_compatibility_source_3",
+          "title": "GNU libstdc++ ABI Policy and Guidelines",
+          "url": "https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html",
+          "locator": "Official toolchain documentation; distinction between API and ABI and compatibility inputs; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "cpp_feature_compatibility_source_4",
+          "title": "C++ working draft N4950: expected",
+          "url": "https://timsong-cpp.github.io/cppwp/n4950/expected",
+          "locator": "Primary standards draft: C++23 expected objects and header synopsis; minimum-edition distinction. Consulted 2026-09-11; not the published ISO edition."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/library-services/01-text-streams-and-extraction.json",
+      "moduleId": "cpp_core_library_services_text_streams_and_extraction",
+      "versionId": "cpp_core_library_services_text_streams_and_extraction_v1",
+      "title": "Text streams and extraction state",
+      "sha256": "c4ed79184f15063c3d29e1d20c972eb98b9153e433c447414d362ed465a0b582",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_library_services_text_streams_and_extraction_source_1",
+          "title": "C++20 working draft N4861: string.streams",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/string.streams",
+          "locator": "N4861, [string.streams]; consulted 2026-09-11. String-backed stream classes and their interfaces."
+        },
+        {
+          "sourceId": "cpp_core_library_services_text_streams_and_extraction_source_2",
+          "title": "C++20 working draft N4861: istream.formatted.reqmts",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/istream.formatted.reqmts",
+          "locator": "N4861, [istream.formatted.reqmts]; consulted 2026-09-11. Formatted extraction and stream error state."
+        },
+        {
+          "sourceId": "cpp_core_library_services_text_streams_and_extraction_source_3",
+          "title": "C++20 working draft N4861: istream.manip",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/istream.manip",
+          "locator": "N4861, [istream.manip], ws consumes whitespace and sets eofbit without failbit at exhausted input; consulted 2026-09-11."
+        },
+        {
+          "sourceId": "cpp_core_library_services_text_streams_and_extraction_source_cpp23",
+          "title": "C++23 working draft N4950: print.fun",
+          "url": "https://timsong-cpp.github.io/cppwp/n4950/print.fun",
+          "locator": "N4950, [print.fun]; consulted 2026-09-11. Supports the explicitly marked C++23 facility discussion only; not used in the C++20 program."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/library-services/02-time-and-path-values.json",
+      "moduleId": "cpp_core_library_services_time_and_path_values",
+      "versionId": "cpp_core_library_services_time_and_path_values_v1",
+      "title": "Time durations and filesystem paths",
+      "sha256": "4bf9efbb05bb8e9a61e663ed2ffc104ce44caa214b436dbef756b053ddd8c255",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_library_services_time_and_path_values_source_1",
+          "title": "C++20 working draft N4861: time.duration",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/time.duration",
+          "locator": "N4861, [time.duration]; consulted 2026-09-11. Typed tick counts, periods, and duration conversion."
+        },
+        {
+          "sourceId": "cpp_core_library_services_time_and_path_values_source_2",
+          "title": "C++20 working draft N4861: fs.path.gen",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/fs.path.gen",
+          "locator": "N4861, [fs.path.gen]; consulted 2026-09-11. Lexical path normalization without filesystem traversal."
+        },
+        {
+          "sourceId": "cpp_core_library_services_time_and_path_values_source_3",
+          "title": "C++20 working draft N4861: fs.path.generic",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/fs.path.generic",
+          "locator": "N4861, [fs.path.generic]; consulted 2026-09-11. Generic path syntax and platform-dependent filename rules."
+        },
+        {
+          "sourceId": "cpp_core_library_services_time_and_path_values_source_4",
+          "title": "C++20 working draft N4861: time.clock.steady",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/time.clock.steady",
+          "locator": "N4861, [time.clock.steady]; consulted 2026-09-11. Monotonic time_point values and a steady rate."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/lifetime-ownership/01-owners-and-borrowers.json",
+      "moduleId": "cpp_core_lifetime_ownership_owners_and_borrowers",
+      "versionId": "cpp_core_lifetime_ownership_owners_and_borrowers_v1",
+      "title": "Owners, borrowers, and scope",
+      "sha256": "6adb3d91d4fa8cfa0f75ae5a9c9594e43ed776bbc49c46cc799ca4ee3ce1d897",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_lifetime_ownership_owners_and_borrowers_source_1",
+          "title": "C++20 working draft N4861: basic.life",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+          "locator": "N4861, [basic.life]; consulted 2026-09-11. Object lifetime begins and ends; access outside lifetime is restricted."
+        },
+        {
+          "sourceId": "cpp_core_lifetime_ownership_owners_and_borrowers_source_2",
+          "title": "C++20 working draft N4861: span.overview",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/span.overview",
+          "locator": "N4861, [span.overview]; consulted 2026-09-11. span is a view of contiguous objects owned elsewhere."
+        },
+        {
+          "sourceId": "cpp_core_lifetime_ownership_owners_and_borrowers_source_3",
+          "title": "C++20 working draft N4861: string.view.template",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/string.view.template",
+          "locator": "N4861, [string.view.template], string_view represents borrowed constant character access; invalidation follows underlying pointers; consulted 2026-09-11."
+        },
+        {
+          "sourceId": "cpp_core_lifetime_ownership_owners_and_borrowers_source_4",
+          "title": "C++20 working draft N4861: vector.modifiers",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers",
+          "locator": "N4861, [vector.modifiers]; consulted 2026-09-11. Insertion and erase invalidation requirements."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/lifetime-ownership/02-raii-and-unique-ownership.json",
+      "moduleId": "cpp_core_lifetime_ownership_raii_and_unique_ownership",
+      "versionId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_v1",
+      "title": "RAII and exclusive ownership",
+      "sha256": "df8226b4843e81c573414f457dc8875eaafe5ebd632b360dc3336f9edc7355ac",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_source_1",
+          "title": "C++20 working draft N4861: class.dtor",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/class.dtor",
+          "locator": "N4861, [class.dtor]; consulted 2026-09-11. Implicit destructor invocation and reverse destruction order."
+        },
+        {
+          "sourceId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_source_2",
+          "title": "C++20 working draft N4861: unique.ptr",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr",
+          "locator": "N4861, [unique.ptr]; consulted 2026-09-11. Exclusive ownership and move-only unique_ptr operations."
+        },
+        {
+          "sourceId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_source_3",
+          "title": "C++20 working draft N4861: forward",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/forward",
+          "locator": "N4861, [forward]; consulted 2026-09-11. std::move and std::forward are casts with specified reference results."
+        },
+        {
+          "sourceId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_source_guidelines",
+          "title": "C++ Core Guidelines: R.1",
+          "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-raii",
+          "locator": "R.1; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII or the Rule of Zero, distinct from normative C++ language requirements."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/object-model-memory/01-object-representations.json",
+      "moduleId": "cpp_object_representations_module",
+      "versionId": "cpp_object_representations_v1",
+      "title": "Objects, storage, and representation",
+      "sha256": "ba689f9390e3a23b491179f476ea1d836139dd996a4e6e84a27fce6ed3d6a5a5",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_object_representations_source_1",
+          "title": "C++20 working draft N4861: basic.types",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.types",
+          "locator": "Primary standards draft, [basic.types]: trivially copyable byte round trips and representations. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_object_representations_source_2",
+          "title": "C++20 working draft N4861: basic.life",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
+          "locator": "Primary standards draft, [basic.life]: lifetime start and end conditions. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_object_representations_source_3",
+          "title": "C++20 working draft N4861: bit.cast",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/bit.cast",
+          "locator": "Primary standards draft, [bit.cast]: constraints and valid result representations. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/object-model-memory/02-memory-resource-lifetimes.json",
+      "moduleId": "cpp_memory_resource_lifetimes_module",
+      "versionId": "cpp_memory_resource_lifetimes_v1",
+      "title": "Give a memory resource an explicit lifetime",
+      "sha256": "b1f69941e010a258463f6c812a5fd3e81258fd368a9c2b61fcd621ecc0486701",
+      "report": "cpp-basics-advanced-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_memory_resource_lifetimes_source_1",
+          "title": "C++20 working draft N4861: mem.res.monotonic.buffer",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/mem.res.monotonic.buffer",
+          "locator": "Primary standards draft, [mem.res.monotonic.buffer]: allocation, deallocation, release, and synchronization limits. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_memory_resource_lifetimes_source_2",
+          "title": "C++20 working draft N4861: mem.poly.allocator.class",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/mem.poly.allocator.class",
+          "locator": "Primary standards draft, [mem.poly.allocator.class]: polymorphic allocator resource relationship. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        },
+        {
+          "sourceId": "cpp_memory_resource_lifetimes_source_3",
+          "title": "C++20 working draft N4861: vector.capacity",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity",
+          "locator": "Primary standards draft, [vector.capacity]: reserve and invalidation. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/program-organization/01-declarations-and-linkage.json",
+      "moduleId": "cpp_core_program_organization_declarations_and_linkage",
+      "versionId": "cpp_core_program_organization_declarations_and_linkage_v1",
+      "title": "Declarations, definitions, and linkage",
+      "sha256": "a485b0b7d7417135c25ccb0affe597deda0779687746a79b01d4140d896d275d",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_program_organization_declarations_and_linkage_source_1",
+          "title": "C++20 working draft N4861: basic.def.odr",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.def.odr",
+          "locator": "N4861, [basic.def.odr]; consulted 2026-09-11. Definitions within and across translation units."
+        },
+        {
+          "sourceId": "cpp_core_program_organization_declarations_and_linkage_source_2",
+          "title": "C++20 working draft N4861: basic.link",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.link",
+          "locator": "N4861, [basic.link]; consulted 2026-09-11. Internal, external, and module linkage."
+        },
+        {
+          "sourceId": "cpp_core_program_organization_declarations_and_linkage_source_3",
+          "title": "C++20 working draft N4861: namespace.def",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/namespace.def",
+          "locator": "N4861, [namespace.def]; consulted 2026-09-11. Namespace definitions, extension, and nesting."
+        },
+        {
+          "sourceId": "cpp_core_program_organization_declarations_and_linkage_source_4",
+          "title": "GCC manual: Options Controlling the Kind of Output",
+          "url": "https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html",
+          "locator": "GCC online manual, §3.2: compilation stages, -c, and output kinds; consulted 2026-09-11. Implementation documentation, not a C++ language requirement."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/program-organization/02-headers-and-modules.json",
+      "moduleId": "cpp_core_program_organization_headers_and_modules",
+      "versionId": "cpp_core_program_organization_headers_and_modules_v1",
+      "title": "Headers, namespaces, and module boundaries",
+      "sha256": "bd25f814138053ba13c3836032f5a7f5fd7928fec1a1d5f1ea5bf9d62cea9d10",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_program_organization_headers_and_modules_source_1",
+          "title": "C++20 working draft N4861: cpp.include",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/cpp.include",
+          "locator": "N4861, [cpp.include]; consulted 2026-09-11. Header inclusion and implementation-defined search behavior."
+        },
+        {
+          "sourceId": "cpp_core_program_organization_headers_and_modules_source_2",
+          "title": "C++20 working draft N4861: basic.def.odr",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.def.odr",
+          "locator": "N4861, [basic.def.odr]; consulted 2026-09-11. Definitions within and across translation units."
+        },
+        {
+          "sourceId": "cpp_core_program_organization_headers_and_modules_source_3",
+          "title": "C++20 working draft N4861: module.unit",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/module.unit",
+          "locator": "N4861, [module.unit]; consulted 2026-09-11. Module interface units, implementation units, and partitions."
+        },
+        {
+          "sourceId": "cpp_core_program_organization_headers_and_modules_source_4",
+          "title": "C++20 working draft N4861: namespace.def",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/namespace.def",
+          "locator": "N4861, [namespace.def]; consulted 2026-09-11. Namespace definitions, extension, and nesting."
+        },
+        {
+          "sourceId": "cpp_core_program_organization_headers_and_modules_source_5",
+          "title": "C++20 working draft N4861: dcl.inline",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.inline",
+          "locator": "N4861, [dcl.inline]; consulted 2026-09-11. Inline function and variable declarations and definition-domain rules."
+        },
+        {
+          "sourceId": "cpp_core_program_organization_headers_and_modules_source_6",
+          "title": "C++20 working draft N4861: module.global.frag",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/module.global.frag",
+          "locator": "N4861, [module.global.frag], especially paragraph 6; consulted 2026-09-11. Optional global module fragment before the exported module declaration."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/runtime-polymorphism/01-interfaces-and-overriding.json",
+      "moduleId": "cpp_core_runtime_polymorphism_interfaces_and_overriding",
+      "versionId": "cpp_core_runtime_polymorphism_interfaces_and_overriding_v1",
+      "title": "Interfaces and virtual dispatch",
+      "sha256": "2dbe3453b204538f768dc4d845b959d5143b30fbdf892be90eaba26c842c4e1a",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_runtime_polymorphism_interfaces_and_overriding_source_1",
+          "title": "C++20 working draft N4861: class.virtual",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/class.virtual",
+          "locator": "N4861, [class.virtual]; consulted 2026-09-11. Overriding, final overriders, and polymorphic class types."
+        },
+        {
+          "sourceId": "cpp_core_runtime_polymorphism_interfaces_and_overriding_source_2",
+          "title": "C++20 working draft N4861: class.abstract",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/class.abstract",
+          "locator": "N4861, [class.abstract]; consulted 2026-09-11. Pure virtual functions and abstract classes."
+        },
+        {
+          "sourceId": "cpp_core_runtime_polymorphism_interfaces_and_overriding_source_3",
+          "title": "C++20 working draft N4861: class.dtor",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/class.dtor",
+          "locator": "N4861, [class.dtor]; consulted 2026-09-11. Implicit destructor invocation and reverse destruction order."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/runtime-polymorphism/02-owning-polymorphic-objects.json",
+      "moduleId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects",
+      "versionId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_v1",
+      "title": "Owning a collection of implementations",
+      "sha256": "75b81b8da3e83cf94001609e5b11d959842aed035be658538f5b6a7df6ecdeb4",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_source_1",
+          "title": "C++20 working draft N4861: unique.ptr",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr",
+          "locator": "N4861, [unique.ptr]; consulted 2026-09-11. Exclusive ownership and move-only unique_ptr operations."
+        },
+        {
+          "sourceId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_source_2",
+          "title": "C++20 working draft N4861: expr.dynamic.cast",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.dynamic.cast",
+          "locator": "N4861, [expr.dynamic.cast]; consulted 2026-09-11. Runtime casts; pointer-cast failure returns a null pointer."
+        },
+        {
+          "sourceId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_source_3",
+          "title": "C++20 working draft N4861: class.virtual",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/class.virtual",
+          "locator": "N4861, [class.virtual]; consulted 2026-09-11. Overriding, final overriders, and polymorphic class types."
+        },
+        {
+          "sourceId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_source_4",
+          "title": "C++20 working draft N4861: class.dtor",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/class.dtor",
+          "locator": "N4861, [class.dtor]; consulted 2026-09-11. Implicit destructor invocation and reverse destruction order."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/templates-generic-programming/01-typed-families.json",
+      "moduleId": "cpp_core_templates_generic_programming_typed_families",
+      "versionId": "cpp_core_templates_generic_programming_typed_families_v1",
+      "title": "Templates as families of typed operations",
+      "sha256": "004c48c350d1082ca66d9b43c52dc05c56146c55b45eeafbb7bddc8e9951cdf0",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_templates_generic_programming_typed_families_source_1",
+          "title": "C++20 working draft N4861: temp.param",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.param",
+          "locator": "N4861, [temp.param]; consulted 2026-09-11. Type and non-type template parameters."
+        },
+        {
+          "sourceId": "cpp_core_templates_generic_programming_typed_families_source_2",
+          "title": "C++20 working draft N4861: temp.deduct.call",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.deduct.call",
+          "locator": "N4861, [temp.deduct.call]; consulted 2026-09-11. Deduction of template arguments from call arguments."
+        },
+        {
+          "sourceId": "cpp_core_templates_generic_programming_typed_families_source_3",
+          "title": "C++20 working draft N4861: temp.inst",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.inst",
+          "locator": "N4861, [temp.inst], implicit instantiation and required reachable definitions; consulted 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/templates-generic-programming/02-concepts-and-requirements.json",
+      "moduleId": "cpp_core_templates_generic_programming_concepts_and_requirements",
+      "versionId": "cpp_core_templates_generic_programming_concepts_and_requirements_v1",
+      "title": "Concepts and explicit requirements",
+      "sha256": "9c36a10af199f5d62727707c6da661f5dfde6f5c6adc0731acebd3f37cd47a35",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_templates_generic_programming_concepts_and_requirements_source_1",
+          "title": "C++20 working draft N4861: temp.constr",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.constr",
+          "locator": "N4861, [temp.constr]; consulted 2026-09-11. Satisfaction of associated template constraints."
+        },
+        {
+          "sourceId": "cpp_core_templates_generic_programming_concepts_and_requirements_source_2",
+          "title": "C++20 working draft N4861: expr.prim.req",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.prim.req",
+          "locator": "N4861, [expr.prim.req]; consulted 2026-09-11. Requires expressions and unevaluated requirements."
+        },
+        {
+          "sourceId": "cpp_core_templates_generic_programming_concepts_and_requirements_source_3",
+          "title": "C++20 working draft N4861: concept.convertible",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/concept.convertible",
+          "locator": "N4861, [concept.convertible], explicit and implicit conversion requirements and equality of their results; consulted 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/types-initialization/01-initialization-and-deduction.json",
+      "moduleId": "cpp_core_types_initialization_initialization_and_deduction",
+      "versionId": "cpp_core_types_initialization_initialization_and_deduction_v1",
+      "title": "Initialize values and read deduced types",
+      "sha256": "7b7c6ef0fbfd5a955d542ab7972cf863307a59c5350a234b878a3e166ae77870",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_types_initialization_initialization_and_deduction_source_1",
+          "title": "C++20 working draft N4861: dcl.init",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.init",
+          "locator": "N4861, [dcl.init]; consulted 2026-09-11. Default initialization, value initialization, and initialization contexts."
+        },
+        {
+          "sourceId": "cpp_core_types_initialization_initialization_and_deduction_source_2",
+          "title": "C++20 working draft N4861: dcl.init.list",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.init.list",
+          "locator": "N4861, [dcl.init.list]; consulted 2026-09-11. List initialization, initializer-list constructor selection, and narrowing conversions."
+        },
+        {
+          "sourceId": "cpp_core_types_initialization_initialization_and_deduction_source_3",
+          "title": "C++20 working draft N4861: dcl.spec.auto",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.spec.auto",
+          "locator": "N4861, [dcl.spec.auto]; consulted 2026-09-11. Placeholder type deduction from initializers."
+        },
+        {
+          "sourceId": "cpp_core_types_initialization_initialization_and_deduction_source_4",
+          "title": "C++20 working draft N4861: vector.capacity",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity",
+          "locator": "N4861, [vector.capacity]; consulted 2026-09-11. size versus capacity; reserve and invalidation on reallocation."
+        }
+      ]
+    },
+    {
+      "path": "content/units/cpp/types-initialization/02-conversions-and-domain-types.json",
+      "moduleId": "cpp_core_types_initialization_conversions_and_domain_types",
+      "versionId": "cpp_core_types_initialization_conversions_and_domain_types_v1",
+      "title": "Conversions and domain types",
+      "sha256": "69789b49127db0caaf4763a856a21233ecdb27cbf152ba5986bd2212b735e3c9",
+      "report": "cpp-core-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "cpp_core_types_initialization_conversions_and_domain_types_source_1",
+          "title": "C++20 working draft N4861: conv.integral",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/conv.integral",
+          "locator": "N4861, [conv.integral]; consulted 2026-09-11. Integral conversions and representable destination values."
+        },
+        {
+          "sourceId": "cpp_core_types_initialization_conversions_and_domain_types_source_2",
+          "title": "C++20 working draft N4861: dcl.enum",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.enum",
+          "locator": "N4861, [dcl.enum]; consulted 2026-09-11. Scoped enumeration types and underlying types."
+        },
+        {
+          "sourceId": "cpp_core_types_initialization_conversions_and_domain_types_source_3",
+          "title": "C++20 working draft N4861: dcl.typedef",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.typedef",
+          "locator": "N4861, [dcl.typedef]; consulted 2026-09-11. An alias declaration does not introduce a distinct type."
+        },
+        {
+          "sourceId": "cpp_core_types_initialization_conversions_and_domain_types_source_4",
+          "title": "C++20 working draft N4861: conv.fpint",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/conv.fpint",
+          "locator": "N4861, [conv.fpint]; consulted 2026-09-11. Floating-integral conversion, truncation, and representability requirements."
+        },
+        {
+          "sourceId": "cpp_core_types_initialization_conversions_and_domain_types_source_5",
+          "title": "C++20 working draft N4861: expr.mul",
+          "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.mul",
+          "locator": "N4861, [expr.mul]; consulted 2026-09-11. Usual arithmetic conversions and integer division truncation."
+        }
+      ]
+    },
+    {
+      "path": "content/units/data-structures-algorithms/abstract-data-types/01-design-a-bounded-queue.json",
+      "moduleId": "dsa_design_a_bounded_queue_module",
+      "versionId": "dsa_design_a_bounded_queue_v1",
+      "title": "Design a bounded queue from its contract",
+      "sha256": "29a985b11f4afd0a7ea6c9f4911073146305548468a601932074af5f16662f42",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "dsa_design_a_bounded_queue_source_queue",
+          "title": "Dictionary of Algorithms and Data Structures: queue",
+          "url": "https://xlinux.nist.gov/dads/HTML/queue.html",
+          "locator": "Official NIST reference documentation: FIFO definition and abstract queue operations; entry modified 2020-12-14; consulted 2026-09-11."
+        },
+        {
+          "sourceId": "dsa_design_a_bounded_queue_source_bigO",
+          "title": "Dictionary of Algorithms and Data Structures: big-O notation",
+          "url": "https://xlinux.nist.gov/dads/HTML/bigOnotation.html",
+          "locator": "Official NIST reference documentation: formal definition, tight versus upper bounds, and computation models; entry modified 2019-09-06; consulted 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/data-structures-algorithms/algorithm-analysis/01-count-search-work.json",
+      "moduleId": "dsa_count_search_work_module",
+      "versionId": "dsa_count_search_work_v1",
+      "title": "Count the work in a search",
+      "sha256": "8714afadb45f931ecc94a55ca13a0eace79a488dcc8db53071f66cdfcfdcea3a",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "dsa_count_search_work_source_binary",
+          "title": "Dictionary of Algorithms and Data Structures: binary search",
+          "url": "https://xlinux.nist.gov/dads/HTML/binarySearch.html",
+          "locator": "Official NIST reference documentation: sorted input, repeated interval halving, and logarithmic comparisons; consulted 2026-09-11."
+        },
+        {
+          "sourceId": "dsa_count_search_work_source_bigO",
+          "title": "Dictionary of Algorithms and Data Structures: big-O notation",
+          "url": "https://xlinux.nist.gov/dads/HTML/bigOnotation.html",
+          "locator": "Official NIST reference documentation: formal definition, tight versus upper bounds, and computation models; entry modified 2019-09-06; consulted 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/databases-storage/logging-snapshots/01-wal-readers.json",
+      "moduleId": "databases_storage_logging_snapshots_module",
+      "versionId": "databases_storage_logging_snapshots_version_1",
+      "title": "Trace readers across a write-ahead log commit",
+      "sha256": "31b0832a288b24ef667d8896e23ed40859f945dcff07224f8ccf49ab2800a969",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "databases_storage_logging_snapshots_source_wal",
+          "title": "SQLite: Write-Ahead Logging",
+          "url": "https://sqlite.org/wal.html",
+          "locator": "Primary documentation: Sections 2, 2.1 and 2.2; committed records, reader end marks and checkpoints; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/databases-storage/transaction-boundaries/01-atomic-change.json",
+      "moduleId": "databases_storage_transaction_boundaries_module",
+      "versionId": "databases_storage_transaction_boundaries_version_1",
+      "title": "Keep a multi-step database change within one transaction",
+      "sha256": "6bea6e7e839058c137d4110c82c221e161bb98c1023a4afb59c8885ff844bb86",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "databases_storage_transaction_boundaries_source_transaction",
+          "title": "SQLite: Transaction",
+          "url": "https://sqlite.org/lang_transaction.html",
+          "locator": "Primary documentation: Sections 2, 2.1 and 3; explicit transactions, one writer, error handling; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/embedded-realtime/bounded-events/01-queue-capacity.json",
+      "moduleId": "embedded_realtime_bounded_events_module",
+      "versionId": "embedded_realtime_bounded_events_version_1",
+      "title": "Design a bounded interrupt-to-worker queue",
+      "sha256": "30913e55ad400dc8da27c6c27d2f1f285778f294edd6306c365cd4c90618157d",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "embedded_realtime_bounded_events_source_queue",
+          "title": "Zephyr: Message Queues",
+          "url": "https://docs.zephyrproject.org/latest/kernel/services/data_passing/message_queues.html",
+          "locator": "Primary documentation: Concepts; fixed-size copied messages, capacity and ISR restrictions; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/embedded-realtime/task-timing/01-release-and-deadline.json",
+      "moduleId": "embedded_realtime_task_timing_module",
+      "versionId": "embedded_realtime_task_timing_version_1",
+      "title": "Separate release time from completion deadline",
+      "sha256": "3fe22fee72073e16b50062747c2ff66b98139f82f19c171430e13dd0c1652192",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "embedded_realtime_task_timing_source_threads",
+          "title": "Zephyr: Threads",
+          "url": "https://docs.zephyrproject.org/latest/kernel/services/threads/index.html",
+          "locator": "Primary documentation: Thread States, Thread Priorities and Thread Suspension; readiness and execution eligibility; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/game-development/scene-composition/01-instance-state.json",
+      "moduleId": "game_development_scene_composition_module",
+      "versionId": "game_development_scene_composition_version_1",
+      "title": "Compose reusable entities without sharing their state",
+      "sha256": "0082b2636905cc729c663743f80df628f57ade75ad8ce26b5c4bbedf6d5166dc",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "game_development_scene_composition_source_scene",
+          "title": "Godot: Nodes and scene instances",
+          "url": "https://docs.godotengine.org/en/stable/tutorials/scripting/nodes_and_scene_instances.html",
+          "locator": "Primary documentation: Getting nodes, Node paths, Creating nodes and Instancing scenes; tree composition and deferred deletion; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/game-development/simulation-time/01-fixed-updates.json",
+      "moduleId": "game_development_simulation_time_module",
+      "versionId": "game_development_simulation_time_version_1",
+      "title": "Separate simulation updates from rendered frames",
+      "sha256": "74e1deda66b438a7feeb1ae78412158ddc84d752ceb8f1342faf6f07a2dfadce",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "game_development_simulation_time_source_gameloop",
+          "title": "Godot: Idle and Physics Processing",
+          "url": "https://docs.godotengine.org/en/stable/tutorials/scripting/idle_and_physics_processing.html",
+          "locator": "Primary documentation: Processing types and delta; variable rendering frequency and fixed physics updates; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/graphics-gpu/rendering-pipeline/01-triangle-stages.json",
+      "moduleId": "graphics_gpu_rendering_pipeline_module",
+      "versionId": "graphics_gpu_rendering_pipeline_version_1",
+      "title": "Follow geometry through a graphics pipeline",
+      "sha256": "d254711a5e6bc6d01aee706c26989040dfbe9571d9924320b642886d71e6940b",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "graphics_gpu_rendering_pipeline_source_pipeline",
+          "title": "Vulkan specification: Pipelines",
+          "url": "https://docs.vulkan.org/spec/latest/chapters/pipelines.html",
+          "locator": "Primary specification: Pipelines introduction, Primitive Shading and Common; vertex transformation, rasterization and fragment processing; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/graphics-gpu/resource-dependencies/01-producer-consumer.json",
+      "moduleId": "graphics_gpu_resource_dependencies_module",
+      "versionId": "graphics_gpu_resource_dependencies_version_1",
+      "title": "Make GPU producer and consumer dependencies explicit",
+      "sha256": "51bfc1030f0314056e5fbf2157a50bf78cf998950bc6e7d597afd17a788387c5",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "graphics_gpu_resource_dependencies_source_sync",
+          "title": "Vulkan Guide: Synchronization",
+          "url": "https://docs.vulkan.org/guide/latest/synchronization.html",
+          "locator": "Primary documentation: Synchronization, Validation and Pipeline Barriers; application-managed synchronization; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "graphics_gpu_resource_dependencies_source_syncspec",
+          "title": "Vulkan specification: Synchronization and Cache Control",
+          "url": "https://docs.vulkan.org/spec/latest/chapters/synchronization.html",
+          "locator": "Primary specification: Execution and memory dependencies, availability, visibility and access scopes; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "graphics_gpu_resource_dependencies_source_bufferlife",
+          "title": "Vulkan reference: vkDestroyBuffer",
+          "url": "https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyBuffer.html",
+          "locator": "Primary specification: Valid Usage VUID-vkDestroyBuffer-buffer-00922; completion of submitted buffer users; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/gui-development/event-driven-state/01-signals-and-state.json",
+      "moduleId": "gui_development_event_driven_state_module",
+      "versionId": "gui_development_event_driven_state_version_1",
+      "title": "Connect user actions to observable state changes",
+      "sha256": "631c0d71be284e6268dbe80d9888956210e76d95395117644f7e22fe65d0b855",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "gui_development_event_driven_state_source_signals",
+          "title": "Qt: Signals & Slots",
+          "url": "https://doc.qt.io/qt-6/signalsandslots.html",
+          "locator": "Primary documentation: Signals, Slots and A Small Example; connections and change detection; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/gui-development/responsive-work/01-queued-results.json",
+      "moduleId": "gui_development_responsive_work_module",
+      "versionId": "gui_development_responsive_work_version_1",
+      "title": "Return background results to the GUI thread",
+      "sha256": "4300b62c903d81007b669582a539932f755fb078b06f6424e79b607c3819c413",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "gui_development_responsive_work_source_qtthreads",
+          "title": "Qt: Threads and QObjects",
+          "url": "https://doc.qt.io/qt-6/threads-qobject.html",
+          "locator": "Primary documentation: QObject Reentrancy, Per-Thread Event Loop, Signals and Slots Across Threads; GUI affinity and queued delivery; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/language-interoperability/cross-runtime-ownership/01-return-policies.json",
+      "moduleId": "language_interoperability_cross_runtime_ownership_module",
+      "versionId": "language_interoperability_cross_runtime_ownership_version_1",
+      "title": "Define ownership when C++ objects cross into Python",
+      "sha256": "59f9bba102ab424cf6670a21e77c89820b0e73b51a58e2006aba2c7baf715670",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "language_interoperability_cross_runtime_ownership_source_policies",
+          "title": "pybind11: Functions",
+          "url": "https://pybind11.readthedocs.io/en/stable/advanced/functions.html",
+          "locator": "Primary documentation: Return value policies and Additional call policies; copy, reference, reference_internal and ownership; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/language-interoperability/runtime-coordination/01-gil-boundary.json",
+      "moduleId": "language_interoperability_runtime_coordination_module",
+      "versionId": "language_interoperability_runtime_coordination_version_1",
+      "title": "Separate Python access from independent native work",
+      "sha256": "58ea97fa0e6bec8f483e5d284fcde10f46ab235df13c599a27a7cff45b4a8cbe",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "language_interoperability_runtime_coordination_source_gil",
+          "title": "pybind11: Miscellaneous",
+          "url": "https://pybind11.readthedocs.io/en/stable/advanced/misc.html",
+          "locator": "Primary documentation: Global Interpreter Lock and Common Sources of GIL Errors; scoped release and reacquisition; lesson assumes a conventional GIL-enabled CPython build; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/machine-learning-infrastructure/inference-contracts/01-evaluation-and-gradients.json",
+      "moduleId": "machine_learning_infrastructure_inference_contracts_module",
+      "versionId": "machine_learning_infrastructure_inference_contracts_version_1",
+      "title": "Separate model evaluation behavior from gradient recording",
+      "sha256": "39c42865931072d98ae922b46821c544fec7fe6458af70e9d5a111d9ba682295",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "machine_learning_infrastructure_inference_contracts_source_autograd",
+          "title": "PyTorch: Autograd mechanics",
+          "url": "https://docs.pytorch.org/docs/2.14/notes/autograd.html",
+          "locator": "Primary documentation: Locally disabling gradient computation and Evaluation Mode; eval, no-grad and inference distinctions; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/machine-learning-infrastructure/tensor-execution/01-graph-and-data.json",
+      "moduleId": "machine_learning_infrastructure_tensor_execution_module",
+      "versionId": "machine_learning_infrastructure_tensor_execution_version_1",
+      "title": "Map a tensor computation onto an execution graph",
+      "sha256": "6c8c44a4e8507a4f4dcf879716b67c4360938e8ea9529c50c0203782eddd19dc",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "machine_learning_infrastructure_tensor_execution_source_tensorflow",
+          "title": "TensorFlow: A System for Large-Scale Machine Learning",
+          "url": "https://www.usenix.org/system/files/conference/osdi16/osdi16-abadi.pdf",
+          "locator": "Peer-reviewed research: OSDI 2016, sections 2.2 and 3.1; graph operations, tensors, state and heterogeneous execution; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/network-distributed-systems/replicated-state/01-quorum-commit.json",
+      "moduleId": "network_distributed_systems_replicated_state_module",
+      "versionId": "network_distributed_systems_replicated_state_version_1",
+      "title": "Reason about a replicated log commitment",
+      "sha256": "90543bae82fee4c36a07f0fc2d19132c07f77b31108550faeed3d46616a2e074",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "network_distributed_systems_replicated_state_source_raft",
+          "title": "In Search of an Understandable Consensus Algorithm",
+          "url": "https://www.usenix.org/system/files/conference/atc14/atc14-paper-ongaro.pdf",
+          "locator": "Peer-reviewed research: USENIX ATC 2014, sections 5.3 and 5.4, especially 5.4.2; current-term commitment and election restrictions; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/network-distributed-systems/stream-protocols/01-message-framing.json",
+      "moduleId": "network_distributed_systems_stream_protocols_module",
+      "versionId": "network_distributed_systems_stream_protocols_version_1",
+      "title": "Recover messages from a byte stream",
+      "sha256": "609de324e758f10f8f6ac372e321e8f9d92ede0380cfe56dd2b0592d9c46d5da",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "network_distributed_systems_stream_protocols_source_tcp",
+          "title": "RFC 9293: Transmission Control Protocol (TCP)",
+          "url": "https://www.rfc-editor.org/rfc/rfc9293.html",
+          "locator": "Primary specification: Section 2.2 Key TCP Concepts and section 3.9 interfaces; reliable ordered byte-stream semantics; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/numerical-computing/representation-error/01-reason-about-rounded-numbers.json",
+      "moduleId": "numerical_reason_about_rounded_numbers_module",
+      "versionId": "numerical_reason_about_rounded_numbers_v1",
+      "title": "Reason about rounded numbers",
+      "sha256": "cfbd5f83ccb9178231c4b49c1c7f2292f2bd51d5ab865187903e75884746efc8",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "numerical_reason_about_rounded_numbers_source_goldberg",
+          "title": "What Every Computer Scientist Should Know About Floating-Point Arithmetic",
+          "url": "https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html",
+          "locator": "Peer-reviewed research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text."
+        }
+      ]
+    },
+    {
+      "path": "content/units/numerical-computing/stable-algorithms/01-rearrange-a-sensitive-calculation.json",
+      "moduleId": "numerical_rearrange_a_sensitive_calculation_module",
+      "versionId": "numerical_rearrange_a_sensitive_calculation_v1",
+      "title": "Rearrange a calculation to retain useful information",
+      "sha256": "d7dab4c8f712623a0840e1b77bdd5c9883f36eb4f4e26ffadd8400a079c924bc",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "numerical_rearrange_a_sensitive_calculation_source_goldberg",
+          "title": "What Every Computer Scientist Should Know About Floating-Point Arithmetic",
+          "url": "https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html",
+          "locator": "Peer-reviewed research: ACM Computing Surveys 23(1), 1991, pp. 5–48, edited authorized reprint in Oracle Numerical Computation Guide, Appendix D; Rounding Error, Floating-point Formats, and Cancellation inspected 2026-09-11. Not the current IEEE 754 normative text."
+        }
+      ]
+    },
+    {
+      "path": "content/units/performance-engineering/locality-optimization/01-reason-about-useful-bytes.json",
+      "moduleId": "performance_reason_about_useful_bytes_module",
+      "versionId": "performance_reason_about_useful_bytes_v1",
+      "title": "Reason about useful bytes in a layout",
+      "sha256": "15bec9902ddfe2cf5470e92a3ea0b61c59badf8f56658ed1254470be0fa74c50",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "performance_reason_about_useful_bytes_source_cachegrind",
+          "title": "Valgrind User Manual: Cachegrind",
+          "url": "https://valgrind.org/docs/manual/cg-manual.html",
+          "locator": "Official tool documentation: §5.7 cache simulation and §5.8.1–5.8.3 simulation model and accuracy limits; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
+        },
+        {
+          "sourceId": "performance_reason_about_useful_bytes_source_benchmark",
+          "title": "Google Benchmark User Guide",
+          "url": "https://google.github.io/benchmark/user_guide.html",
+          "locator": "Official project documentation: Runtime and Reporting Considerations, Preventing Optimization, Reporting Statistics, and Random Interleaving; consulted 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/performance-engineering/measurement-design/01-design-a-fair-benchmark.json",
+      "moduleId": "performance_design_a_fair_benchmark_module",
+      "versionId": "performance_design_a_fair_benchmark_v1",
+      "title": "Design a fair benchmark",
+      "sha256": "3a91501d108845d538064204f9478ba5c6acdcbc793f016bcc962314d066e679",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "performance_design_a_fair_benchmark_source_benchmark",
+          "title": "Google Benchmark User Guide",
+          "url": "https://google.github.io/benchmark/user_guide.html",
+          "locator": "Official project documentation: Runtime and Reporting Considerations, Preventing Optimization, Reporting Statistics, and Random Interleaving; consulted 2026-09-11."
+        },
+        {
+          "sourceId": "performance_design_a_fair_benchmark_source_benchpaper",
+          "title": "Rigorous Benchmarking in Reasonable Time",
+          "url": "https://doi.org/10.1145/2464157.2464160",
+          "locator": "Peer-reviewed research: ISMM 2013, pp. 63–74; §§3–4 and §12 on repetition, sources of variation, and effect-size confidence intervals. Paper text inspected through ResearchGate 2026-09-11; ledger records access URL. Historical experiments are not reproduced here."
+        }
+      ]
+    },
+    {
+      "path": "content/units/programming-foundations/problem-solving/01-decompose-a-task.json",
+      "moduleId": "foundations_decompose_a_task_module",
+      "versionId": "foundations_decompose_a_task_v1",
+      "title": "Decompose a task before choosing syntax",
+      "sha256": "c81ba68ef5d29b2be762d1d49b538131d618e65b6f0ad6edc50e2bea5160dc41",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "foundations_decompose_a_task_source_hoare",
+          "title": "An Axiomatic Basis for Computer Programming",
+          "url": "https://sites.cs.ucsb.edu/~kemm/courses/cs266/acmhoare69.pdf",
+          "locator": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11."
+        },
+        {
+          "sourceId": "foundations_decompose_a_task_source_guidelines",
+          "title": "C++ Core Guidelines",
+          "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
+          "locator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/programming-foundations/state-correctness/01-reason-about-a-loop.json",
+      "moduleId": "foundations_reason_about_a_loop_module",
+      "versionId": "foundations_reason_about_a_loop_v1",
+      "title": "Reason about a loop using an invariant",
+      "sha256": "62cb27a789ee8bd88456d19d25ac7d80f69f0e993ab5913baa8c57b46b54d31b",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "foundations_reason_about_a_loop_source_hoare",
+          "title": "An Axiomatic Basis for Computer Programming",
+          "url": "https://sites.cs.ucsb.edu/~kemm/courses/cs266/acmhoare69.pdf",
+          "locator": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/robotics/coordinate-frames/01-transform-observation.json",
+      "moduleId": "robotics_coordinate_frames_module",
+      "versionId": "robotics_coordinate_frames_version_1",
+      "title": "Transform an observation with its frame and time",
+      "sha256": "f12b983657851225197db54a260d3fb9682cc4af7f24c2d39a7c51f6c101509e",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "robotics_coordinate_frames_source_tf2",
+          "title": "ROS 2 Jazzy: Tf2",
+          "url": "https://raw.githubusercontent.com/ros2/ros2_documentation/jazzy/source/Concepts/Intermediate/About-Tf2.rst",
+          "locator": "Primary documentation: Overview, Publishing transforms and Position; official documentation source, coordinate frames and time; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/robotics/sensor-communication/01-freshness-contract.json",
+      "moduleId": "robotics_sensor_communication_module",
+      "versionId": "robotics_sensor_communication_version_1",
+      "title": "Specify freshness and delivery expectations",
+      "sha256": "2b1835b07174364a295cd37fbfcd8fdc9dd248bf61886a697d47e4204841876c",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "robotics_sensor_communication_source_qos",
+          "title": "ROS 2 Jazzy: Quality of Service settings",
+          "url": "https://raw.githubusercontent.com/ros2/ros2_documentation/jazzy/source/Concepts/Intermediate/About-Quality-of-Service-Settings.rst",
+          "locator": "Primary documentation: QoS policies, profiles and compatibility; history, reliability, deadline and lifespan; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/scientific-computing/experiment-provenance/01-reproducible-result.json",
+      "moduleId": "scientific_computing_experiment_provenance_module",
+      "versionId": "scientific_computing_experiment_provenance_version_1",
+      "title": "Make a computational result reproducible",
+      "sha256": "c26b1ff429ea568a8e0db78a3e4375f06718a270749eb3982f78587ae27eb304",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "scientific_computing_experiment_provenance_source_provenance",
+          "title": "Good enough practices in scientific computing",
+          "url": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005510",
+          "locator": "Scholarly guidance (journal Perspective): Data management, Software and Keeping track of changes; raw data, processing records, dependencies and version tracking; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/scientific-computing/linear-systems/01-solve-and-check.json",
+      "moduleId": "scientific_computing_linear_systems_module",
+      "versionId": "scientific_computing_linear_systems_version_1",
+      "title": "Solve a linear system and check its residual",
+      "sha256": "0721ebcfa2d7ae57e35662e07156cba1411d8c56734fe810fbd4d94465507cac",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "scientific_computing_linear_systems_source_eigen",
+          "title": "Eigen: Linear algebra and decompositions",
+          "url": "https://libeigen.gitlab.io/eigen/docs-nightly/group__TutorialLinearAlgebra.html",
+          "locator": "Primary documentation: Basic linear solving, Checking if a matrix is singular and Computing inverse and determinant; decomposition choice and residual checks; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "scientific_computing_linear_systems_source_lapack",
+          "title": "LAPACK Users Guide: How to Measure Errors",
+          "url": "https://www.netlib.org/lapack/lug/node75.html",
+          "locator": "Primary documentation: Error measures, vector norms and condition number; sensitivity and interpreting numerical errors; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/security-engineering/resource-resilience/01-bound-resource-consumption.json",
+      "moduleId": "security_bound_resource_consumption_module",
+      "versionId": "security_bound_resource_consumption_v1",
+      "title": "Bound resource consumption at every stage",
+      "sha256": "7139082b5ddd402c07135808c41c81d0e7196001d1f582d58df0e62554bbe602",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "security_bound_resource_consumption_source_cwe400",
+          "title": "CWE-400: Uncontrolled Resource Consumption",
+          "url": "https://cwe.mitre.org/data/definitions/400.html",
+          "locator": "Official weakness reference, CWE 4.20: Description, Common Consequences, and Potential Mitigations on limiting resource allocation; consulted 2026-09-11. Guidance is not a proof that a system is secure."
+        },
+        {
+          "sourceId": "security_bound_resource_consumption_source_owasp",
+          "title": "OWASP Input Validation Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+          "locator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
+        }
+      ]
+    },
+    {
+      "path": "content/units/security-engineering/trust-boundaries/01-validate-before-changing-state.json",
+      "moduleId": "security_validate_before_changing_state_module",
+      "versionId": "security_validate_before_changing_state_v1",
+      "title": "Validate before changing state",
+      "sha256": "199fe7a7303b2eb2c1f8ff4be8f7da88ae19e92e3ec6a385203a8a55d89ba119",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "security_validate_before_changing_state_source_owasp",
+          "title": "OWASP Input Validation Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+          "locator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
+        },
+        {
+          "sourceId": "security_validate_before_changing_state_source_ssdf",
+          "title": "Secure Software Development Framework Version 1.1",
+          "url": "https://csrc.nist.gov/pubs/sp/800/218/final",
+          "locator": "Official NIST guidance: SP 800-218, February 2022, SSDF 1.1 overview and abstract on integrating security practices into development; consulted 2026-09-11. Only the publication overview inspected; no uninspected practice-level claims attributed."
+        }
+      ]
+    },
+    {
+      "path": "content/units/software-design-architecture/interface-contracts/01-make-a-service-contract-explicit.json",
+      "moduleId": "design_make_a_service_contract_explicit_module",
+      "versionId": "design_make_a_service_contract_explicit_v1",
+      "title": "Make a service contract explicit",
+      "sha256": "6b8397ee357f158c942b340f110cc9c7450b6d57944173bb5d6d8a42af0649e4",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "design_make_a_service_contract_explicit_source_guidelines",
+          "title": "C++ Core Guidelines",
+          "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
+          "locator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
+        },
+        {
+          "sourceId": "design_make_a_service_contract_explicit_source_hoare",
+          "title": "An Axiomatic Basis for Computer Programming",
+          "url": "https://sites.cs.ucsb.edu/~kemm/courses/cs266/acmhoare69.pdf",
+          "locator": "Peer-reviewed research: Communications of the ACM 12(10), 1969, pp. 576–580, 583; §§3.3–3.4 and §4 on composition, invariants, and termination limits. Published paper inspected 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/software-design-architecture/responsibility-boundaries/01-hide-a-changing-decision.json",
+      "moduleId": "design_hide_a_changing_decision_module",
+      "versionId": "design_hide_a_changing_decision_v1",
+      "title": "Hide a changing decision behind a stable boundary",
+      "sha256": "885a289bc931d345ce07b8ad43b6a7e22f393f014b46b4145afe10f6e82bc719",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "design_hide_a_changing_decision_source_parnas",
+          "title": "On the Criteria To Be Used in Decomposing Systems into Modules",
+          "url": "https://doi.org/10.1145/361598.361623",
+          "locator": "Peer-reviewed research: Communications of the ACM 15(12), 1972, pp. 1053–1058; comparison of decompositions and Conclusion. Author-uploaded paper text inspected on ResearchGate 2026-09-11; access URL recorded in research ledger."
+        },
+        {
+          "sourceId": "design_hide_a_changing_decision_source_guidelines",
+          "title": "C++ Core Guidelines",
+          "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines",
+          "locator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
+        }
+      ]
+    },
+    {
+      "path": "content/units/systems-programming/descriptor-io/01-short-reads.json",
+      "moduleId": "systems_programming_descriptor_io_module",
+      "versionId": "systems_programming_descriptor_io_version_1",
+      "title": "Read the bytes that actually arrived",
+      "sha256": "bb2e8321f97f0ab21e941995444dd8d4fb26f6a05cfc2fcf5145e92497709d01",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "systems_programming_descriptor_io_source_read",
+          "title": "Linux manual: read(2)",
+          "url": "https://man7.org/linux/man-pages/man2/read.2.html",
+          "locator": "Primary documentation: DESCRIPTION, RETURN VALUE, ERRORS; short reads, EOF and interrupted calls; consulted 2026-09-11"
+        },
+        {
+          "sourceId": "systems_programming_descriptor_io_source_termios",
+          "title": "Linux manual: termios(3)",
+          "url": "https://man7.org/linux/man-pages/man3/termios.3.html",
+          "locator": "Primary documentation: Canonical and noncanonical mode, VMIN=0 cases; zero-byte terminal reads may indicate unavailable data or timeout; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/systems-programming/process-resources/01-fork-state.json",
+      "moduleId": "systems_programming_process_resources_module",
+      "versionId": "systems_programming_process_resources_version_1",
+      "title": "Separate process memory from shared resources",
+      "sha256": "edbbce8df8fc480c04ffc3e5888c0be3776a3f8a232e432aa5bdb7088674d8ca",
+      "report": "applications-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "systems_programming_process_resources_source_fork",
+          "title": "Linux manual: fork(2)",
+          "url": "https://man7.org/linux/man-pages/man2/fork.2.html",
+          "locator": "Primary documentation: DESCRIPTION and RETURN VALUE; separate address spaces and shared open file descriptions; consulted 2026-09-11"
+        }
+      ]
+    },
+    {
+      "path": "content/units/testing-software-quality/generated-testing/01-combine-properties-and-fuzzing.json",
+      "moduleId": "quality_combine_properties_and_fuzzing_module",
+      "versionId": "quality_combine_properties_and_fuzzing_v1",
+      "title": "Combine properties with fuzzing",
+      "sha256": "785ebb4e3fa5586acdcc984898d1c5c2bcd99276a8f2e75bfc9d1db1e682cd38",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "quality_combine_properties_and_fuzzing_source_fuzzer",
+          "title": "libFuzzer: a library for coverage-guided fuzz testing",
+          "url": "https://releases.llvm.org/18.1.8/docs/LibFuzzer.html",
+          "locator": "Official versioned documentation: LLVM 18.1.8, Introduction, Fuzz Target, Corpus, and Sanitizers; consulted 2026-09-11."
+        },
+        {
+          "sourceId": "quality_combine_properties_and_fuzzing_source_gtest",
+          "title": "GoogleTest Primer",
+          "url": "https://google.github.io/googletest/primer.html",
+          "locator": "Official project documentation: assertions, independent and repeatable tests, and fixtures; consulted 2026-09-11. No claim that framework use establishes correctness."
+        }
+      ]
+    },
+    {
+      "path": "content/units/testing-software-quality/test-design/01-test-a-partitioned-input-domain.json",
+      "moduleId": "quality_test_a_partitioned_input_domain_module",
+      "versionId": "quality_test_a_partitioned_input_domain_v1",
+      "title": "Test the boundaries of an input domain",
+      "sha256": "35ec2f835ec5d23d8d959dd2935a6ff0e70f22f894f61d4becb29c78e8696dfd",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "quality_test_a_partitioned_input_domain_source_gtest",
+          "title": "GoogleTest Primer",
+          "url": "https://google.github.io/googletest/primer.html",
+          "locator": "Official project documentation: assertions, independent and repeatable tests, and fixtures; consulted 2026-09-11. No claim that framework use establishes correctness."
+        },
+        {
+          "sourceId": "quality_test_a_partitioned_input_domain_source_owasp",
+          "title": "OWASP Input Validation Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+          "locator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
+        }
+      ]
+    },
+    {
+      "path": "content/units/text-data-formats/interchange-contracts/01-design-an-interoperable-record.json",
+      "moduleId": "textdata_design_an_interoperable_record_module",
+      "versionId": "textdata_design_an_interoperable_record_v1",
+      "title": "Design an interoperable data record",
+      "sha256": "d89fc966ebda16ebabfeb8e319c31b284f52e7fc80fe513258e8f3970cc12a4a",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "textdata_design_an_interoperable_record_source_json",
+          "title": "RFC 8259: The JavaScript Object Notation (JSON) Data Interchange Format",
+          "url": "https://www.rfc-editor.org/rfc/rfc8259",
+          "locator": "Normative Internet standard: RFC 8259, December 2017, §§4, 6, 8.1 and 9 on objects, numbers, UTF-8 and parser limits; consulted 2026-09-11."
+        },
+        {
+          "sourceId": "textdata_design_an_interoperable_record_source_owasp",
+          "title": "OWASP Input Validation Cheat Sheet",
+          "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
+          "locator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
+        }
+      ]
+    },
+    {
+      "path": "content/units/text-data-formats/unicode-text/01-count-the-right-text-unit.json",
+      "moduleId": "textdata_count_the_right_text_unit_module",
+      "versionId": "textdata_count_the_right_text_unit_v1",
+      "title": "Count the right unit of text",
+      "sha256": "c36753ce6892f5bfbc5230010de8f98b15ffab8201a9591a0eb43c6062b717f8",
+      "report": "supporting-audit.md",
+      "parts": 3,
+      "sources": [
+        {
+          "sourceId": "textdata_count_the_right_text_unit_source_unicode",
+          "title": "The Unicode Standard, Version 16.0: General Structure",
+          "url": "https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-2/",
+          "locator": "Official standard exposition, Unicode 16.0.0: §2.5 Encoding Forms, §2.11.5 Characters and Grapheme Clusters, §2.12 Equivalent Sequences; consulted 2026-09-11."
+        }
+      ]
+    }
+  ]
+}
