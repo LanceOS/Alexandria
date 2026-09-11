@@ -6,7 +6,7 @@ import { validateStoragePaths } from '../config.js';
 import { assertMigrationHistory, initializeSchema } from './migrations.js';
 
 export function configureDatabase(database: DatabaseSync): void {
-  database.exec('PRAGMA busy_timeout = 5000; PRAGMA foreign_keys = ON; PRAGMA synchronous = FULL;');
+  database.exec('PRAGMA busy_timeout = 5000; PRAGMA foreign_keys = ON; PRAGMA recursive_triggers = ON; PRAGMA synchronous = FULL;');
   const mode = database.prepare('PRAGMA journal_mode = WAL').get() as { journal_mode: string };
   const foreignKeys = database.prepare('PRAGMA foreign_keys').get() as { foreign_keys: number };
   const synchronous = database.prepare('PRAGMA synchronous').get() as { synchronous: number };
@@ -35,7 +35,8 @@ function assertSafeSidecars(databasePath: string, requireAbsent = false): void {
   }
 }
 
-export function openDatabase(config: Config, options: { maintenance?: boolean; allowPending?: boolean } = {}): DatabaseSync {
+export function openDatabase(config: Config, options: { writable?: boolean; maintenance?: boolean; allowPending?: boolean } = {}): DatabaseSync {
+  if (options.allowPending && !options.maintenance) throw new Error('Only maintenance connections may open a database with pending migrations.');
   validateStoragePaths(config);
   try {
     const stat = lstatSync(config.databasePath);
@@ -48,9 +49,9 @@ export function openDatabase(config: Config, options: { maintenance?: boolean; a
   }
   assertSafeSidecars(config.databasePath);
 
-  // Runtime connections cannot create a database or mutate the catalog. All
-  // schema writes belong to the explicit local maintenance commands.
-  const database = new DatabaseSync(config.databasePath, { readOnly: !options.maintenance });
+  // A runtime writer still requires an existing, fully migrated database.
+  // Schema changes belong to the explicit local maintenance commands.
+  const database = new DatabaseSync(config.databasePath, { readOnly: !(options.writable || options.maintenance) });
   try {
     configureDatabase(database);
     assertMigrationHistory(database, options.allowPending ?? false);

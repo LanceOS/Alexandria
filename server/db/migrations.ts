@@ -1,5 +1,9 @@
 import { createHash } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
+import { identitySql } from './schema/identity.js';
+import { curriculumSql } from './schema/curriculum.js';
+import { progressSql } from './schema/progress.js';
+import { catalogRevisionsSql } from './schema/catalog.js';
 
 export interface Migration {
   id: string;
@@ -58,6 +62,10 @@ export const migrations: readonly Migration[] = [
       ('category_mathematics', 'mathematics', 'Mathematics', 'Patterns, structures, and the language of understanding.', 1),
       ('category_ai', 'artificial-intelligence', 'Artificial Intelligence', 'Learning, reasoning, and the possibilities of intelligent systems.', 2);
   `),
+  defineMigration('0002_identity', identitySql),
+  defineMigration('0003_curriculum', curriculumSql),
+  defineMigration('0004_progress', progressSql),
+  defineMigration('0005_catalog_revisions', catalogRevisionsSql),
 ];
 
 interface AppliedMigration {

@@ -4,13 +4,14 @@ import { existsSync, mkdirSync, readFileSync, symlinkSync, writeFileSync } from 
 import { copyFile, mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 import test, { type TestContext } from 'node:test';
 import type { FastifyInstance } from 'fastify';
 import type { LibraryResponse } from '../../shared/library.js';
 import { buildApp } from '../app.js';
 import { loadConfig } from '../config.js';
 import { createBackup, withMaintenanceLock } from './backup.js';
-import { assertDatabaseIntegrity, initializeDatabase, openDatabase } from './database.js';
+import { assertDatabaseIntegrity, configureDatabase, initializeDatabase, openDatabase } from './database.js';
 import { readLibrary } from './library.js';
 import { applyMigrations, assertMigrationHistory, defineMigration, migrations } from './migrations.js';
 
@@ -94,6 +95,7 @@ test('database persists its instance and empty catalog with enforced SQLite sett
   assert.equal(database.prepare('PRAGMA synchronous').get()?.synchronous, 2);
   assert.equal(database.prepare('PRAGMA busy_timeout').get()?.timeout, 5000);
   assert.equal(database.prepare('PRAGMA foreign_keys').get()?.foreign_keys, 1);
+  assert.equal(database.prepare('PRAGMA recursive_triggers').get()?.recursive_triggers, 1);
   assert.throws(() => database.prepare('INSERT INTO topic_categories (topic_id, category_id) VALUES (?, ?)').run('missing', 'category_software'), /FOREIGN KEY/);
   const initial = readLibrary(database);
   assert.equal(initial.topics.length, 0);
@@ -101,7 +103,11 @@ test('database persists its instance and empty catalog with enforced SQLite sett
   assert.ok(initial.instance.id);
   assert.ok(Number.isFinite(Date.parse(initial.instance.createdAt)));
   assert.deepEqual(database.prepare("SELECT name FROM sqlite_schema WHERE type = 'table' ORDER BY name").all().map((row) => row.name), [
-    'categories', 'instance_metadata', 'schema_migrations', 'topic_categories', 'topics',
+    'categories', 'exercise_attempt_results', 'exercise_attempts', 'exercise_drafts', 'exercise_grading_specs',
+    'exercise_versions', 'exercises', 'instance_metadata', 'lesson_part_versions', 'lesson_parts',
+    'module_version_sources', 'module_versions', 'modules', 'schema_migrations', 'sessions', 'source_references',
+    'topic_categories', 'topics', 'units', 'user_credentials', 'user_lesson_part_progress', 'user_module_progress',
+    'user_settings', 'users',
   ]);
   database.prepare('UPDATE categories SET description = ? WHERE id = ?').run('Persisted description', initial.categories[0]!.id);
   database.close();
@@ -131,10 +137,10 @@ test('a failed migration rolls back schema and history together', async (t) => {
   const database = openDatabase(f.config, { maintenance: true });
   try {
     assert.equal(applyMigrations(database), 0);
-    const badMigration = defineMigration('0002_transaction_test', 'CREATE TABLE rollback_probe (id INTEGER); INSERT INTO nonexistent_table VALUES (1);');
+    const badMigration = defineMigration('0006_transaction_test', 'CREATE TABLE rollback_probe (id INTEGER); INSERT INTO nonexistent_table VALUES (1);');
     assert.throws(() => applyMigrations(database, [...migrations, badMigration]), /no such table/);
     assert.equal(database.prepare("SELECT name FROM sqlite_schema WHERE name = 'rollback_probe'").get(), undefined);
-    assert.equal(assertMigrationHistory(database), 1);
+    assert.equal(assertMigrationHistory(database), migrations.length);
     assertDatabaseIntegrity(database);
   } finally {
     database.close();
@@ -153,7 +159,7 @@ test('library API serves persisted categories and a truthful empty catalog', asy
   assert.equal(library.categories.length, 3);
   assert.deepEqual(library.topics, []);
   assert.ok(library.instance.id);
-  assert.equal((await app.inject({ method: 'POST', url: '/api/library', payload: {} })).statusCode, 404);
+  assert.equal((await app.inject({ method: 'POST', url: '/api/library', headers: { 'x-alexandria-request': '1' }, payload: {} })).statusCode, 404);
   assert.equal((await app.inject({ url: '/api/missing', headers: { accept: 'text/html' } })).statusCode, 404);
 });
 
@@ -273,4 +279,39 @@ test('maintenance commands refuse overlapping locks and release failed operation
   });
   await assert.rejects(withMaintenanceLock(f.config, async () => { throw new Error('Simulated failure'); }), /Simulated failure/);
   assert.equal(existsSync(join(f.config.dataDir, '.maintenance.lock')), false);
+});
+
+
+test('upgrading the original library schema preserves instance and catalog with a restorable prior snapshot', async (t) => {
+  const f = await fixture(t, false);
+  mkdirSync(join(f.config.dataDir, 'database'), { recursive: true });
+  const original = new DatabaseSync(f.config.databasePath);
+  configureDatabase(original);
+  const first = migrations[0]!;
+  original.exec(`CREATE TABLE schema_migrations (id TEXT PRIMARY KEY, checksum TEXT NOT NULL, applied_at TEXT NOT NULL) STRICT;`);
+  original.exec(first.sql);
+  original.prepare('INSERT INTO schema_migrations VALUES (?, ?, ?)').run(first.id, first.checksum, new Date().toISOString());
+  original.exec("UPDATE categories SET description = 'Existing library description' WHERE id = 'category_software'");
+  const before = readLibrary(original);
+  original.close();
+  await assert.rejects(f.app(), /pending migrations/);
+  const database = openDatabase(f.config, { maintenance: true, allowPending: true });
+  try {
+    const backupPath = await withMaintenanceLock(f.config, () => createBackup(f.config, database));
+    assert.equal(applyMigrations(database), migrations.length - 1);
+    assert.deepEqual(readLibrary(database), before);
+    for (const table of ['users', 'sessions', 'user_settings', 'units', 'modules', 'module_versions', 'exercises', 'exercise_attempts', 'user_module_progress']) {
+      assert.equal(database.prepare(`SELECT count(*) AS count FROM ${table}`).get()?.count, 0, table);
+    }
+    assert.equal(database.prepare('SELECT revision FROM categories LIMIT 1').get()?.revision, 1);
+    assertDatabaseIntegrity(database);
+    assert.equal(applyMigrations(database), 0);
+    const snapshot = new DatabaseSync(join(backupPath, 'alexandria.sqlite'), { readOnly: true });
+    try {
+      assert.equal(assertMigrationHistory(snapshot, true), 1);
+      assert.deepEqual(readLibrary(snapshot), before);
+      assertDatabaseIntegrity(snapshot);
+    } finally { snapshot.close(); }
+  } finally { database.close(); }
+  assert.equal((await (await f.app()).inject('/health/ready')).statusCode, 200);
 });
