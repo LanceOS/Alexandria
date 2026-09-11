@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "quality_combine_properties_and_fuzzing_module",
-  "versionId": "quality_combine_properties_and_fuzzing_v2",
+  "versionId": "quality_combine_properties_and_fuzzing_v3",
   "slug": "combine-properties-and-fuzzing",
   "title": "Combine properties with fuzzing",
   "summary": "Use an encoder and decoder to distinguish semantic checks from crash detection.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Generated testing begins with a domain and an oracle. For the sequence codec, the valid domain contains lists of integers from zero through 999, including the empty list. A generator produces values in that domain. An encoder converts them to bytes; a decoder converts accepted bytes back to a sequence. A property states a relationship expected across many generated examples. The round-trip relation decode(encode(xs)) = xs is useful because it checks preservation of element values, order, and multiplicity together."
+        },
+        {
+          "type": "paragraph",
+          "text": "Define the format before calling every byte sequence valid. For this teaching codec, fields use ordinary decimal digits separated by single commas; the empty sequence encodes as the empty string, while an empty field inside a nonempty record is invalid. A valid generator explores lengths and values deliberately, including zeros, 999, repetitions, and short lists. A uniform choice from a broad range may rarely reach the cases that expose an important branch. Generation quality is part of test design, not just a matter of selecting a random seed."
+        },
+        {
+          "type": "paragraph",
+          "text": "Shrinking searches for a smaller failing example while preserving the relevant domain and failure. It is an aid to explanation, not an automatic mathematical proof of the unique smallest possible witness. Raw-byte fuzzing approaches the decoder from another direction: mutations include malformed inputs and can discover paths a valid-value generator never exercises. Keep these campaigns complementary so a decoder that immediately rejects random garbage does not look well tested merely because it has processed many inputs."
+        },
+        {
+          "type": "paragraph",
           "text": "Imagine a format that encodes a sequence of small nonnegative integers as comma-separated decimal fields. The domain allows empty sequences and values from zero through 999. A useful property is that decoding an encoded valid sequence recovers the same sequence. This covers many examples with one general statement, but only if the generator actually explores empty inputs, boundary values, repeated elements, and different lengths."
         },
         {
           "type": "paragraph",
           "text": "A round-trip property has limits: an encoder and decoder can share a mistake. If both silently reverse sequences, their composition might still satisfy a poorly chosen check. Add independent examples with externally specified bytes and separate properties about length, order, and rejection. A property needs an oracle—a rule that tells us what counts as success—not just many inputs."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A shrinker reduces the failing valid list [0,999] to [-1], which the generator never permits. May that invalid witness replace the original semantic regression?",
+          "explanation": "Not for a property whose precondition restricts elements to 0..999. The new failure could arise from violating the precondition rather than the original defect. Keep shrinking within the valid domain and require the same property to keep failing. Invalid input may deserve a separate rejection test, but it is evidence for a different contract."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "The original [4,0,9] failure compares full sequences, not only their sums or lengths. The encoder produces three fields. A decoder incorrectly treating zero as “no value” drops the middle field, returning [4,9], which violates equality. Remove unrelated elements while keeping the zero and the failure persists: [0] encodes as \"0\" and decodes to an empty list. This short case isolates the confusion between a valid zero element and absence. The empty sequence should separately encode as an empty string, so the regression suite needs both [] and [0] rather than treating them as interchangeable."
+        },
+        {
+          "type": "paragraph",
           "text": "The smaller case explains the fault without unrelated values. Store it as a regression test, record the generator seed or input bytes needed to reproduce the failure, and fix the underlying behavior. Minimization is useful because the shortest clear failure often reveals a missing branch or a mistaken assumption about empty and zero values."
         },
         {
           "type": "paragraph",
           "text": "Coverage-guided fuzzing explores a different input surface: raw bytes, including malformed representations. LLVM’s libFuzzer repeatedly calls a target with byte sequences and uses coverage feedback to explore paths. The target must tolerate repeated calls, bound its work, and avoid dependence on hidden process history. Sanitizers can turn certain memory errors into reported failures; semantic properties can detect incorrect results that never crash."
+        },
+        {
+          "type": "paragraph",
+          "text": "As a contrasting defect, let the encoder reverse a sequence before producing text and the decoder reverse parsed fields again. For [2,7], the encoder writes \"7,2\", then the decoder returns [2,7]. The round trip passes despite violating the specified external representation. An independent fixture requiring encode([2,7]) to equal \"2,7\" catches the shared mistake, as does requiring decode(\"2,7\") to yield [2,7]. Testing one composition alone cannot establish both components' external contracts."
+        },
+        {
+          "type": "paragraph",
+          "text": "For malformed input, \"4,,9\" reaches a different rule: the middle field is empty and must be rejected. A byte-oriented target can check that rejection is controlled, bounded, and free of sanitizer-detected memory errors. It should not insist every fuzzed input decodes successfully. Repeated target invocations also need stable setup: a previous input should not leave a hidden counter or retained state that changes how an identical later input behaves. When a failure appears, retain the exact bytes and relevant build/runtime configuration so it can be reproduced outside a long campaign."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical pair with a shared order defect\nencode([2,7]) -> \"7,2\"       (wrong external representation)\ndecode(\"7,2\") -> [2,7]      (also reverses)\nround trip passes\nIndependent fixture encode([2,7]) == \"2,7\" fails\nMalformed-input fixture \"4,,9\" must be rejected",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "For this codec, is encode(decode(bytes)) = bytes a valid property for every arbitrary byte string? Explain how to make a useful property instead.",
+          "explanation": "No. Arbitrary bytes may be malformed and decoding may reject them. Even for an accepted format with noncanonical spellings, re-encoding could normalize representation. State a property over accepted canonical encodings, or compare decoded values after a valid round trip. The domain and any normalization policy must be explicit before equality is used as an oracle."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Keep valid-input generators separate from malformed-input fuzzing so rejected random data does not crowd out useful semantic tests. Seed the fuzz corpus with small valid records and known corner cases. Limit total input size and processing time, and retain discovered failures. The two techniques complement ordinary examples: properties explore relationships, while coverage feedback seeks execution paths. Their value depends on the harness and oracle as much as on iteration count."
+        },
+        {
+          "type": "paragraph",
+          "text": "Combine independent fixtures, semantic properties, valid-domain generation, and malformed-input fuzzing. Record what the harness checks and what it cannot check; sanitizer silence does not imply semantic correctness, and a passing round trip does not prove an external format. Retain clear minimized failures as ordinary tests so the knowledge gained from a campaign remains useful after the campaign ends."
         }
       ]
     }
@@ -96,5 +140,5 @@
       "locator": "Official versioned API documentation: Arbitrary, arbitrary, shrink, generator quality and invariant-preserving shrinking; consulted 2026-09-11. A Haskell implementation illustrates the general testing method, not a C++ API."
     }
   ],
-  "version": 2
+  "version": 3
 }

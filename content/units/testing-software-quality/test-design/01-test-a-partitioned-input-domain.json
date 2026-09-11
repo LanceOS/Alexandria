@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "quality_test_a_partitioned_input_domain_module",
-  "versionId": "quality_test_a_partitioned_input_domain_v1",
+  "versionId": "quality_test_a_partitioned_input_domain_v2",
   "slug": "test-a-partitioned-input-domain",
   "title": "Test the boundaries of an input domain",
   "summary": "Build a meaningful test set for a duration parser with explicit rejection rules.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The parser's contract is the test oracle: decimal digits only, at least one digit, leading zeros allowed, and a final value from one through 120. These rules define behavior independently of whether the implementation uses a loop, a library conversion, or a table. Partitioning groups inputs by requirements they exercise. It does not prove that every input in a group behaves identically in a defective implementation; it is a way to choose informative representatives."
+        },
+        {
+          "type": "paragraph",
+          "text": "Separate syntax from value. The string 121 has valid decimal syntax but an invalid value. The string 7x has a valid prefix but invalid whole-field syntax. The empty string has no value because it contains no digit. The string 007 is valid and means seven; rejecting its initial zero before examining the complete number would confuse a prefix with a finished value. A boundary suite therefore needs more than minimum and maximum numeric values."
+        },
+        {
+          "type": "paragraph",
+          "text": "Each test should specify input, environment, expected outcome, and observable state. Success requires the exact parsed value, not just a boolean true. Rejection should use the API's defined error result; if an output parameter is involved, its failure behavior also needs a contract. Independent test setup prevents one successful parse from leaving state that makes the next failure misleading. A framework can run assertions reliably, but it cannot infer which application rules the assertions should express."
+        },
+        {
+          "type": "paragraph",
           "text": "A duration field accepts decimal digits representing one through 120 minutes. Leading zeros are accepted. Signs, spaces, trailing characters, and values outside the range are rejected. These are application requirements, so a test can judge the parser without knowing its loops or internal storage. Start by partitioning the input domain into cases expected to behave similarly: accepted values, syntactically invalid strings, and syntactically valid values outside the range."
         },
         {
           "type": "paragraph",
           "text": "Choose examples at the edges of those partitions. A parser that accepts 60 might still reject 1 or mistakenly accept 121. The empty string needs its own attention because it contains no digit to convert. Very long digit sequences also matter because they can exceed implementation ranges before the application range check runs. State the result you expect before looking at what the implementation currently does."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Choose four additional cases that distinguish the digit-only rule from the numeric range rule. Explain each expected result.",
+          "explanation": "The strings +7, -7, 7 followed by a space, and 7.0 are rejected because the field permits decimal digits only. Their possible interpretation by a general-purpose numeric converter does not change this application grammar. Add a plain valid interior value as a control so a parser that rejects everything cannot pass only rejection tests."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "Read the original table as a map of requirements. One and 120 check included edges; zero and 121 check their immediate neighbors. 007 tests that accepted syntax is not accidentally more restrictive than specified. The empty string checks a structural minimum, while 7x checks whole-input consumption and the leading space checks a forbidden character. For an accepted seven, assert both success and the value seven. A parser returning success with 70 would otherwise pass a weak test. For each rejected string, assert the documented failure outcome and any promised absence of mutation."
+        },
+        {
+          "type": "paragraph",
           "text": "Each case should identify the behavior it protects. An accepted result needs a value assertion as well as a success assertion. A rejected result should not leave a misleading usable value. If parsing mutates an output object, the contract must say whether that object changes on failure, and the tests should check the promised behavior."
         },
         {
           "type": "paragraph",
           "text": "GoogleTest’s primer emphasizes independent, repeatable tests. Apply that principle regardless of framework: initialize each parser test explicitly and do not depend on the order of earlier tests. If a test changes locale or global configuration, isolate and restore that environment. Prefer a fresh input value over a shared object modified by several tests."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider an implementation that uses a numeric-prefix conversion and forgets to check where parsing stopped. It correctly accepts 1, 120, and 007, and correctly rejects 121 after conversion. Yet it accepts 12x as twelve. Testing only numeric boundaries would miss the defect; the whole-input case isolates it. A smaller witness such as 1x makes the missing rule especially clear. After repair, retain that witness as a regression test with the requirement in its name or explanation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now consider a different bug: rejecting as soon as the accumulated value is zero. That rejects 007 even though its completed value is seven. A lower-bound check belongs at the point where the complete accepted digit sequence has been interpreted. Conversely, an upper-bound check can reject a prefix that is already above 120 because appending decimal digits cannot reduce that value. With bounded integer arithmetic, the implementation can check whether the next digit would exceed the allowed maximum before multiplying. Tests should target this reasoning without copying the exact same arithmetic into their expected-result oracle."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical parser defects and distinguishing inputs\nPrefix-only parser: \"12x\" -> incorrectly accepts 12\nPremature lower-bound check: \"007\" -> incorrectly rejects at first zero\nOverflow-prone conversion: \"999999999999999999999999\" -> reject above-range value without arithmetic overflow\nMany leading zeros followed by \"1\" -> accept 1 under the stated contract\nIndependent expected outcomes come from the field contract, not parser internals",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "A parser stores the last valid result in an output object. A failing parse leaves that value behind, and a caller uses it anyway. What should the test and interface review clarify?",
+          "explanation": "First decide the promised failure behavior: unchanged output, cleared output, or a result type that carries either a value or an error. Test that exact promise, including the caller's requirement to inspect success before using a value. Unchanged output can be legitimate, but it must not be mistaken for a new successful parse. A test cannot settle an unspecified API policy by guessing."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "A test that repeats the parser’s exact arithmetic may repeat its defect. Expected results should come from the specification or a genuinely independent reference. When a bug appears, reduce its input to a small counterexample and preserve that case as a regression test. Test quality comes from the mistakes the suite can detect and the promises it checks, not simply from the number of assertions or a coverage percentage."
+        },
+        {
+          "type": "paragraph",
+          "text": "A good test suite explains which incorrect behaviors it would detect. After choosing partitions and boundaries, challenge the suite with plausible defects: accept a prefix, omit a limit, invert a comparison, or return the wrong value. Add only tests that protect a requirement or meaningful risk. Generated properties can broaden exploration, while examples retain clear witnesses of specific promises."
         }
       ]
     }
@@ -86,5 +130,6 @@
       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
       "locator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
     }
-  ]
+  ],
+  "version": 2
 }

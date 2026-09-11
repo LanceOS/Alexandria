@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "systems_programming_descriptor_io_module",
-  "versionId": "systems_programming_descriptor_io_version_1",
+  "versionId": "systems_programming_descriptor_io_version_2",
   "slug": "short-reads",
   "title": "Read the bytes that actually arrived",
   "summary": "Interpret I/O results and preserve progress across partial transfers.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "systems_programming_descriptor_io_part_concepts",
-      "title": "Understand the model",
+      "title": "Progress, bounds, and read result states",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "A request to read eight bytes describes a maximum transfer, not a promise that eight bytes will arrive. Linux read reports the number transferred; a positive short result is successful progress. For a positive request on a regular file or pipe, zero indicates end of file, while minus one reports a failure through errno. Other descriptor types need their own rules: a noncanonical terminal can return zero for no available data or a timeout. EINTR means interruption before data was read; nonblocking descriptors can report that data is not currently available. A wrapper therefore needs a state machine, not a single success Boolean. Keep the requested capacity distinct from the amount of valid data. Never process the unwritten remainder of a buffer as though it came from the input. Decide separately whether the application accepts a partial record or requires an exact number of bytes."
+        },
+        {
+          "type": "paragraph",
+          "text": "Represent a bounded accumulator with total required capacity N and valid-byte count used. Its invariant is 0 <= used <= N. A positive read of n bytes adds exactly n to used, provided the requested range was valid. The next destination starts at buffer+used and the next request is N-used. These arithmetic relationships connect the operating-system result to memory safety; a container's allocated size alone does not tell you which bytes came from input."
+        },
+        {
+          "type": "paragraph",
+          "text": "The result of read is signed because failure is reported as -1. Interpret failure before converting a result to an unsigned count. Treating -1 as a large positive value could corrupt the progress accounting. On a successful positive result, the transferred bytes are valid progress even if fewer than requested arrived. Error information is interpreted when failure is reported, rather than using a stale errno value to override a successful transfer."
+        },
+        {
+          "type": "paragraph",
+          "text": "Application completeness is separate from read success. For a fixed-length record, reaching N valid bytes completes the record. EOF with zero accumulated bytes may mean clean end of the record sequence; EOF after partial progress means truncation. Both EOF observations use a positive request in the regular-file or pipe model. A zero-size request can return zero without establishing EOF and must not be used to infer record completion."
+        },
+        {
+          "type": "paragraph",
+          "text": "Interruption and temporary unavailability require policy. EINTR reports interruption before data was transferred for that failed call, so the valid prefix remains unchanged. A nonblocking would-block result means no progress now, not end of input. Arrange a supported readiness wait or return partial state to an event loop. Repeated immediate retries can burn processor time and do not create a deadline guarantee."
+        },
+        {
+          "type": "reflection",
+          "prompt": "An eight-byte record has accumulated five bytes. The next read returns two. Give the next offset, remaining request size and completeness result.",
+          "explanation": "Used becomes seven. The next destination is offset seven and the maximum remaining request is one byte. The record is incomplete even though both reads were successful. A request for the original eight bytes would exceed the remaining capacity, while restarting at offset zero would overwrite valid progress."
         }
       ]
     },
     {
       "id": "systems_programming_descriptor_io_part_trace",
-      "title": "Work through an example",
+      "title": "Trace partial progress through unavailable input",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "After the first call the next destination begins at offset two, so a later transfer cannot overwrite A and B. Accumulated progress grows only after a positive result. The alternative zero result is meaningful because the request size is positive and the protocol still needs two bytes. This application distinguishes clean end of input between records from truncation inside a record. That distinction belongs to the record reader, rather than the operating system."
+        },
+        {
+          "type": "paragraph",
+          "text": "The first result two establishes that offsets zero and one contain A and B. The second request starts at offset two and asks for the remaining three. Its one-byte result makes C valid at offset two. The final request starts at offset three and asks for two; D and E fill those positions. Used becomes five and the reader stops without making an unnecessary zero-length probe."
+        },
+        {
+          "type": "paragraph",
+          "text": "In the alternate EOF branch, used is three and remaining capacity is two, so zero reports that the pipe's input ended before the promised record finished. ABC may be useful diagnostic context, but presenting it as a complete five-byte record would change the application contract. Do not process the two unwritten positions merely because the buffer was allocated with length five."
+        },
+        {
+          "type": "callout",
+          "title": "Trace partial progress through unavailable input",
+          "text": "Contrasting nonblocking schedule: after AB arrives, the next read reports EAGAIN. Later readiness leads to an interrupted call reporting EINTR, and a following call returns CDE."
+        },
+        {
+          "type": "paragraph",
+          "text": "Neither failed call changes used=2 or the next destination offset. After temporary unavailability, the wrapper returns to its readiness mechanism rather than assuming EOF. After interruption, it follows its cancellation and deadline policy before retrying. When three bytes finally arrive, they occupy offsets two through four, used becomes five and ABCDE is complete."
+        },
+        {
+          "type": "paragraph",
+          "text": "A deadline can expire while only AB is available. The wrapper should then report the partial progress and timeout according to its API, preserving the distinction from clean EOF and an ordinary read error. This is a proposed application result design, not an additional return code from read itself. A caller must know whether a subsequent operation resumes the same partial record or abandons the stream."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A wrapper sees read return -1 with EINTR after earlier accumulating three bytes. Should it reset the accumulator, add the result to used, or preserve the prefix?",
+          "explanation": "Preserve the three valid bytes and interpret the interruption through the wrapper's retry/cancellation policy. This failed call transferred no bytes under the documented EINTR condition, so there is nothing to add. Resetting would lose earlier progress, and converting -1 into an unsigned count would break the bounds invariant. A later retry still targets the remaining capacity."
         }
       ]
     },
     {
       "id": "systems_programming_descriptor_io_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice safe accumulation",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "If the first request returns two bytes, should the caller retry the original five-byte request into the beginning of the buffer?",
           "explanation": "No. The two bytes are already valid progress. The next request belongs at offset two and must fit the remaining three-byte capacity. Restarting at the beginning loses the earlier bytes; appending five bytes would exceed the available space. Progress, capacity and protocol completeness are three separate facts."
+        },
+        {
+          "type": "paragraph",
+          "text": "A dependable record reader distinguishes capacity, valid progress, protocol completion and error state. Trace the destination offset after every positive result and leave it unchanged on no-progress failures. Extend the state machine with cancellation and readiness without conflating them with EOF. Other descriptor types, especially noncanonical terminals, require their own read contracts; the regular-file and pipe assumptions here remain explicit."
         }
       ]
     }
@@ -76,9 +127,12 @@
     {
       "id": "systems_programming_descriptor_io_source_termios",
       "title": "Linux manual: termios(3)",
-      "authors": ["Linux man-pages project"],
+      "authors": [
+        "Linux man-pages project"
+      ],
       "url": "https://man7.org/linux/man-pages/man3/termios.3.html",
       "locator": "Primary documentation: Canonical and noncanonical mode, VMIN=0 cases; zero-byte terminal reads may indicate unavailable data or timeout; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

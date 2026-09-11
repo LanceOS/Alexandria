@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_scoped_threads_locks_module",
-  "versionId": "cpp_scoped_threads_locks_v1",
+  "versionId": "cpp_scoped_threads_locks_v2",
   "slug": "scoped-threads-locks",
   "title": "Own threads and protect shared state",
   "summary": "Use scoped thread ownership and a shared mutex to give every access a synchronization rule.",
@@ -23,6 +23,19 @@
         {
           "type": "paragraph",
           "text": "Joining is separate from protecting shared state while workers run. Two threads modifying the same ordinary int without suitable ordering can create a data race and undefined behavior. A mutex lets the program define a critical section. Every conflicting access during concurrent work must follow the same synchronization discipline; protecting only writers or only some call sites is insufficient."
+        },
+        {
+          "type": "paragraph",
+          "text": "Review a threaded operation with two separate diagrams. The lifetime diagram shows which objects must exist while a worker can access them. The ordering diagram shows which conflicting accesses may occur concurrently and how they are synchronized. A joining thread owner helps with the first and orders completed worker effects before code after the join. A mutex coordinates accesses while workers are still active. Neither diagram can replace the other."
+        },
+        {
+          "type": "paragraph",
+          "text": "An increment of an ordinary shared integer is a read-and-modify operation, not an indivisible transaction merely because it occupies one source line. Each worker must enter the same protected region before touching completed. A reader that runs concurrently must follow the discipline too. Reading after both workers have finished is a different case: the successful joins establish the required ordering before the final read, so no concurrent worker access remains."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A monitor reads completed while both workers are active, but never changes it. Does being read-only let it ignore the mutex?",
+          "explanation": "No. Its read can conflict with the workers’ writes. Either protect the concurrent read with the same mutex or arrange an appropriate separate synchronization design. The sample’s final unguarded read is valid because both workers have already completed and been joined, not because all reads are exempt from synchronization."
         }
       ]
     },
@@ -50,6 +63,29 @@
           "type": "callout",
           "title": "Compile the threading example with thread support",
           "text": "For the GCC environment used by these lessons, use g++ -std=c++20 -Wall -Wextra -pedantic -pthread main.cpp -o lesson. The program’s final result is deterministic although the order of worker increments is not."
+        },
+        {
+          "type": "paragraph",
+          "text": "Follow declaration order before following worker scheduling. completed and mutex are created first, then the lambda that borrows them by reference. The inner scope creates the two owning jthread objects. The outer objects survive until that scope ends, so every captured reference remains valid while the worker can use it. Capturing by reference alone offers no ownership guarantee; the enclosing lifetime structure supplies it here."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "One legal schedule — illustrative, not the only schedule",
+          "code": "Initial completed = 0\nWorker A locks, increments to 1, unlocks\nWorker B locks, increments to 2, unlocks\nWorkers acquire the same mutex for each remaining increment\nEach completes exactly 100 increments\nBoth jthreads finish joining before main reads 200"
+        },
+        {
+          "type": "paragraph",
+          "text": "The sequence of which worker acquires the mutex is not fixed. Nevertheless, every protected increment contributes one to the same sequence of counter states, and there are exactly two hundred successful increments. This proves the final count under the sample’s successful-execution assumptions without needing a particular scheduling order. Repeatedly observing 200 from an unprotected version would not provide the same argument; a data race invalidates the language-level guarantee."
+        },
+        {
+          "type": "paragraph",
+          "text": "The guard is named and scoped inside the body. Its construction acquires the mutex, and its destruction releases it at the end of the iteration. Putting the guard around the entire loop would still protect the count but would prevent the other worker from incrementing until that whole critical section finishes. The right granularity depends on which operations must remain together; choosing a smaller scope must not split a required multi-step invariant."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Suppose each worker must check completed < limit and then increment only when allowed. Is it enough to lock only the increment?",
+          "explanation": "No. Another worker can change the state between an unprotected check and the increment, and the unprotected check itself can race with writes. Put the check and the conditional update under the same mutex so the decision uses the state being updated. The protected operation should match the invariant, not merely the line containing ++."
         }
       ]
     },
@@ -65,6 +101,22 @@
         {
           "type": "paragraph",
           "text": "The Boehm–Adve paper motivates why C++ concurrency needs language-level semantics instead of assumptions based on a particular processor. It provides historical design reasoning, while the pinned C++20 draft specifies the rules used here. This tiny example is a correctness exercise rather than a speed benchmark. Error propagation from workers, lock ordering, condition-variable predicates, and cancellation require further explicit contracts."
+        },
+        {
+          "type": "paragraph",
+          "text": "Joining can block. A stop request is a signal that cooperating work can observe, not a forced termination operation. The sample’s worker does not accept a stop token and performs a fixed amount of work, so automatic destruction waits for that finite work to finish. For long-lived work, define how it notices stop requests and whether a blocking operation can be interrupted; simply switching the handle type to jthread does not define those policies."
+        },
+        {
+          "type": "paragraph",
+          "text": "Avoid waiting for a worker while holding a mutex the worker needs in order to finish. For example, if the main thread locks this mutex and then joins a worker that is waiting to increment, neither can complete its next step: the worker waits for the lock and main waits for the worker. This is a deadlock argument about dependencies. A race-free set of accesses can still have a liveness problem."
+        },
+        {
+          "type": "paragraph",
+          "text": "The sample assumes successful thread creation and does not propagate worker exceptions. An exception escaping the worker invocation invokes termination rather than being caught by a try block around a later join. A production operation needs an explicit result/error channel and shutdown policy. Keep those policies visible beside ownership and synchronization when you extend this teaching example."
+        },
+        {
+          "type": "paragraph",
+          "text": "Before optimizing the counter, state its invariant, all concurrent readers and writers, the mutex that protects them, the objects borrowed by workers, and the event after which main can observe the result. That review is portable reasoning about the C++ model. Whether a different design runs faster belongs to a measured workload comparison rather than to the fact that it uses more threads."
         }
       ]
     }
@@ -111,5 +163,6 @@
       "locator": "Peer-reviewed PLDI 2008 paper, pp. 68–78; abstract and introduction inspected in the SFU-hosted full-text copy. Historical rationale for language-level race semantics, not the C++20 specification; consulted 2026-09-11",
       "publicationYear": 2008
     }
-  ]
+  ],
+  "version": 2
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "build_define_a_reproducible_artifact_module",
-  "versionId": "build_define_a_reproducible_artifact_v2",
+  "versionId": "build_define_a_reproducible_artifact_v3",
   "slug": "define-a-reproducible-artifact",
   "title": "Define a reproducible release artifact",
   "summary": "Trace how an undeclared build path can change a release even when source code matches.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Reproducibility is a claim about specified output bytes under a declared set of inputs and build conditions. Start by writing an artifact manifest: perhaps the executable and a compressed source package are both release outputs, while temporary object files and logs are not. If the claim includes two artifacts, matching only one is insufficient. This up-front definition prevents a failed comparison from being reinterpreted as success by quietly excluding the bytes that differed."
+        },
+        {
+          "type": "paragraph",
+          "text": "Think of a build as a function of source, dependency identities, tools, configuration, and any environment information actually observed. An undeclared input is a value that influences output without appearing in the recipe, such as an absolute workspace path embedded in debugging information. Declaring an input does not necessarily mean forcing everyone to reproduce one developer's directory tree. A build can deliberately normalize a path as part of artifact production, then document and verify that rule. The published artifact after that production step is still compared bit for bit."
+        },
+        {
+          "type": "paragraph",
+          "text": "Independent rebuilds should not share outputs that could conceal missing work. Use clean build directories and record how tools and dependencies were obtained. An identical digest is useful comparison evidence under the chosen digest assumptions; a direct byte comparison is the literal definition for available artifacts. Neither tells you why unequal bytes differ. Retaining the actual outputs, recipe, and logs makes a mismatch diagnosable rather than just a pair of opaque hashes."
+        },
+        {
+          "type": "paragraph",
           "text": "A reproducible build allows the same source and defined build instructions and environment to produce bit-for-bit identical specified artifacts. Decide what the artifact is: an executable, an archive, a container image, or a package with debug symbols. Comparing only the executable while ignoring changing package metadata supports a narrower claim than reproducing the complete release. Record that scope before comparing results."
         },
         {
           "type": "paragraph",
           "text": "Source identity is only one input. Compiler and linker versions, dependencies, generated code, locale, time zone, timestamps, environment variables, and build paths can affect output. A dependency name without a version is insufficient to reconstruct a historical release. The Reproducible Builds project documents these categories and the need to define the environment; the exact controls depend on the toolchain and packaging format."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A release promises reproducible executable and source archive. The executable matches but the archive differs in one header byte. May the release be called reproducible because the program runs identically?",
+          "explanation": "Not under that declared artifact set. The archive is part of the promise and must also match bit for bit. Investigate which production input caused the header difference, then correct or explicitly revise the recipe and claim. Behavioral equality answers a different question from byte identity."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "The original example controls source revision and tool versions but varies the workspace directory. Debug information contains /build/alice/project in one artifact and /build/bob/project in the other. Those different byte sequences are enough to make the artifacts unequal even if executable instructions behave identically. Investigate the differing region, identify the input that produced it, choose a supported mapping policy if appropriate, and rebuild independently. Changing the comparison to ignore debug sections would narrow the artifact claim; it would not reproduce the originally specified whole file. Mapping paths during production can instead preserve a whole-artifact claim if the resulting files match."
+        },
+        {
+          "type": "paragraph",
           "text": "This trace is a hypothetical diagnosis, not an experiment performed on a release. The project’s build-path documentation describes compiler options that normalize prefixes in debug information or file-name macros. Applying an option blindly can remove useful diagnostics or miss other generated paths. Verify exactly which outputs it changes, then repeat the comparison under the intended release process."
         },
         {
           "type": "paragraph",
           "text": "A cryptographic digest is a compact artifact identifier, not an explanation of a mismatch. Keep the actual artifacts and inspect their differences when a comparison fails. Build separately from clean inputs so one build cannot simply reuse the other’s output. Define the allowed environment variation before comparing results. Require the specified release artifacts to match bit for bit. If normalization is part of artifact production, document it in the build instructions and compare the resulting artifacts; do not ignore differences in the published bytes."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now suppose both rebuilds produce the same executable, but a hypothetical packaging step writes the current date into an included manifest. Build A's package contains one date and build B's package another. The executable reproducibility claim passes; the package reproducibility claim fails. The packaging stage is part of the release recipe when the package is a specified artifact. A remedy might derive the manifest date from a declared source-release timestamp rather than wall-clock time, if that matches the intended meaning of the field."
+        },
+        {
+          "type": "paragraph",
+          "text": "This also illustrates why simply deleting metadata can be wrong. If a field is required for installation or represents a meaningful source-release date, removing it changes the artifact contract. Decide the field's meaning, choose deterministic production consistent with that meaning, and compare the final packages. Package entry order, paths, or tool-generated metadata should be investigated only when they are relevant to the actual mismatch; a generic checklist does not establish that a particular builder observes those inputs. The second trace is an invented packaging format so its diagnosis follows directly from the stated behavior."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical package contents\nBoth builds: reader executable bytes identical\nBuild A manifest: releaseDate = date observed on build day A\nBuild B manifest: releaseDate = date observed on build day B\nWhole-package comparison: different bytes\nProposed recipe change: derive releaseDate from one declared release input\nRebuild both packages and compare their final bytes again",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "Two independent builds match exactly, and a trusted maintainer signs the output. What additional evidence is needed before saying the application correctly rejects invalid durations?",
+          "explanation": "The build comparison supports reproducibility and the signature supports an authenticity claim under its trust assumptions. Neither evaluates the duration rule. Review the specification and implementation, then run appropriate accepted/rejected boundary tests and other relevant analysis. The same bug can be reproduced and signed consistently."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Authenticity asks who produced or endorsed an artifact; a signature and its trust chain address that question. Reproducibility asks whether the declared inputs account for the output. Correctness asks whether the program meets its specification. A useful release record connects these forms of evidence without treating one as a substitute for the others. Preserve source revisions, dependency identities, build instructions, and validation results so future maintainers can investigate a particular release."
+        },
+        {
+          "type": "paragraph",
+          "text": "A useful release record ties together the artifact set, source and dependency identities, environment rules, build instructions, and comparison evidence. Keep reproducibility, authenticity, and behavioral correctness as distinct claims with distinct checks. When output changes unexpectedly, trace the difference back to a production input instead of treating normalization as permission to disregard published bytes."
         }
       ]
     }
@@ -87,5 +131,5 @@
       "locator": "Official project guidance: source paths in debug information and compiler prefix-map options; consulted 2026-09-11."
     }
   ],
-  "version": 2
+  "version": 3
 }

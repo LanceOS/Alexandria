@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "language_interoperability_cross_runtime_ownership_module",
-  "versionId": "language_interoperability_cross_runtime_ownership_version_1",
+  "versionId": "language_interoperability_cross_runtime_ownership_version_2",
   "slug": "return-policies",
   "title": "Define ownership when C++ objects cross into Python",
   "summary": "Trace an object and its wrapper as separate lifetime responsibilities.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "language_interoperability_cross_runtime_ownership_part_concepts",
-      "title": "Understand the model",
+      "title": "Wrappers, ownership, and stable storage",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "A binding must answer who owns a returned object and how long it remains valid. pybind11 return policies distinguish copying, moving, taking ownership and borrowing. A reference policy does not transfer deletion responsibility and does not automatically keep an unrelated owner alive. For a returned child reference tied to its parent, reference_internal can establish a keep-alive relationship with that parent. These policies encode real ownership facts; choosing a reassuring policy name cannot repair an invalid C++ API. A raw address alone does not reveal whether storage is static, dynamically allocated, owned elsewhere or already about to disappear."
+        },
+        {
+          "type": "paragraph",
+          "text": "Draw two objects whenever a Python wrapper exposes a C++ instance: the wrapper Python manages and the underlying C++ storage it designates. Their destruction events need not coincide. A borrowing wrapper can disappear without deleting the C++ object; an owning wrapper may be responsible for deletion. Before choosing a return policy, describe what should happen when either side releases its last reference."
+        },
+        {
+          "type": "paragraph",
+          "text": "Copy and borrow answer different semantic questions. A copied Page can remain valid independently but may stop reflecting changes to the original. A borrowed Page can reflect live state while remaining dependent on its owner and address stability. Taking ownership is appropriate only when deletion responsibility really transfers under the binding contract. It is not a general remedy for a short-lived pointer, because invalid deletion or multiple owners can make the situation worse."
+        },
+        {
+          "type": "paragraph",
+          "text": "In the stipulated Document design, the Page is a stable member, so retaining the Document preserves both its lifetime and the member's storage. This is why a parent keep-alive relationship is sufficient for that example. The conclusion depends on the member remaining in place. A parent that merely owns a container of replaceable elements creates a different invalidation problem even when the parent itself never moves."
+        },
+        {
+          "type": "paragraph",
+          "text": "A binding review should ask about mutation as well as destruction. Can another method erase the element? Can a vector reallocate? Can a C++ owner release the object independently of Python? Can the Python wrapper be retained beyond the call? These questions determine the valid lifetime graph. A policy annotation can express known relationships, but it cannot turn a reference to a local variable that has already died into a live object."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A process-lifetime immutable singleton is returned by pointer. Why could take_ownership be wrong even though the pointer stays valid for a long time?",
+          "explanation": "Long lifetime does not imply deletion responsibility. Python must not delete storage that belongs to another owner or was not allocated for that deletion path. A supported borrowing policy can express the singleton contract when its lifetime truly covers every use. The review must also consider shutdown order rather than assume process lifetime makes every interpreter-finalization case harmless."
         }
       ]
     },
     {
       "id": "language_interoperability_cross_runtime_ownership_part_trace",
-      "title": "Work through an example",
+      "title": "Trace owner removal and element invalidation",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The wrapper and the C++ member are different objects with connected lifetimes. Python retaining a wrapper does not inherently make every referenced C++ allocation safe. The keep-alive relationship works in this example because the parent truly controls a stable member lifetime. If a method could replace or erase the referenced element while the parent remained alive, retaining the parent alone would not protect that reference. Returning an independent value may be a simpler contract when copying is acceptable."
+        },
+        {
+          "type": "paragraph",
+          "text": "With plain borrowing, W does not become an owner of D. When the last actual owner destroys D, its member P is destroyed too; retaining W preserves only the wrapper, not P. The trace must stop treating W as usable at that point. Attempting to demonstrate the failure by dereferencing it would invoke invalid lifetime behavior, so this tutorial reasons from ownership rather than running a dangling access."
+        },
+        {
+          "type": "paragraph",
+          "text": "With the parent relationship, W keeps D alive through the supported binding mechanism. Releasing another Python name for D does not yet destroy D while W still needs it. When W and all remaining owners are released, D can be destroyed and its member lifetime ends. The useful property is the lifetime relationship, not any promise about the exact moment a particular Python implementation collects an unreachable cycle."
+        },
+        {
+          "type": "callout",
+          "title": "Trace owner removal and element invalidation",
+          "text": "Contrasting mutation: replace the stable Page member with an element in a vector owned by D. Python obtains a borrowed wrapper for element zero, and the application later erases that element while D remains alive."
+        },
+        {
+          "type": "paragraph",
+          "text": "Keeping D alive does not preserve the borrowed reference or the original Page identity. Vector erasure invalidates references at or after the erased position; later elements may be assigned into earlier slots, so the problem cannot be described simply as every affected slot ending its object lifetime. Reallocation also invalidates element references. A binding that supports unrestricted container mutation therefore cannot justify borrowed element stability solely with reference_internal."
+        },
+        {
+          "type": "paragraph",
+          "text": "One alternative returns an independent Page value and documents that it is a snapshot. Another exposes stable separately owned page objects with a clear removal policy. A third forbids invalidating changes while borrows exist and enforces that rule. These alternatives have different copying, identity and update semantics; choose the one that matches the intended Python API rather than hiding a limitation behind a policy name."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The application requires a Python Page result to remain unchanged even after the document is edited and deleted. Which semantic choice fits, and what cost must be considered?",
+          "explanation": "An independent value snapshot fits that requirement, provided its copy or move owns all resources it needs. A borrow would instead expose lifetime and mutation dependence. Copying may cost time or storage, and a shallow copy containing external pointers may still retain hidden dependencies. Review the value's complete ownership semantics, not just the outer return type."
         }
       ]
     },
     {
       "id": "language_interoperability_cross_runtime_ownership_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice choosing return semantics",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Does keeping a container alive guarantee that a borrowed reference to one of its elements remains valid after arbitrary container modifications?",
           "explanation": "No. The container can remain alive while erasure or reallocation invalidates an element reference. Keep-alive protects the parent lifetime, not every internal address against mutation. The binding must restrict invalidating operations, provide stable storage, or return an independent value according to the intended API."
+        },
+        {
+          "type": "paragraph",
+          "text": "Cross-runtime ownership is a graph of wrappers, owners and storage, with separate mutation rules. Trace both the final owner release and invalidating operations before selecting a policy. Test supported lifetime transitions without executing known dangling accesses. This reasoning transfers to any language binding: preserve the distinction between holding a handle and keeping the referenced object alive and stable."
         }
       ]
     }
@@ -72,6 +123,18 @@
       ],
       "url": "https://pybind11.readthedocs.io/en/stable/advanced/functions.html",
       "locator": "Primary documentation: Return value policies and Additional call policies; copy, reference, reference_internal and ownership; consulted 2026-09-11"
+    },
+    {
+      "id": "language_interoperability_cross_runtime_ownership_source_vector",
+      "title": "Working Draft, Standard for Programming Language C++ (N4861)",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "C++20 working draft N4861",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers",
+      "locator": "Primary C++20 working draft: [vector.modifiers] paragraphs 1, 3 and 4; reallocation invalidation, erase invalidation and assignment of following elements. Draft, not the published ISO edition. Consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

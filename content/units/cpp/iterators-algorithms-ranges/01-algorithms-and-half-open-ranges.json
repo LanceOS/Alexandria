@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges",
-  "versionId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_v2",
+  "versionId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_v3",
   "slug": "algorithms-and-half-open-ranges",
   "title": "Algorithms and half-open ranges",
   "summary": "Search and sort with explicit boundaries and valid ordering requirements.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "You should already know vector size, iterator invalidation, and a lambda’s call-time inputs. A half-open range describes a traversal contract, not merely two unrelated iterator values. Starting at the first position and advancing must eventually reach the stated boundary for the range used by the algorithm. A pair from different containers does not become a valid range because the element types match. Identify the owner and the intended segment before choosing the operation."
+        },
+        {
+          "type": "paragraph",
           "text": "An iterator identifies a position in a sequence and supports operations appropriate to its iterator category. A range commonly uses a beginning iterator and a stopping iterator. The interval includes the beginning and excludes the stopping position, conventionally written [begin, end). For an empty container, begin equals end. The end value represents a boundary; it is not an additional element that may be read."
         },
         {
           "type": "paragraph",
+          "text": "The excluded end position makes empty and adjacent ranges easy to describe. A segment with equal beginning and end has zero elements and needs no special invented element to mark emptiness. A whole sequence can be partitioned into two adjacent ranges that share a boundary without duplicating the boundary element. For vector positions, the first two elements occupy the interval from position zero up to, but excluding, position two. This arithmetic is a conceptual aid for random-access containers; not every iterator supports adding an arbitrary numeric offset."
+        },
+        {
+          "type": "paragraph",
           "text": "Standard algorithms express common operations such as searching, sorting, transforming, and counting. Their interfaces and complexity guarantees let a reader recognize the intended operation without tracing a handwritten loop. Different algorithms require different iterator capabilities. A forward traversal is enough for many searches, while std::sort requires random-access iterators. A vector supplies those iterators, but a linked list has different capabilities and offers its own sorting member."
+        },
+        {
+          "type": "reflection",
+          "prompt": "For the vector {2, 4, 6, 9}, describe the half-open range containing only 4 and 6. Name its starting and stopping positions. Would a search restricted to that segment examine 9, and how many even values does the segment contain?",
+          "explanation": "Use the half-open segment beginning at position one and ending at position three. The stopping position is excluded, so nine is outside the supplied range and the even count is two. A search that reports the supplied stopping boundary on failure must be checked against this segment’s end, which need not be the whole vector’s end. The same boundary must govern traversal and interpretation of its result."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The initial sequence is nine, two, six and four. Sorting replaces that order with two, four, six and nine, without changing the collection’s length. The output loop visits exactly these four positions and stops before end. find then compares against six in that ordered sequence and returns its position. The non-end check justifies the dereference. count_if independently evaluates evenness for all four elements: two, four and six match, while nine does not. Sorting was useful for the displayed order, but find and count_if themselves did not require sorted input."
+        },
+        {
+          "type": "paragraph",
           "text": "The example sorts the vector in ascending order and then searches for the value 6. Sorting changes element order in the existing vector; find locates the first matching element in the supplied range. If the search fails, find returns the stopping iterator. The program checks this condition before dereferencing the result. That check makes the success assumption explicit at the exact point where element access occurs."
         },
         {
           "type": "paragraph",
           "text": "count_if applies its predicate to each element and counts those for which the result is true. The lambda identifies even integers without changing them. This is a useful division of responsibility: the algorithm handles traversal while the predicate states the selection rule. Each individual search or count is linear in the number of visited elements. Sorting has a different comparison bound, so combining familiar functions still requires understanding their costs."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a contrasting search, ask for seven in the same vector. No element matches, so the algorithm returns the stopping iterator. The correct application response is absence, not reading the object at that boundary. For an empty input, the result is also end, but the traversal performs no element comparison. These two failures have different input histories but the same useful caller representation: there is no matching position to dereference."
+        },
+        {
+          "type": "paragraph",
+          "text": "A sorting comparator must establish a strict weak ordering. For a simple less-than ordering, comparing a value with itself is false, and the relation must be consistent and transitive. Returning a <= b instead of a < b violates the strictness requirement. Changing external state during comparisons can also make the relation inconsistent. A callable that compiles is not automatically a valid comparator for the algorithm."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why is a comparator using <= invalid for sorting two equal integers? Give the corresponding valid relation and explain whether an empty input repairs the comparator’s contract.",
+          "explanation": "For equal integers, <= reports that an element comes before itself, violating the required strict relation. Ordinary < returns false for equal values and supplies the expected ascending ordering here. An empty test run may never reveal the defect, but it does not make the comparator meet the algorithm’s semantic requirements. Validate the relation itself, including equal values, before relying on a sample execution."
         }
       ]
     },
@@ -58,16 +88,20 @@
       "blocks": [
         {
           "type": "paragraph",
-          "text": "A sorting comparator must establish a strict weak ordering. For a simple less-than ordering, comparing a value with itself is false, and the relation must be consistent and transitive. Returning a <= b instead of a < b violates the strictness requirement. Changing external state during comparisons can also make the relation inconsistent. A callable that compiles is not automatically a valid comparator for the algorithm."
+          "text": "Sorting does not resize this vector, but it changes which value occupies a position. That distinction matters when an iterator is treated as if it permanently identifies an application record. Storage validity and logical identity are different concerns. More generally, establish the algorithm’s input range, know whether it modifies elements, and decide how long any returned iterator may be used before a later container operation invalidates it."
         },
         {
           "type": "paragraph",
-          "text": "Sorting does not resize this vector, but it changes which value occupies a position. That distinction matters when an iterator is treated as if it permanently identifies an application record. Storage validity and logical identity are different concerns. More generally, establish the algorithm’s input range, know whether it modifies elements, and decide how long any returned iterator may be used before a later container operation invalidates it."
+          "text": "Duplicate values add another distinction. Searching the range containing two, six, six and nine returns the first six, while counting sixes reports two. A search answers where a match first occurs; it does not establish uniqueness. If an application requires exactly one matching identifier, it needs an additional validation rule. Similarly, sorting a collection does not preserve an iterator’s original record identity just because its storage position stays usable. The value at the saved position may change during sorting. Use the algorithm’s stated result and mutation contract rather than treating every returned position as a permanent identity handle."
         },
         {
           "type": "reflection",
           "prompt": "Why must the search result be compared with end even though the sample contains 6?",
           "explanation": "The algorithm’s interface represents failure with the end iterator. Keeping the check makes the use correct when the input changes, and prevents dereferencing a boundary that does not represent an element."
+        },
+        {
+          "type": "paragraph",
+          "text": "Read an algorithm call as a compact specification: the valid range, the operation, the callable’s semantic requirements, the possible result, and the mutation it permits. These questions are more informative than memorizing function names. Complexity bounds then help compare approaches without claiming measured performance; a finite correct trace and a cost contract answer different questions about the program."
         }
       ]
     }
@@ -118,5 +152,5 @@
       "locator": "N4861, [alg.count]; consulted 2026-09-11. Paragraphs 2–3: count/count_if return the number of matching positions and apply the predicate once per input position."
     }
   ],
-  "version": 2
+  "version": 3
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_types_initialization_initialization_and_deduction",
-  "versionId": "cpp_core_types_initialization_initialization_and_deduction_v1",
+  "versionId": "cpp_core_types_initialization_initialization_and_deduction_v2",
   "slug": "initialization-and-deduction",
   "title": "Initialize values and read deduced types",
   "summary": "Distinguish initialization forms and predict the values stored by simple library objects.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "Before starting, be comfortable tracing integer assignments and the order of statements in main. This lesson asks you to track objects rather than just variable names. An object has a type, a lifetime and a current value; two names can sometimes provide access to the same object. Declarations establish those relationships. If a program unexpectedly changes an earlier value, first investigate whether an apparent copy is actually an alias. If a value is wrong immediately after construction, investigate which initializer was selected before blaming later code."
+        },
+        {
+          "type": "paragraph",
           "text": "Initialization establishes an object’s first state; assignment changes an object that already exists. This difference matters even when both statements contain an equals sign. In int pages = 12, the equals sign belongs to initialization. In a later pages = 18, it belongs to assignment. An ordinary local int declared without an initializer does not acquire a useful initial value automatically. Reading that uninitialized value is not a way to obtain a default page count in C++20."
         },
         {
           "type": "paragraph",
+          "text": "It helps to read punctuation as a request to the type. With an int, braces containing 12 request one integer initialized from that value. With a vector, braces containing 3 and 7 request a collection of the two listed elements. Parentheses containing 3 and 7 instead match the constructor whose inputs are a count and a fill value. The vector constructor contract supplies that distinction; brace syntax by itself cannot tell you an arbitrary class’s application meaning. Empty braces also require interpretation through the destination type: an int becomes zero, whereas an empty vector has no elements. Zero-valued elements and an absence of elements are different states."
+        },
+        {
+          "type": "paragraph",
           "text": "For a scalar such as int, an empty brace initializer produces zero. A nonempty brace initializer also rejects narrowing conversions, such as initializing an int directly from 2.5. That diagnostic is useful because it makes a possible information loss visible. Braces are not a universal promise that every type interprets an initializer identically. A class may have constructors that give a list of values a meaning different from a count and a repeated value."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A teammate replaces every pair of constructor parentheses with braces for consistency. Explain a concrete review failure using four zero-filled counters.",
+          "explanation": "The count-and-value vector construction changes from four zero elements to a two-element vector containing four and zero. Consistent punctuation is not enough to preserve behavior. Review the selected constructor, resulting size, and element values. Keep braces where they express the intended construction, and retain the parenthesized count-and-value form where that is the required operation."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Trace the program as a sequence of births and updates. pages is the first integer and starts at 12. copied is a second integer, also initially 12. alias introduces access to the first integer, so there are still only two integer values to track among these three names. Assigning 18 through alias updates the first row of that mental table. The first output line then reads the owner of the characters, the current pages value, and the unchanged copied value in that order. The vector sizes on the next line count actual elements, independent of the numerical values those elements happen to contain."
+        },
+        {
+          "type": "paragraph",
           "text": "The first vector contains two elements: 3 and 7. The second contains three copies of 7. The parentheses select the count-and-value constructor; the braces prefer the initializer-list constructor that accepts individual elements. Both objects manage their own storage. A std::string similarly owns its characters, so title can be used without manually allocating or releasing a character buffer. Standard types make useful experiments possible before studying their implementation."
         },
         {
           "type": "paragraph",
           "text": "auto asks the compiler to determine a type from an initializer. Here copied is an int containing a copy of pages. The declaration of alias includes an ampersand, so alias refers to pages instead. Updating alias therefore changes pages while copied stays 12. Deduction happens during compilation; auto does not make a variable dynamically change its type when later assignments occur."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a contrasting construction task, suppose a reading planner needs four daily counters initially set to zero. A vector<int> constructed with the parenthesized arguments 4 and 0 has four elements and meets that requirement. A vector<int> initialized with the braced elements 4 and 0 has only two counters, containing four and zero. An empty vector has neither of these shapes. The useful first check is size, followed by inspection of the elements; merely printing a sum can hide the mistake because different collections can have the same sum."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now suppose you deliberately create a snapshot of the four counters and later modify the original first counter to three. Copying the vector gives the snapshot its own elements. Binding a reference to the vector instead gives another route to the changing collection. This difference remains even if auto spells the declaration: deduction does not decide what your application means by “snapshot.” Choose the value or reference declaration that implements that meaning, then describe the expected relationship before running the experiment. This turns declaration syntax into a testable design decision."
+        },
+        {
+          "type": "reflection",
+          "prompt": "You need a counter that starts at zero and an alias that can update it. Describe the declarations and explain whether assigning another integer through the alias changes which object it refers to.",
+          "explanation": "Use an int initialized with empty braces and an int reference initialized from that counter, or auto& for the reference. The counter starts at zero. Assigning through the reference changes the counter’s value; it does not rebind the reference to another integer. Check your model by giving the other integer a different value and then changing it again: the original reference still designates the counter."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "What changes if auto& alias is replaced by auto alias?",
           "explanation": "alias becomes a separate int. Its assignment no longer changes pages, so the first output line becomes Atlas: 12 12. The two vectors and their sizes are unaffected."
+        },
+        {
+          "type": "paragraph",
+          "text": "When reading a new declaration, predict three things before executing it: the object or alias it introduces, the selected initialization meaning, and the state that later code may change. The same method transfers to function parameters and class members. An initializer can establish a perfectly valid reference whose owner later disappears, so finish the declaration check with an owner-lifetime question whenever borrowing is involved."
         }
       ]
     }
@@ -116,6 +150,29 @@
       "edition": "N4861 (C++20 working draft)",
       "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity",
       "locator": "N4861, [vector.capacity]; consulted 2026-09-11. size versus capacity; reserve and invalidation on reallocation."
+    },
+    {
+      "id": "cpp_core_types_initialization_initialization_and_deduction_depth_vector_cons",
+      "title": "C++20 working draft N4861: vector.cons",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.cons",
+      "locator": "N4861 [vector.cons]; paragraphs 3–8, element-count and count-and-value construction; consulted 2026-09-11."
+    },
+    {
+      "id": "cpp_core_types_initialization_initialization_and_deduction_depth_dcl_init_ref",
+      "title": "C++20 working draft N4861: dcl.init.ref",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.init.ref",
+      "locator": "N4861 [dcl.init.ref]; paragraphs 1–2, initialization and non-rebinding of references; consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

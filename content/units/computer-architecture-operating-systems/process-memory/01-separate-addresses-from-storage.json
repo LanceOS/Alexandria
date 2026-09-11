@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "archos_separate_addresses_from_storage_module",
-  "versionId": "archos_separate_addresses_from_storage_v2",
+  "versionId": "archos_separate_addresses_from_storage_v3",
   "slug": "separate-addresses-from-storage",
   "title": "Separate virtual addresses from physical storage",
   "summary": "Trace two process mappings and distinguish mapped storage from valid language objects.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "An address is meaningful inside an address space, much as a room number is meaningful inside a particular building. The number 0x4028 in process A does not imply the same storage as 0x4028 in process B. A virtual mapping combines a range of virtual addresses, an underlying storage relationship, and access permissions. On the MMU-equipped Linux example used here, page tables support translation while the kernel manages those mappings. We are reasoning about process memory, not giving permission to inspect arbitrary addresses from a C++ program."
+        },
+        {
+          "type": "paragraph",
+          "text": "For the invented 4096-byte page size, division by 4096 determines the page number and the remainder determines the offset. In hexadecimal, that splits an address into its upper digits and its last three hexadecimal digits. A frame is a physical page-sized region in this simplified translation picture. Frame nine starts at 9 * 4096 = 0x9000; offset 0x28 is 40 bytes into it. A mapping can change without changing the virtual number used by the program. Permission checks and whether data is resident are separate aspects of servicing an access."
+        },
+        {
+          "type": "paragraph",
+          "text": "The layers answer different questions. The language asks whether a suitable object exists and may be accessed through a particular expression. The allocator manages reusable storage within the process. The operating system tracks mappings and physical memory. A profiler's virtual-size figure, an allocator's retained capacity, and a program's live-object count therefore need not rise and fall together. This separation is useful when investigating apparent memory leaks: persistent mappings alone do not identify which layer is retaining resources."
+        },
+        {
+          "type": "paragraph",
           "text": "A process normally uses virtual addresses. Hardware translation and operating-system page tables connect those addresses to physical memory, with permissions controlling allowed accesses. Two processes can use the same numeric virtual address while referring to different storage. Conversely, mappings in different processes can intentionally refer to shared storage. A numeric address by itself therefore does not identify an object throughout the whole machine."
         },
         {
           "type": "paragraph",
           "text": "A page mapping covers a range. Split an address into a virtual page number and an offset inside the page; translation changes the page identity while retaining the offset. For the example, assume pages of 4096 bytes, or hexadecimal 0x1000. This is an explicit teaching choice, not a statement that all systems use one page size. The Linux documentation describes architecture-dependent page sizes and multiple mapping mechanisms."
+        },
+        {
+          "type": "reflection",
+          "prompt": "After a large object is destroyed, the process resident-memory graph remains high. Does that prove the destructor failed to release its allocation?",
+          "explanation": "No. The allocator may keep freed storage available for later allocations, and OS residency is not a count of live objects. Check ownership and deallocation evidence at the language/allocator level, then inspect the mapping and residency information appropriate to the suspected problem. Conversely, a readable retained page does not make an old object pointer valid."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "Split 0x4028 as 0x4000 + 0x28. Both processes select virtual page four and offset forty. Process A's mapping replaces page four with frame nine, yielding 0x9000 + 0x28 = 0x9028. Process B replaces it with frame twelve, yielding 0xC000 + 0x28 = 0xC028. The offset must stay within the page; here forty is below 4096. No conclusion about the stored value follows merely from the address translation. Two distinct frames could currently contain equal bytes, while intentionally shared storage could later change through another permitted writer."
+        },
+        {
+          "type": "paragraph",
           "text": "The low offset, 0x028, remains the same. The process-specific page mapping supplies the frame. If a mapping instead has no permitted access, the operating system may need to handle a page fault or report an invalid access. A page fault is not synonymous with a program bug: demand paging can legitimately require the kernel to establish a mapping or bring data into memory."
         },
         {
           "type": "paragraph",
           "text": "Reserving virtual space also does not necessarily allocate one physical page immediately for every address. Linux anonymous mappings can obtain physical pages on demand. Consequently, virtual size and resident physical memory describe different quantities. Releasing a language-level allocation may leave allocator storage reserved for later reuse, so a process memory graph does not directly count live C++ objects."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a contrasting mapping, suppose process A maps virtual page four and process B maps virtual page seven to the same frame nine. A's 0x4028 and B's 0x7028 then designate the same physical location in this model. The virtual addresses differ, while the storage agrees. An application sharing structured data cannot simply put A's numeric pointer into that region and expect B to interpret it. B must locate the shared region through its own mapping; a validated offset relative to the region is one possible representation convention."
+        },
+        {
+          "type": "paragraph",
+          "text": "That convention still needs bounds, representation, and coordination rules. If a region has 4096 bytes and a record starts at offset 4080 with size 32, the record crosses the declared end because 4080 + 32 = 4112. Translating its first byte successfully does not validate the whole range. Similarly, sharing one frame does not make an update atomic or make an object lifetime valid in a programming language. These obligations belong to the data format, synchronization protocol, and language model used by both participants."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical shared mapping; 0x1000-byte pages\nA: virtual page 0x4 -> physical frame 0x9\nB: virtual page 0x7 -> physical frame 0x9\nA address 0x4028 -> frame 0x9, offset 0x028 -> 0x9028\nB address 0x7028 -> frame 0x9, offset 0x028 -> 0x9028\nDifferent virtual addresses, same modeled storage",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "Translate address 0x5ABC when virtual page five maps to frame two in the teaching model. Identify the page, offset, and result.",
+          "explanation": "The page number is five and the offset is 0xABC, which is 2748 and is less than 4096. Frame two starts at 0x2000. Adding the unchanged offset produces physical address 0x2ABC. The translation says nothing about whether a language-level read is valid."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "For an explicitly shared region, processes also need a compatible data representation and a synchronization protocol. Ordinary process-local pointer values generally cannot serve as portable references inside that region. Use the language course to reason about valid objects and the systems course to reason about mappings, permissions, and sharing. Keeping these questions separate helps explain why some lifetime bugs appear to work until memory is reused."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use page-and-offset reasoning to understand mappings, but keep “mapped,” “resident,” “allocated,” and “alive” as separate descriptions. Linux documentation supplies an implementation example, including demand allocation; C++ lifetime rules supply different constraints. When debugging, first decide which layer's promise seems violated. That choice determines whether to investigate object ownership, allocator retention, address mappings, or a shared-data protocol."
         }
       ]
     }
@@ -96,5 +140,5 @@
       "locator": "Official implementation documentation, §3.2.3.4: freed allocations may be retained for reuse instead of returned immediately to the operating system; consulted 2026-09-11. GNU allocator behavior is an implementation example, not an ISO C++ guarantee."
     }
   ],
-  "version": 2
+  "version": 3
 }

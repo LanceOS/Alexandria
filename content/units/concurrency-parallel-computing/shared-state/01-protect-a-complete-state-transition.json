@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "parallel_protect_a_complete_state_transition_module",
-  "versionId": "parallel_protect_a_complete_state_transition_v1",
+  "versionId": "parallel_protect_a_complete_state_transition_v2",
   "slug": "protect-a-complete-state-transition",
   "title": "Protect a complete state transition",
   "summary": "Show why individually safe reads and writes can still violate an application rule.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The ticket problem is a state-machine problem before it is a choice of synchronization primitive. Let capacity be the original number of tickets, available the unsold number, and confirmed the number of successful sales. In our model there are no cancellations and each sale uses one ticket, so the invariant is available + confirmed = capacity, with both counts nonnegative. A successful sale changes available by minus one and confirmed by plus one as one logical transition. A rejected sale changes neither."
+        },
+        {
+          "type": "paragraph",
+          "text": "The invariant spans more than a single variable. Merely keeping available nonnegative is insufficient: the faulty trace ends at available zero but confirms two sales. Checking the full relationship exposes the oversell. Atomicity at the application level means other participating operations cannot observe or act on a partly completed transition. A mutex is one way to enforce that protocol, but the protocol must cover every relevant read, validation, and state change. An independently atomic load or store protects a smaller operation than the sale requires."
+        },
+        {
+          "type": "paragraph",
+          "text": "For this reasoning we assume workers follow the displayed order, critical-section entry provides exclusive access, and the state remains alive until workers finish. These assumptions allow discussion of a logic race without inventing results for undefined C++ executions. Safety means the application never violates its invariant. Progress asks whether operations eventually complete or can remain blocked. A design can preserve ticket counts perfectly by allowing nobody to proceed, so safety alone is not the service's whole contract."
+        },
+        {
+          "type": "paragraph",
           "text": "Two workers sell the last available ticket. The application invariant says no more tickets may be sold than the initial capacity. Suppose each read and write is individually indivisible and visible in the order shown, but reading availability, deciding, and recording a sale are separate operations. That model lets us expose a logic race without asserting what an invalid C++ program would do."
         },
         {
           "type": "paragraph",
           "text": "One worker can read availability before another finishes its decision. Both then act on observations that were true when read but are no longer enough to justify a sale. Replacing an ordinary variable with individually atomic loads and stores does not automatically turn the whole decision into one coordinated operation. The unit of correctness is the application state transition."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A worker reads available before taking the lock, then uses that saved value to decide inside the lock. Does exclusive access around the write fix the sale?",
+          "explanation": "No. The decision can still rely on stale availability. Read or revalidate the relevant current state while holding the same protection used for the commit. The entire check-and-change transition must be coherent, not only the final assignment."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "In the faulty schedule, both workers read one before either records a completed sale. A's decision is justified by its observation; B's later decision uses an observation that became stale. The final count available=0 hides the fact that two independent confirmations escaped. In the coordinated schedule, A owns the transition while checking and decrementing. When B later obtains access, it must check the current zero rather than use a value saved before entering. Moving only the decrement inside a critical section would still allow both workers to decide to sell outside it."
+        },
+        {
+          "type": "paragraph",
           "text": "The protected operation includes checking the condition and committing the state change. All participants must follow the same coordination protocol. A lock used by only the writers does not help a reader that ignores it. Keep slow unrelated work outside the critical section when possible, while ensuring any prepared result is still valid when the state is committed."
         },
         {
           "type": "paragraph",
           "text": "A language data race has a technical definition involving conflicting accesses and ordering. In ordinary C++, a data race causes undefined behavior, so the first schedule must not be presented as a guaranteed result from unsynchronized non-atomic variables. OpenMP likewise specifies sharing and synchronization rules for its own model. Here the schedule demonstrates a broader logic error under explicitly stronger assumptions."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a second schedule, transfer ten units from account X to account Y. Both operations need the pair of balances to change consistently. Worker A takes X's lock and waits for Y; worker B takes Y's lock and waits for X. Neither can reach the step that releases its first lock, creating circular waiting. A global order, such as always locking X before Y for this pair, removes this particular cycle: B waits for X while holding no Y lock, so A can finish."
+        },
+        {
+          "type": "paragraph",
+          "text": "The ordering rule must be consistent for every participant and every pair; a convenient local order chosen independently by each function is not global. Keeping arbitrary callbacks out of the protected region also matters because they may request another lock or reenter the service. Move notification or slow work outside only after deciding what must remain atomic. For example, confirming a sale externally after unlocking introduces an error policy if notification fails; it must not silently undo or duplicate the already committed reservation. That policy is separate from protecting the counter."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical deadlock schedule; locks remain held while waiting\nA acquires X\nB acquires Y\nA requests Y -> waits for B\nB requests X -> waits for A\nNeither can finish\n\nConsistent order X then Y:\nA acquires X; B waits for X without holding Y\nA acquires Y, commits transfer, releases Y and X\nB can proceed when scheduled",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "The capacity is two. Starting with available=2 and confirmed=0, trace three correctly coordinated one-ticket requests and verify the invariant after each.",
+          "explanation": "The first request succeeds, yielding available=1 and confirmed=1. The second succeeds, yielding 0 and 2. The third sees zero and rejects without change. In every checkpoint the counts are nonnegative and sum to two. This trace illustrates the protocol; its correctness for all interleavings follows from exclusive execution of transitions that preserve the invariant."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Ask separately whether the invariant holds and whether workers can make progress. Document lock ownership, permitted callbacks, cancellation behavior, and the lifetime of shared state. Tests can explore many schedules but do not enumerate every possible interleaving. Begin with a small state machine and a clear protocol before choosing lower-level optimizations such as lock-free data structures."
+        },
+        {
+          "type": "paragraph",
+          "text": "Before optimizing coordination, write the state variables, invariant, permitted transitions, and who participates in each synchronization rule. Then examine waiting, reentrancy, cancellation, and object lifetime. Tests can target specific damaging schedules, while the protocol explains why no permitted overlap should violate the application rule. C++ atomics and locks implement particular ordering guarantees; they do not choose the correct size of a business operation for you."
         }
       ]
     }
@@ -97,5 +141,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/intro.races",
       "locator": "Primary standards draft, not the published ISO edition: N4861 [intro.races] paragraphs 2–6 and 21; conflicting actions, synchronization, atomic operations, and undefined behavior from a data race. Pinned C++20 text inspected 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

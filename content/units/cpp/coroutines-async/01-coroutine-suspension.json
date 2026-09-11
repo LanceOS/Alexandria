@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_coroutine_suspension_module",
-  "versionId": "cpp_coroutine_suspension_v1",
+  "versionId": "cpp_coroutine_suspension_v2",
   "slug": "coroutine-suspension",
   "title": "Trace a coroutine’s suspension points",
   "summary": "Observe a coroutine pause and resume on one thread while an owning object controls its frame.",
@@ -23,6 +23,19 @@
         {
           "type": "paragraph",
           "text": "Stepper is deliberately small. Its initial_suspend pauses before the body starts, and final_suspend keeps the completed frame suspended so its owner can destroy it. The wrapper forbids copying, transfers ownership on move construction, and checks done before resuming. Its exception policy is explicit termination; a production task abstraction would normally define an appropriate propagation policy instead."
+        },
+        {
+          "type": "paragraph",
+          "text": "A normal helper usually runs until it returns or throws. A coroutine introduces resumable suspension points, so its caller can regain control before the body reaches completion. State needed across suspension belongs to the coroutine state rather than disappearing merely because control has returned to the caller. That mechanism still needs an owner and a policy for deciding when resumption is valid."
+        },
+        {
+          "type": "paragraph",
+          "text": "Read Stepper as two cooperating pieces. promise_type is the interface the language mechanism uses to obtain the return object and handle initial suspension, completion, and exceptions. Stepper is the caller-facing owner that stores a handle and releases the frame. The handle identifies the coroutine state but does not by itself enforce unique ownership. Deleting copies and transferring the handle during move construction are explicit wrapper decisions."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why would simply allowing two Stepper objects to copy the same handle be unsafe with this destructor?",
+          "explanation": "Both owners would believe they must destroy the same frame. After the first destruction, the second handle would refer to state that no longer exists. Unique ownership requires either disabling copies, as here, or designing another explicit ownership scheme; the raw handle does not count owners or prevent duplicate destruction."
         }
       ]
     },
@@ -50,6 +63,29 @@
           "type": "callout",
           "title": "A teaching owner, not an asynchronous runtime",
           "text": "This wrapper is only used by one caller on one thread. It has no scheduler, I/O integration, cancellation, result channel, or protection against concurrent resume and destruction. Its invariant is that owned frames are suspended whenever the wrapper is called from outside the coroutine."
+        },
+        {
+          "type": "paragraph",
+          "text": "get_return_object obtains a handle referring to the promise’s coroutine and uses it to construct the wrapper. initial_suspend then supplies suspend_always, which pauses before the visible body executes. Consequently the creation call does not print first. The next output comes from main and is created. This ordering depends on the selected initial-suspension policy; it is not a rule that every coroutine body must start lazily."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "State machine for the complete example",
+          "code": "After chapters(): suspended initially, no body output\nFirst resume: print first -> suspend at explicit co_await\nBack in main: print paused\nSecond resume: print second -> finish body -> final suspension\nThird wrapper resume: done is true -> no resumption\nOwner destruction: destroy the suspended completed frame"
+        },
+        {
+          "type": "paragraph",
+          "text": "At the explicit co_await, the awaiter protocol decides whether suspension is needed and what happens around it. await_ready asks whether the await can proceed without suspension; await_suspend participates if suspension is taken; await_resume supplies the continuation-side result or behavior. suspend_always is intentionally simple so the example isolates control transfer without an event source, result value, or scheduler."
+        },
+        {
+          "type": "paragraph",
+          "text": "The body’s end and frame destruction are distinct events in this wrapper. return_void supports completion without a value, and final_suspend returns suspend_always so the completed frame remains available for the owning wrapper to destroy. done is true at final suspension, making the third wrapper call a no-op. Directly resuming a coroutine at final suspension would violate the resumption precondition; the wrapper’s guard is part of its contract."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If main omitted the second resume, which lines would be printed and would destroying task execute the remaining second output?",
+          "explanation": "The output would be created, first, and paused, each followed by a newline. task would still be suspended at the explicit await. Its destruction would destroy the suspended state; it would not continue executing the remaining body to print second. Destruction cleans up state, whereas resumption continues computation."
         }
       ]
     },
@@ -65,6 +101,22 @@
         {
           "type": "paragraph",
           "text": "Real awaiters may register an operation and arrange for a runtime to resume the coroutine when a result is ready. Their await_ready, await_suspend, and await_resume methods serve distinct roles. Learn that protocol separately from the scheduler’s guarantees. Avoid holding a mutex across suspension unless the surrounding runtime and lock protocol explicitly make that valid; resumption might otherwise occur on a different thread."
+        },
+        {
+          "type": "paragraph",
+          "text": "A contrasting policy is an awaiter whose result is already ready. It may permit continuation without suspension, so seeing co_await in source does not prove that control returns to the caller at that location in every execution. A real runtime can also resume on a different thread according to its contract. Neither possibility should be inferred from this manual same-thread demonstration without reading that runtime’s guarantees."
+        },
+        {
+          "type": "paragraph",
+          "text": "The exception policy here is deliberately narrow: unhandled_exception invokes termination. The example is not a reusable task type that transports an exception to a caller. A production abstraction may store an exception in its state and rethrow it through an awaited result, but doing so requires defining where that result is observed and who owns unfinished work. Allocation failure before normal coroutine execution also belongs to the construction contract."
+        },
+        {
+          "type": "paragraph",
+          "text": "Likewise, suspendability does not make arbitrary critical sections safe. A mutex held over an await can block other work for an unexpectedly long time, and a runtime that changes the executing thread may violate a thread-affine lock protocol. Keep the protected state transition within a clearly defined execution region or use the runtime’s appropriate coordination mechanisms. This is a dependency question, not something solved by the co_await spelling."
+        },
+        {
+          "type": "paragraph",
+          "text": "For every new awaiter or task type, write down who resumes, on which execution context, what prevents simultaneous resume and destruction, how completion is observed, and how errors and cancellation are represented. The current example answers those questions with one caller, one thread, manual resumes, unique ownership, and explicit termination. Those small assumptions are what make its complete event trace understandable."
         }
       ]
     }
@@ -100,5 +152,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/coroutine.handle.resumption",
       "locator": "Primary standards draft, [coroutine.handle.resumption]: resume/destroy preconditions and thread identity. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
     }
-  ]
+  ],
+  "version": 2
 }

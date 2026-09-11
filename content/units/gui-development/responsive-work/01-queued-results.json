@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "gui_development_responsive_work_module",
-  "versionId": "gui_development_responsive_work_version_1",
+  "versionId": "gui_development_responsive_work_version_2",
   "slug": "queued-results",
   "title": "Return background results to the GUI thread",
   "summary": "Trace worker completion without unsafe widget access or stale results.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "gui_development_responsive_work_part_concepts",
-      "title": "Understand the model",
+      "title": "Thread affinity, ownership, and relevance",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "Qt GUI objects such as QWidget must be used from the main thread. Time-consuming work can run in a worker and deliver results for the GUI thread to display. QObject instances have thread affinity, and queued signal delivery runs the receiver’s slot through the receiver thread’s event loop. Moving work elsewhere does not automatically solve object lifetime or stale results. A user may change their request while an earlier calculation is still running. Carry enough context with each result to decide whether it still belongs to the current interface state. Do not use a C++ mutex as permission to call a widget from an unsupported thread."
+        },
+        {
+          "type": "paragraph",
+          "text": "An event loop dispatches queued work for objects associated with its thread. Queued delivery changes where and when a receiver runs; it does not make a long-running receiver inexpensive. If the GUI slot spends several seconds parsing a result, the interface can still stall even though the computation began in a worker. Design both the worker operation and the GUI application of its result to fit their respective responsibilities."
+        },
+        {
+          "type": "paragraph",
+          "text": "Thread affinity is an object-use contract, while ownership is a lifetime contract. A result can arrive on the correct thread but refer to destroyed worker storage. Conversely an owned result can be perfectly alive yet be applied from an unsupported thread. The example carries owned values through a supported queued connection so both questions have explicit answers. It does not rely on a mutex to make arbitrary GUI access valid."
+        },
+        {
+          "type": "paragraph",
+          "text": "Request identity solves a third problem: relevance. A worker result describes the inputs it received, which may no longer match the current request. Attaching the request number gives the GUI a way to compare that context when handling the result. Check relevance at delivery time, not only when the worker starts or finishes, because the user can change requests while the result waits in the event queue."
+        },
+        {
+          "type": "paragraph",
+          "text": "Cancellation is an optimization and lifecycle tool, not a substitute for the relevance check. A job may finish just before it observes cancellation, or its result may already be queued. A robust receiver can discard the obsolete value regardless of whether the worker cooperated in time. The numbering scheme also needs an application policy for unique identities over the relevant lifetime; the finite trace avoids wraparound and reuse."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Requests 5,6,7 are submitted in order. Results arrive 6,5,7 while 7 remains current. Which results are shown?",
+          "explanation": "Six and five are discarded because their identities do not match seven. Seven is displayed when it arrives. It is irrelevant that six was computed more recently than five: both describe obsolete inputs. The UI can retain a loading state until the current result arrives rather than presenting an old result as if it answered the newest request."
         }
       ]
     },
     {
       "id": "gui_development_responsive_work_part_trace",
-      "title": "Work through an example",
+      "title": "Trace queued results across a newer request",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "Completion order differs from submission order, so simply displaying the latest arriving result would show alpha after the user asked for beta. The request identity lets the receiver enforce the application rule. The queue transfers notification to the appropriate event loop, while the owned result value solves a distinct lifetime concern. The GUI thread must continue processing events; blocking it while waiting for a worker would defeat the responsiveness this arrangement is meant to provide."
+        },
+        {
+          "type": "paragraph",
+          "text": "Request 42 becomes current when beta is submitted. Worker 42's result carries 42, so the GUI's equality check succeeds and displays beta. Worker 41 later returns correct alpha results, but correct computation does not imply current relevance. The receiver compares 41 with 42 and discards alpha. It does not need to know why the jobs finished out of order."
+        },
+        {
+          "type": "paragraph",
+          "text": "The comparison and display update occur together in the stipulated GUI-thread event handling. If the receiver checked relevance in the worker and then displayed later without rechecking, the user could submit another request in between. Returning the check to the authoritative interface state makes the decision depend on the moment the result would affect the view."
+        },
+        {
+          "type": "callout",
+          "title": "Trace queued results across a newer request",
+          "text": "Contrasting delivery race: worker 41 finishes and queues its result while request 41 is still current. Before the GUI handles that event, the user submits request 42."
+        },
+        {
+          "type": "paragraph",
+          "text": "By the time the result event runs, currentRequest is 42, so the old result is discarded even though it was current when computed. This is why finishing order and queueing time are insufficient. The application rule concerns the current request at the actual state update."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now suppose the window closes before either event is delivered. A request-number comparison cannot make a destroyed receiver safe. Use a supported connection context and lifecycle design so stale callbacks do not dereference it. The worker may finish independently and release its owned result without displaying it. If closing must wait for cancellation or cleanup, define that shutdown behavior separately and avoid an unbounded blocking wait in ordinary GUI interaction."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A worker returns a pointer into a temporary result buffer, then destroys that buffer before the queued slot runs. Does correct thread affinity or request identity fix this?",
+          "explanation": "Neither fixes the dangling storage. The receiver needs an owned result value or another explicit lifetime arrangement that keeps the data alive through its last use. Thread affinity determines where the slot executes, and identity determines whether the result is relevant. They cannot extend a temporary buffer's lifetime. Audit all three contracts separately."
         }
       ]
     },
     {
       "id": "gui_development_responsive_work_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice stale results and shutdown",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "If a worker holds a mutex shared with the main thread, may it directly change a QWidget label?",
           "explanation": "No. A mutex can coordinate participating memory accesses, but it does not remove the framework’s GUI-thread requirement. Deliver the result to the GUI thread through an appropriate queued mechanism and update the widget there. Thread affinity and mutual exclusion are different contracts."
+        },
+        {
+          "type": "paragraph",
+          "text": "A responsive background workflow needs computation off the GUI thread, appropriate delivery back to it, owned data and a relevance check at application time. Test reversed completions, queue delays, cancellation races and receiver closure as distinct scenarios. These same contracts apply to previews, document analysis and network searches; the framework's event-loop and object-lifetime rules determine the supported implementation."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://doc.qt.io/qt-6/threads-qobject.html",
       "locator": "Primary documentation: QObject Reentrancy, Per-Thread Event Loop, Signals and Slots Across Threads; GUI affinity and queued delivery; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

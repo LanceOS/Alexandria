@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "robotics_sensor_communication_module",
-  "versionId": "robotics_sensor_communication_version_1",
+  "versionId": "robotics_sensor_communication_version_2",
   "slug": "freshness-contract",
   "title": "Specify freshness and delivery expectations",
   "summary": "Compare queue history, reliability and age of robotic observations.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "robotics_sensor_communication_part_concepts",
-      "title": "Understand the model",
+      "title": "Delivery, retention, and observation age",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "ROS 2 quality-of-service profiles combine policies such as history, depth, reliability, deadline and lifespan. Keep-last history bounds the number of stored samples; lifespan addresses how long a sample remains acceptable; reliability addresses delivery behavior. These are different questions. Incompatible publisher and subscriber profiles can prevent communication even when topic names agree. Sensor processing often values a recent observation more than a complete backlog, but that is an application requirement, not a rule for every robot message. A commanded action, calibration record and camera frame may need different contracts. Make those choices explicit at both ends of the connection."
+        },
+        {
+          "type": "paragraph",
+          "text": "A communication requirement should describe the consumer's task. A display may need the newest usable temperature, whereas an event ledger may need every accepted observation. Keeping all old samples can be counterproductive for the display if processing the backlog delays the newest one. Discarding intermediate events can be unacceptable for the ledger. The same topic payload can therefore need different delivery and retention policies for different consumers."
+        },
+        {
+          "type": "paragraph",
+          "text": "History depth limits how many samples are retained under keep-last. It is a count, not a duration. At a high publishing rate, two samples span a short time; at a low rate they can be far apart. An age requirement instead compares a timestamp with a relevant current time. These controls can complement one another, but neither is a substitute for the other."
+        },
+        {
+          "type": "paragraph",
+          "text": "ROS 2 deadline and lifespan also answer different questions. Deadline describes expected message timing; lifespan concerns expiration between publication and reception under middleware policy. The application may additionally care about age since physical observation, which can precede publication. A sensor that holds an old measurement before publishing it can therefore satisfy a transport-level interval while violating an observation-age requirement."
+        },
+        {
+          "type": "paragraph",
+          "text": "Timestamp comparison requires a clock model. The finite trace assumes producer and consumer clocks agree and treats the timestamps as observation times. Real systems need to account for clock offset, synchronization uncertainty and clock changes. A negative computed age is not evidence of exceptionally fresh data; it may indicate mismatched time bases or a malformed timestamp. Define how invalid or uncertain timing affects acceptance."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Samples are produced at 0,100,200 ms with depth two, and the consumer reads at 205 ms under a twelve-millisecond observation-age limit. Assume shared timestamps, immediate delivery and no earlier consumption. Which samples remain and which qualify? What time span does depth two represent here?",
+          "explanation": "History retains S100 and S200. Their ages are 105 and five milliseconds, so only S200 is accepted. The history count is two and the retained observations span one hundred milliseconds. A publisher with ten milliseconds between samples could retain two observations spanning only ten milliseconds under comparable assumptions. Depth alone cannot express a freshness duration."
         }
       ]
     },
     {
       "id": "robotics_sensor_communication_part_trace",
-      "title": "Work through an example",
+      "title": "Trace a delayed consumer and the age boundary",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The history limit and age rule remove different samples for different reasons. Increasing reliability would not turn the fifteen-millisecond-old observation into a five-millisecond-old one. A reliable transport can still face delay, so a control system must decide whether late data remains useful. The application rule is spelled out separately from middleware lifespan so that the trace does not depend on a particular middleware’s scheduling or cache implementation."
+        },
+        {
+          "type": "paragraph",
+          "text": "After the third sample, keep-last depth two retains S10 and S20 and removes S0. This is a storage decision before the consumer applies its age rule. At t=25, S10 has age 25-10=15, exceeding twelve, while S20 has age 25-20=5 and is accepted. Only S20 is suitable under the combined model even though two samples remain in history."
+        },
+        {
+          "type": "paragraph",
+          "text": "The stale S10 may have been delivered intact and in order. Its rejection does not imply transport corruption or a broken reliability setting. Conversely S0's absence is explained by history replacement without evaluating its age at t=25. Tracking each reason separately gives useful diagnostics: overwritten, expired by middleware, rejected by application age, or never delivered are distinct outcomes."
+        },
+        {
+          "type": "callout",
+          "title": "Trace a delayed consumer and the age boundary",
+          "text": "Contrasting consumer delay: let no new samples appear and move the consumer time to 35 ms while the same two samples remain available for this application-level trace."
+        },
+        {
+          "type": "paragraph",
+          "text": "S10 is now 25 ms old and S20 is 15 ms old, so both exceed twelve and neither is accepted. A reliable connection cannot make the stalled sensor produce a recent observation. The display should enter its defined stale-data state rather than keep showing the last value as though it were current."
+        },
+        {
+          "type": "paragraph",
+          "text": "At t=32, S20's age is exactly twelve. The stated rule rejects samples older than twelve, so equality is accepted in this exact arithmetic model. Changing the requirement to twelve or older would reject it. Clock uncertainty may motivate a conservative boundary in a real system, but that is an additional documented policy, not a reason to leave the comparison ambiguous."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A measurement observed at 0 ms is published at 20 ms and received at 25 ms. What are its observation age and publication-to-reception delay, and which applies to a twelve-millisecond observation-age rule?",
+          "explanation": "Observation age is 25-0=25 ms. Publication-to-reception delay is 25-20=5 ms. The observation-age rule rejects it because twenty-five exceeds twelve, even though delivery after publication was quick. Store the relevant timestamp explicitly; using publication time would answer a different question about the data."
         }
       ]
     },
     {
       "id": "robotics_sensor_communication_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice freshness contracts",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Can a reliable connection guarantee that a displayed value is recent enough for this application?",
           "explanation": "No. Reliability and age are separate dimensions. The application needs an explicit freshness requirement, timestamps and an action when that requirement is not met. In the trace a sample can arrive intact and still be rejected because its age exceeds twelve milliseconds."
+        },
+        {
+          "type": "paragraph",
+          "text": "Choose communication settings from data meaning, then inspect publisher/subscriber compatibility and clock assumptions. Trace retention and age separately, including a stopped producer and exact boundary values. This makes stale-data behavior explicit for the consumer. Extending the design to control actions requires additional application consequences for missing or delayed information rather than assuming every message can use a display-oriented policy."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://raw.githubusercontent.com/ros2/ros2_documentation/jazzy/source/Concepts/Intermediate/About-Quality-of-Service-Settings.rst",
       "locator": "Primary documentation: QoS policies, profiles and compatibility; history, reliability, deadline and lifespan; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

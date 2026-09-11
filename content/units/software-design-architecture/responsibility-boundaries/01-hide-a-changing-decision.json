@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "design_hide_a_changing_decision_module",
-  "versionId": "design_hide_a_changing_decision_v2",
+  "versionId": "design_hide_a_changing_decision_v3",
   "slug": "hide-a-changing-decision",
   "title": "Hide a changing decision behind a stable boundary",
   "summary": "Compare two decompositions of a reading-log application.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Information hiding is about dependencies on decisions. A source file can be physically separate while still requiring every caller to know its field order, indexing convention, or failure policy. Conversely, a small function can hide a useful decision without a large class hierarchy. For the reading log, ask which knowledge a screen or calculation really needs: a session's book identity and duration, or details such as commas, database columns, and file offsets?"
+        },
+        {
+          "type": "paragraph",
+          "text": "Use a change scenario to evaluate a boundary. Suppose the storage format changes while the meaning of a Session value stays the same. Count the callers that understand the old representation and explain why they must change. A repository boundary can concentrate encoding, decoding, and storage access so the rest of the application works with domain values. Parnas's paper motivates examining changeable decisions; the reading-log comparison is our own scenario analysis rather than an empirical claim about reduced development time."
+        },
+        {
+          "type": "paragraph",
+          "text": "A hidden decision must be distinguished from observable behavior. Callers may not need the physical storage format, but they do need to know whether save can fail, whether it saves an entire batch or only some records, and when a saved session becomes visible. Removing those facts from the interface does not simplify the system; it leaves callers guessing. A useful contract reveals necessary promises while keeping implementation choices behind the boundary."
+        },
+        {
+          "type": "paragraph",
           "text": "A reading log accepts sessions, calculates progress, and saves records. Splitting the program into input, calculation, and output stages looks orderly, but it may still spread knowledge of the file format across all three. If every stage knows that the third comma-separated field contains minutes, a format change requires coordinated edits. The important dependency is knowledge, even if each stage lives in a different source file."
         },
         {
           "type": "paragraph",
           "text": "Parnas’s decomposition paper compares alternative structures and argues for hiding difficult or changeable decisions behind module interfaces. Apply that idea by identifying what should remain stable for a caller. In this application, callers need to save and retrieve sessions. They need not know whether storage is a text file, a database, or an in-memory collection. This is an original change-analysis example, not a result measured in the paper."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Propose a test for replacing file storage with an in-memory implementation that avoids asserting the file's comma placement.",
+          "explanation": "Construct valid Session values, save them through the repository contract, retrieve them, and compare the promised values and ordering. Also exercise documented failures and batch behavior. Run the same contract checks against both implementations. Separate format-specific tests remain useful inside the file adapter, but callers' tests should not demand its private byte layout."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "Trace the database replacement by following representations. In Design A, the screen creates comma-separated rows, so it must learn a new representation or adapter. The progress calculation parses rows, so its input assumptions change too. The save routine changes its persistence mechanism. In Design B, the screen still constructs Session values and progress still consumes them; the repository replaces its conversion and storage logic. Those callers can remain unchanged only if the repository's observable contract is preserved. New transaction or failure semantics may still require coordinated changes, even though row-format knowledge is localized."
+        },
+        {
+          "type": "paragraph",
           "text": "Design B reduces the number of places that must understand the storage representation. It does not eliminate all changes: database failures, transactions, and migration requirements still need explicit policies. An interface that promises instantaneous, infallible storage would hide information callers actually require. The goal is a useful separation of responsibilities, not concealment of observable behavior."
         },
         {
           "type": "paragraph",
           "text": "A boundary also has a cost. An unnecessary abstraction can add indirection, conversions, configuration, and vocabulary. If a program has one tiny stable operation, a function may be enough. Judge a proposed boundary by the actual changes and independent reasoning it enables. A diagram with many boxes is not evidence of maintainability by itself."
+        },
+        {
+          "type": "paragraph",
+          "text": "Contrast a representation change with a domain change. The product now permits fractional minutes instead of whole minutes. That changes what a Session means, how input is validated, how totals are calculated, and how values are displayed. It may also change storage. A repository boundary should not be expected to contain all of that change, because those other responsibilities legitimately depend on duration semantics. This is a healthy distinction: a boundary judged by the wrong change scenario can appear to fail even when it hides its intended decision well."
+        },
+        {
+          "type": "paragraph",
+          "text": "For another review question, imagine that the repository returns a database cursor and raw column numbers instead of Session values. The class is named Repository, but callers still depend on storage representation. A database replacement then leaks through the apparent abstraction. Returning a sequence of domain values or another intentionally defined interface can remove that coupling, but may add materialization costs. If large result sets matter, specify iteration, error, and lifetime behavior without forcing callers to interpret storage-specific columns. The boundary should match the actual workload rather than a preferred pattern name."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical change-impact comparison\nStorage CSV -> database, Session meaning unchanged:\n  representation conversion and persistence stay in repository\nWhole minutes -> fractional minutes:\n  input rules, Session meaning, arithmetic, presentation, and storage may change\nRepository returns raw cursor/column numbers:\n  representation knowledge still leaks to callers despite the class name",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "A title-sort policy changes from case-sensitive ordering to a documented language-aware ordering. Which boundary should hide that decision, and which callers may still need updates?",
+          "explanation": "A sorting/search policy component can concentrate the comparison decision so callers request the intended order without duplicating it. Callers whose observable behavior depends on that order, such as pagination or cached indexes, still need review. Hiding implementation details does not make an externally changed ordering invisible or automatically compatible."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "For each boundary, write the responsibility, the hidden decisions, the information exchanged, and one expected change. Then ask which callers must change and why. Add tests at the observable boundary so an implementation replacement can be checked against the same expectations. This makes a design review a discussion about behavior and dependencies rather than a debate over preferred patterns."
+        },
+        {
+          "type": "paragraph",
+          "text": "For every proposed module, write the decision it owns, what clients must know, the failure/lifetime contract, and one plausible change it should contain. Also name a change it should not contain because that change affects public meaning. This makes abstraction a reasoned tradeoff about dependency and cost, rather than equating maintainability with the number of files, interfaces, or layers."
         }
       ]
     }
@@ -90,5 +134,5 @@
       "locator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
     }
   ],
-  "version": 2
+  "version": 3
 }

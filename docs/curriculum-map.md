@@ -2,6 +2,8 @@
 
 The catalog contains **25 topics, 25 root units, 66 subunits, and 89 modules (267 lesson parts)**. Every module uses the established C++ layout: objectives, three ordered sections, worked examples, explained reflection, and sources. These are substantive initial lessons in each area, not a claim that two lessons exhaust an entire discipline.
 
+The [curriculum depth standard](../notes/curriculum-depth.md) applies to every unit and module. The [depth expansion review](reviews/2026-09-11-curriculum-depth.md) records the detailed walkthroughs, contrasting cases, and explained practice added throughout all 89 modules while preserving the hierarchy.
+
 ## Subject boundaries and reading order
 
 C++ owns language semantics, its standard library, object lifetime, value semantics, templates, and the mechanisms of compilation and concurrency. Supporting subjects own transferable principles such as algorithm analysis, software design, numerical analysis, and security. Application tracks combine those prerequisites with a domain and its official APIs.

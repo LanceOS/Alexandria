@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "foundations_reason_about_a_loop_module",
-  "versionId": "foundations_reason_about_a_loop_v2",
+  "versionId": "foundations_reason_about_a_loop_v3",
   "slug": "reason-about-a-loop",
   "title": "Reason about a loop using an invariant",
   "summary": "Explain why a counting process computes the required answer and eventually stops.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "A loop is difficult to review when its explanation says only “keep adding until done.” The invariant turns the moving state into a precise claim at a chosen checkpoint. Our checkpoint is immediately before testing whether another entry remains. Let n be the fixed list length and k the processed count. The claim has two parts: 0 <= k <= n, and total equals the sum of entries at indices 0 through k-1. The second part concerns an empty set of entries when k is zero; its sum is defined as zero."
+        },
+        {
+          "type": "paragraph",
+          "text": "Notice that the sum and k usually change. What stays true is the relationship between them. Naming a condition such as total >= 0 would be too weak: a program that always returns zero satisfies it but computes the wrong answer. A useful invariant connects enough state to the intended result. The bound on k is also essential because it explains which next access is permitted. Assume the list does not change during the loop, every access succeeds, and each input and accumulated result is representable under the chosen arithmetic."
+        },
+        {
+          "type": "paragraph",
+          "text": "There are three different moments to analyze. Initialization establishes the invariant before repetition. Preservation shows that one complete body takes a valid checkpoint state to another. Exit reasoning combines the invariant with the fact that the loop condition is false. A separate decreasing measure explains termination. Keeping these obligations distinct helps localize a mistake: an incorrect initial total is an initialization error, while forgetting to advance k is usually a preservation or progress error."
+        },
+        {
+          "type": "paragraph",
           "text": "Suppose a program receives a finite list of nonnegative reading-session lengths and must compute their sum. At the start of an iteration, let processed be the number of entries already visited and total be their sum. The useful invariant is: total equals the sum of exactly the first processed entries, and processed lies between zero and the list length. An invariant describes a relationship, not merely a variable that stays numerically unchanged."
         },
         {
           "type": "paragraph",
           "text": "Before the first iteration, processed and total are both zero. The sum of an empty prefix is zero, so the invariant already holds. Assume exact mathematical integers for this reasoning. When translating to a fixed-width language type, checking that the total fits is an additional obligation; algebra does not override machine arithmetic."
+        },
+        {
+          "type": "reflection",
+          "prompt": "For an empty input, use initialization k=0 and total=0 and the loop condition k<n. Explain both correctness and termination. Does the body need a special case?",
+          "explanation": "At initialization k = n = 0 and total = 0, so the empty-prefix invariant holds. The condition k < n is already false; no element is accessed and the body runs zero times. The exit condition yields the full empty-list sum, zero. The progress measure is already zero, so termination is immediate without a separate branch."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "Read the [8, 0, 12] trace by following the next index, not by guessing totals. At k = 0 the next entry is index zero, whose value is eight. After adding it, total is eight but k is still zero until the increment. The checkpoint invariant need not hold between these two statements; it must be restored when the complete body finishes. At k = 1, adding the zero preserves total's numeric value while changing the prefix's membership. Finally index two contributes twelve, giving twenty at k = 3. Because k < n is now false and k <= n still holds, k must equal n."
+        },
+        {
+          "type": "paragraph",
           "text": "While processed is less than the list length, the next entry exists. Add that entry to total, then advance processed by one. The new total includes precisely the new prefix, so the invariant is preserved. The zero-length session changes the prefix without changing the total; this demonstrates why the relationship matters more than whether a value changed."
         },
         {
           "type": "paragraph",
           "text": "At exit, processed equals the list length. Combining that fact with the invariant gives the desired result: total is the sum of the entire list. This pattern—establish a relationship, preserve it, and combine it with the exit condition—is the central idea behind the iteration rule in Hoare’s paper. It establishes the result if execution terminates; termination deserves its own explanation."
+        },
+        {
+          "type": "paragraph",
+          "text": "As a contrasting task, suppose the result should sum only sessions strictly greater than five minutes. Keep the same visited-prefix idea but change what the prefix contributes: total is the sum of qualifying entries among the first k, including zero contribution from rejected entries. For [2, 8, 0, 12], the checkpoint totals are 0, 0, 8, 8, and 20. The index must advance whether or not an entry qualifies. Incrementing only inside the “greater than five” branch would get stuck immediately on two."
+        },
+        {
+          "type": "paragraph",
+          "text": "This modification demonstrates why a proof must match the actual requirement. Reusing the original invariant “sum of all visited values” would be false after the first skipped two. Reusing the progress measure n - k is appropriate because every completed iteration still visits exactly one entry. The measure begins at four, then becomes three, two, one, and zero. A nonnegative integer cannot decrease by one indefinitely. This is a termination argument under the stated fixed-list and successful-operation assumptions, not a promise that arbitrary blocking work in the body will finish."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical filtered-sum trace; accept only values greater than 5\nInput       k after visit   total after visit\nstart       0               0\n2           1               0\n8           2               8\n0           3               8\n12          4               20",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "For [5], what fails if the body increments k before reading entry k? Give a repair and the checkpoint argument.",
+          "explanation": "Starting at k = 0, incrementing first produces k = 1 and attempts to read beyond the one-element list. Read entry k while k < n, add it, then increment. The repaired body visits index zero exactly once and exits with k = n = 1 and total = 5."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Use list length minus processed as a decreasing measure. It begins as a nonnegative integer and falls by one each iteration, so the loop cannot repeat forever under the stated assumptions. For an empty list, the body runs zero times and the initialized result is already correct. Try tracing a one-element list and explain both the invariant and progress measure in words. A good explanation tells a future reader why the algorithm works rather than simply repeating its statements."
+        },
+        {
+          "type": "paragraph",
+          "text": "When adapting a loop, write the checkpoint claim before tracing examples. For counting matches, the prefix contribution is one or zero; for finding a maximum, initialization and the empty-list policy need different reasoning. A passed trace demonstrates one execution. The invariant explains the entire family of executions allowed by the assumptions. Translating that explanation to C++ adds language obligations such as bounds, overflow, and lifetime rather than replacing them."
         }
       ]
     }
@@ -80,5 +124,5 @@
       "publicationYear": 1969
     }
   ],
-  "version": 2
+  "version": 3
 }

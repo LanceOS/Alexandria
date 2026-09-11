@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_dependent_names_module",
-  "versionId": "cpp_dependent_names_v1",
+  "versionId": "cpp_dependent_names_v2",
   "slug": "dependent-names",
   "title": "Reading dependent names",
   "summary": "Separate template parsing from the type-specific checks performed when a specialization is instantiated.",
@@ -23,6 +23,19 @@
         {
           "type": "paragraph",
           "text": "In a local declaration inside the template, typename C::value_type explicitly tells the parser that the qualified name denotes a type. It does not manufacture that member or check that every possible C has it. A later attempt to instantiate the template with an unsuitable type still fails. C++20 also has contexts where a dependent name is assumed to denote a type; learning the explicit spelling is useful without treating it as mandatory everywhere."
+        },
+        {
+          "type": "paragraph",
+          "text": "To understand a dependent name, imagine reading the definition before anyone has chosen the template argument. The compiler can see that total accepts a const C reference, but it cannot assume that every future C is a vector. C::value_type could name different members for different arguments. The parser needs enough information to interpret the declaration while the actual selected member is checked in the appropriate template context."
+        },
+        {
+          "type": "paragraph",
+          "text": "typename addresses the type interpretation at this local declaration. It says to read the qualified dependent name as a type before the variable name result. It does not say the type is int, that it is default constructible, or that it supports addition. Those are additional requirements that emerge when a specialization uses the definition. This separation is why adding disambiguators randomly to a diagnostic is an unreliable debugging strategy."
+        },
+        {
+          "type": "reflection",
+          "prompt": "For the call total(pages), write what is known before choosing C and what becomes known once C is std::vector<int>.",
+          "explanation": "Before choosing C, the definition requests a nested type called value_type and operations for initialization, iteration, and +=. With std::vector<int>, the nested type is int and the range supplies int elements. The concrete accumulator and arithmetic can then be checked. The general template spelling and the requirements of that particular specialization answer different questions."
         }
       ]
     },
@@ -49,6 +62,29 @@
         {
           "type": "paragraph",
           "text": "The separate template disambiguator solves a similar parsing problem for a dependent member template, such as object.template convert<int>(). Lookup in a dependent base class may need this->member to express the dependency. These spellings guide interpretation; neither changes access control or makes an invalid operation valid."
+        },
+        {
+          "type": "paragraph",
+          "text": "Trace the instantiated body as an ordinary function after identifying the types. result is an int value-initialized to zero. Iteration binds a const reference to each element, and the updates produce 3, then 8, then 16. Returning result supplies the accumulated value; no reference to that local is returned. The example’s small inputs make the arithmetic valid, while the generic spelling itself places no upper bound on all future int sums."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Second worked specialization — representable values under a new container",
+          "code": "C = std::vector<double>, elements = 1.5, 2.0\nC::value_type -> double\nValue initialization -> result = 0.0\nFirst += -> result = 1.5\nSecond += -> result = 3.5\nThe template operation is unchanged; the selected type and its arithmetic differ."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now contrast a type that merely declares value_type but provides no range iteration. The accumulator declaration might be valid, yet the range-based loop cannot do its job. Similarly, a container of elements without a suitable += operation can fail later in the body. A requirement inventory should cover the whole implementation instead of treating one successful nested-type lookup as proof that total is usable."
+        },
+        {
+          "type": "paragraph",
+          "text": "The template disambiguator is a separate signal. In object.template convert<int>(), it tells the parser to read convert as a template name so the following angle brackets can be interpreted as template arguments. It does not turn an ordinary member function into a template. The this-> spelling for a member from a dependent base serves another dependency-related lookup purpose. Learn the question each spelling answers rather than treating typename, template, and this-> as interchangeable fixes."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A custom container has value_type = int and supports iteration, but its iterator yields objects that cannot be added to int. Would total be supported?",
+          "explanation": "No. The declaration and loop can be meaningful while result += value remains invalid. Check the type and operation at that expression. A clearer public interface could express appropriate requirements with constraints, but it must still describe the semantic meaning of accumulation and the accepted numeric range."
         }
       ]
     },
@@ -64,6 +100,18 @@
         {
           "type": "paragraph",
           "text": "When a template diagnostic grows long, first identify the specialization requested by the caller, then locate the first unmet requirement. Keep a small instantiation that demonstrates the issue. Reading templates this way is more useful than memorizing a compiler-specific error message. Advanced follow-up work includes argument-dependent lookup, two-phase lookup, explicit instantiation, SFINAE, and constraints; each should be tied to a real interface problem."
+        },
+        {
+          "type": "paragraph",
+          "text": "A small failing specialization is a useful diagnostic tool. Start from the caller’s type, substitute that type into the requested nested member, and then enumerate the required expressions. Reduce the example until the first unmet requirement is visible. Compiler messages often mention multiple locations because a call instantiates a template which uses other templates; those locations are a dependency chain, not necessarily independent defects."
+        },
+        {
+          "type": "paragraph",
+          "text": "An empty container exposes a semantic choice that parsing cannot decide. This implementation returns the value-initialized accumulator, which is zero for the demonstrated arithmetic types. For another value_type, default construction may not represent the intended identity element. Even if the program compiles, the designer must decide whether that default is a correct empty result. This is one reason a more general algorithm might accept an explicit initial value."
+        },
+        {
+          "type": "paragraph",
+          "text": "Constrain interfaces to the operations they use and document the meanings that cannot be established syntactically. Doing so makes an unsupported argument a clear contract mismatch rather than an invitation to add more parser hints. The next forwarding lesson extends the same discipline: identify the deduced type and the required expression before assuming that a template preserves the caller’s intent."
         }
       ]
     }
@@ -99,5 +147,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.names",
       "locator": "Primary standards draft, [temp.names]: the template disambiguator. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
     }
-  ]
+  ],
+  "version": 2
 }

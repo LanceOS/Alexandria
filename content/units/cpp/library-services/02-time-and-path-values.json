@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_library_services_time_and_path_values",
-  "versionId": "cpp_core_library_services_time_and_path_values_v1",
+  "versionId": "cpp_core_library_services_time_and_path_values_v2",
   "slug": "time-and-path-values",
   "title": "Time durations and filesystem paths",
   "summary": "Use library types to preserve units and interpret paths without touching the filesystem.",
@@ -18,11 +18,28 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This lesson assumes arithmetic conversions and the purpose of domain types. Durations and paths are examples of values whose interpretation should remain attached to their representation. An unlabelled integer loses its unit when it crosses an interface; an unstructured path string invites assumptions about separators and component meanings. Standard library types help maintain these distinctions while computing, but the boundary to a file, clock or external representation still needs an explicit policy."
+        },
+        {
+          "type": "paragraph",
           "text": "A plain number such as 1500 does not say whether it represents seconds, milliseconds, or bytes. std::chrono::duration pairs a representation with a tick period, making the unit part of the type. A filesystem path similarly gives structure to a pathname instead of asking every caller to concatenate raw separator characters. Both facilities demonstrate how standard types can preserve meaning that a primitive value or string would leave implicit."
         },
         {
           "type": "paragraph",
+          "text": "A duration’s tick period states how much physical time one stored count represents. One thousand millisecond ticks and one second tick describe the same interval, even though their raw counts differ. A time point needs a clock as well as a duration-like offset: its epoch gives the position a reference. The difference between compatible time points produces an interval. Here fixed intervals avoid introducing a changing clock into the output, letting the lesson focus on units and conversion. In real timing work, distinguish a monotonic elapsed-time clock from a wall-clock interpretation and then consider measurement noise separately."
+        },
+        {
+          "type": "paragraph",
           "text": "A duration measures an interval; a time_point represents a position relative to a clock’s epoch. They are related but not interchangeable. For elapsed runtime, a monotonic clock such as steady_clock is usually the relevant mechanism. This lesson uses fixed duration values instead of reading a live clock so every run has the same expected output. Measuring performance responsibly requires additional methodology beyond obtaining two timestamps."
+        },
+        {
+          "type": "paragraph",
+          "text": "Lexical normalization reasons about pathname components, not the actual filesystem. In particular, it does not establish where symbolic links point or whether a resulting file is accessible. File existence, permissions, canonical resolution, and directory traversal require filesystem operations that can fail and interact with changing external state. Do not treat a normalized string as a security guarantee about which real file an application will open."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A relative pathname ../atlas.txt starts with a parent-directory component. A save operation lexically normalizes it and concludes that the file must be inside its intended directory because normalization succeeded. Explain the error in that reasoning and the separate environmental questions.",
+          "explanation": "A leading parent component can remain in a normalized relative path, so success does not imply containment. More generally, normalization does not inspect actual directories, symbolic links, existence or permissions. The save operation needs a defined resolution and access policy for the real filesystem. A normalized spelling is useful input to that design, but it does not itself prove where a later file operation will act."
         }
       ]
     },
@@ -44,11 +61,24 @@
         },
         {
           "type": "paragraph",
+          "text": "Work in milliseconds first. The literal 1s represents one thousand milliseconds, and 1500ms adds another fifteen hundred, giving twenty-five hundred milliseconds. duration_cast to milliseconds therefore preserves the interval exactly for these values. Casting to integral seconds divides by one thousand and discards the remainder, yielding two seconds rather than an interval equal to the original. count then extracts the destination’s number of ticks, which is why the output labels differ. For the path, composition yields the components library, notes, parent and atlas.txt. Lexical normalization cancels notes with its following parent component, producing the displayed generic path."
+        },
+        {
+          "type": "paragraph",
           "text": "The program adds one second and 1500 milliseconds. The resulting interval is 2500 milliseconds. Converting it to integral seconds with duration_cast discards the fractional second, producing 2. This makes the conversion policy visible. A program that must round up or preserve fractions would need a different operation or representation. count returns the stored number of ticks, so label the unit whenever that number is displayed or passed outside the type system."
         },
         {
           "type": "paragraph",
           "text": "The path example joins a directory and a relative path using the path operator rather than hard-coding platform separators. lexically_normal simplifies the pathname components, producing library/atlas.txt in generic format. generic_string chooses the portable separator spelling for this output. No file is created or read, and the named path need not exist for these lexical operations to succeed."
+        },
+        {
+          "type": "paragraph",
+          "text": "A contrasting timing policy needs the number of whole seconds sufficient to cover a 1500ms delay. Truncating with duration_cast gives one second, which is shorter than the requested interval. chrono::ceil to seconds gives two, matching that coverage policy for this value. chrono::floor gives one, and chrono::round chooses the nearest representable second with its documented tie rule. These are deliberately different mathematical questions; “convert the units” does not select the application’s rounding policy. Use modest representable inputs for initial exercises before examining extreme conversion ranges."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A 2500ms interval is converted to integral seconds using duration_cast, floor, ceil and round. Predict the four counts and explain the tie in the last case.",
+          "explanation": "duration_cast produces two through truncation for this positive value. floor produces two, the greatest whole second no greater than the interval. ceil produces three, the least whole second no smaller than it. round sees a tie between two and three and selects the even count, two. Each answers a different rounding policy. Keep the result labelled in seconds and ensure the relevant representations can hold the values."
         }
       ]
     },
@@ -58,16 +88,20 @@
       "blocks": [
         {
           "type": "paragraph",
-          "text": "Lexical normalization reasons about pathname components, not the actual filesystem. In particular, it does not establish where symbolic links point or whether a resulting file is accessible. File existence, permissions, canonical resolution, and directory traversal require filesystem operations that can fail and interact with changing external state. Do not treat a normalized string as a security guarantee about which real file an application will open."
+          "text": "Paths and durations also have portability boundaries. Operating systems differ in valid filename characters, root syntax, case behavior, and native text representation. Time representations can overflow or lose precision during unsuitable conversions. The library provides structure and documented rules, but an interface must still choose a supported range, output encoding, and failure policy. Keep those application decisions separate from the convenient syntax used to manipulate the values."
         },
         {
           "type": "paragraph",
-          "text": "Paths and durations also have portability boundaries. Operating systems differ in valid filename characters, root syntax, case behavior, and native text representation. Time representations can overflow or lose precision during unsuitable conversions. The library provides structure and documented rules, but an interface must still choose a supported range, output encoding, and failure policy. Keep those application decisions separate from the convenient syntax used to manipulate the values."
+          "text": "For a contrasting path, consider a leading parent component in ../atlas.txt. Lexical normalization cannot remove that component by inventing a preceding directory; the path remains relative to a parent outside its eventual starting directory. A normalized path therefore does not establish containment inside a chosen library folder. Symbolic links and changing directory contents add further differences between lexical components and actual resolution. Treat normalization as a value transformation useful for display and comparison of syntax, then use an appropriate filesystem and access-control design for operations that need real resource guarantees."
         },
         {
           "type": "reflection",
           "prompt": "Does a successful lexically_normal call prove that library/atlas.txt exists?",
           "explanation": "No. It transforms pathname syntax without consulting directory contents. Existence and resolution are separate filesystem questions that may fail or change between operations."
+        },
+        {
+          "type": "paragraph",
+          "text": "Keep structured values intact while computing, and identify what is lost whenever count or a string representation leaves that structure. For durations, state the unit, representable range and rounding policy. For paths, distinguish component manipulation from actual filesystem effects. These habits transfer to numerical and systems programming, where convenient library syntax must still be connected to precise mathematical and environmental assumptions."
         }
       ]
     }
@@ -116,6 +150,29 @@
       "edition": "N4861 (C++20 working draft)",
       "url": "https://timsong-cpp.github.io/cppwp/n4861/time.clock.steady",
       "locator": "N4861, [time.clock.steady]; consulted 2026-09-11. Monotonic time_point values and a steady rate."
+    },
+    {
+      "id": "cpp_core_library_services_time_and_path_values_depth_time_duration_cast",
+      "title": "C++20 working draft N4861: time.duration.cast",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/time.duration.cast",
+      "locator": "N4861 [time.duration.cast]; duration_cast scaling and floor/ceil/round contracts, including ties-to-even rounding; consulted 2026-09-11."
+    },
+    {
+      "id": "cpp_core_library_services_time_and_path_values_depth_time_point",
+      "title": "C++20 working draft N4861: time.point",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/time.point",
+      "locator": "N4861 [time.point]; time_point clock/epoch model and non-member subtraction of compatible time points; consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

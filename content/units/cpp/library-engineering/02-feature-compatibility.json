@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_feature_compatibility_module",
-  "versionId": "cpp_feature_compatibility_v1",
+  "versionId": "cpp_feature_compatibility_v2",
   "slug": "feature-compatibility",
   "title": "Declare and check a library’s feature baseline",
   "summary": "Treat a language mode, standard-library feature, and supported binary configuration as separate compatibility questions.",
@@ -23,6 +23,19 @@
         {
           "type": "paragraph",
           "text": "The <version> header exposes standard-library feature-test macros. Their values identify feature revisions, so a threshold check is usually more useful than equality with one historical value. Checking a specific macro states what the code needs more precisely than inferring every library capability from a compiler’s marketing version."
+        },
+        {
+          "type": "paragraph",
+          "text": "A C++ build is a combination of inputs: the language mode accepted by the compiler, the selected standard-library headers and implementation, the target platform, and build options that can affect interfaces. Saying C++20 is necessary for this example but does not record all of those inputs. A reproducible support statement should distinguish the feature requirement from the exact configurations used to verify it."
+        },
+        {
+          "type": "paragraph",
+          "text": "Feature-test macros provide a documented capability signal for a particular facility and revision. The sample needs the C++20 span facility, so it checks __cpp_lib_span after including <version>. A compiler version number alone would require guessing which library is selected and which facilities it supplies. The capability check describes what the source needs directly, while the declared support matrix still records where it was tested."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why does the condition accept macro values greater than 202002L instead of requiring equality?",
+          "explanation": "The threshold expresses a minimum feature revision. An implementation advertising a later value should not be rejected merely because the macro advanced. This does not prove that every later configuration is compatible with the application; it avoids an unnecessarily narrow gate while leaving build and behavior verification as separate checks."
         }
       ]
     },
@@ -49,6 +62,29 @@
         {
           "type": "paragraph",
           "text": "Keep separate records for the language standard, standard library, target platform, and ABI-affecting options. A source-compatible update can still change runtime behavior or binary compatibility. Conversely, a compiler supporting a new feature does not make that feature part of the project’s declared baseline."
+        },
+        {
+          "type": "paragraph",
+          "text": "The preprocessor first checks whether the macro exists and whether it meets the minimum. A missing or too-small value selects the explicit #error diagnostic. After the gate, the source includes the actual span declaration and defines sum. At the call, the array remains alive while a span observes its three contiguous int elements. The loop adds 2, then 3, then 4 to an initial zero and returns 9. The feature check and the lifetime argument solve different problems."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Second worked configuration table — hypothetical macro states",
+          "code": "Macro not defined -> reject configuration\nMacro = 201902L -> reject as below the required revision\nMacro = 202002L -> pass the feature gate\nMacro = 202311L -> pass this minimum gate\nPassing the gate still requires compiling, linking, and testing the program."
+        },
+        {
+          "type": "paragraph",
+          "text": "The values in that table illustrate the comparison; they are not claims that a particular compiler release advertises each value. Keeping hypothetical capability states separate from actual test records prevents accidental portability claims. When a real build fails despite passing the gate, inspect the chosen headers, link configuration, diagnostics, and the code’s other requirements rather than assuming one macro checks the entire program."
+        },
+        {
+          "type": "paragraph",
+          "text": "The borrowed span does not copy the array or retain it after sum returns. In this example that is appropriate because the entire traversal happens while pages is alive. A feature gate cannot make a dangling span valid, prevent arithmetic overflow on arbitrary future inputs, or prove that a target has the same performance. It establishes the declared facility baseline, after which ordinary semantic and application contracts still apply."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A helper constructs a local array, returns a span to it, and passes the same feature gate. Would that make the returned view safe for the caller?",
+          "explanation": "No. The local array expires when the helper returns, leaving the span without live elements to observe. The feature gate proves nothing about the lifetime of a particular backing object. Return an owning value or arrange for the caller-owned storage to outlive every view, depending on the intended interface."
         }
       ]
     },
@@ -64,6 +100,22 @@
         {
           "type": "paragraph",
           "text": "A release should state which configurations were actually built and tested. Keep historical draft references labeled by edition, check evolving documentation when updating content, and do not treat proposals as adopted features. Portability work can then add another compiler or library deliberately. One successful GCC run verifies the example in that environment; it does not establish conformance on every supported platform."
+        },
+        {
+          "type": "paragraph",
+          "text": "A baseline upgrade is a project decision. Adding std::expected would raise the relevant library requirement to C++23, so examples, build commands, supported configurations, and references would all need to agree. Compiling locally in a newer mode demonstrates availability in that local configuration; it does not grant permission to silently change what learners or downstream clients are expected to install."
+        },
+        {
+          "type": "paragraph",
+          "text": "Record verification with enough precision to reproduce it: compiler and standard-library choice, language mode, target, important flags, and the exercised behavior. A second compiler or library adds useful evidence because it can expose accidental assumptions, but successful runs on two targets still do not prove every permitted implementation behavior. Report the scope of actual testing alongside the standard-based argument."
+        },
+        {
+          "type": "paragraph",
+          "text": "Fallbacks deserve the same contract review as the preferred facility. Replacing an unavailable view type with a custom wrapper may change bounds behavior, constructors, or accepted lifetimes. Replacing an error-result type with a sentinel may lose an explicit state. A fallback should preserve the required interface meaning or clearly document the difference; simply making an older compiler accept the source is not enough."
+        },
+        {
+          "type": "paragraph",
+          "text": "Review a proposed release by connecting each used facility to its minimum edition, each capability gate to its documented revision, and each compatibility claim to concrete checks. Keep source, binary, and behavioral compatibility separate. This completes the boundary from a language-level mechanism to a library that states what it requires and what its users can rely on."
         }
       ]
     }
@@ -108,5 +160,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4950/expected",
       "locator": "Primary standards draft: C++23 expected objects and header synopsis; minimum-edition distinction. Consulted 2026-09-11; not the published ISO edition."
     }
-  ]
+  ],
+  "version": 2
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding",
-  "versionId": "cpp_core_runtime_polymorphism_interfaces_and_overriding_v2",
+  "versionId": "cpp_core_runtime_polymorphism_interfaces_and_overriding_v3",
   "slug": "interfaces-and-overriding",
   "title": "Interfaces and virtual dispatch",
   "summary": "Call a common operation through a reference while selecting behavior from the actual object.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This lesson assumes classes, const member functions and borrowing. Runtime polymorphism is useful when a caller needs one operation while the concrete implementation varies during execution. The interface names the common promise. The actual complete object determines the final overriding behavior for an ordinary virtual call on a fully constructed object. Dynamic allocation is not required for that mechanism; the local Welcome and Reminder values are enough to demonstrate it."
+        },
+        {
+          "type": "paragraph",
           "text": "Value types and templates cover many forms of reuse, but sometimes an application must choose behavior using the kind of object available at runtime. A virtual function provides a common operation whose implementation can vary in a derived class. The caller can work through a base-class reference or pointer while the actual object supplies the final overriding implementation. This is runtime polymorphism."
         },
         {
           "type": "paragraph",
+          "text": "Distinguish static type from dynamic type. Inside show, the expression notice provides const Notice access, so the compiler checks the call against Notice’s declared interface. The complete object referred to can still be a Welcome or Reminder. The virtual mechanism selects the corresponding implementation of text at runtime. This does not let show call every derived-only member: the visible static interface still governs which expressions it can form. The useful flexibility is substitutable behavior behind the promised operation, not unrestricted access to unknown members."
+        },
+        {
+          "type": "paragraph",
           "text": "The Notice interface promises a text query. Its pure virtual declaration makes the interface abstract, so the program cannot create a standalone Notice object. Derived classes supply the operation. A public virtual destructor permits appropriate destruction through the interface when ownership later uses a base pointer. The first example keeps its objects as local values, so the dispatch mechanism can be understood before adding dynamic allocation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Inside show, may the code call a Reminder-only days member simply because one caller passes Reminder? Explain the roles of static interface checking and dynamic dispatch.",
+          "explanation": "No. show is checked using its const Notice reference, whose interface does not declare days. Dynamic dispatch chooses an implementation of an already valid virtual operation; it does not make arbitrary derived-only names available. If callers need days as a general capability, redesign the interface or use an explicitly checked optional-capability approach. Keep the intended contract visible rather than assuming the current concrete caller changes the function body’s type rules."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "main first constructs one complete Welcome and one complete Reminder. Passing welcome to show binds a reference to its Notice base subobject without constructing another independent Notice value. Inside show, the virtual call therefore reaches Welcome::text and returns a view of its literal message. The next call repeats the same show body with a reference into reminder and reaches Reminder::text instead. Neither object is sliced, moved or destroyed by these calls. Both remain owned by main’s scope, and the literal characters returned by the implementations remain valid throughout output."
+        },
+        {
+          "type": "paragraph",
           "text": "Welcome and Reminder each override text and return a string_view into a string literal. Those character arrays have static storage duration, so the returned views remain valid for the caller. The override specifier asks the compiler to verify that the declaration really overrides a base virtual function. Accidentally changing the parameter list or omitting a necessary const qualifier would then be diagnosed instead of silently declaring an unrelated function."
         },
         {
           "type": "paragraph",
           "text": "show accepts a reference to Notice and calls text without naming either derived class. Binding the reference does not copy or transform the actual object; the underlying Welcome or Reminder remains intact. The virtual call selects that object’s implementation. This differs from function overloading, which uses the call expression’s types to choose among declarations during compilation."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a contrasting declaration mistake, imagine Reminder defines text without the trailing const. That member does not match the const-qualified virtual operation in Notice. With override present, the mismatch is diagnosed at the declaration. Without that check, merely giving it the same name would not provide the required override, and this class would still lack an implementation for Notice’s pure virtual text. Review the signature, not just the identifier: parameter types and relevant member qualifiers determine the overriding relationship."
+        },
+        {
+          "type": "paragraph",
+          "text": "A useful interface specifies a small behavior that every implementation can honor. Derived classes should preserve the caller’s expectations about results, errors, and lifetime rather than merely reuse member names. Composition is often simpler when there is no need for substitution. During base construction and destruction, virtual dispatch also follows special rules and does not behave as a normal call on a fully constructed most-derived object. Avoid invoking overridable behavior there as a shortcut for initialization."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A base constructor calls a virtual operation expecting the most-derived class to initialize its own message. Why is that an unsafe design assumption even when ordinary later calls dispatch correctly?",
+          "explanation": "Virtual calls on the object under construction use the final overrider in the constructor’s class, not a more-derived override. The more-derived part is not yet available as a fully constructed object with its final invariant. Initialize each class’s required state through its construction mechanism and perform polymorphic work only under an appropriate completed-object contract. The corresponding restricted dispatch rule also matters during destruction."
         }
       ]
     },
@@ -62,12 +92,16 @@
         },
         {
           "type": "paragraph",
-          "text": "A useful interface specifies a small behavior that every implementation can honor. Derived classes should preserve the caller’s expectations about results, errors, and lifetime rather than merely reuse member names. Composition is often simpler when there is no need for substitution. During base construction and destruction, virtual dispatch also follows special rules and does not behave as a normal call on a fully constructed most-derived object. Avoid invoking overridable behavior there as a shortcut for initialization."
+          "text": "A different kind of error compiles but violates the intended interface contract. A derived implementation could construct a local string and return a string_view into it. Dispatch would select the method correctly, yet its result would dangle after the method returns. The shared operation must therefore include a result-lifetime expectation that every implementation honors. Returning views into string literals meets that expectation here. Returning a view into an object’s owned member could be appropriate under a documented owner and mutation lifetime, while returning an owned string would provide a different and more independent result contract."
         },
         {
           "type": "reflection",
           "prompt": "Does binding const Notice& to a Reminder create a separate Notice object?",
           "explanation": "No. The reference refers to the base subobject inside the existing Reminder. The complete derived object remains alive, so the virtual call selects Reminder’s text implementation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Review runtime interfaces on two levels. The compiler can verify the overriding relationship, but each implementation must still honor semantic promises about results, effects, errors and lifetime. Trace one caller through two concrete objects to demonstrate substitution, then test a signature mismatch and a semantic counterexample. Keep dispatch, ownership and interface design separate so inheritance solves a concrete behavior requirement instead of obscuring object lifetime."
         }
       ]
     }
@@ -129,5 +163,5 @@
       "locator": "N4861, [class.cdtor]; consulted 2026-09-11. Paragraph 4: a virtual call on an object under construction or destruction uses the final overrider in the constructor’s or destructor’s class."
     }
   ],
-  "version": 2
+  "version": 3
 }

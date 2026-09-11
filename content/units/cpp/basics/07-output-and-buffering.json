@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_basics_module_output",
-  "versionId": "cpp_basics_output_v2",
+  "versionId": "cpp_basics_output_v3",
   "slug": "output-and-buffering",
   "title": "Output and buffering",
   "summary": "Understand the small differences between newlines, flushing, and prompts before input.",
@@ -45,6 +45,24 @@
           "type": "reflection",
           "prompt": "Which spelling makes the intention clearest when you only want to end an ordinary output line?",
           "explanation": "Use '\\n', or include \\n in a longer string. Reserve std::endl for a situation where you also intend to request a flush."
+        },
+        {
+          "type": "paragraph",
+          "text": "Read output in two layers: the sequence of characters requested and the synchronization operations requested. The first two statements each request a line-ending character. The third also requests a flush. Their captured standard-output strings can therefore be equal even though their stream behavior differs. The program’s expected-output block checks characters; it cannot serve as a measurement of when they reached a particular terminal."
+        },
+        {
+          "type": "paragraph",
+          "text": "The extra operation is visible in the interface contract rather than in an extra printed symbol. A manipulator such as std::endl is accepted by the stream insertion machinery to perform stream work. It is not a string containing the word endl. Learning this distinction prevents a misleading rule such as every output line should end with endl. First decide whether a line break, synchronization, or both are needed, then choose the operation."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Worked operation trace — assuming successful stream operations",
+          "code": "Insert \"First\": request five characters\nInsert newline: request a line-ending character\nInsert \"Second\" and newline: request another line\nInsert \"Third\": request five characters\nInsert endl: request newline, then stream flush\nIdentical line layout does not imply identical flush requests."
+        },
+        {
+          "type": "paragraph",
+          "text": "Avoid predicting a fixed number of operating-system writes from this trace. Buffering can exist at more than one layer, and implementation and destination choices influence when characters are forwarded. The trace describes the C++ requests the source makes. A claim about a particular terminal, file, or performance result would require observing that environment separately."
         }
       ]
     },
@@ -85,6 +103,23 @@
           "type": "callout",
           "title": "Flushing has limits",
           "text": "A flush is not a guarantee that data is physically saved on a disk, and output operations can fail. Reliable file storage and error handling require more than replacing every newline with std::endl."
+        },
+        {
+          "type": "paragraph",
+          "text": "Batching is useful because forwarding tiny pieces independently can require more coordination than forwarding a larger collected piece. That is a motivation for buffering, not a universal performance measurement. In a program that prints many ordinary records, an explicit flush after every record can limit opportunities to batch them. In an interactive status message, forwarding a small piece promptly may be the actual requirement. A good choice depends on which behavior the user needs."
+        },
+        {
+          "type": "paragraph",
+          "text": "Trace the second program’s ordering. Preparing... is inserted first, then std::flush is requested, then the small loop computes 1 + 2 + 3. The final insertion adds the leading space, total:, the value 6, and a newline. The flush does not create the space or line ending. Those characters still come from the literal text and newline in the source. Replacing flush with endl would place the result on a later line because endl changes both layers."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A batch report writes one thousand ordinary lines, while an interactive task writes a partial status before lengthy work. Explain a reasonable operation choice for each without claiming a fixed speedup.",
+          "explanation": "Use newlines for the report’s line layout unless the report has a separate requirement to flush at those points. For the partial interactive status, std::flush expresses forwarding without adding a line break. The report may benefit from batching, but the effect must be measured in its actual destination and environment. The choice follows the intended behavior before any timing claim."
+        },
+        {
+          "type": "paragraph",
+          "text": "Flushing can also report failure through the stream state when synchronization fails. A successful request at one buffering layer is not a statement that a storage device has durably committed a file. Error reporting and durable storage belong to broader I/O contracts, so this lesson does not use flush as a persistence guarantee. This boundary matters whenever a program displays saved successfully: such a message needs stronger evidence than line formatting."
         }
       ]
     },
@@ -125,6 +160,23 @@
           "type": "reflection",
           "prompt": "A status message must be forwarded now, but the next message should continue on the same line. Which operation expresses that?",
           "explanation": "std::flush requests flushing without inserting a newline. std::endl would also end the line. For ordinary line formatting without that request, use a newline."
+        },
+        {
+          "type": "paragraph",
+          "text": "The prompt example relies on an existing relationship between two streams. The output stream contains the question; the input operation prepares to read and can flush the tied stream before waiting for more input. The tie explains why the question can become visible without a newline. It is not the extraction expression magically interpreting the question string. If an application changes stream configuration, it must recheck the behavior that depended on the default relationship."
+        },
+        {
+          "type": "paragraph",
+          "text": "Separate program output from terminal interaction when predicting the example. With input 3 followed by a newline, the program itself writes the question and then Selected: 3 on the same output line. A terminal commonly echoes the characters typed by the user, which makes an interactive transcript appear different from captured standard output. Comparing a terminal screenshot with a captured-output expectation requires accounting for that echo rather than adding extra output to the program."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Suppose the prompt’s input is 3xyz followed by a newline. Why can successfully extracting an integer still be insufficient to accept the whole response?",
+          "explanation": "Integer extraction can obtain the leading 3 and leave characters that do not belong to that number for later input operations. The successful extraction tests the integer operation, not whether the entire line has the required format. A whole-response contract needs a deliberate policy for trailing characters and range validation. The lesson’s prompt is intentionally only a small extraction example."
+        },
+        {
+          "type": "paragraph",
+          "text": "The practical model to retain has three questions: what characters does the program request, when does it request stream synchronization, and what errors or external guarantees does the application need to handle? Answering them separately explains ordinary newline output, interactive prompts, and why a printed message alone is not proof of durable storage. Later library-service and systems-I/O modules develop the stronger contracts."
         }
       ]
     }
@@ -207,7 +259,18 @@
       ],
       "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rio-endl",
       "locator": "SL.io.50: Avoid endl; unnecessary flushing and buffering caveats; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_basics_module_output_depth_numeric_extraction",
+      "title": "C++20 working draft N4861: numeric input conversion",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/facet.num.get.virtuals",
+      "locator": "Primary standards draft, [facet.num.get.virtuals] paragraphs 1–5, especially Stage 2 termination and Stage 3 conversion: numeric prefix extraction and leftover characters; consulted 2026-09-11. The worked input assumes default decimal formatting and locale.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     }
   ],
-  "version": 2
+  "version": 3
 }

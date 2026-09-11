@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_classes_value_semantics_copy_move_and_comparison",
-  "versionId": "cpp_core_classes_value_semantics_copy_move_and_comparison_v2",
+  "versionId": "cpp_core_classes_value_semantics_copy_move_and_comparison_v3",
   "slug": "copy-move-and-comparison",
   "title": "Copying, moving, and comparing values",
   "summary": "Let owning members provide useful special-member behavior and define equality deliberately.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This lesson assumes initialization versus assignment and the idea that members can own resources. A value type should have a clear answer to the question “What does making another one mean?” For Book, a copy represents another title and page count whose later edits are independent. A move permits reuse of resources when the source’s old value is no longer needed. Equality asks whether two current values represent the same intended information; it is independent of where their objects happen to be stored."
+        },
+        {
+          "type": "paragraph",
           "text": "A value type supports reasoning about independent values rather than shared identity. Copying a notebook label should normally produce another label whose later edits do not change the first. C++ provides special member functions for copy construction, move construction, copy assignment, move assignment, and destruction. These operations have different triggers: construction creates a new object, while assignment replaces the state of an existing object."
         },
         {
           "type": "paragraph",
+          "text": "The compiler-generated operations are compositions of member operations, not a magical byte-copy promise for arbitrary classes. The string member’s copy operation supplies another string value, and the integer member contributes its current number. Moving the class invokes the appropriate member moves; for an integer member this does not imply a meaningful empty state. Destruction invokes member destructors. The Rule of Zero works because the members already implement the required ownership semantics. A raw pointer member would copy its pointer value, which would not automatically duplicate or safely transfer ownership of a pointed-to resource."
+        },
+        {
+          "type": "paragraph",
           "text": "The Book record contains a string title and an integer page count. Both members already know how to copy, move, assign, and clean up their own state. Without manually declaring special members, the class can receive useful memberwise operations from the compiler. This style is commonly called the Rule of Zero: use members that manage their resources so the surrounding value type does not need to write resource-management functions itself."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Two Book values hold the title Atlas and 120 pages after one is copied from the other. Equality compares both fields. Change only the second value’s pages to 121: which objects change, and are they still equal? What if equality compared only the title?",
+          "explanation": "Only the second value’s page count changes because these records hold independent integer and string values. Comparing both fields reports false: the titles match but the page counts do not. An equality operation comparing only title would report true, which is appropriate only if that is the explicitly chosen domain meaning. Equality should encode the intended value, not whichever comparison is easiest to write."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Maintain four conceptual records while reading main. original starts as (Atlas, 120). copy starts with the same values, then its title becomes Revised without changing original. assigned initially holds (Draft, 1); assignment replaces both its title and page count with original’s current values. moved is then initialized from copy’s current state and contains (Revised, 120). The output deliberately reads original and moved, whose values are known, and compares assigned with original. It does not treat the moved-from title as a test oracle because that string’s value is unspecified after the move."
+        },
+        {
+          "type": "paragraph",
           "text": "The initialization of copy from original performs copy construction. Changing copy.title afterward affects only the copied string, leaving original.title unchanged. The later assignment to assigned invokes copy assignment on an already existing Book. The distinction matters when a type has initialization requirements or owns an existing resource that must be replaced safely. Here the standard string member handles those responsibilities."
         },
         {
           "type": "paragraph",
           "text": "The initialization of moved uses std::move(copy) to permit move construction. The destination receives the copied book’s current title, Revised. A moved-from standard string remains valid but has an unspecified value unless a more specific operation guarantee applies. The program therefore does not assume copy.title becomes empty. It can assign a new title or destroy copy safely without inspecting a guessed old state."
+        },
+        {
+          "type": "paragraph",
+          "text": "Another contrast is a record containing a unique_ptr resource owner. The defaulted copy operation cannot copy a member whose copy operation is deleted, so that enclosing type does not automatically remain copyable. That can be correct for an entity with exclusive ownership. If independent copying is required, the type needs an explicitly designed cloning operation or a different representation; simply copying a raw address would undermine the intended ownership. This explains why the Rule of Zero is a recommendation to compose suitable members, not a promise that every class becomes freely copyable or that copying always has a small cost."
+        },
+        {
+          "type": "paragraph",
+          "text": "Writing a destructor or a copy operation can change which move operations are implicitly declared. A class that owns a raw resource may therefore require a coordinated set of special members, traditionally described by the Rule of Three or Rule of Five. Prefer the simpler composition shown here when it fits. The complete special-member rules belong in deeper study, but the practical question remains: does copying or moving preserve a coherent, independently usable value?"
+        },
+        {
+          "type": "reflection",
+          "prompt": "A developer adds a user-declared destructor that merely logs a message and assumes the previously implicit move constructor still exists. Why must that assumption be checked?",
+          "explanation": "Implicit move-constructor declaration has conditions, including the absence of a user-declared destructor. Adding one can therefore change which operation initializes a destination from an rvalue expression; a copy may be used if it is available. Review all special members together rather than inferring behavior from std::move at the call site. Avoid unnecessary manual resource operations when the members already supply the desired semantics."
         }
       ]
     },
@@ -62,12 +92,16 @@
         },
         {
           "type": "paragraph",
-          "text": "Writing a destructor or a copy operation can change which move operations are implicitly declared. A class that owns a raw resource may therefore require a coordinated set of special members, traditionally described by the Rule of Three or Rule of Five. Prefer the simpler composition shown here when it fits. The complete special-member rules belong in deeper study, but the practical question remains: does copying or moving preserve a coherent, independently usable value?"
+          "text": "A contrasting equality scenario adds a cached display-width integer to Book. Two books can have the same title and pages while only one has computed its display width. Defaulted equality compares all corresponding members, so differing cache states would make the records unequal. If the application’s meaning of book value excludes the cache, write equality in terms of the semantic fields instead. The comparison decision must be revisited when representation changes; successful compilation does not know which fields your application considers meaningful."
         },
         {
           "type": "reflection",
           "prompt": "Would defaulted equality still match the intended meaning if Book gained an internal cache counter?",
           "explanation": "Not necessarily. Defaulted equality would include the new member. If the cache is an implementation detail rather than part of the book value, equality should instead compare only the members that define that value."
+        },
+        {
+          "type": "paragraph",
+          "text": "For each value type, trace construction, assignment, transfer and equality separately. State which values the destination receives and which guarantees remain for the source. Then test independence with a later edit, not just immediate equality. These checks reveal accidental sharing, invalid moved-from assumptions and comparisons that include irrelevant representation details before those mistakes spread through a container or public interface."
         }
       ]
     }
@@ -148,7 +182,18 @@
       "edition": "N4861 (C++20 working draft)",
       "url": "https://timsong-cpp.github.io/cppwp/n4861/class.eq",
       "locator": "N4861, [class.eq]; consulted 2026-09-11. Paragraphs 1–3: defaulted equality requirements and comparison of corresponding subobjects, stopping at the first unequal pair."
+    },
+    {
+      "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_depth_unique_ptr_single",
+      "title": "C++20 working draft N4861: unique.ptr.single",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr.single",
+      "locator": "N4861 [unique.ptr.single]; class synopsis, deleted copy constructor and copy assignment; consulted 2026-09-11."
     }
   ],
-  "version": 2
+  "version": 3
 }

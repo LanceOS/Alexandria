@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "network_distributed_systems_replicated_state_module",
-  "versionId": "network_distributed_systems_replicated_state_version_1_r2",
+  "versionId": "network_distributed_systems_replicated_state_version_1_r3",
   "slug": "quorum-commit",
   "title": "Reason about a replicated log commitment",
   "summary": "Trace current-term majority commitment without confusing copies with agreement.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "network_distributed_systems_replicated_state_part_concepts",
-      "title": "Understand the model",
+      "title": "Stored, committed, and applied log entries",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "Raft organizes replicated-log consensus around leader election, replication and safety rules. With a fixed membership, a leader can commit an entry from its current term once the required majority stores it. The term restriction matters: an older-term entry is not committed merely by counting its replicas. Election rules also restrict candidates according to log history. These rules work together; a majority diagram alone is not a consensus implementation. The paper addresses crash failures and message disruption, rather than arbitrary malicious behavior. Distinguish an entry being stored, committed and applied to the state machine when reading a trace."
+        },
+        {
+          "type": "paragraph",
+          "text": "Stored means an entry exists durably on a server under the protocol's persistence assumptions. Committed means the consensus rules establish that the entry belongs to the log history that must be preserved. Applied means the local state machine has executed the committed command in order. A server can therefore store an entry before it is committed and learn commitment before its state machine has applied it."
+        },
+        {
+          "type": "paragraph",
+          "text": "For fixed membership of N servers, a majority has more than N/2 members. Three servers need two; five need three. Any two majorities intersect, which is an important ingredient in preventing incompatible decisions. Intersection alone is not sufficient: the protocol also controls which histories can win elections and how replication reconciles conflicting entries. Do not replace those rules with a simple count of matching bytes."
+        },
+        {
+          "type": "paragraph",
+          "text": "A term identifies an election era in Raft's protocol. The current-term condition on direct commitment links majority replication to the election and log-safety rules. Entries from earlier terms can become committed indirectly when a suitable current-term entry is committed after them. This is more specific than the intuitive but incorrect rule that any historical entry seen on a majority is immediately safe to apply."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consensus safety and progress are different questions. A minority partition cannot make progress on new entries through the stipulated majority rule, even if its leader is healthy and fast. Refusing to apply an uncommitted command preserves the required history constraint. Timing and availability depend on communication and elections; the protocol does not promise that every request finishes despite arbitrary disruption."
+        },
+        {
+          "type": "reflection",
+          "prompt": "In a fixed five-server cluster, the current-term entry is durably stored on A and B only. Can the leader use majority counting to commit it? What additional acknowledgment changes the count?",
+          "explanation": "Two is not a majority of five; three are required. A durable acknowledgment from a distinct third server reaches three, assuming all the other current-term and protocol premises hold. Two acknowledgments from the same server do not count as two replicas. Membership identity, persistence and term are all part of the evidence."
         }
       ]
     },
     {
       "id": "network_distributed_systems_replicated_state_part_trace",
-      "title": "Work through an example",
+      "title": "Trace majority progress and partition limits",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "Waiting for all three servers would unnecessarily make C part of this particular progress condition. Accepting one server would fail the majority requirement. The example deliberately identifies the current term, because removing that detail would make the conclusion too broad. Application execution follows the committed sequence; a client response policy should account for when its operation has been applied and what happens if the response itself is lost."
+        },
+        {
+          "type": "paragraph",
+          "text": "The leader first stores index five locally, giving count one. B's durable acknowledgment raises the replicated set to {A,B}, a majority of the three-member configuration. Because index five is from A's current term seven and the stated protocol assumptions hold, A can advance commitment to it. Application follows that commitment in log order. C's temporary lag does not invalidate the majority."
+        },
+        {
+          "type": "paragraph",
+          "text": "The entry identity includes both index and term. Index five alone does not identify a command across conflicting log histories, and a count that ignores the term restriction omits a required premise. Likewise receiving a network acknowledgment is useful only under the protocol's documented persistence meaning. The example explicitly assumes the needed durable append rather than inferring durability from a message label."
+        },
+        {
+          "type": "callout",
+          "title": "Trace majority progress and partition limits",
+          "text": "Contrasting partition: isolate A before either B or C acknowledges index five. Only A stores the current-term proposal, so its replica count stays one."
+        },
+        {
+          "type": "paragraph",
+          "text": "A cannot establish the required majority and must not apply this new entry as committed by the trace's rule. If the majority side later elects a valid leader and develops a different uncommitted suffix, the protocol's reconciliation rules decide what survives; merely having accepted a client request on A does not make its proposal irrevocable. A timeout therefore does not tell the client that its intended operation definitely happened or definitely did not."
+        },
+        {
+          "type": "paragraph",
+          "text": "For an older-term contrast, suppose term-seven A has a term-six entry on A and B. The two-copy count alone is insufficient for direct current-term commitment. A correctly replicated and committed term-seven entry after that prefix can establish earlier commitment indirectly under Raft's log rules. Consult the paper's section 5.4.2 when reasoning about this case; removing its conditions recreates the very ambiguity the protocol addresses."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The leader applies a committed command, then its response is lost. Why should a client avoid assuming a timeout proves the command was not executed?",
+          "explanation": "The missing response describes communication, not necessarily execution. The command may already have changed the state machine. A retry needs application semantics such as a request identity and duplicate-result handling if repeating the command would be harmful. Raft log agreement does not automatically make arbitrary client retries exactly-once business operations."
         }
       ]
     },
     {
       "id": "network_distributed_systems_replicated_state_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice quorum and client outcomes",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "If an entry from term six is present on A and B while A leads term seven, may A apply the simple current-term counting argument directly?",
           "explanation": "No. The argument was explicitly limited to an entry from the current term. Raft commits earlier entries indirectly when its current-term commitment and log-matching rules establish safety. This qualification prevents the misleading claim that any two matching copies in a three-server cluster are automatically committed."
+        },
+        {
+          "type": "paragraph",
+          "text": "Read a replication trace by naming membership, term, durable replicas, commitment and application separately. Verify the premises before counting. The finite majority examples teach a narrow part of a complete consensus protocol, whose elections, recovery and persistence rules remain essential. Use established implementations and their documented operating assumptions when moving from this reasoning exercise to production systems."
         }
       ]
     }
@@ -75,7 +126,19 @@
       "locator": "Peer-reviewed research: USENIX ATC 2014, pp. 305–319, sections 5.3 and 5.4, especially 5.4.2; current-term commitment and election restrictions; consulted 2026-09-11",
       "publicationYear": 2014,
       "publisher": "USENIX Association"
+    },
+    {
+      "id": "network_distributed_systems_replicated_state_source_raft_clients",
+      "title": "In Search of an Understandable Consensus Algorithm (Extended Version)",
+      "authors": [
+        "Diego Ongaro",
+        "John Ousterhout"
+      ],
+      "publicationYear": 2014,
+      "edition": "Extended technical report, May 20, 2014",
+      "url": "https://raft.github.io/raft.pdf",
+      "locator": "Primary author technical report: section 8 Client interaction, printed page 13; lost responses, unique client command serial numbers and stored responses for duplicate detection. This supplementary section is omitted from the peer-reviewed conference paper; no separate peer-review claim is made for the extension. Consulted 2026-09-11."
     }
   ],
-  "version": 2
+  "version": 3
 }

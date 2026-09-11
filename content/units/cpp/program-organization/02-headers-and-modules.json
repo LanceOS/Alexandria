@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_program_organization_headers_and_modules",
-  "versionId": "cpp_core_program_organization_headers_and_modules_v2",
+  "versionId": "cpp_core_program_organization_headers_and_modules_v3",
   "slug": "headers-and-modules",
   "title": "Headers, namespaces, and module boundaries",
   "summary": "Design an interface boundary while distinguishing textual inclusion from C++20 modules.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This module assumes declarations, definitions and translation units. A header is an interface distribution mechanism; a namespace is a naming mechanism; a named module adds language-level import and export boundaries; a build target is a tool’s unit of work. These concepts often appear together in a project, but they do not coincide. A single target can compile many translation units, and a namespace can be extended by declarations distributed across several files."
+        },
+        {
+          "type": "paragraph",
           "text": "A public interface should expose the declarations clients need while keeping unrelated implementation details out of their path. Traditionally, C++ projects distribute those declarations through headers. An include directive makes header contents available according to preprocessing rules and implementation search paths. Headers should include what their own declarations require instead of depending on a particular accidental order of includes in every client."
         },
         {
           "type": "paragraph",
+          "text": "For a conventional header, ask what happens when its contents are processed in each client. Declarations must see the types they use, so a header declaring string-related interfaces should arrange the appropriate dependencies itself. An include guard protects against repeated processing within a client translation unit. Each independently translated client begins its own preprocessing work, so the guard is not shared program state. Definition consistency across clients remains a separate obligation even when every client includes the same neatly guarded file."
+        },
+        {
+          "type": "paragraph",
           "text": "An include guard uses a project-specific macro to prevent the same header contents from being processed repeatedly within one translation unit. It does not make a non-inline function definition safe to duplicate across different translation units. Many implementations also support pragma once, but that spelling is not the portable standard mechanism. Understanding the guard’s scope prevents confusing repeated inclusion with program-wide definition consistency."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A header’s declarations use std::string but compile only if each client happened to include <string> first. What is wrong with that interface boundary, and how would you test a repair?",
+          "explanation": "The header has an undocumented ordering dependency on its clients. Arrange the dependency needed by its own declarations, then compile a minimal client that includes this header before unrelated headers. That test checks self-sufficiency of the visible interface. It does not prove every template instantiation or linking configuration, so also keep the ordinary definition and build checks for the project."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The example’s configuration value lives in namespace library and is explicitly inline as well as constexpr. The describe operation lives in the nested labels namespace and builds an owning string from the borrowed input name, punctuation and the configured capacity. The local alias labels in main names library::labels without creating another namespace or another function. Calling describe with Science constructs the label Science: 3 places. The string literal input survives the call, and the returned string owns the generated characters, so the example has no retained borrowing after the call finishes."
+        },
+        {
+          "type": "paragraph",
           "text": "The complete example uses an inline constexpr configuration value and an inline function in namespace library. These declarations illustrate entities that can belong in a conventional header when their repeated definitions satisfy the One Definition Rule. inline here concerns definition rules; it does not order the optimizer to replace each call with a copy of the function body. The program is kept in one file so its behavior can be checked without a project generator."
         },
         {
           "type": "paragraph",
           "text": "The nested namespace name library::labels groups the operation into a more specific vocabulary. A namespace alias in main shortens that qualified name locally. This avoids a broad using directive that could change unqualified lookup throughout a header’s clients. Named boundaries help readers understand ownership of declarations even though namespaces themselves do not create separate compiled libraries or enforce an ABI policy."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a conventional header defining an ordinary non-inline function, included by both a menu implementation and a report implementation. Its guard prevents a second inclusion within either file, but each translation unit still contains one definition. That yields two program definitions of an entity whose contract does not permit them. One repair is to leave a declaration in the header and place the single definition in an implementation file. Another, when appropriate, is an inline definition that satisfies the cross-translation-unit consistency requirements."
+        },
+        {
+          "type": "paragraph",
+          "text": "C++20 named modules introduce interface and implementation units with explicit import and export relationships. A primary module interface contains an exported module declaration, optionally preceded by a global module fragment, and identifies which declarations are exported to importers. Module partitions divide a module internally. These are language-level organization facilities; the build still needs to arrange dependencies and invoke a supporting compiler and library configuration appropriately."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A teammate renames a header to a module interface filename and assumes clients can import it with any C++20 compiler command. Which separate pieces of work are missing?",
+          "explanation": "Named modules require appropriate module declarations and export/import relationships, not a filename alone. The selected compiler and build workflow must support them and arrange module dependencies and required artifacts. Existing headers, header units and named modules have distinct rules. Define the intended public interface and choose a documented toolchain workflow before treating the migration as complete; the one-file listing here demonstrates no particular module-build command."
         }
       ]
     },
@@ -58,16 +88,20 @@
       "blocks": [
         {
           "type": "paragraph",
-          "text": "C++20 named modules introduce interface and implementation units with explicit import and export relationships. A primary module interface contains an exported module declaration, optionally preceded by a global module fragment, and identifies which declarations are exported to importers. Module partitions divide a module internally. These are language-level organization facilities; the build still needs to arrange dependencies and invoke a supporting compiler and library configuration appropriately."
+          "text": "A header unit, a named module, and a build-system target are different concepts. Importing a module is not merely a portable promise to make every project compile faster, and a module boundary alone does not guarantee a stable binary interface. Existing headers remain relevant for many libraries and toolchains. This lesson’s runnable program uses conventional includes, while module syntax and compiler-specific build workflows should be practiced in a dedicated project exercise with the chosen toolchain documented."
         },
         {
           "type": "paragraph",
-          "text": "A header unit, a named module, and a build-system target are different concepts. Importing a module is not merely a portable promise to make every project compile faster, and a module boundary alone does not guarantee a stable binary interface. Existing headers remain relevant for many libraries and toolchains. This lesson’s runnable program uses conventional includes, while module syntax and compiler-specific build workflows should be practiced in a dedicated project exercise with the chosen toolchain documented."
+          "text": "Merely adding inline while using different function bodies in different clients is not a repair. An inline definition in one client that formats capacity three and another that formats capacity four does not satisfy the required consistent definition model. Conditional compilation can accidentally create such mismatches, so configuration must be reviewed as part of the definition. Nor does inline guarantee a machine-code optimization: the implementation may retain a call while respecting the same language-level entity and definition rules. Keep binary performance questions separate from whether the program has valid definitions."
         },
         {
           "type": "reflection",
           "prompt": "Does an include guard fix duplicate ordinary function definitions in two separately compiled source files?",
           "explanation": "No. It prevents repeated header processing within each translation unit. Across translation units, definitions must still satisfy the One Definition Rule, for example by providing one non-inline definition or using suitable consistent inline definitions."
+        },
+        {
+          "type": "paragraph",
+          "text": "Review an organization boundary by naming the language entity, its exposed declarations, its permitted repeated definitions and its build dependency. Keep headers self-sufficient and namespace changes local to the intended interface. When moving toward named modules, preserve the same semantic and ownership contracts while separately validating the chosen compiler workflow. A cleaner boundary is useful because clients can understand their dependencies, not because one keyword guarantees faster builds or stable binaries."
         }
       ]
     }
@@ -149,5 +183,5 @@
       "locator": "GCC preprocessor manual §2.4; consulted 2026-09-11. The wrapper #ifndef pattern and why a repeated include skips guarded contents. Implementation documentation describing a portable preprocessing pattern."
     }
   ],
-  "version": 2
+  "version": 3
 }

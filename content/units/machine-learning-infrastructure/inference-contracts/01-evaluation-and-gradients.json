@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "machine_learning_infrastructure_inference_contracts_module",
-  "versionId": "machine_learning_infrastructure_inference_contracts_version_1",
+  "versionId": "machine_learning_infrastructure_inference_contracts_version_2",
   "slug": "evaluation-and-gradients",
   "title": "Separate model evaluation behavior from gradient recording",
   "summary": "Choose execution controls for inference without confusing their purposes.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "machine_learning_infrastructure_inference_contracts_part_concepts",
-      "title": "Understand the model",
+      "title": "Separate module behavior from gradient requirements",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "PyTorch distinguishes module evaluation mode from gradient modes. Calling eval changes behavior only for modules that define training-specific behavior; it does not itself disable autograd. No-grad and inference modes control gradient recording and associated bookkeeping in different ways, and inference mode imposes additional restrictions on tensors used later with autograd. A correct inference boundary therefore states both the model behavior and the gradient requirements. It also defines input representation and output interpretation. Do not infer these contracts from a function name such as predict, and do not assume that skipping gradients automatically changes dropout or batch-normalization behavior."
+        },
+        {
+          "type": "paragraph",
+          "text": "Think of module mode and gradient recording as two independent settings. Module mode chooses the behavior of components that distinguish training from evaluation. Gradient mode controls whether appropriate operations are recorded for automatic differentiation. A request can require evaluation behavior while still needing derivatives, for example to study sensitivity to an input. Calling that request inference does not determine either setting precisely enough."
+        },
+        {
+          "type": "paragraph",
+          "text": "In default gradient mode, recording depends on the relevant tensors requiring gradients. The original trace explicitly includes a parameter with requires_grad enabled so its recorded-graph conclusions have a stated basis. If every input and parameter were excluded from gradients, gradients-enabled mode alone would not imply that every operation creates a backward graph. Keep tensor requirements and execution mode in the same reasoning model."
+        },
+        {
+          "type": "paragraph",
+          "text": "No-grad excludes operations in its scope from gradient recording. Inference mode can remove additional bookkeeping but also restrict later autograd use of tensors created there. Choose the mode according to downstream requirements, not only whether the current call invokes backward. An output may later feed another calculation whose differentiation requirements change what is permitted."
+        },
+        {
+          "type": "paragraph",
+          "text": "The model boundary includes preprocessing and interpretation. Shape, numeric type, device, scaling and parameter version determine what calculation actually runs. A correct combination of eval and no-grad can still produce meaningless predictions if pixels are scaled differently from training or outputs are assigned the wrong labels. Separate a configuration check from a scientific claim that the model is accurate or appropriate."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A model currently in training mode contains dropout, its parameters require gradients, and the caller enters no-grad without calling eval. What happens to operation recording, and which module behavior remains selected?",
+          "explanation": "Recording is disabled for the operations in the no-grad scope, but the model remains in the stipulated training mode because no-grad does not change module mode. Training-sensitive dropout behavior is therefore still selected. A model already in evaluation mode would instead remain there. The exact numerical output is intentionally not predicted because the exercise has not fixed stochastic choices."
         }
       ]
     },
     {
       "id": "machine_learning_infrastructure_inference_contracts_part_trace",
-      "title": "Work through an example",
+      "title": "Compare mode settings and a sensitivity request",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "Case B demonstrates why eval alone does not express all inference requirements. Case C demonstrates the converse mistake: removing gradient recording leaves training-sensitive behavior selected. Case D matches this example’s need for evaluation behavior and output-only computation. This is a configuration argument, not a guarantee of identical outputs on every platform. Operators, randomness, device libraries and preprocessing can introduce additional differences that need separate controls."
+        },
+        {
+          "type": "paragraph",
+          "text": "Read the four cases as a two-axis experiment. Moving A→B changes only module behavior, keeping gradient recording available. Moving A→C changes only recording, keeping training behavior. Moving B→D removes recording while preserving evaluation behavior. Because one axis changes at a time, the cases identify which setting governs each effect without relying on stochastic numerical outputs."
+        },
+        {
+          "type": "paragraph",
+          "text": "The fixed parameters in this comparison prevent another confounder: parameter updates would change the model itself. Likewise identical preprocessing ensures the same input meaning. Case D matches output-only evaluation in this example, but Case B is valid for tasks that intentionally evaluate the model and differentiate a result. Neither mode is universally the correct choice for every operation involving a trained model."
+        },
+        {
+          "type": "callout",
+          "title": "Compare mode settings and a sensitivity request",
+          "text": "Contrasting mathematical request: use the differentiable scalar model y=w*x with w=3 and input x=2, and suppose the caller needs both y and the derivative with respect to x."
+        },
+        {
+          "type": "paragraph",
+          "text": "The forward result is six and the mathematical derivative is three. If this request needs autograd to obtain that derivative, a no-grad region removes the required recording. Evaluation mode alone would not remove it; this simple model has no training-sensitive component, so eval does not alter its arithmetic. The example separates a derivative requirement from a deployment label."
+        },
+        {
+          "type": "paragraph",
+          "text": "For an output-only service using the same scalar model, six is sufficient and no gradient graph is needed. If outputs will later participate in another autograd computation, examine inference mode's restrictions before adopting it. A configuration that saves bookkeeping for a terminal result may be unsuitable for an intermediate tensor used by a differentiable pipeline."
+        },
+        {
+          "type": "reflection",
+          "prompt": "For the scalar sensitivity request, what should a test compare beyond the forward value six?",
+          "explanation": "It should compare the intended derivative three with the computed derivative under a configuration that records the necessary operations and marks the input appropriately. It should also verify input shape/type and that the weight is the intended three. A passing forward-value test cannot establish that the backward computation is available or correct. This exact small model supplies an independently derived reference."
         }
       ]
     },
     {
       "id": "machine_learning_infrastructure_inference_contracts_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice inference contracts",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Can no-grad mode replace eval when a model contains modules whose behavior changes between training and evaluation?",
           "explanation": "No. No-grad controls graph recording, while eval selects module evaluation behavior. The controls are independent. The appropriate combination depends on whether the task needs gradients and whether it intends training or evaluation semantics. Treating either one as shorthand for the other can produce the wrong behavior or unnecessary bookkeeping."
+        },
+        {
+          "type": "paragraph",
+          "text": "Write an inference contract as explicit behavior, gradient and data requirements. Test evaluation-only requests separately from requests that need derivatives, and keep preprocessing identical when comparing paths. Performance work should measure full requests and memory use under representative conditions after these contracts are correct. The mode names themselves are neither an accuracy certificate nor a guarantee of deterministic execution."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://docs.pytorch.org/docs/2.14/notes/autograd.html",
       "locator": "Primary documentation: Locally disabling gradient computation and Evaluation Mode; eval, no-grad and inference distinctions; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

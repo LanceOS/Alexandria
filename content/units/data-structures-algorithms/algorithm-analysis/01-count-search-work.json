@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "dsa_count_search_work_module",
-  "versionId": "dsa_count_search_work_v1",
+  "versionId": "dsa_count_search_work_v2",
   "slug": "count-search-work",
   "title": "Count the work in a search",
   "summary": "Compare a scan with interval halving while separating theoretical cost from timing.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "An analysis answers a question only after choosing what counts as work. Here one examination means selecting one indexed element and comparing its value with the target. We count an examination even if deciding less-than, greater-than, or equality requires more than one primitive machine instruction. The sequence is already sorted in increasing order, distinct values are used to avoid duplicate-result policy questions, and accessing a chosen index is constant cost. The result is membership, not insertion position or the first among several equal items."
+        },
+        {
+          "type": "paragraph",
+          "text": "The state [low, high) contains every index that could still match. Low is included; high is excluded. Initially low=0 and high=n includes the whole sequence, including the empty case n=0. The middle is low plus the integer floor of (high-low)/2. If the middle value is too small, every index at or below it is impossible, so low becomes mid+1. If it is too large, the middle and everything above it are impossible, so high becomes mid. Equality ends the search. These updates remove the examined element from every unsuccessful step."
+        },
+        {
+          "type": "paragraph",
+          "text": "Removing the middle matters for termination. Setting low=mid after a too-small comparison can repeat a one-element interval forever. Sortedness matters for correctness: without it, excluding an entire side after one comparison is unjustified. The search therefore depends on both a representation promise and a shrinking interval. A runtime comparison can check one element; it cannot retroactively supply a missing sorted-input contract."
+        },
+        {
+          "type": "paragraph",
           "text": "To compare search methods, specify the data and the question. We have a sorted sequence of distinct integer identifiers and want to know whether a target occurs. Let n be the number of identifiers and count examinations of sequence elements. This model deliberately ignores file access, allocation, and the cost of a comparison. Those costs matter in other models, so record the model whenever making a complexity claim."
         },
         {
           "type": "paragraph",
           "text": "A linear scan may examine every element before reporting absence. Binary search maintains a half-open candidate interval from low up to, but excluding, high. It examines a middle element and discards a portion that cannot contain the target because the data is sorted. NIST’s binary-search reference makes the sorted-input condition part of the definition; halving an arbitrary sequence is not a valid search method."
+        },
+        {
+          "type": "reflection",
+          "prompt": "An implementation on a linked list makes logarithmically many value comparisons, but finding middle positions requires traversing links. May it claim logarithmic elapsed time solely from the comparison count?",
+          "explanation": "No. Finding middle positions can require traversing links. Count pointer steps as well as comparisons, and consider their costs. A claim about comparisons is still useful when comparisons are expensive, but it does not eliminate traversal work or justify a stopwatch prediction."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "In the original eight-element example, mid=4 selects 24. All indices zero through four can be discarded because their values cannot exceed 24. The candidate set becomes indices five through seven. Its middle is six, containing 40, so the remaining candidates must be below six. Index five is now the only candidate and contains 31. A linear scan of the same sequence would inspect 3, 8, 12, 17, 24, and 31: six examinations. This particular factor of two is not a universal speedup. It depends on the target, algorithm, and chosen cost model."
+        },
+        {
+          "type": "paragraph",
           "text": "The interval is the state of the search. Every update preserves the statement that an existing target must lie in that interval. An empty interval means the target is absent. For fixed-cost comparisons and constant-time indexed access, repeatedly halving the candidates gives logarithmic worst-case growth in the number of examined elements. Computing the middle as low plus half the interval length is also a useful implementation pattern when indices have finite ranges."
         },
         {
           "type": "paragraph",
           "text": "Big-O describes an asymptotic upper bound, using a constant multiplier after some threshold. It does not mean exact equality or a stopwatch result. A linear function is also bounded above by a quadratic function for sufficiently large inputs, although that loose bound communicates less. Use a tight characterization when known, and always say whether the bound is worst-case, expected, or amortized."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a missing target, 30, in the same sequence. The first two decisions again narrow the interval to [5,6). The value there is 31, which is too large, so high becomes five. Now low equals high: no possible index remains. Absence follows from the invariant, not from searching every element. For target 1, the algorithm examines 24, 12, 8, and 3 before the interval becomes empty. These different totals show why analysis normally states a worst case separately from a single trace."
+        },
+        {
+          "type": "paragraph",
+          "text": "Preparation can reverse an algorithm choice. In a hypothetical accounting model, suppose sorting costs 24 work units, each subsequent binary search costs four, and a linear query costs eight. One query costs 28 units after sorting versus eight without sorting. Ten queries cost 24 + 10*4 = 64 versus 80. The crossover is more than six queries because 24 + 4q < 8q exactly when q > 6. These invented costs illustrate workload accounting; they are not an estimate of a particular sorting implementation."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical absence trace for target 30\n[0,8): mid 4, value 24 -> low=5\n[5,8): mid 6, value 40 -> high=6\n[5,6): mid 5, value 31 -> high=5\n[5,5): empty -> absent after three examinations",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "Trace a search for 55 in the original eight-element sequence. Why does the final interval update use mid+1 after seeing 40?",
+          "explanation": "The algorithm examines 24 at index four, 40 at index six, then 55 at index seven: three examinations. After seeing 40, index six is already known not to match, so low becomes seven. Keeping low at six could fail to shrink a later one-element interval."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "A linked representation may support few element comparisons while still requiring many pointer steps to reach successive middle positions. Input representation is therefore part of an algorithm’s cost. Build a small comparison table for one query and for a thousand queries, counting preparation separately. This exercise turns a slogan about logarithmic search into an explicit workload argument."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use asymptotic notation to describe growth, then use total-work accounting to choose a strategy. Under this indexed model, binary search has logarithmic worst-case examinations for nonempty sequences; linear search has linear worst-case examinations. Neither statement includes preparing or maintaining sorted data. A complete design decision names the workload, representation, accepted inputs, cost model, and the observable result the search must return."
         }
       ]
     }
@@ -86,5 +130,6 @@
       "url": "https://xlinux.nist.gov/dads/HTML/bigOnotation.html",
       "locator": "Official NIST reference documentation: formal definition, tight versus upper bounds, and computation models; entry modified 2019-09-06; consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

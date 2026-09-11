@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_basics_module_decisions",
-  "versionId": "cpp_basics_decisions_v2",
+  "versionId": "cpp_basics_decisions_v3",
   "slug": "making-decisions",
   "title": "Making decisions",
   "summary": "Choose a path with conditions, then check the values where that choice changes.",
@@ -40,6 +40,25 @@
           "type": "callout",
           "title": "Keep the boundaries visible",
           "text": "Parentheses surround the condition, and braces group the statements controlled by it. Use braces even for a single output statement. Do not put a semicolon immediately after the condition: that would make an empty statement the controlled statement."
+        },
+        {
+          "type": "paragraph",
+          "text": "Translate the planning rule into regions before writing conditions. For valid nonnegative input, the intended regions are 0 through 9, 10 through 29, and 30 or more. Each input should select exactly one activity. The ordered chain expresses that partition without repeating every upper bound: reaching the second test already tells you that minutes is below 30, because the first test was false. The meaning of a branch therefore includes what earlier tests have established."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Worked decision table — assumed nonnegative minutes",
+          "code": "minutes  first test >=30  second test >=10  selected activity\n0        false           false            review\n9        false           false            review\n10       false           true             short practice\n25       false           true             short practice\n30       true            not evaluated    new section\n35       true            not evaluated    new section"
+        },
+        {
+          "type": "paragraph",
+          "text": "Notice that not evaluated differs from false. At 35, the second comparison would be true if asked, but the chain never asks it. The selected first body is followed by the statement after the chain. This distinction explains both the single activity line and the unconditional Plan ready line. A trace should record which expressions actually execute instead of filling every cell with an imagined Boolean result."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If the three activities were controlled by three independent if statements using >=30, >=10, and <10, what would happen at 35?",
+          "explanation": "The first and second bodies would both execute because their conditions are independently true; the third would not. An else-if chain expresses a choice among alternatives. Independent if statements express separate applicable actions. Neither construct is inherently better: choose the one matching whether multiple actions are allowed by the requirement."
         }
       ]
     },
@@ -66,6 +85,23 @@
         {
           "type": "paragraph",
           "text": "A chain chooses the first matching branch. Several independent if statements ask separate questions, so several bodies can run. That distinction matters when the same value satisfies more than one comparison. In the program, thirty-five satisfies both numerical thresholds, but the else if chain deliberately chooses only the longer session."
+        },
+        {
+          "type": "paragraph",
+          "text": "Logical operators let you combine questions without losing their individual meanings. For a practice session, minutes >= 10 && hasNotebook requires both enough time and a notebook. Test the combinations deliberately: enough time with a notebook succeeds, enough time without one fails, and too little time fails regardless of the notebook. This is a small truth-table argument, and it is often easier to review than a long combined sentence."
+        },
+        {
+          "type": "paragraph",
+          "text": "Short-circuiting can protect an operation whose precondition is established on the left. For small representable integers, groups != 0 && items / groups >= 2 checks that division is allowed before evaluating the quotient. If groups is zero, the division is skipped. Reversing the operands would attempt division first and defeat that protection. For a complete general integer interface you must also account for representability of the quotient; here nonnegative small values keep that additional boundary out of the example."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use an explicit condition for a range. The mathematical shorthand 10 <= minutes < 30 does not express the intended two-comparison range test in C++. The first comparison produces a Boolean result, which the next comparison treats as a numeric value. Write minutes >= 10 && minutes < 30 when both bounds need to be stated. In the existing ordered chain the first failed test supplies the upper bound, but a standalone predicate does not inherit that context."
+        },
+        {
+          "type": "reflection",
+          "prompt": "For a standalone short-session test, choose a condition that accepts 10 and 29 but rejects 9 and 30. Explain each boundary.",
+          "explanation": "Use minutes >= 10 && minutes < 30. The lower test includes 10, while the upper test excludes 30. At 9 the first comparison fails and the second can be skipped; at 30 the lower test succeeds but the upper one fails. Writing and checking all four values tests the intended interval instead of relying on a single interior example."
         }
       ]
     },
@@ -85,6 +121,18 @@
         {
           "type": "paragraph",
           "text": "A correct condition also depends on your intended input range. This example assumes a nonnegative number of available minutes. A negative initializer still compiles and reaches the review branch; the compiler cannot decide whether that matches your planning rules. You could add a separate invalid-value branch later. For this reading, focus on explaining which branch runs and why."
+        },
+        {
+          "type": "paragraph",
+          "text": "Input validity is a separate branch decision. If negative minutes indicate an error, test that condition before selecting an activity. Otherwise a negative value reaches the same final else as a valid short duration, hiding the invalid state. An error branch should also make clear whether planning stops or whether a fallback activity is deliberately allowed. Braces tell you which statements belong to that branch; indentation alone cannot enforce the boundary."
+        },
+        {
+          "type": "paragraph",
+          "text": "A second scenario changes the policy rather than the syntax: suppose a longer session also requires a computer. With 35 minutes but no computer, the original time-only rule selects a new section. A revised rule might select short practice if a notebook is available. Write the desired answer for each combination before rearranging conditions. The correct branch order follows the application policy, and successful compilation cannot establish that policy for you."
+        },
+        {
+          "type": "paragraph",
+          "text": "When a condition grows difficult to read, introduce a well-named Boolean for a stable question, such as enoughTime, and keep mutations outside the condition while learning. Then review the path as a sequence of decisions and resulting actions. The skill to carry into loops is recognizing that a condition is evaluated at a particular moment against the current state; a later assignment can change the answer to the same question."
         }
       ]
     }
@@ -135,7 +183,29 @@
       "locator": "Primary standards draft, [expr.log.or], paragraphs 1 and 2: built-in Boolean result, short-circuit evaluation, and sequencing. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
       "publicationYear": 2020,
       "edition": "N4861 (C++20 working draft)"
+    },
+    {
+      "id": "cpp_basics_module_decisions_depth_relational",
+      "title": "C++20 working draft N4861: relational operators",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.rel",
+      "locator": "Primary standards draft, [expr.rel] paragraphs 1–2: grouping and Boolean comparison results, including chained-comparison interpretation; consulted 2026-09-11.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
+    },
+    {
+      "id": "cpp_basics_module_decisions_depth_division",
+      "title": "C++20 working draft N4861: multiplicative operators",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.mul",
+      "locator": "Primary standards draft, [expr.mul] paragraph 4: divisor and representable-quotient conditions for the guarded integer-division discussion; consulted 2026-09-11.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     }
   ],
-  "version": 2
+  "version": 3
 }

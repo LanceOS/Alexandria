@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "compilers_language_tools_syntax_trees_module",
-  "versionId": "compilers_language_tools_syntax_trees_version_1",
+  "versionId": "compilers_language_tools_syntax_trees_version_2",
   "slug": "precedence-tree",
   "title": "Build an expression tree that preserves precedence",
   "summary": "Connect grammar decisions to the structure and evaluation of an AST.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "compilers_language_tools_syntax_trees_part_concepts",
-      "title": "Understand the model",
+      "title": "Derive a grammar and tree representation",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "A parser consumes tokens according to grammar rules and builds a structured representation. LLVM’s tutorial combines recursive descent with operator-precedence parsing and gives each expression form an AST representation. The tree captures relationships that a flat token list does not: which operands belong to which operation, and which operation is nested inside another. Parentheses can change those relationships without needing to survive as separate nodes in a minimal expression AST. Preserve source information elsewhere if diagnostics or exact source rewriting need it. An AST designed for execution is not automatically a lossless document model."
+        },
+        {
+          "type": "paragraph",
+          "text": "Define the grammar before choosing data structures. For this toy language, an expression is a sum of terms; a term is a product of primaries; a primary is an integer or a parenthesized expression. Those layers encode precedence: a multiplication belongs inside a term, while addition connects already formed terms. This is one simple grammar suitable for recursive descent, rather than a claim that every programming language can be parsed with these three rules."
+        },
+        {
+          "type": "paragraph",
+          "text": "A Number node stores one value. An Add or Multiply node stores two child expressions. The tree is ordered: the left and right child correspond to the source operands. A recursive evaluator first obtains the children's values and then applies the node's operation. This child-before-parent evaluation describes our pure, finite integer language; it should not be confused with evaluation-order guarantees for side effects in arbitrary C++ expressions."
+        },
+        {
+          "type": "paragraph",
+          "text": "A parser maintains a lookahead token. Parsing a number consumes that token and creates a Number node. Parsing an opening parenthesis consumes it, parses a complete nested expression, requires a closing parenthesis and consumes that too. A missing closing token is therefore a syntax error at a specific expectation, rather than a mysterious failure of arithmetic. The resulting minimal AST can omit punctuation because the nesting already records its effect."
+        },
+        {
+          "type": "paragraph",
+          "text": "For repeated operators at the same level, left associativity means accumulating a left subtree. Parse the first operand, then repeatedly combine the current tree with the next operand. With 8+2+1, begin Number(8), form Add(8,2), then form Add(Add(8,2),1). The exact integer result happens to agree with the right-associated version, so inspect tree shape as well as output when testing associativity."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Construct and evaluate the tree for 2*(3+4*5). Show the return values from each nested level.",
+          "explanation": "The inner product is Multiply(4,5), whose value is 20. Addition connects Number(3) to that product, giving Add(3,Multiply(4,5)) with value 23. The outer multiplication is Multiply(2,Add(3,Multiply(4,5))) and yields 46. The parentheses make the addition one primary; multiplication inside those parentheses still has higher precedence."
         }
       ]
     },
     {
       "id": "compilers_language_tools_syntax_trees_part_trace",
-      "title": "Work through an example",
+      "title": "Construct nested trees and diagnose incomplete input",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "Both inputs contain the same three numbers and two operators. Their nesting changes the result, showing why a token list alone does not encode expression meaning. In the first tree, the multiplication subtree becomes the right child of addition. In the second, addition becomes the left child of multiplication. A recursive evaluator can therefore follow the tree without repeatedly looking up precedence; the parser already recorded that decision in the structure."
+        },
+        {
+          "type": "paragraph",
+          "text": "For 4+2*3, parsing the first term produces Number(4). Encountering plus begins another term. That term first reads 2, sees star and incorporates 3, producing Multiply(2,3). Only after the term is complete does addition connect it to 4. The parser has not evaluated six during this process; it has recorded a structure that a later stage can evaluate or compile."
+        },
+        {
+          "type": "paragraph",
+          "text": "For (4+2)*3, the opening parenthesis requests a nested expression. Inside it, addition connects 4 and 2. The closing parenthesis returns that whole subtree as one primary. Multiplication then attaches Number(3) to it. This explains why the same numbers and operators produce a different root node. Source ranges can cover the complete operation while separate punctuation locations support better error messages."
+        },
+        {
+          "type": "callout",
+          "title": "Construct nested trees and diagnose incomplete input",
+          "text": "Contrasting failure: parse 4+(2*3 without a closing parenthesis, and compare it with 4+2*3 9 containing an unexpected trailing literal."
+        },
+        {
+          "type": "paragraph",
+          "text": "In the first input the nested multiplication is well formed, but the parenthesis parser still requires its closing token. Reaching End does not satisfy that requirement. Report the expected closing parenthesis and retain the opening location as context. Returning the multiplication subtree as though the whole input succeeded would erase a syntax error merely because a plausible value could be computed."
+        },
+        {
+          "type": "paragraph",
+          "text": "In the second input, a parser may successfully construct the tree for 4+2*3 and then find the extra 9. If the entry point requires one complete expression, it must reject that leftover token. A parser for a stream of separate statements could use a different delimiter contract, but it cannot silently infer one here. Both cases show why successful construction of a subtree is weaker than successful parsing of the whole source."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Extend the toy language with left-associative subtraction at the addition level. How would 8-3-1 differ from 8-(3-1)?",
+          "explanation": "The first tree is Subtract(Subtract(8,3),1), evaluating 5-1=4. The second is Subtract(8,Subtract(3,1)), evaluating 8-2=6. Subtraction makes associativity observable in the result, unlike exact integer addition. This is an explicitly added grammar rule for the exercise, not a change to the existing source language without specification."
         }
       ]
     },
     {
       "id": "compilers_language_tools_syntax_trees_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice precedence and associativity",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Does a successfully parsed tree prove that every operation in a richer language can execute correctly?",
           "explanation": "No. Parsing establishes grammatical structure. Name resolution, type checking, resource constraints and runtime conditions remain separate questions. An AST containing a call to an unknown function can be syntactically well formed even though semantic analysis must reject it. Keeping those phases distinct improves both reasoning and diagnostics."
+        },
+        {
+          "type": "paragraph",
+          "text": "You can now separate token recognition, grammatical nesting and evaluation. Test trees with precedence, equal-precedence chains, parentheses, incomplete input and trailing tokens. A richer compiler adds name resolution and type checking after syntax construction; a source editor may also need a lossless concrete syntax representation. Choose the representation for that purpose rather than expecting a minimal expression AST to preserve every source detail."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl02.html",
       "locator": "Primary documentation: Sections 2.2, 2.4 and 2.5; AST representation and expression precedence; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

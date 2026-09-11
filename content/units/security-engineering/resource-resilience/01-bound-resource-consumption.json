@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "security_bound_resource_consumption_module",
-  "versionId": "security_bound_resource_consumption_v1",
+  "versionId": "security_bound_resource_consumption_v2",
   "slug": "bound-resource-consumption",
   "title": "Bound resource consumption at every stage",
   "summary": "Trace a budgeted import before allocation and preserve a clear failure outcome.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Resource resilience asks whether the service remains usable when inputs request too much work or when work fails partway through. A request's small encoded size can be misleading: decoding may create many records, nesting may consume stack or traversal work, and retained results may outlive parsing. Consider the complete lifetime of memory, files, handles, queued requests, and CPU work. A limit at one stage protects only what that limit actually measures."
+        },
+        {
+          "type": "paragraph",
+          "text": "Define the budget's unit and accounting scope. The 64000-byte example covers only fixed record storage at 64 bytes per record. It does not include variable text, allocator overhead, decoded buffers, or existing application state. A count limit and a byte limit can serve different purposes even if they happen to agree for this record size. A maximum nesting depth limits one structural dimension, while a total-byte limit constrains another. Each rejected condition needs a documented outcome and a cleanup path."
+        },
+        {
+          "type": "paragraph",
+          "text": "Check untrusted counts before using them to allocate or multiply. Establish that the count is nonnegative and that element size is positive. For an integer budget B and positive element size E, count <= floor(B/E) ensures count*E <= B in mathematical arithmetic. If B itself is representable in the intended integer type, that successful bound also explains why the nonnegative product fits that budget. An unchecked product can overflow before the comparison and produce a falsely small number. The order of validation is therefore part of the reasoning."
+        },
+        {
+          "type": "paragraph",
           "text": "An import service can receive a small request that causes large work: a compressed archive expands, a nested structure requires deep recursion, or a declared record count drives allocation. Limiting only network bytes leaves these later stages unbounded. MITRE’s CWE-400 describes uncontrolled resource consumption and mitigation through limits. Apply limits to the resources the operation actually consumes, not just its first representation."
         },
         {
           "type": "paragraph",
           "text": "For a teaching import, allow at most 1000 records and at most 64000 bytes of fixed-size record storage. Each record needs 64 bytes in this model. There are separate limits for decoded text bytes, nesting depth, elapsed work, and concurrent imports. These values are illustrative application choices; a real service must choose budgets from its capacity and requirements."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The record size changes to 96 bytes while the fixed-storage budget remains 64000. What maximum count is safe, and how do you check it without an overflowing multiplication?",
+          "explanation": "Compute floor(64000/96)=666 first. The accepted maximum uses 666*96=63936 bytes, while 667*96=64032 exceeds the budget. Compare the validated nonnegative count to 666 before multiplying. Variable fields and concurrent requests still need their separate limits."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "Divide the budget 64000 by element size 64 to get 1000 accepted records at most. A declaration of 1001 fails before allocating its record array. A declaration of 800 produces 800*64=51200 bytes, leaving 12800 bytes within this particular storage budget. That remainder is not permission to ignore separately budgeted text or temporary buffers. As records are decoded, their actual counts and sizes must still agree with the accepted limits; an untrusted declaration does not prove the payload follows it. If a later record fails, discard staged results and publish no partial batch under this lesson's all-or-nothing import contract."
+        },
+        {
+          "type": "paragraph",
           "text": "Compare a nonnegative count against budget divided by element size before multiplying, provided element size is positive. This avoids overflowing the product used for the limit check. The trace assumes fixed record storage only; dynamic strings, container overhead, and temporary buffers require separate accounting. A stated budget should include the resources that remain live together, not just one allocation in isolation."
         },
         {
           "type": "paragraph",
           "text": "Stage accepted records until the import is ready to commit, but ensure the staging itself stays within a limit. A transaction or explicit rollback policy can protect persistent state. Cleanup must release temporary files, memory, and acquired handles on both rejection and success. C++ RAII is useful for ownership cleanup, while an application-level transaction decides which data changes become visible."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now consider aggregate pressure. In a hypothetical service, reserve a shared 128000-byte pool for this fixed record storage, and allow each admitted request to reserve at most 64000 bytes. Two full reservations consume the entire pool; a third cannot be admitted until capacity is released. If a pending queue simply retains every third request's complete body, the queue itself becomes another unbounded resource. A concurrency cap therefore needs a bounded waiting policy and accounting for pending payloads."
+        },
+        {
+          "type": "paragraph",
+          "text": "Cancellation must release the reservation on every path, including malformed input, timeout, allocation failure, and ordinary completion. Releasing it too early, while the request still holds staged records, understates live usage and permits over-admission. Retaining it forever after an error reduces future capacity even though the work has ended. The invariant for this toy pool is that the sum of outstanding reservations never exceeds 128000 and every live record allocation is covered by its reservation. Other memory has separate budgets; this is not a whole-process memory guarantee."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical aggregate record-storage pool: 128000 bytes\nAdmit A with reservation 64000 -> reserved 64000\nAdmit B with reservation 64000 -> reserved 128000\nC requests 64000 -> reject or bounded defer; cannot admit now\nA finishes cleanup and releases 64000 -> reserved 64000\nC may now be considered for admission under the queue policy",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "An import times out after writing a temporary file and staging half its records. Name the observable state and resource conditions the failure test should verify.",
+          "explanation": "Under the stated contract, no partial batch is published. Temporary records, files, and handles are cleaned up according to the application's documented lifecycle, and the request's admission reservation is released after the covered resources are no longer live. Test that a later valid import can still be admitted. Merely observing a timeout error does not verify cleanup or preserved persistent state."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Reject or defer work with a documented response when budgets are exhausted. Avoid unbounded retries, which can amplify overload, and avoid accumulating rejected payloads indefinitely in logs. Test cancellation and errors at intermediate stages, verifying that resources are released and committed state remains consistent. Resource resilience is a design property across parsing, scheduling, storage, and cleanup; it cannot be added by checking only one field at the edge."
+        },
+        {
+          "type": "paragraph",
+          "text": "A resource budget is useful only when its accounting follows actual resource lifetimes. State per-item, per-request, queued, and aggregate limits separately, then test rejection at intermediate stages. Include the cost of errors, retries, and diagnostics in the design. The goal is controlled failure with consistent state and recoverable capacity, not the impossible claim that one size check proves availability under every workload."
         }
       ]
     }
@@ -86,5 +130,6 @@
       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
       "locator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
     }
-  ]
+  ],
+  "version": 2
 }

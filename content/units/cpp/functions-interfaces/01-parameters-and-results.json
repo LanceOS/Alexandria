@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_functions_interfaces_parameters_and_results",
-  "versionId": "cpp_core_functions_interfaces_parameters_and_results_v1",
+  "versionId": "cpp_core_functions_interfaces_parameters_and_results_v2",
   "slug": "parameters-and-results",
   "title": "Parameters, results, and borrowing",
   "summary": "Choose value and reference parameters by what a function is allowed to do.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "Start with the difference between a value and an alias from the initialization lesson. A call connects caller expressions to parameter objects or references. The parameter names are local to the function, but a reference may still reach state belonging to the caller. Designing a useful interface means deciding which state crosses this boundary, which changes are permitted, and what survives when the call finishes. Those decisions matter even for a function with only a few lines of code."
+        },
+        {
+          "type": "paragraph",
           "text": "A function interface communicates more than the names of its arguments. A value parameter creates a separate parameter object. A reference parameter binds to an existing object. A reference to const allows the function to inspect that object without changing it through the reference. These choices communicate how a caller’s state may be affected. They also carry lifetime obligations that the parameter list alone cannot completely enforce."
         },
         {
           "type": "paragraph",
+          "text": "Describe an operation in terms of inputs, effects and result. total takes a collection of session counts, reads it during the call, and returns a new total. set_completed takes an existing integer to modify and a replacement integer value. make_label takes a number and produces a new owned string. The const-reference input of total is a borrowing choice; the returned int is an independent result. These choices separate computation from mutation and keep the mutation visible where the operation is invoked. They are design recommendations for this example, not a language rule requiring every helper to follow one style."
+        },
+        {
+          "type": "paragraph",
           "text": "For a small integer input, passing by value is straightforward. For an existing vector that a function only reads, a const reference avoids copying all the elements. This is a design choice based on the operation rather than a blanket rule that references are always faster. Passing an int by mutable reference advertises that the function may update the caller’s integer, so the operation’s name should make that effect understandable."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A helper stores a const reference to its argument and uses it after returning. The argument was alive throughout the call. Is that enough, and what two interface changes could remove the hidden obligation?",
+          "explanation": "It is not enough: the owner must remain alive through the later use, and relevant invalidating changes must also be excluded. One option is to copy or otherwise acquire an owned value for the deferred work. Another is to stop retaining the reference and finish all borrowed access inside the call. Keeping the borrow is also possible, but then the required caller lifetime and invalidation contract must be explicit and enforced by program structure."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Evaluate the nested call from its required inputs. Before set_completed can begin its body, total must produce the value that initializes the value parameter. Within total, result starts at zero, becomes four after the first element, ten after the second, and fifteen after the third. Returning it supplies fifteen to set_completed. The completed reference there designates main’s integer, while value is a separate parameter. The assignment changes main’s state once, after the calculation has finished. make_label then receives a copy of fifteen and constructs characters describing it. main’s label owns the returned string value when the helper is no longer executing."
+        },
+        {
+          "type": "paragraph",
           "text": "The total function visits the existing vector through a const reference and adds its elements into a local result. The sample values are nonnegative and their sum fits in int; the function’s type does not prove that assumption for every possible vector. set_completed has a mutable reference parameter, so its assignment updates the caller’s completed variable. The value parameter in that function supplies the replacement value without creating another alias."
         },
         {
           "type": "paragraph",
           "text": "make_label returns a std::string by value. The returned string owns the characters needed by the caller, even though the function’s local work has ended. Returning a reference to a local string would leave the caller referring to a destroyed object. Modern C++ can construct or move returned values efficiently; a borrowed return should be chosen because borrowing is correct, not because a value return merely looks expensive."
+        },
+        {
+          "type": "paragraph",
+          "text": "A second interface problem is choosing a title for a report that will outlive the helper call. If the helper builds a local string containing a prefix and a number, returning a reference to that local string leaves a dangling reference after return. Returning the string value transfers the result into an owning object available to the caller. The caller need not know whether the implementation constructs directly into the result or uses a permitted move; correctness must follow from ownership rather than a guessed optimization."
+        },
+        {
+          "type": "paragraph",
+          "text": "A borrowed result can instead refer to an object that the caller already owns. For example, an operation that chooses between two long-lived caller-owned titles could return a const reference to the chosen title. Its contract must say that the result aliases an argument and remains usable only while that object and its relevant storage remain valid. If the caller requires a frozen report title unaffected by subsequent edits, a value result is the clearer choice even when a borrow would be lifetime-safe. “Read-only through this reference” and “independent snapshot” describe different guarantees."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Trace total on an empty vector and on {2, 0, 3}. Does the const-reference input imply that total can never overflow for another vector?",
+          "explanation": "The empty vector performs no additions, so the initialized accumulator returns zero. The second trace visits zero, two, two and five as accumulator states, returning five. const prevents mutation through that input reference; it does not establish any bound on element values or their sum. Generalizing the function requires a separately stated overflow policy or a representation and checked arithmetic suited to the input domain."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "Would changing set_completed to take int completed update main’s variable?",
           "explanation": "No. That parameter would be a separate int initialized from the argument. The assignment would change only the parameter, and main’s completed value would remain zero."
+        },
+        {
+          "type": "paragraph",
+          "text": "Review an interface from both sides. At the call site, identify what is copied, borrowed, modified and returned. In the body, inspect every path for the promised effects and every retained reference for an owner. This method scales from arithmetic helpers to asynchronous work: the more widely execution is separated in time, the more important the ownership part of the interface becomes."
         }
       ]
     }
@@ -106,5 +140,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
       "locator": "N4861, [basic.life]; consulted 2026-09-11. Object lifetime begins and ends; access outside lifetime is restricted."
     }
-  ]
+  ],
+  "version": 2
 }

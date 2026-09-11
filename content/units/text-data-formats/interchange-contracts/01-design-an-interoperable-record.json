@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "textdata_design_an_interoperable_record_module",
-  "versionId": "textdata_design_an_interoperable_record_v1",
+  "versionId": "textdata_design_an_interoperable_record_v2",
   "slug": "design-an-interoperable-record",
   "title": "Design an interoperable data record",
   "summary": "Separate JSON syntax from the application rules needed to exchange a reading session.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "An interchange format is a conversation between independently written programs. JSON supplies a grammar and basic value kinds, but the application supplies meanings: which fields identify a book, what units a duration uses, which version is supported, and how errors are reported. A producer that can read its own output has demonstrated only agreement with itself. Interoperability requires a second implementation to preserve the same intended values and rejection rules."
+        },
+        {
+          "type": "paragraph",
+          "text": "Work through several layers. Transport provides bytes subject to size and encoding rules. Parsing recognizes JSON structure. Record validation requires the expected root object and fields. Semantic validation checks supported version and duration range; a later domain operation resolves the book and checks permissions. Do not let an unknown field or a successful parse bypass these later checks. The contract here explicitly ignores unknown fields for version-one compatibility but rejects unknown versions, so those two situations have different outcomes."
+        },
+        {
+          "type": "paragraph",
+          "text": "Missing, null, zero, and an empty string are different inputs. If minutes is required and integer-valued, omitting it is not equivalent to supplying zero, and neither becomes valid by silently defaulting to twenty-five. Decide whether integer-valued forms such as 25.0 are accepted; this lesson's value-based rule accepts numeric values equal to an integer in range, provided the parser can represent and validate them reliably. A protocol that wants a particular numeric spelling must state that additional lexical rule. Strings and numbers remain distinct types even when they display the same digits."
+        },
+        {
+          "type": "paragraph",
           "text": "JSON defines how to represent objects, arrays, strings, numbers, and a few literal values. It does not define what a reading session means. An application must specify required fields, allowed values, units, missing-field behavior, and version handling. A parser accepting a document establishes syntactic success; it does not establish that a negative duration or an unknown book identifier is meaningful."
         },
         {
           "type": "paragraph",
           "text": "For this exercise, version 1 requires a string bookId and an integer-valued minutes field from one through 120. Unknown fields are ignored for forward compatibility, but an unknown version is rejected. The contract rejects duplicate member names to avoid parser-dependent interpretations. These are our explicit application choices, not rules imposed universally by JSON."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Classify minutes omitted, minutes=null, minutes=0, and minutes=\"25\" under this record contract. Why is a generic default value a poor repair?",
+          "explanation": "Omission violates the required-field rule; null and the string \"25\" have the wrong type; numeric zero has the right broad type but is outside the allowed range. A default would hide different producer errors and could invent a session the sender did not describe. Each rejection follows a separate explicit requirement."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "The original book identifier exceeds the consecutive exact-integer range commonly available to binary64-based consumers, but it is quoted. Parsing therefore yields a string whose digits can be preserved without a numeric conversion. Treat it as an opaque label under the application's identifier grammar; do not turn it into a floating-point quantity and back. Minutes is a different kind of field: its numeric value is used in arithmetic and must be an integer from one through 120. The record's version controls how those fields are interpreted. This separates exact identity preservation from numeric range validation instead of selecting one representation for every collection of digits."
+        },
+        {
+          "type": "paragraph",
           "text": "The identifier is text because it is a label, not a quantity to calculate with. RFC 8259 describes interoperability limits when implementations use binary64 numbers: sufficiently large integer values may not be represented exactly by every consumer. A string avoids asking a numeric parser to preserve this identifier’s arithmetic value. The application must still define the permitted identifier grammar and length."
         },
         {
           "type": "paragraph",
           "text": "The standard requires UTF-8 for JSON exchanged between systems outside a closed ecosystem. It also permits parsers to impose limits, such as maximum nesting or numeric range. Document those limits in a protocol so producers can generate records consumers accept. A syntactically valid number with an enormous exponent need not be useful to the application."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a record that repeats the minutes member with values twenty-five and sixty. Different parser behavior could make one component validate twenty-five while another acts on sixty. Our application avoids that ambiguity by rejecting duplicate names. Detection must occur while the parser still exposes duplicates; a map that has already discarded one occurrence cannot recover the fact that two were present. Escaped names also need semantic comparison after JSON string decoding, because \"minutes\" and \"mi\\u006eutes\" name the same member."
+        },
+        {
+          "type": "paragraph",
+          "text": "For evolution, compare adding an optional note with changing version to two. A version-one reader can ignore the optional note under our rule and still interpret the required fields correctly. It must reject version two rather than guessing that the new format has identical meaning. Ignoring unknown fields is therefore a limited compatibility policy, not a guarantee that every future producer remains compatible. If an added field changes the meaning of minutes, merely ignoring it would be unsafe and a new version or other explicit negotiation would be needed."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical compatibility cases under the stated contract\n{\"version\":1,\"bookId\":\"B7\",\"minutes\":25,\"note\":\"morning\"}\n  -> note ignored; required fields validated normally\n{\"version\":2,\"bookId\":\"B7\",\"minutes\":25}\n  -> unsupported version; reject\n{\"version\":1,\"bookId\":\"B7\",\"minutes\":25,\"minutes\":60}\n  -> duplicate decoded member name; reject before information is lost",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "A decoder converts JSON objects directly into a map that keeps the last value for duplicate keys. Can a later schema check reliably enforce this module's duplicate-name rule?",
+          "explanation": "No. The discarded occurrence may no longer be observable. Use parsing facilities that reject duplicates or preserve the member sequence for validation, and compare names after escape decoding. Otherwise the later schema can validate the final map while failing to validate the original document's contract."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Set bounds for record bytes, nesting, field counts, and string lengths before expensive processing or large allocation. Maintain a small set of accepted and rejected fixtures as compatibility tests across implementations. When the format evolves, state which old records new readers accept and which new records old readers reject. Serialization is successful when independent producers and consumers agree on meaning, not merely when one program can read its own output."
+        },
+        {
+          "type": "paragraph",
+          "text": "A complete record specification defines types, units, identity representation, required fields, duplicate handling, limits, and evolution behavior. Test shared accepted and rejected fixtures across producers and consumers. Preserve raw input only under an intentional storage/security policy; semantic equality need not mean identical JSON whitespace or member order. Agreement on meaning is the goal, while canonical byte identity would require additional rules beyond ordinary JSON."
         }
       ]
     }
@@ -75,7 +119,7 @@
         "Tim Bray"
       ],
       "url": "https://www.rfc-editor.org/rfc/rfc8259",
-      "locator": "Normative Internet standard: RFC 8259, December 2017, §§4, 6, 8.1 and 9 on objects, numbers, UTF-8 and parser limits; consulted 2026-09-11."
+      "locator": "Normative Internet standard: RFC 8259, December 2017, §§3–4, 6, 8–9 on value kinds, duplicate names, numbers, strings, UTF-8, decoded-name comparison and parser limits. Relevant text inspected at https://www.rfc-editor.org/rfc/rfc8259.txt on 2026-09-11. Application field/version policies are original examples."
     },
     {
       "id": "textdata_design_an_interoperable_record_source_owasp",
@@ -86,5 +130,6 @@
       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html",
       "locator": "Expert security guidance: Input Validation Strategies, syntactic and semantic checks, allowlists and length/range limits; consulted 2026-09-11. Guidance, not a normative language rule or proof of security."
     }
-  ]
+  ],
+  "version": 2
 }

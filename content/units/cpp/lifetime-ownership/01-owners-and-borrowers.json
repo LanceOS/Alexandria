@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_lifetime_ownership_owners_and_borrowers",
-  "versionId": "cpp_core_lifetime_ownership_owners_and_borrowers_v1",
+  "versionId": "cpp_core_lifetime_ownership_owners_and_borrowers_v2",
   "slug": "owners-and-borrowers",
   "title": "Owners, borrowers, and scope",
   "summary": "Track which object keeps data alive when a reference or view accesses it.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "Before this lesson, distinguish independent values from references and understand vector size. A borrowing review asks a time-dependent question: will the described elements still exist at every access? The view object and the viewed objects have separate lifetimes. A string_view can be a perfectly initialized local object while the characters it describes have already been destroyed. That is why the presence of a variable in the debugger or in a lexical scope cannot by itself establish safe access."
+        },
+        {
+          "type": "paragraph",
           "text": "A name’s scope describes where that name can be used in source code. An object’s lifetime describes when the object exists during execution. The two ideas often line up for a local variable, but they are not identical. An owner such as a string or vector controls storage that other objects may borrow. A reference or view can remain in scope after that storage has become unusable, creating a dangling access."
         },
         {
           "type": "paragraph",
+          "text": "Draw two boxes for the example: one for the owner and one for the view. Put the actual elements in the owner’s box and an arrow plus a length in the view’s box. Copying the view duplicates the arrow and length. Copying the owner can create another sequence of elements. These drawings are conceptual relationships, not a claim about a particular object’s binary layout. They make the obligations concrete: the arrow needs valid backing elements, the recorded length must remain appropriate, and changes to the owner must obey that owner’s invalidation rules. No view operation automatically refreshes these relationships after arbitrary owner changes."
+        },
+        {
+          "type": "paragraph",
           "text": "std::string_view describes a sequence of characters without owning those characters. std::span, introduced in C++20, similarly describes a contiguous sequence of elements. Each view lets a function receive a sequence and its length together. Neither view is a mechanism for keeping the original string or vector alive. Copying a view creates another description of the same sequence rather than another copy of its elements."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A vector has size three and capacity for five elements. You build a span over its three integers, then append one integer while preserving the original elements and their addresses. How many elements does the old span describe? What separate issue arises if an append instead relocates the vector’s storage?",
+          "explanation": "It still describes three elements because its stored extent is not connected to future size updates. Under the stated no-reallocation insertion case, its original elements remain accessible. If an append reallocates, the old element access becomes invalid instead. Reconstruct a view from the owner when the task is to process the entire current collection, and never use the invalidated view merely to test what happens."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Trace title before prefix. The owner contains Atlas of Stars, and the view is explicitly limited to the first five characters. Printing prefix uses that length, producing Atlas without requiring a new owning substring. Next pages contains three integers. entries borrows all three through read-only element access, but the owner remains mutable. Assigning nine to the existing first element preserves that element’s location and leaves the number of elements unchanged. entries.front therefore reads nine, while entries.size remains three. The order of declarations and later uses keeps both arrows connected to live storage throughout this particular execution."
+        },
+        {
+          "type": "paragraph",
           "text": "The title string owns the characters observed by prefix. The pages vector owns the integers observed by entries. Both owners are created before their views and remain alive throughout the output operations. prefix selects the first five characters without allocating a replacement string. entries allows indexed access to the vector’s existing elements. The printed values come from the original owners, so the program’s safety depends on those relationships."
         },
         {
           "type": "paragraph",
           "text": "The change to pages[0] replaces an existing integer without changing the vector’s size or capacity. Consequently, entries observes the new value 9. A push_back that reallocates would be different: it would move storage and invalidate the old span’s access. Similarly, modifying a string in a way that invalidates its character pointers can invalidate string views. Scope alone cannot distinguish these cases; the owner’s operation matters."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a contrasting vector trace with an explicitly known capacity of three and a size of three. A view is created over those three elements, and a fourth element is then appended. Because the old capacity is insufficient, the vector must reallocate; the old view cannot be used afterward. Rebuilding a new view from the modified owner is different from continuing to use the old one. A successful append does not repair previously stored pointers, references or views automatically."
+        },
+        {
+          "type": "paragraph",
+          "text": "A useful review habit is to connect every view to an owner, then check both destruction and storage-changing operations before the view’s final use. A const view object does not necessarily make its elements const: span<int> still exposes mutable integers. Use span<const int> when the interface should allow observation only. The type expresses permitted access, while program structure must still supply a valid lifetime."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A const span<int> and a span<const int> both sound read-only. Which permits changing a viewed integer, and what does const actually constrain in each case?",
+          "explanation": "A const span<int> makes the span object itself const, while its element access still returns access to mutable int elements. A span<const int> exposes const elements through the view. Neither choice freezes other aliases or extends the owner’s lifetime. Select span<const int> when an interface should permit observation only, then independently verify that the backing sequence remains valid."
         }
       ]
     },
@@ -62,12 +92,16 @@
         },
         {
           "type": "paragraph",
-          "text": "A useful review habit is to connect every view to an owner, then check both destruction and storage-changing operations before the view’s final use. A const view object does not necessarily make its elements const: span<int> still exposes mutable integers. Use span<const int> when the interface should allow observation only. The type expresses permitted access, while program structure must still supply a valid lifetime."
+          "text": "Now change the premise: the vector already has capacity for at least four elements, so the append does not reallocate. Existing element references can remain valid under the vector insertion rules, but a pre-existing span over three elements still has length three. It does not become a four-element span just because its owner grew. This case separates invalidation from stale descriptive information. A borrower may still address live elements while no longer representing the collection you intended to process. Build the span at the point where the current range is needed, or deliberately document that it represents a fixed prefix."
         },
         {
           "type": "reflection",
           "prompt": "Would copying entries into another span make it safe to destroy pages first?",
           "explanation": "No. Both spans would still refer to the same vector storage. An independent vector copy would own its own elements, but a span copy only duplicates the borrowing relationship."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use a lifetime timeline whenever data crosses an interface. Mark creation of the owner, creation of each borrower, storage-changing operations, the final borrowed access, and destruction. Then check that the owner’s contract supports every interval. This method explains why returning an owned result is sometimes worth a copy, while a short-lived view can be appropriate for immediate processing without allocating another sequence."
         }
       ]
     }
@@ -117,5 +151,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers",
       "locator": "N4861, [vector.modifiers]; consulted 2026-09-11. Insertion and erase invalidation requirements."
     }
-  ]
+  ],
+  "version": 2
 }

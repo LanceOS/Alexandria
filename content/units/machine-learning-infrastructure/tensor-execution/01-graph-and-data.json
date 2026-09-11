@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "machine_learning_infrastructure_tensor_execution_module",
-  "versionId": "machine_learning_infrastructure_tensor_execution_version_1_r2",
+  "versionId": "machine_learning_infrastructure_tensor_execution_version_1_r3",
   "slug": "graph-and-data",
   "title": "Map a tensor computation onto an execution graph",
   "summary": "Separate mathematical operators from devices, storage and execution dependencies.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "machine_learning_infrastructure_tensor_execution_part_concepts",
-      "title": "Understand the model",
+      "title": "Tensor shapes, dependencies, and storage",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "The TensorFlow systems paper presents computations as operations connected by tensor-valued edges, including representations of mutable state. Such a graph exposes dependencies and can support execution across different devices. The mathematical operation, the storage containing its values and the device executing its kernel are distinct concepts. A C++ implementation must manage the last two without changing the intended mathematics. The 2016 paper is a historical architecture study, not a promise about today’s APIs or performance. A graph can expose parallel work, but communication, memory use and scheduling costs determine whether a particular placement is worthwhile."
+        },
+        {
+          "type": "paragraph",
+          "text": "A tensor's shape specifies its index structure. W has two rows and two columns; x has two components; matrix-vector multiplication therefore produces two components. Bias addition here is explicitly elementwise between equal-length vectors. This avoids silently relying on a framework's broader broadcasting rules. ReLU then applies independently to each resulting component, choosing the value when positive and zero when negative or zero."
+        },
+        {
+          "type": "paragraph",
+          "text": "An operation node describes a calculation, while an edge carries a value required by another operation. A node becomes eligible only when its dependencies and relevant state requirements are satisfied. An absent direct edge does not establish independence: a chain of intermediate nodes creates an indirect dependency. Read the complete path when deciding whether work may overlap."
+        },
+        {
+          "type": "paragraph",
+          "text": "Storage lifetime follows consumers rather than source-code scope. The matrix-vector intermediate must remain available until addition consumes it under the selected execution scheme. The sum must remain available until ReLU consumes it. An implementation may reuse or fuse storage when its contract permits, but a conceptual graph cannot assume that freeing a host temporary proves an asynchronous device read finished."
+        },
+        {
+          "type": "paragraph",
+          "text": "Placement adds costs and constraints without changing the intended arithmetic. A kernel on an accelerator may need tensors transferred from host memory and results transferred back. A small operation can spend more time moving data or scheduling than calculating. Conversely retaining reusable parameters on a device may change that balance. These are design questions to measure under a complete workload, not universal conclusions supplied by a graph diagram."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Let W=[[1,2],[3,4]], b=[-5,1], and y=ReLU(Wx+b), with ReLU applied componentwise. Replace input x=[1,2] with [1,1], preserving W and b. Compute every new intermediate and identify the first changed operation-output edge.",
+          "explanation": "MatVec becomes [1+2,3+4]=[3,7], so its output edge changes first after the modified input is consumed. Adding b produces [-2,8], and ReLU gives [0,8]. The first output component still equals zero despite changed earlier values, showing why checking only final values can hide a difference in intermediate computation."
         }
       ]
     },
     {
       "id": "machine_learning_infrastructure_tensor_execution_part_trace",
-      "title": "Work through an example",
+      "title": "Trace arithmetic and placement costs",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The activation cannot consume its result until addition produces it, and addition depends on both the matrix-vector result and the bias. The shapes provide an early interface check: a three-element bias would violate the contract of this particular graph. Device placement is absent from the arithmetic trace on purpose. Executing the matrix operation on an accelerator could require transfers that cost more than the tiny operation itself."
+        },
+        {
+          "type": "paragraph",
+          "text": "Compute the first row of W times x: 1*2+2*1=4. The second row gives 3*2+4*1=10. Addition pairs those components with -5 and 1, producing -1 and 11. ReLU removes the negative first component and preserves the second, yielding [0,11]. Keeping each intermediate visible checks shape, sign and component ordering."
+        },
+        {
+          "type": "paragraph",
+          "text": "The bias can be ready before the matrix operation finishes, but addition still waits for both inputs. ReLU depends indirectly on W and x through the preceding nodes. A scheduler cannot run it on the intended values merely because there is no direct W→ReLU edge. The historical TensorFlow paper motivates graph-based execution; the particular numbers and shape checks here are original deductions."
+        },
+        {
+          "type": "callout",
+          "title": "Trace arithmetic and placement costs",
+          "text": "Contrasting placement model: suppose a CPU executes MatVec, Add and ReLU in 3, 1 and 1 hypothetical time units, respectively. The dependency chain therefore takes five units with no other costs."
+        },
+        {
+          "type": "paragraph",
+          "text": "Suppose an accelerator instead needs one unit for each operation but requires four units to transfer inputs and two to return outputs. With no overlap and these prescribed costs, total request time is 4+1+1+1+2=9, which exceeds the CPU's five. Reporting only the three accelerator kernel units would omit costs required by the request."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now suppose the same inputs are already resident and the next consumer also stays on that device, so this specific request requires neither transfer. Its modeled chain costs three units. Placement conclusions changed because the data-location assumptions changed. These invented values illustrate end-to-end accounting and are not TensorFlow benchmarks or predictions about a real device."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Two independent operations each need four hypothetical units and must both finish before a one-unit join operation. Compare ideal separate processors with one shared processor, ignoring overhead.",
+          "explanation": "With separate processors they can overlap for four units, then the join adds one, totaling five. With one processor and no overlap they require eight units before the join, totaling nine. Independence permits overlap but does not provide resources. Real scheduling and transfer overhead can change both totals, so this is only an explicit finite cost model."
         }
       ]
     },
     {
       "id": "machine_learning_infrastructure_tensor_execution_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice graphs and complete request time",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "If two graph operations are independent, with no direct or indirect data or control dependency between them and no conflicting shared-state access, must running them in parallel make the program faster?",
           "explanation": "No. Independent operations may be eligible for parallel execution, but that does not guarantee a speedup. An absent direct edge alone does not establish independence: MatVec and ReLU here are connected indirectly through Add. Independent operations may still compete for the same device, memory bandwidth or working space, and scheduling adds overhead. Check dependencies and shared-state access first, then measure performance under the actual workload."
+        },
+        {
+          "type": "paragraph",
+          "text": "An execution plan must preserve mathematics, dependencies and storage while choosing where work runs. Verify shapes and small intermediate values first, then annotate transfers and last consumers. Measure complete requests rather than isolated kernels. The 2016 systems paper supports the architecture discussion, while current API and performance claims require documentation and measurements for the actual runtime being deployed."
         }
       ]
     }
@@ -97,5 +148,5 @@
       "publisher": "USENIX Association"
     }
   ],
-  "version": 2
+  "version": 3
 }

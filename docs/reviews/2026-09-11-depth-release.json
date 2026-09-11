@@ -1,0 +1,3288 @@
+{
+  "date": "2026-09-11",
+  "baselineCommit": "bf3f048",
+  "scope": "All 89 curriculum modules; stable units, modules and lesson parts retained.",
+  "countingMethod": "Whitespace-separated words in paragraph/callout text and reflection prompts/explanations. Excludes code, lists, headings, objectives and references; a scope indicator, not a quality threshold.",
+  "totals": {
+    "modules": 89,
+    "parts": 267,
+    "proseWordsBefore": 36055,
+    "proseWordsAfter": 100620,
+    "explainedReflections": 269,
+    "sourceRecordsBefore": 241,
+    "sourceRecordsAfter": 264,
+    "addedSourceRecords": 23,
+    "updatedLocators": 2
+  },
+  "addedSources": [
+    {
+      "moduleId": "build_model_a_build_as_a_graph_module",
+      "id": "build_model_a_build_as_a_graph_module_source_custom_command_depth",
+      "title": "CMake 3.31: add_custom_command",
+      "url": "https://cmake.org/cmake/help/v3.31/command/add_custom_command.html"
+    },
+    {
+      "moduleId": "cpp_forwarding_arguments_module",
+      "id": "cpp_forwarding_arguments_module_depth_collapse",
+      "title": "C++20 working draft N4861: references",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.ref"
+    },
+    {
+      "moduleId": "cpp_forwarding_arguments_module",
+      "id": "cpp_forwarding_arguments_module_depth_movedfrom",
+      "title": "C++20 working draft N4861: moved-from library types",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/lib.types.movedfrom"
+    },
+    {
+      "moduleId": "cpp_starter_module_first_program",
+      "id": "cpp_starter_module_first_program_depth_gcc_overall",
+      "title": "GCC: Options Controlling the Kind of Output",
+      "url": "https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html"
+    },
+    {
+      "moduleId": "cpp_starter_module_first_program",
+      "id": "cpp_starter_module_first_program_depth_gcc_warnings",
+      "title": "GCC: Warning Options",
+      "url": "https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html"
+    },
+    {
+      "moduleId": "cpp_basics_module_decisions",
+      "id": "cpp_basics_module_decisions_depth_relational",
+      "title": "C++20 working draft N4861: relational operators",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.rel"
+    },
+    {
+      "moduleId": "cpp_basics_module_decisions",
+      "id": "cpp_basics_module_decisions_depth_division",
+      "title": "C++20 working draft N4861: multiplicative operators",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.mul"
+    },
+    {
+      "moduleId": "cpp_basics_module_output",
+      "id": "cpp_basics_module_output_depth_numeric_extraction",
+      "title": "C++20 working draft N4861: numeric input conversion",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/facet.num.get.virtuals"
+    },
+    {
+      "moduleId": "cpp_core_classes_value_semantics_copy_move_and_comparison",
+      "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_depth_unique_ptr_single",
+      "title": "C++20 working draft N4861: unique.ptr.single",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr.single"
+    },
+    {
+      "moduleId": "cpp_core_functions_interfaces_overloads_and_lambdas",
+      "id": "cpp_core_functions_interfaces_overloads_and_lambdas_depth_conv_fpprom",
+      "title": "C++20 working draft N4861: conv.fpprom",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/conv.fpprom"
+    },
+    {
+      "moduleId": "cpp_core_library_data_containers_keys_and_vocabulary_types",
+      "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_depth_variant_get",
+      "title": "C++20 working draft N4861: variant.get",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/variant.get"
+    },
+    {
+      "moduleId": "cpp_core_library_services_time_and_path_values",
+      "id": "cpp_core_library_services_time_and_path_values_depth_time_duration_cast",
+      "title": "C++20 working draft N4861: time.duration.cast",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/time.duration.cast"
+    },
+    {
+      "moduleId": "cpp_core_library_services_time_and_path_values",
+      "id": "cpp_core_library_services_time_and_path_values_depth_time_point",
+      "title": "C++20 working draft N4861: time.point",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/time.point"
+    },
+    {
+      "moduleId": "cpp_core_lifetime_ownership_raii_and_unique_ownership",
+      "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_depth_unique_ptr_single_ctor",
+      "title": "C++20 working draft N4861: unique.ptr.single.ctor",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr.single.ctor"
+    },
+    {
+      "moduleId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects",
+      "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_depth_vector_modifiers",
+      "title": "C++20 working draft N4861: vector.modifiers",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers"
+    },
+    {
+      "moduleId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects",
+      "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_depth_unique_ptr_single_ctor",
+      "title": "C++20 working draft N4861: unique.ptr.single.ctor",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr.single.ctor"
+    },
+    {
+      "moduleId": "cpp_core_types_initialization_initialization_and_deduction",
+      "id": "cpp_core_types_initialization_initialization_and_deduction_depth_vector_cons",
+      "title": "C++20 working draft N4861: vector.cons",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.cons"
+    },
+    {
+      "moduleId": "cpp_core_types_initialization_initialization_and_deduction",
+      "id": "cpp_core_types_initialization_initialization_and_deduction_depth_dcl_init_ref",
+      "title": "C++20 working draft N4861: dcl.init.ref",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.init.ref"
+    },
+    {
+      "moduleId": "graphics_gpu_rendering_pipeline_module",
+      "id": "graphics_gpu_rendering_pipeline_source_compare",
+      "title": "Vulkan reference: VkCompareOp",
+      "url": "https://docs.vulkan.org/refpages/latest/refpages/source/VkCompareOp.html"
+    },
+    {
+      "moduleId": "language_interoperability_cross_runtime_ownership_module",
+      "id": "language_interoperability_cross_runtime_ownership_source_vector",
+      "title": "Working Draft, Standard for Programming Language C++ (N4861)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers"
+    },
+    {
+      "moduleId": "network_distributed_systems_replicated_state_module",
+      "id": "network_distributed_systems_replicated_state_source_raft_clients",
+      "title": "In Search of an Understandable Consensus Algorithm (Extended Version)",
+      "url": "https://raft.github.io/raft.pdf"
+    },
+    {
+      "moduleId": "systems_programming_process_resources_module",
+      "id": "systems_programming_process_resources_source_open",
+      "title": "Linux manual: open(2)",
+      "url": "https://man7.org/linux/man-pages/man2/open.2.html"
+    },
+    {
+      "moduleId": "textdata_count_the_right_text_unit_module",
+      "id": "textdata_count_the_right_text_unit_module_source_segmentation_depth",
+      "title": "Unicode Standard Annex #29: Unicode Text Segmentation, Revision 45",
+      "url": "https://www.unicode.org/reports/tr29/tr29-45.html"
+    }
+  ],
+  "updatedLocators": [
+    {
+      "moduleId": "databases_storage_transaction_boundaries_module",
+      "sourceId": "databases_storage_transaction_boundaries_source_transaction",
+      "before": "Primary documentation: Sections 2, 2.1 and 3; explicit transactions, one writer, error handling; consulted 2026-09-11",
+      "after": "Primary documentation: sections 2 Transactions, 2.1 Read transactions versus write transactions, 2.2 DEFERRED, IMMEDIATE, and EXCLUSIVE transactions, 2.3 Implicit versus explicit transactions (including busy COMMIT and retry), and 3 Response To Errors Within A Transaction; consulted 2026-09-11"
+    },
+    {
+      "moduleId": "textdata_design_an_interoperable_record_module",
+      "sourceId": "textdata_design_an_interoperable_record_source_json",
+      "before": "Normative Internet standard: RFC 8259, December 2017, §§4, 6, 8.1 and 9 on objects, numbers, UTF-8 and parser limits; consulted 2026-09-11.",
+      "after": "Normative Internet standard: RFC 8259, December 2017, §§3–4, 6, 8–9 on value kinds, duplicate names, numbers, strings, UTF-8, decoded-name comparison and parser limits. Relevant text inspected at https://www.rfc-editor.org/rfc/rfc8259.txt on 2026-09-11. Application field/version policies are original examples."
+    }
+  ],
+  "modules": [
+    {
+      "path": "content/units/audio-signal-processing/callback-deadlines/01-buffer-budget.json",
+      "moduleId": "audio_signal_processing_callback_deadlines_module",
+      "title": "Budget work inside an audio callback",
+      "previousVersion": 1,
+      "previousVersionId": "audio_signal_processing_callback_deadlines_version_1",
+      "version": 2,
+      "versionId": "audio_signal_processing_callback_deadlines_version_2",
+      "previousFileSha256": "2debad5c7eb40bebc6ab11911694c5a69df0df8141ddc19682cf246eed986c37",
+      "fileSha256": "6a08e23b0b8a81eb6c3dd83f21f65b67ac1e5148ce2f7811e2cbd984ac107ef6",
+      "proseWordsBefore": 373,
+      "proseWordsAfter": 1202,
+      "parts": [
+        {
+          "id": "audio_signal_processing_callback_deadlines_part_concepts",
+          "proseWordsBefore": 113,
+          "proseWordsAfter": 477,
+          "explainedReflections": 1
+        },
+        {
+          "id": "audio_signal_processing_callback_deadlines_part_trace",
+          "proseWordsBefore": 135,
+          "proseWordsAfter": 535,
+          "explainedReflections": 1
+        },
+        {
+          "id": "audio_signal_processing_callback_deadlines_part_practice",
+          "proseWordsBefore": 125,
+          "proseWordsAfter": 190,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/audio-signal-processing/discrete-transforms/01-dft-conventions.json",
+      "moduleId": "audio_signal_processing_discrete_transforms_module",
+      "title": "Interpret a discrete Fourier transform convention",
+      "previousVersion": 1,
+      "previousVersionId": "audio_signal_processing_discrete_transforms_version_1",
+      "version": 2,
+      "versionId": "audio_signal_processing_discrete_transforms_version_2",
+      "previousFileSha256": "cd9c3a00f5e0ed43c667c56dc807ceaf1756b067eb725fe976d84468a3bf7781",
+      "fileSha256": "d117750a8263baef1a9a4e6de5889ba9a5d9bd96ad9c554b83c603f9d255cdd5",
+      "proseWordsBefore": 343,
+      "proseWordsAfter": 1065,
+      "parts": [
+        {
+          "id": "audio_signal_processing_discrete_transforms_part_concepts",
+          "proseWordsBefore": 111,
+          "proseWordsAfter": 456,
+          "explainedReflections": 1
+        },
+        {
+          "id": "audio_signal_processing_discrete_transforms_part_trace",
+          "proseWordsBefore": 118,
+          "proseWordsAfter": 435,
+          "explainedReflections": 1
+        },
+        {
+          "id": "audio_signal_processing_discrete_transforms_part_practice",
+          "proseWordsBefore": 114,
+          "proseWordsAfter": 174,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/build-release-engineering/build-graphs/01-model-a-build-as-a-graph.json",
+      "moduleId": "build_model_a_build_as_a_graph_module",
+      "title": "Model a build as a dependency graph",
+      "previousVersion": 2,
+      "previousVersionId": "build_model_a_build_as_a_graph_v2",
+      "version": 3,
+      "versionId": "build_model_a_build_as_a_graph_v3",
+      "previousFileSha256": "c4d864471f8f50db2a5c6f7427d6454e6ce61bf9da6aa7e7539ea3c3e9284a30",
+      "fileSha256": "de0fbb6bcbd4a777eda2a9c32472e0104e7944c3551f7977eaafc0100dc56b9c",
+      "proseWordsBefore": 382,
+      "proseWordsAfter": 1107,
+      "parts": [
+        {
+          "id": "build_model_a_build_as_a_graph_part_1",
+          "proseWordsBefore": 152,
+          "proseWordsAfter": 467,
+          "explainedReflections": 1
+        },
+        {
+          "id": "build_model_a_build_as_a_graph_part_2",
+          "proseWordsBefore": 118,
+          "proseWordsAfter": 468,
+          "explainedReflections": 1
+        },
+        {
+          "id": "build_model_a_build_as_a_graph_part_3",
+          "proseWordsBefore": 112,
+          "proseWordsAfter": 172,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/build-release-engineering/release-reproducibility/01-define-a-reproducible-artifact.json",
+      "moduleId": "build_define_a_reproducible_artifact_module",
+      "title": "Define a reproducible release artifact",
+      "previousVersion": 2,
+      "previousVersionId": "build_define_a_reproducible_artifact_v2",
+      "version": 3,
+      "versionId": "build_define_a_reproducible_artifact_v3",
+      "previousFileSha256": "1126b7b6fed923d90f0ed21eafd4bda24e4db49a45a48fc523f7ea26eb4754a8",
+      "fileSha256": "9a857f1c7f9d765d9a4697b1836751aa97871b1d8f9a8c41bc94119b2a82a526",
+      "proseWordsBefore": 410,
+      "proseWordsAfter": 1120,
+      "parts": [
+        {
+          "id": "build_define_a_reproducible_artifact_part_1",
+          "proseWordsBefore": 149,
+          "proseWordsAfter": 459,
+          "explainedReflections": 1
+        },
+        {
+          "id": "build_define_a_reproducible_artifact_part_2",
+          "proseWordsBefore": 141,
+          "proseWordsAfter": 487,
+          "explainedReflections": 1
+        },
+        {
+          "id": "build_define_a_reproducible_artifact_part_3",
+          "proseWordsBefore": 120,
+          "proseWordsAfter": 174,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/compilers-language-tools/lexical-analysis/01-token-boundaries.json",
+      "moduleId": "compilers_language_tools_lexical_analysis_module",
+      "title": "Turn characters into a token stream",
+      "previousVersion": 1,
+      "previousVersionId": "compilers_language_tools_lexical_analysis_version_1",
+      "version": 2,
+      "versionId": "compilers_language_tools_lexical_analysis_version_2",
+      "previousFileSha256": "9dfd1a774132b20727eb7eca36a94e641baddf9c82e5663eb8006966afc36276",
+      "fileSha256": "3d01d10216be2094153bc7ce23525f913292bcfe5f54cea68354b2b350ab8ca9",
+      "proseWordsBefore": 373,
+      "proseWordsAfter": 1170,
+      "parts": [
+        {
+          "id": "compilers_language_tools_lexical_analysis_part_concepts",
+          "proseWordsBefore": 123,
+          "proseWordsAfter": 498,
+          "explainedReflections": 1
+        },
+        {
+          "id": "compilers_language_tools_lexical_analysis_part_trace",
+          "proseWordsBefore": 124,
+          "proseWordsAfter": 481,
+          "explainedReflections": 1
+        },
+        {
+          "id": "compilers_language_tools_lexical_analysis_part_practice",
+          "proseWordsBefore": 126,
+          "proseWordsAfter": 191,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/compilers-language-tools/syntax-trees/01-precedence-tree.json",
+      "moduleId": "compilers_language_tools_syntax_trees_module",
+      "title": "Build an expression tree that preserves precedence",
+      "previousVersion": 1,
+      "previousVersionId": "compilers_language_tools_syntax_trees_version_1",
+      "version": 2,
+      "versionId": "compilers_language_tools_syntax_trees_version_2",
+      "previousFileSha256": "c91e50c0615314358784f6ed1cc4b1890123ade888f0cd53f57c0d0b82760819",
+      "fileSha256": "6ededb02276b41582985e071b6b8ab47d65e15353b0d4721429771bb125583b2",
+      "proseWordsBefore": 379,
+      "proseWordsAfter": 1102,
+      "parts": [
+        {
+          "id": "compilers_language_tools_syntax_trees_part_concepts",
+          "proseWordsBefore": 117,
+          "proseWordsAfter": 445,
+          "explainedReflections": 1
+        },
+        {
+          "id": "compilers_language_tools_syntax_trees_part_trace",
+          "proseWordsBefore": 127,
+          "proseWordsAfter": 459,
+          "explainedReflections": 1
+        },
+        {
+          "id": "compilers_language_tools_syntax_trees_part_practice",
+          "proseWordsBefore": 135,
+          "proseWordsAfter": 198,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/computer-architecture-operating-systems/memory-hierarchy/01-trace-cache-locality.json",
+      "moduleId": "archos_trace_cache_locality_module",
+      "title": "Trace locality with a tiny cache",
+      "previousVersion": 2,
+      "previousVersionId": "archos_trace_cache_locality_v2",
+      "version": 3,
+      "versionId": "archos_trace_cache_locality_v3",
+      "previousFileSha256": "55181123fa4bd9583d7777105a6d7b3fc69fe2a244a1d391eb2ec5f6714f662e",
+      "fileSha256": "58ae6d7ef2e66d568001f662579303fb0bd293a90cb78e322f7ad6e9bd9bee82",
+      "proseWordsBefore": 388,
+      "proseWordsAfter": 1124,
+      "parts": [
+        {
+          "id": "archos_trace_cache_locality_part_1",
+          "proseWordsBefore": 157,
+          "proseWordsAfter": 485,
+          "explainedReflections": 1
+        },
+        {
+          "id": "archos_trace_cache_locality_part_2",
+          "proseWordsBefore": 123,
+          "proseWordsAfter": 467,
+          "explainedReflections": 1
+        },
+        {
+          "id": "archos_trace_cache_locality_part_3",
+          "proseWordsBefore": 108,
+          "proseWordsAfter": 172,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/computer-architecture-operating-systems/process-memory/01-separate-addresses-from-storage.json",
+      "moduleId": "archos_separate_addresses_from_storage_module",
+      "title": "Separate virtual addresses from physical storage",
+      "previousVersion": 2,
+      "previousVersionId": "archos_separate_addresses_from_storage_v2",
+      "version": 3,
+      "versionId": "archos_separate_addresses_from_storage_v3",
+      "previousFileSha256": "c621b7982b2fd235d618f979e5d14caefa7455eba108f3205f3bae07129205a2",
+      "fileSha256": "a04809d03e6dce4aa0dfa7ea21dbb55991efd1da6b0713ed6b658c9ee3a3fb64",
+      "proseWordsBefore": 407,
+      "proseWordsAfter": 1113,
+      "parts": [
+        {
+          "id": "archos_separate_addresses_from_storage_part_1",
+          "proseWordsBefore": 162,
+          "proseWordsAfter": 492,
+          "explainedReflections": 1
+        },
+        {
+          "id": "archos_separate_addresses_from_storage_part_2",
+          "proseWordsBefore": 121,
+          "proseWordsAfter": 441,
+          "explainedReflections": 1
+        },
+        {
+          "id": "archos_separate_addresses_from_storage_part_3",
+          "proseWordsBefore": 124,
+          "proseWordsAfter": 180,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/concurrency-parallel-computing/parallel-work/01-estimate-a-parallel-speedup-limit.json",
+      "moduleId": "parallel_estimate_a_parallel_speedup_limit_module",
+      "title": "Estimate the limit of parallel speedup",
+      "previousVersion": 2,
+      "previousVersionId": "parallel_estimate_a_parallel_speedup_limit_v2",
+      "version": 3,
+      "versionId": "parallel_estimate_a_parallel_speedup_limit_v3",
+      "previousFileSha256": "91297aecccb40a92d91112bef3fd63187026c01dbb3424ecab0884ac534cf49e",
+      "fileSha256": "0255826b5ae5c73bfa463828da7d4f71c07eb0ae29f010c89926000db8d94ff2",
+      "proseWordsBefore": 376,
+      "proseWordsAfter": 1052,
+      "parts": [
+        {
+          "id": "parallel_estimate_a_parallel_speedup_limit_part_1",
+          "proseWordsBefore": 145,
+          "proseWordsAfter": 447,
+          "explainedReflections": 1
+        },
+        {
+          "id": "parallel_estimate_a_parallel_speedup_limit_part_2",
+          "proseWordsBefore": 112,
+          "proseWordsAfter": 426,
+          "explainedReflections": 1
+        },
+        {
+          "id": "parallel_estimate_a_parallel_speedup_limit_part_3",
+          "proseWordsBefore": 119,
+          "proseWordsAfter": 179,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/concurrency-parallel-computing/shared-state/01-protect-a-complete-state-transition.json",
+      "moduleId": "parallel_protect_a_complete_state_transition_module",
+      "title": "Protect a complete state transition",
+      "previousVersion": 1,
+      "previousVersionId": "parallel_protect_a_complete_state_transition_v1",
+      "version": 2,
+      "versionId": "parallel_protect_a_complete_state_transition_v2",
+      "previousFileSha256": "4e3ab814b047eb0a8f9e950a5f60776a44b68dbc30f77dc69197d66f959108c0",
+      "fileSha256": "0525783bdf5d03133085e5de7e77fb4c18c7404d33528f28410f7786fc5cede9",
+      "proseWordsBefore": 392,
+      "proseWordsAfter": 1107,
+      "parts": [
+        {
+          "id": "parallel_protect_a_complete_state_transition_part_1",
+          "proseWordsBefore": 155,
+          "proseWordsAfter": 463,
+          "explainedReflections": 1
+        },
+        {
+          "id": "parallel_protect_a_complete_state_transition_part_2",
+          "proseWordsBefore": 119,
+          "proseWordsAfter": 461,
+          "explainedReflections": 1
+        },
+        {
+          "id": "parallel_protect_a_complete_state_transition_part_3",
+          "proseWordsBefore": 118,
+          "proseWordsAfter": 183,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/advanced-templates/01-dependent-names.json",
+      "moduleId": "cpp_dependent_names_module",
+      "title": "Reading dependent names",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_dependent_names_v1",
+      "version": 2,
+      "versionId": "cpp_dependent_names_v2",
+      "previousFileSha256": "aceb0b670705b2e6b2c7166bad654d3b0d7f076ddef10995a5e11df25bd7ad03",
+      "fileSha256": "ac8443a25d7739d87017f7008d41dac8cc1aeb85265471af45ba80c464a81410",
+      "proseWordsBefore": 345,
+      "proseWordsAfter": 1028,
+      "parts": [
+        {
+          "id": "cpp_dependent_names_part_1",
+          "proseWordsBefore": 136,
+          "proseWordsAfter": 346,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_dependent_names_part_2",
+          "proseWordsBefore": 111,
+          "proseWordsAfter": 392,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_dependent_names_part_3",
+          "proseWordsBefore": 98,
+          "proseWordsAfter": 290,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/advanced-templates/02-forwarding-arguments.json",
+      "moduleId": "cpp_forwarding_arguments_module",
+      "title": "Forwarding arguments without changing their category",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_forwarding_arguments_v1",
+      "version": 2,
+      "versionId": "cpp_forwarding_arguments_v2",
+      "previousFileSha256": "b2180be51a28198004b2cabb7fddf3367b46dcd4b5c06e76eaf545f16a7df202",
+      "fileSha256": "d808fc9831a95f4cc890690748781acfe66c81b8e96af3af4387a812ee327fdf",
+      "proseWordsBefore": 324,
+      "proseWordsAfter": 1012,
+      "parts": [
+        {
+          "id": "cpp_forwarding_arguments_part_1",
+          "proseWordsBefore": 124,
+          "proseWordsAfter": 318,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_forwarding_arguments_part_2",
+          "proseWordsBefore": 98,
+          "proseWordsAfter": 388,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_forwarding_arguments_part_3",
+          "proseWordsBefore": 102,
+          "proseWordsAfter": 306,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 5
+    },
+    {
+      "path": "content/units/cpp/basics/01-first-program.json",
+      "moduleId": "cpp_starter_module_first_program",
+      "title": "Your first C++ program",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_starter_version_1_r2",
+      "version": 3,
+      "versionId": "cpp_starter_version_1_r3",
+      "previousFileSha256": "7dc56b882d1eacf25edce9d21eac2177fd8ebf6fba685eab9f572e6962f79992",
+      "fileSha256": "71f28dfa4a066d5bd21f4ebbb84dbe420475d232ce6c2d4f3bb02a03b866a739",
+      "proseWordsBefore": 636,
+      "proseWordsAfter": 1429,
+      "parts": [
+        {
+          "id": "cpp_starter_part_program",
+          "proseWordsBefore": 208,
+          "proseWordsAfter": 460,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_starter_part_anatomy",
+          "proseWordsBefore": 204,
+          "proseWordsAfter": 530,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_starter_part_experiment",
+          "proseWordsBefore": 224,
+          "proseWordsAfter": 439,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 6,
+      "sourceRecordsAfter": 8
+    },
+    {
+      "path": "content/units/cpp/basics/02-variables.json",
+      "moduleId": "cpp_basics_module_variables",
+      "title": "Variables, types, and initialization",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_basics_variables_v2",
+      "version": 3,
+      "versionId": "cpp_basics_variables_v3",
+      "previousFileSha256": "5e965d1d9c439691d84e6ba3d3bca36d25ae75ba40f6aedba2a66d472970bdea",
+      "fileSha256": "922f4ad6f8ef88770ec0bb23f9074c84cd218d57734e6f308669bd7fe1ab36f0",
+      "proseWordsBefore": 460,
+      "proseWordsAfter": 1314,
+      "parts": [
+        {
+          "id": "cpp_basics_variables_part_names",
+          "proseWordsBefore": 174,
+          "proseWordsAfter": 504,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_basics_variables_part_types",
+          "proseWordsBefore": 113,
+          "proseWordsAfter": 441,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_basics_variables_part_const_auto",
+          "proseWordsBefore": 173,
+          "proseWordsAfter": 369,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 6,
+      "sourceRecordsAfter": 6
+    },
+    {
+      "path": "content/units/cpp/basics/03-expressions.json",
+      "moduleId": "cpp_basics_module_expressions",
+      "title": "Expressions and arithmetic",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_basics_expressions_v2",
+      "version": 3,
+      "versionId": "cpp_basics_expressions_v3",
+      "previousFileSha256": "df4b1088b4e2ee55bbe19986ea7183e6541b971162c2bde54ddfead88ae7d572",
+      "fileSha256": "fdeb188dbbdf0274f4f2a65650de29e5dacf28a0fd6c00f3c2365a2fdd025714",
+      "proseWordsBefore": 561,
+      "proseWordsAfter": 1342,
+      "parts": [
+        {
+          "id": "cpp_basics_expressions_part_calculate",
+          "proseWordsBefore": 219,
+          "proseWordsAfter": 463,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_basics_expressions_part_division",
+          "proseWordsBefore": 166,
+          "proseWordsAfter": 371,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_basics_expressions_part_updates",
+          "proseWordsBefore": 176,
+          "proseWordsAfter": 508,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 6,
+      "sourceRecordsAfter": 6
+    },
+    {
+      "path": "content/units/cpp/basics/04-decisions.json",
+      "moduleId": "cpp_basics_module_decisions",
+      "title": "Making decisions",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_basics_decisions_v2",
+      "version": 3,
+      "versionId": "cpp_basics_decisions_v3",
+      "previousFileSha256": "8156a59877f1e7e8d1860f686b51b1f94bccf276b9bbf0b45d0d897306df10bf",
+      "fileSha256": "29a93e3d006258daed02ddc0647a62f6a0fb3164d9739226c58161d017936800",
+      "proseWordsBefore": 520,
+      "proseWordsAfter": 1253,
+      "parts": [
+        {
+          "id": "cpp_basics_decisions_part_branches",
+          "proseWordsBefore": 166,
+          "proseWordsAfter": 379,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_basics_decisions_part_conditions",
+          "proseWordsBefore": 180,
+          "proseWordsAfter": 488,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_basics_decisions_part_boundaries",
+          "proseWordsBefore": 174,
+          "proseWordsAfter": 386,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 6
+    },
+    {
+      "path": "content/units/cpp/basics/05-loops.json",
+      "moduleId": "cpp_basics_module_loops",
+      "title": "Repeating work",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_basics_loops_v2",
+      "version": 3,
+      "versionId": "cpp_basics_loops_v3",
+      "previousFileSha256": "9e6ca58f7ba30c2518a3bfe27424579c2c53aa4250edd64daf72677db2898e6f",
+      "fileSha256": "643b152b458a56a190a57bbfdee6031beef050eba7e7ed8652f281209c00f47f",
+      "proseWordsBefore": 484,
+      "proseWordsAfter": 1293,
+      "parts": [
+        {
+          "id": "cpp_basics_loops_part_for",
+          "proseWordsBefore": 116,
+          "proseWordsAfter": 342,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_basics_loops_part_while",
+          "proseWordsBefore": 152,
+          "proseWordsAfter": 445,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_basics_loops_part_trace",
+          "proseWordsBefore": 216,
+          "proseWordsAfter": 506,
+          "explainedReflections": 2
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/basics/06-functions.json",
+      "moduleId": "cpp_basics_module_functions",
+      "title": "Functions",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_basics_functions_v2",
+      "version": 3,
+      "versionId": "cpp_basics_functions_v3",
+      "previousFileSha256": "574bb28192776627767e85acdce22aa1da95cf8dec1162f46b7fc18dc5ae20be",
+      "fileSha256": "298e623b98b6965480f95cd18633055217eadc70520ae7b19c6be556decb3ee2",
+      "proseWordsBefore": 593,
+      "proseWordsAfter": 1352,
+      "parts": [
+        {
+          "id": "cpp_basics_functions_part_definition",
+          "proseWordsBefore": 171,
+          "proseWordsAfter": 393,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_basics_functions_part_values",
+          "proseWordsBefore": 219,
+          "proseWordsAfter": 497,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_basics_functions_part_contract",
+          "proseWordsBefore": 203,
+          "proseWordsAfter": 462,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/basics/07-output-and-buffering.json",
+      "moduleId": "cpp_basics_module_output",
+      "title": "Output and buffering",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_basics_output_v2",
+      "version": 3,
+      "versionId": "cpp_basics_output_v3",
+      "previousFileSha256": "38b8363632e659b8ac18406ecb9d7c0acd62d50c139882462c016a6a25fb76cb",
+      "fileSha256": "fc9d71dd3d695521142adf36202effb14c9a79847a8315dd9ed456747bb84725",
+      "proseWordsBefore": 573,
+      "proseWordsAfter": 1369,
+      "parts": [
+        {
+          "id": "cpp_basics_output_part_newlines",
+          "proseWordsBefore": 165,
+          "proseWordsAfter": 354,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_basics_output_part_flushing",
+          "proseWordsBefore": 200,
+          "proseWordsAfter": 513,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_basics_output_part_prompts",
+          "proseWordsBefore": 208,
+          "proseWordsAfter": 502,
+          "explainedReflections": 2
+        }
+      ],
+      "sourceRecordsBefore": 7,
+      "sourceRecordsAfter": 8
+    },
+    {
+      "path": "content/units/cpp/classes-value-semantics/01-invariants-and-operations.json",
+      "moduleId": "cpp_core_classes_value_semantics_invariants_and_operations",
+      "title": "Classes that maintain a useful invariant",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_core_classes_value_semantics_invariants_and_operations_v1",
+      "version": 2,
+      "versionId": "cpp_core_classes_value_semantics_invariants_and_operations_v2",
+      "previousFileSha256": "212f6a9050af1c13e120e1b0c3f657638f97c81d51c76c080b8d18cf82aa5d5a",
+      "fileSha256": "97eaf20feb62f526bc5a2f0751d505839518dc439cf058dcf9c647419c2083cb",
+      "proseWordsBefore": 444,
+      "proseWordsAfter": 1127,
+      "parts": [
+        {
+          "id": "cpp_core_classes_value_semantics_invariants_and_operations_part_1",
+          "proseWordsBefore": 140,
+          "proseWordsAfter": 407,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_classes_value_semantics_invariants_and_operations_part_2",
+          "proseWordsBefore": 137,
+          "proseWordsAfter": 491,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_classes_value_semantics_invariants_and_operations_part_3",
+          "proseWordsBefore": 167,
+          "proseWordsAfter": 229,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/classes-value-semantics/02-copy-move-and-comparison.json",
+      "moduleId": "cpp_core_classes_value_semantics_copy_move_and_comparison",
+      "title": "Copying, moving, and comparing values",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_core_classes_value_semantics_copy_move_and_comparison_v2",
+      "version": 3,
+      "versionId": "cpp_core_classes_value_semantics_copy_move_and_comparison_v3",
+      "previousFileSha256": "246f3538ab45666061a4b8d3567753aebb61dd68207ca75926209b971e2a3150",
+      "fileSha256": "3d7aaf15822e98118d2b63a76dd32fed0742f61a5de547d554f4d3e663e70613",
+      "proseWordsBefore": 443,
+      "proseWordsAfter": 1149,
+      "parts": [
+        {
+          "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_part_1",
+          "proseWordsBefore": 134,
+          "proseWordsAfter": 418,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_part_2",
+          "proseWordsBefore": 122,
+          "proseWordsAfter": 476,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_classes_value_semantics_copy_move_and_comparison_part_3",
+          "proseWordsBefore": 187,
+          "proseWordsAfter": 255,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 7,
+      "sourceRecordsAfter": 8
+    },
+    {
+      "path": "content/units/cpp/compile-time-programming/01-constant-evaluation.json",
+      "moduleId": "cpp_constant_evaluation_module",
+      "title": "Computing and checking constants",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_constant_evaluation_v1",
+      "version": 2,
+      "versionId": "cpp_constant_evaluation_v2",
+      "previousFileSha256": "2f3a7a35e77e546d77fa81a3bead029c8fafacb43c39ef2aa030e77c640dc896",
+      "fileSha256": "2456926f6c549d21f649f84fcbc8bc686dd09062a49a16b4bb2c32a0844dfe60",
+      "proseWordsBefore": 315,
+      "proseWordsAfter": 1021,
+      "parts": [
+        {
+          "id": "cpp_constant_evaluation_part_1",
+          "proseWordsBefore": 114,
+          "proseWordsAfter": 322,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_constant_evaluation_part_2",
+          "proseWordsBefore": 99,
+          "proseWordsAfter": 401,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_constant_evaluation_part_3",
+          "proseWordsBefore": 102,
+          "proseWordsAfter": 298,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/compile-time-programming/02-type-directed-branches.json",
+      "moduleId": "cpp_type_directed_branches_module",
+      "title": "Selecting an implementation with if constexpr",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_type_directed_branches_v1",
+      "version": 2,
+      "versionId": "cpp_type_directed_branches_v2",
+      "previousFileSha256": "e7c88db3832c145a1871a040df2c64ee5c0a0b1b2e79742da5fb3cf9608cd30b",
+      "fileSha256": "f1d2f9e90755b43829ba07d8e3c978674ce86f171bc03841ccfefa184f76cc6b",
+      "proseWordsBefore": 307,
+      "proseWordsAfter": 971,
+      "parts": [
+        {
+          "id": "cpp_type_directed_branches_part_1",
+          "proseWordsBefore": 117,
+          "proseWordsAfter": 318,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_type_directed_branches_part_2",
+          "proseWordsBefore": 93,
+          "proseWordsAfter": 366,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_type_directed_branches_part_3",
+          "proseWordsBefore": 97,
+          "proseWordsAfter": 287,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 4
+    },
+    {
+      "path": "content/units/cpp/concurrency-cpp/01-scoped-threads-locks.json",
+      "moduleId": "cpp_scoped_threads_locks_module",
+      "title": "Own threads and protect shared state",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_scoped_threads_locks_v1",
+      "version": 2,
+      "versionId": "cpp_scoped_threads_locks_v2",
+      "previousFileSha256": "4c214d20f39baf4c1cd7ce40db4805726a51aef82aa649476e6bca5f8a531f04",
+      "fileSha256": "7191b48bdf5e260f08811e7c29bd2cd7ee40829233bdcda75c31b8df415d4ccf",
+      "proseWordsBefore": 320,
+      "proseWordsAfter": 1077,
+      "parts": [
+        {
+          "id": "cpp_scoped_threads_locks_part_1",
+          "proseWordsBefore": 113,
+          "proseWordsAfter": 323,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_scoped_threads_locks_part_2",
+          "proseWordsBefore": 96,
+          "proseWordsAfter": 378,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_scoped_threads_locks_part_3",
+          "proseWordsBefore": 111,
+          "proseWordsAfter": 376,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 4
+    },
+    {
+      "path": "content/units/cpp/concurrency-cpp/02-atomic-publication.json",
+      "moduleId": "cpp_atomic_publication_module",
+      "title": "Publish a result with release and acquire",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_atomic_publication_v1",
+      "version": 2,
+      "versionId": "cpp_atomic_publication_v2",
+      "previousFileSha256": "e5f61f9ce80c0fd6a8632c230782d68ae7486b26c836d5bc4a96d291e9f27bfa",
+      "fileSha256": "d712bcd20f564b2ba3e3a9699be250ff256ba41c2960a6e1dffb7d0c54a781c2",
+      "proseWordsBefore": 322,
+      "proseWordsAfter": 1043,
+      "parts": [
+        {
+          "id": "cpp_atomic_publication_part_1",
+          "proseWordsBefore": 111,
+          "proseWordsAfter": 309,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_atomic_publication_part_2",
+          "proseWordsBefore": 116,
+          "proseWordsAfter": 391,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_atomic_publication_part_3",
+          "proseWordsBefore": 95,
+          "proseWordsAfter": 343,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 4
+    },
+    {
+      "path": "content/units/cpp/coroutines-async/01-coroutine-suspension.json",
+      "moduleId": "cpp_coroutine_suspension_module",
+      "title": "Trace a coroutine’s suspension points",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_coroutine_suspension_v1",
+      "version": 2,
+      "versionId": "cpp_coroutine_suspension_v2",
+      "previousFileSha256": "993bd23838d437be312285e6eeff0c54b84f5664b729a6c3b39c918d619550a9",
+      "fileSha256": "31b2f8b87a327a9366142ef2bd4602f200e2a6423215f1af12389a4375776879",
+      "proseWordsBefore": 299,
+      "proseWordsAfter": 1014,
+      "parts": [
+        {
+          "id": "cpp_coroutine_suspension_part_1",
+          "proseWordsBefore": 107,
+          "proseWordsAfter": 302,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_coroutine_suspension_part_2",
+          "proseWordsBefore": 98,
+          "proseWordsAfter": 354,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_coroutine_suspension_part_3",
+          "proseWordsBefore": 94,
+          "proseWordsAfter": 358,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/coroutines-async/02-coroutine-lifetimes.json",
+      "moduleId": "cpp_coroutine_lifetimes_module",
+      "title": "Keep coroutine inputs alive across suspension",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_coroutine_lifetimes_v1",
+      "version": 2,
+      "versionId": "cpp_coroutine_lifetimes_v2",
+      "previousFileSha256": "51542ff2cd2347576cedc16aa5d8ae70d657c11fed7e312af8fe49a14a18ed49",
+      "fileSha256": "09623ef72e1089105578ed0c3b196028dd8734b0070f1a5b9976cec8c6d2882f",
+      "proseWordsBefore": 339,
+      "proseWordsAfter": 1120,
+      "parts": [
+        {
+          "id": "cpp_coroutine_lifetimes_part_1",
+          "proseWordsBefore": 122,
+          "proseWordsAfter": 336,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_coroutine_lifetimes_part_2",
+          "proseWordsBefore": 107,
+          "proseWordsAfter": 398,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_coroutine_lifetimes_part_3",
+          "proseWordsBefore": 110,
+          "proseWordsAfter": 386,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 4
+    },
+    {
+      "path": "content/units/cpp/error-handling/01-optional-results-and-parsing.json",
+      "moduleId": "cpp_core_error_handling_optional_results_and_parsing",
+      "title": "Optional results and complete parsing",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_core_error_handling_optional_results_and_parsing_v1",
+      "version": 2,
+      "versionId": "cpp_core_error_handling_optional_results_and_parsing_v2",
+      "previousFileSha256": "6e1d67173557d89e84c5e188540bd9a6db64c9e89f7b6eb8454ae6a124d39952",
+      "fileSha256": "0fc7a16efcb268f14e6b17d0aa3b7682d71d8c3f6de81a674ad667bf0896b778",
+      "proseWordsBefore": 420,
+      "proseWordsAfter": 1134,
+      "parts": [
+        {
+          "id": "cpp_core_error_handling_optional_results_and_parsing_part_1",
+          "proseWordsBefore": 125,
+          "proseWordsAfter": 397,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_error_handling_optional_results_and_parsing_part_2",
+          "proseWordsBefore": 128,
+          "proseWordsAfter": 508,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_error_handling_optional_results_and_parsing_part_3",
+          "proseWordsBefore": 167,
+          "proseWordsAfter": 229,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 4
+    },
+    {
+      "path": "content/units/cpp/error-handling/02-exceptions-and-state-guarantees.json",
+      "moduleId": "cpp_core_error_handling_exceptions_and_state_guarantees",
+      "title": "Exceptions and state guarantees",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_core_error_handling_exceptions_and_state_guarantees_v2",
+      "version": 3,
+      "versionId": "cpp_core_error_handling_exceptions_and_state_guarantees_v3",
+      "previousFileSha256": "0e5959747a7a984738da61f6a121049cdb650842efb7d65c7f013236a3ad97d3",
+      "fileSha256": "538ec388ac0d6fbaf2fbb9629702ae241a4b9341c510aaae091f07a30f6127b3",
+      "proseWordsBefore": 436,
+      "proseWordsAfter": 1125,
+      "parts": [
+        {
+          "id": "cpp_core_error_handling_exceptions_and_state_guarantees_part_1",
+          "proseWordsBefore": 133,
+          "proseWordsAfter": 461,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_error_handling_exceptions_and_state_guarantees_part_2",
+          "proseWordsBefore": 120,
+          "proseWordsAfter": 383,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_error_handling_exceptions_and_state_guarantees_part_3",
+          "proseWordsBefore": 183,
+          "proseWordsAfter": 281,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 4
+    },
+    {
+      "path": "content/units/cpp/functions-interfaces/01-parameters-and-results.json",
+      "moduleId": "cpp_core_functions_interfaces_parameters_and_results",
+      "title": "Parameters, results, and borrowing",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_core_functions_interfaces_parameters_and_results_v1",
+      "version": 2,
+      "versionId": "cpp_core_functions_interfaces_parameters_and_results_v2",
+      "previousFileSha256": "9e964023a3b4f98b139a8fb1dfa11410dee76aa4cd83c823708fdbab1fdaf6b3",
+      "fileSha256": "b61b5e662eafc16ae4d773c7bd95eb312807c1a58642bf1f5bb27e91e4d0e921",
+      "proseWordsBefore": 446,
+      "proseWordsAfter": 1163,
+      "parts": [
+        {
+          "id": "cpp_core_functions_interfaces_parameters_and_results_part_1",
+          "proseWordsBefore": 137,
+          "proseWordsAfter": 423,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_functions_interfaces_parameters_and_results_part_2",
+          "proseWordsBefore": 137,
+          "proseWordsAfter": 506,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_functions_interfaces_parameters_and_results_part_3",
+          "proseWordsBefore": 172,
+          "proseWordsAfter": 234,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/functions-interfaces/02-overloads-and-lambdas.json",
+      "moduleId": "cpp_core_functions_interfaces_overloads_and_lambdas",
+      "title": "Overloads and local callable objects",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_core_functions_interfaces_overloads_and_lambdas_v1",
+      "version": 2,
+      "versionId": "cpp_core_functions_interfaces_overloads_and_lambdas_v2",
+      "previousFileSha256": "046038026eddcf5d17f1b38db47016d013c05bc71aeec054c133ccbec8694ebe",
+      "fileSha256": "a612bb0413c39d5217c0e213c3ed92c882e00b837d32df4cf557c6be21800e8f",
+      "proseWordsBefore": 468,
+      "proseWordsAfter": 1164,
+      "parts": [
+        {
+          "id": "cpp_core_functions_interfaces_overloads_and_lambdas_part_1",
+          "proseWordsBefore": 130,
+          "proseWordsAfter": 391,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_functions_interfaces_overloads_and_lambdas_part_2",
+          "proseWordsBefore": 136,
+          "proseWordsAfter": 507,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_functions_interfaces_overloads_and_lambdas_part_3",
+          "proseWordsBefore": 202,
+          "proseWordsAfter": 266,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 4
+    },
+    {
+      "path": "content/units/cpp/iterators-algorithms-ranges/01-algorithms-and-half-open-ranges.json",
+      "moduleId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges",
+      "title": "Algorithms and half-open ranges",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_v2",
+      "version": 3,
+      "versionId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_v3",
+      "previousFileSha256": "3aa73eb8d472f2ffb8dc835803e8cbe6656a2f1853ec0adb92322e07a83f975d",
+      "fileSha256": "2e4bc087637470bb546bcc2dfb3b98bcd3db2d462ffb43bdc4a612fb7c89d468",
+      "proseWordsBefore": 445,
+      "proseWordsAfter": 1118,
+      "parts": [
+        {
+          "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_part_1",
+          "proseWordsBefore": 130,
+          "proseWordsAfter": 397,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_part_2",
+          "proseWordsBefore": 136,
+          "proseWordsAfter": 452,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_part_3",
+          "proseWordsBefore": 179,
+          "proseWordsAfter": 269,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 4
+    },
+    {
+      "path": "content/units/cpp/iterators-algorithms-ranges/02-lazy-range-pipelines.json",
+      "moduleId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines",
+      "title": "Lazy range pipelines",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_v1",
+      "version": 2,
+      "versionId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_v2",
+      "previousFileSha256": "7479487b37d47289b97e502a628c506f5995511232f0fb0c5dfc399e5a871eac",
+      "fileSha256": "b99133b549b9d7300affaf466576a2c922f0ea321f7490a37b64d68fadb6675c",
+      "proseWordsBefore": 440,
+      "proseWordsAfter": 1141,
+      "parts": [
+        {
+          "id": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_part_1",
+          "proseWordsBefore": 126,
+          "proseWordsAfter": 404,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_part_2",
+          "proseWordsBefore": 129,
+          "proseWordsAfter": 490,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_part_3",
+          "proseWordsBefore": 185,
+          "proseWordsAfter": 247,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/library-data-containers/01-sequences-and-invalidation.json",
+      "moduleId": "cpp_core_library_data_containers_sequences_and_invalidation",
+      "title": "Sequence containers and invalidation",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_core_library_data_containers_sequences_and_invalidation_v2",
+      "version": 3,
+      "versionId": "cpp_core_library_data_containers_sequences_and_invalidation_v3",
+      "previousFileSha256": "bee07f95101125e051a18b00ad30dd3fcb2d9212883a1535b4fc370befa2fefd",
+      "fileSha256": "37ee4d8d09e7ae44a6de0ae56ac4e5b545347c33c2402078a970e5acda45c094",
+      "proseWordsBefore": 445,
+      "proseWordsAfter": 1141,
+      "parts": [
+        {
+          "id": "cpp_core_library_data_containers_sequences_and_invalidation_part_1",
+          "proseWordsBefore": 152,
+          "proseWordsAfter": 406,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_library_data_containers_sequences_and_invalidation_part_2",
+          "proseWordsBefore": 128,
+          "proseWordsAfter": 508,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_library_data_containers_sequences_and_invalidation_part_3",
+          "proseWordsBefore": 165,
+          "proseWordsAfter": 227,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/library-data-containers/02-keys-and-vocabulary-types.json",
+      "moduleId": "cpp_core_library_data_containers_keys_and_vocabulary_types",
+      "title": "Keys, records, and alternative values",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_core_library_data_containers_keys_and_vocabulary_types_v2",
+      "version": 3,
+      "versionId": "cpp_core_library_data_containers_keys_and_vocabulary_types_v3",
+      "previousFileSha256": "014d1627548f609a4317ce9946c7eb1fa93294ae04acdbf012f531419305b01d",
+      "fileSha256": "f8b9db69103db97d5f7335de9f41b53c6a22cc0475ad2ab8a8f48ec01fcf3992",
+      "proseWordsBefore": 463,
+      "proseWordsAfter": 1174,
+      "parts": [
+        {
+          "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_part_1",
+          "proseWordsBefore": 132,
+          "proseWordsAfter": 414,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_part_2",
+          "proseWordsBefore": 134,
+          "proseWordsAfter": 504,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_part_3",
+          "proseWordsBefore": 197,
+          "proseWordsAfter": 256,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 5,
+      "sourceRecordsAfter": 6
+    },
+    {
+      "path": "content/units/cpp/library-engineering/01-implementation-boundaries.json",
+      "moduleId": "cpp_implementation_boundaries_module",
+      "title": "Separate a public interface from its implementation",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_implementation_boundaries_v1",
+      "version": 2,
+      "versionId": "cpp_implementation_boundaries_v2",
+      "previousFileSha256": "8f4ed4cc88593daf08ca9dfac166687d4c4ec76864458eab07a875f4cf942513",
+      "fileSha256": "7a20363610ac28935c8f2aacf70ae01eee6ed429288761f4d437af477bda5a2b",
+      "proseWordsBefore": 307,
+      "proseWordsAfter": 1053,
+      "parts": [
+        {
+          "id": "cpp_implementation_boundaries_part_1",
+          "proseWordsBefore": 103,
+          "proseWordsAfter": 319,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_implementation_boundaries_part_2",
+          "proseWordsBefore": 105,
+          "proseWordsAfter": 391,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_implementation_boundaries_part_3",
+          "proseWordsBefore": 99,
+          "proseWordsAfter": 343,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 4
+    },
+    {
+      "path": "content/units/cpp/library-engineering/02-feature-compatibility.json",
+      "moduleId": "cpp_feature_compatibility_module",
+      "title": "Declare and check a library’s feature baseline",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_feature_compatibility_v1",
+      "version": 2,
+      "versionId": "cpp_feature_compatibility_v2",
+      "previousFileSha256": "705d5e0e0f5d9f0932c2a96ace7ae6085c86381519cb389a9a2de37ce8761c38",
+      "fileSha256": "b5189b2e18d221704a2031d447395913e023682449b099e28a8116795b59bb3a",
+      "proseWordsBefore": 300,
+      "proseWordsAfter": 1015,
+      "parts": [
+        {
+          "id": "cpp_feature_compatibility_part_1",
+          "proseWordsBefore": 95,
+          "proseWordsAfter": 286,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_feature_compatibility_part_2",
+          "proseWordsBefore": 101,
+          "proseWordsAfter": 387,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_feature_compatibility_part_3",
+          "proseWordsBefore": 104,
+          "proseWordsAfter": 342,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 4
+    },
+    {
+      "path": "content/units/cpp/library-services/01-text-streams-and-extraction.json",
+      "moduleId": "cpp_core_library_services_text_streams_and_extraction",
+      "title": "Text streams and extraction state",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_core_library_services_text_streams_and_extraction_v2",
+      "version": 3,
+      "versionId": "cpp_core_library_services_text_streams_and_extraction_v3",
+      "previousFileSha256": "f039970f6b3c613e6b675780a0508a3814755f17b961d8dc37c14fe3928c362e",
+      "fileSha256": "cd1a2eda9891db81b8911b5bb5d442fc2d2c41b2ef485c79474be16d1a91541e",
+      "proseWordsBefore": 443,
+      "proseWordsAfter": 1144,
+      "parts": [
+        {
+          "id": "cpp_core_library_services_text_streams_and_extraction_part_1",
+          "proseWordsBefore": 131,
+          "proseWordsAfter": 404,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_library_services_text_streams_and_extraction_part_2",
+          "proseWordsBefore": 127,
+          "proseWordsAfter": 495,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_library_services_text_streams_and_extraction_part_3",
+          "proseWordsBefore": 185,
+          "proseWordsAfter": 245,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 5,
+      "sourceRecordsAfter": 5
+    },
+    {
+      "path": "content/units/cpp/library-services/02-time-and-path-values.json",
+      "moduleId": "cpp_core_library_services_time_and_path_values",
+      "title": "Time durations and filesystem paths",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_core_library_services_time_and_path_values_v1",
+      "version": 2,
+      "versionId": "cpp_core_library_services_time_and_path_values_v2",
+      "previousFileSha256": "4bf9efbb05bb8e9a61e663ed2ffc104ce44caa214b436dbef756b053ddd8c255",
+      "fileSha256": "ce4b147e2764d5c3323cf69574c089f6abfe89a88554f30ca0a0b372e38f4d00",
+      "proseWordsBefore": 425,
+      "proseWordsAfter": 1124,
+      "parts": [
+        {
+          "id": "cpp_core_library_services_time_and_path_values_part_1",
+          "proseWordsBefore": 133,
+          "proseWordsAfter": 473,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_library_services_time_and_path_values_part_2",
+          "proseWordsBefore": 128,
+          "proseWordsAfter": 401,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_library_services_time_and_path_values_part_3",
+          "proseWordsBefore": 164,
+          "proseWordsAfter": 250,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 6
+    },
+    {
+      "path": "content/units/cpp/lifetime-ownership/01-owners-and-borrowers.json",
+      "moduleId": "cpp_core_lifetime_ownership_owners_and_borrowers",
+      "title": "Owners, borrowers, and scope",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_core_lifetime_ownership_owners_and_borrowers_v1",
+      "version": 2,
+      "versionId": "cpp_core_lifetime_ownership_owners_and_borrowers_v2",
+      "previousFileSha256": "6adb3d91d4fa8cfa0f75ae5a9c9594e43ed776bbc49c46cc799ca4ee3ce1d897",
+      "fileSha256": "0d45647fc955e53a335dafe77e61de5cc4895f89c78c875c0bff438ac9ca7141",
+      "proseWordsBefore": 438,
+      "proseWordsAfter": 1154,
+      "parts": [
+        {
+          "id": "cpp_core_lifetime_ownership_owners_and_borrowers_part_1",
+          "proseWordsBefore": 134,
+          "proseWordsAfter": 430,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_lifetime_ownership_owners_and_borrowers_part_2",
+          "proseWordsBefore": 133,
+          "proseWordsAfter": 455,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_lifetime_ownership_owners_and_borrowers_part_3",
+          "proseWordsBefore": 171,
+          "proseWordsAfter": 269,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 4
+    },
+    {
+      "path": "content/units/cpp/lifetime-ownership/02-raii-and-unique-ownership.json",
+      "moduleId": "cpp_core_lifetime_ownership_raii_and_unique_ownership",
+      "title": "RAII and exclusive ownership",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_v2",
+      "version": 3,
+      "versionId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_v3",
+      "previousFileSha256": "cc27a7e2d91f68700db35d24b4246e226f8b23cb228cd9ad6138be9bc962d4ce",
+      "fileSha256": "69b270894395e1c3fd8a8a6b64195501fbf7bd5a52c37591704e0c01b32ede68",
+      "proseWordsBefore": 439,
+      "proseWordsAfter": 1157,
+      "parts": [
+        {
+          "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_part_1",
+          "proseWordsBefore": 134,
+          "proseWordsAfter": 414,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_part_2",
+          "proseWordsBefore": 132,
+          "proseWordsAfter": 503,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_part_3",
+          "proseWordsBefore": 173,
+          "proseWordsAfter": 240,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 5
+    },
+    {
+      "path": "content/units/cpp/object-model-memory/01-object-representations.json",
+      "moduleId": "cpp_object_representations_module",
+      "title": "Objects, storage, and representation",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_object_representations_v1",
+      "version": 2,
+      "versionId": "cpp_object_representations_v2",
+      "previousFileSha256": "ba689f9390e3a23b491179f476ea1d836139dd996a4e6e84a27fce6ed3d6a5a5",
+      "fileSha256": "eae965817068568d0ee8a7f30f40553b69ac991a4ed58400ff450ff7c8e3aab2",
+      "proseWordsBefore": 339,
+      "proseWordsAfter": 1101,
+      "parts": [
+        {
+          "id": "cpp_object_representations_part_1",
+          "proseWordsBefore": 115,
+          "proseWordsAfter": 339,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_object_representations_part_2",
+          "proseWordsBefore": 124,
+          "proseWordsAfter": 411,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_object_representations_part_3",
+          "proseWordsBefore": 100,
+          "proseWordsAfter": 351,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/object-model-memory/02-memory-resource-lifetimes.json",
+      "moduleId": "cpp_memory_resource_lifetimes_module",
+      "title": "Give a memory resource an explicit lifetime",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_memory_resource_lifetimes_v1",
+      "version": 2,
+      "versionId": "cpp_memory_resource_lifetimes_v2",
+      "previousFileSha256": "b1f69941e010a258463f6c812a5fd3e81258fd368a9c2b61fcd621ecc0486701",
+      "fileSha256": "a9fa0db46acf9ff913cf3a0eae44690b8a49118f382354b0c76633c7658f7048",
+      "proseWordsBefore": 328,
+      "proseWordsAfter": 1073,
+      "parts": [
+        {
+          "id": "cpp_memory_resource_lifetimes_part_1",
+          "proseWordsBefore": 107,
+          "proseWordsAfter": 324,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_memory_resource_lifetimes_part_2",
+          "proseWordsBefore": 121,
+          "proseWordsAfter": 409,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_memory_resource_lifetimes_part_3",
+          "proseWordsBefore": 100,
+          "proseWordsAfter": 340,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/program-organization/01-declarations-and-linkage.json",
+      "moduleId": "cpp_core_program_organization_declarations_and_linkage",
+      "title": "Declarations, definitions, and linkage",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_core_program_organization_declarations_and_linkage_v1",
+      "version": 2,
+      "versionId": "cpp_core_program_organization_declarations_and_linkage_v2",
+      "previousFileSha256": "a485b0b7d7417135c25ccb0affe597deda0779687746a79b01d4140d896d275d",
+      "fileSha256": "ac2b18ae2ec6ddb209fc23cdb793b2ae407fd96f7d17ef48c6a543cda0898586",
+      "proseWordsBefore": 445,
+      "proseWordsAfter": 1130,
+      "parts": [
+        {
+          "id": "cpp_core_program_organization_declarations_and_linkage_part_1",
+          "proseWordsBefore": 131,
+          "proseWordsAfter": 405,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_program_organization_declarations_and_linkage_part_2",
+          "proseWordsBefore": 133,
+          "proseWordsAfter": 483,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_program_organization_declarations_and_linkage_part_3",
+          "proseWordsBefore": 181,
+          "proseWordsAfter": 242,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 4
+    },
+    {
+      "path": "content/units/cpp/program-organization/02-headers-and-modules.json",
+      "moduleId": "cpp_core_program_organization_headers_and_modules",
+      "title": "Headers, namespaces, and module boundaries",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_core_program_organization_headers_and_modules_v2",
+      "version": 3,
+      "versionId": "cpp_core_program_organization_headers_and_modules_v3",
+      "previousFileSha256": "455463aadc4ac70a143b40a8c52934eb3573224391c32c947cb69512a0028a96",
+      "fileSha256": "a8e06a7907a4cee4a4341763e4dfb699a6237ea58ece1a7d0033b193a2509e3e",
+      "proseWordsBefore": 451,
+      "proseWordsAfter": 1121,
+      "parts": [
+        {
+          "id": "cpp_core_program_organization_headers_and_modules_part_1",
+          "proseWordsBefore": 125,
+          "proseWordsAfter": 368,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_program_organization_headers_and_modules_part_2",
+          "proseWordsBefore": 136,
+          "proseWordsAfter": 467,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_program_organization_headers_and_modules_part_3",
+          "proseWordsBefore": 190,
+          "proseWordsAfter": 286,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 7,
+      "sourceRecordsAfter": 7
+    },
+    {
+      "path": "content/units/cpp/runtime-polymorphism/01-interfaces-and-overriding.json",
+      "moduleId": "cpp_core_runtime_polymorphism_interfaces_and_overriding",
+      "title": "Interfaces and virtual dispatch",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_core_runtime_polymorphism_interfaces_and_overriding_v2",
+      "version": 3,
+      "versionId": "cpp_core_runtime_polymorphism_interfaces_and_overriding_v3",
+      "previousFileSha256": "7b8302bd0d1595085cf98fb474ddee71bff36027aee9f694abf863eeb2200f6b",
+      "fileSha256": "67b40f4e220a88173d3132fefc0510ac92b2c1358299da3e27f3736d0401f3d7",
+      "proseWordsBefore": 436,
+      "proseWordsAfter": 1107,
+      "parts": [
+        {
+          "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding_part_1",
+          "proseWordsBefore": 128,
+          "proseWordsAfter": 378,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding_part_2",
+          "proseWordsBefore": 125,
+          "proseWordsAfter": 462,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_runtime_polymorphism_interfaces_and_overriding_part_3",
+          "proseWordsBefore": 183,
+          "proseWordsAfter": 267,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 5,
+      "sourceRecordsAfter": 5
+    },
+    {
+      "path": "content/units/cpp/runtime-polymorphism/02-owning-polymorphic-objects.json",
+      "moduleId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects",
+      "title": "Owning a collection of implementations",
+      "previousVersion": 2,
+      "previousVersionId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_v2",
+      "version": 3,
+      "versionId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_v3",
+      "previousFileSha256": "9649df4e4c07c2a9eb947a46bdf525225a27a87f5da7ae2e6d4d27ed082c8c0c",
+      "fileSha256": "3aa28729a004d5a5ad391e1e39dc967ceb6882a2d968b002957b1c75b385fa69",
+      "proseWordsBefore": 429,
+      "proseWordsAfter": 1132,
+      "parts": [
+        {
+          "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_part_1",
+          "proseWordsBefore": 121,
+          "proseWordsAfter": 393,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_part_2",
+          "proseWordsBefore": 119,
+          "proseWordsAfter": 482,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_part_3",
+          "proseWordsBefore": 189,
+          "proseWordsAfter": 257,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 5,
+      "sourceRecordsAfter": 7
+    },
+    {
+      "path": "content/units/cpp/templates-generic-programming/01-typed-families.json",
+      "moduleId": "cpp_core_templates_generic_programming_typed_families",
+      "title": "Templates as families of typed operations",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_core_templates_generic_programming_typed_families_v1",
+      "version": 2,
+      "versionId": "cpp_core_templates_generic_programming_typed_families_v2",
+      "previousFileSha256": "004c48c350d1082ca66d9b43c52dc05c56146c55b45eeafbb7bddc8e9951cdf0",
+      "fileSha256": "527cd534c7e21ce101337131973e7cb70c9c97fc776d8e9df57df640f4b883c3",
+      "proseWordsBefore": 457,
+      "proseWordsAfter": 1157,
+      "parts": [
+        {
+          "id": "cpp_core_templates_generic_programming_typed_families_part_1",
+          "proseWordsBefore": 136,
+          "proseWordsAfter": 406,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_templates_generic_programming_typed_families_part_2",
+          "proseWordsBefore": 134,
+          "proseWordsAfter": 501,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_templates_generic_programming_typed_families_part_3",
+          "proseWordsBefore": 187,
+          "proseWordsAfter": 250,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/templates-generic-programming/02-concepts-and-requirements.json",
+      "moduleId": "cpp_core_templates_generic_programming_concepts_and_requirements",
+      "title": "Concepts and explicit requirements",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_core_templates_generic_programming_concepts_and_requirements_v1",
+      "version": 2,
+      "versionId": "cpp_core_templates_generic_programming_concepts_and_requirements_v2",
+      "previousFileSha256": "9c36a10af199f5d62727707c6da661f5dfde6f5c6adc0731acebd3f37cd47a35",
+      "fileSha256": "cca7d4dea1b563099201d2f630c3b99bd1d2ef0c0e8c7b2ea79fa734f93e2889",
+      "proseWordsBefore": 428,
+      "proseWordsAfter": 1098,
+      "parts": [
+        {
+          "id": "cpp_core_templates_generic_programming_concepts_and_requirements_part_1",
+          "proseWordsBefore": 131,
+          "proseWordsAfter": 384,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_templates_generic_programming_concepts_and_requirements_part_2",
+          "proseWordsBefore": 124,
+          "proseWordsAfter": 479,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_templates_generic_programming_concepts_and_requirements_part_3",
+          "proseWordsBefore": 173,
+          "proseWordsAfter": 235,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/cpp/types-initialization/01-initialization-and-deduction.json",
+      "moduleId": "cpp_core_types_initialization_initialization_and_deduction",
+      "title": "Initialize values and read deduced types",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_core_types_initialization_initialization_and_deduction_v1",
+      "version": 2,
+      "versionId": "cpp_core_types_initialization_initialization_and_deduction_v2",
+      "previousFileSha256": "7b7c6ef0fbfd5a955d542ab7972cf863307a59c5350a234b878a3e166ae77870",
+      "fileSha256": "e1caa40f88054cfbaea2215cf343f57abb0972f05275c03501b8415bded93d09",
+      "proseWordsBefore": 451,
+      "proseWordsAfter": 1162,
+      "parts": [
+        {
+          "id": "cpp_core_types_initialization_initialization_and_deduction_part_1",
+          "proseWordsBefore": 151,
+          "proseWordsAfter": 419,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_types_initialization_initialization_and_deduction_part_2",
+          "proseWordsBefore": 128,
+          "proseWordsAfter": 507,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_types_initialization_initialization_and_deduction_part_3",
+          "proseWordsBefore": 172,
+          "proseWordsAfter": 236,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 4,
+      "sourceRecordsAfter": 6
+    },
+    {
+      "path": "content/units/cpp/types-initialization/02-conversions-and-domain-types.json",
+      "moduleId": "cpp_core_types_initialization_conversions_and_domain_types",
+      "title": "Conversions and domain types",
+      "previousVersion": 1,
+      "previousVersionId": "cpp_core_types_initialization_conversions_and_domain_types_v1",
+      "version": 2,
+      "versionId": "cpp_core_types_initialization_conversions_and_domain_types_v2",
+      "previousFileSha256": "69789b49127db0caaf4763a856a21233ecdb27cbf152ba5986bd2212b735e3c9",
+      "fileSha256": "5bc10c20f7e3c45a3a5450fa6c3faed2d4ced765f4a7e1af7886f38bb432b121",
+      "proseWordsBefore": 445,
+      "proseWordsAfter": 1131,
+      "parts": [
+        {
+          "id": "cpp_core_types_initialization_conversions_and_domain_types_part_1",
+          "proseWordsBefore": 140,
+          "proseWordsAfter": 407,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_types_initialization_conversions_and_domain_types_part_2",
+          "proseWordsBefore": 130,
+          "proseWordsAfter": 486,
+          "explainedReflections": 1
+        },
+        {
+          "id": "cpp_core_types_initialization_conversions_and_domain_types_part_3",
+          "proseWordsBefore": 175,
+          "proseWordsAfter": 238,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 5,
+      "sourceRecordsAfter": 5
+    },
+    {
+      "path": "content/units/data-structures-algorithms/abstract-data-types/01-design-a-bounded-queue.json",
+      "moduleId": "dsa_design_a_bounded_queue_module",
+      "title": "Design a bounded queue from its contract",
+      "previousVersion": 1,
+      "previousVersionId": "dsa_design_a_bounded_queue_v1",
+      "version": 2,
+      "versionId": "dsa_design_a_bounded_queue_v2",
+      "previousFileSha256": "29a985b11f4afd0a7ea6c9f4911073146305548468a601932074af5f16662f42",
+      "fileSha256": "c23d65790d2b1656e53ead20d09326bc1b2c388401b57c3235771693164a6295",
+      "proseWordsBefore": 391,
+      "proseWordsAfter": 1106,
+      "parts": [
+        {
+          "id": "dsa_design_a_bounded_queue_part_1",
+          "proseWordsBefore": 167,
+          "proseWordsAfter": 488,
+          "explainedReflections": 1
+        },
+        {
+          "id": "dsa_design_a_bounded_queue_part_2",
+          "proseWordsBefore": 113,
+          "proseWordsAfter": 437,
+          "explainedReflections": 1
+        },
+        {
+          "id": "dsa_design_a_bounded_queue_part_3",
+          "proseWordsBefore": 111,
+          "proseWordsAfter": 181,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/data-structures-algorithms/algorithm-analysis/01-count-search-work.json",
+      "moduleId": "dsa_count_search_work_module",
+      "title": "Count the work in a search",
+      "previousVersion": 1,
+      "previousVersionId": "dsa_count_search_work_v1",
+      "version": 2,
+      "versionId": "dsa_count_search_work_v2",
+      "previousFileSha256": "8714afadb45f931ecc94a55ca13a0eace79a488dcc8db53071f66cdfcfdcea3a",
+      "fileSha256": "340fec890839f6a1c9708e6d2fe104df62cebca19440ff926830fb1f32fd197e",
+      "proseWordsBefore": 402,
+      "proseWordsAfter": 1093,
+      "parts": [
+        {
+          "id": "dsa_count_search_work_part_1",
+          "proseWordsBefore": 160,
+          "proseWordsAfter": 466,
+          "explainedReflections": 1
+        },
+        {
+          "id": "dsa_count_search_work_part_2",
+          "proseWordsBefore": 133,
+          "proseWordsAfter": 457,
+          "explainedReflections": 1
+        },
+        {
+          "id": "dsa_count_search_work_part_3",
+          "proseWordsBefore": 109,
+          "proseWordsAfter": 170,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/databases-storage/logging-snapshots/01-wal-readers.json",
+      "moduleId": "databases_storage_logging_snapshots_module",
+      "title": "Trace readers across a write-ahead log commit",
+      "previousVersion": 1,
+      "previousVersionId": "databases_storage_logging_snapshots_version_1",
+      "version": 2,
+      "versionId": "databases_storage_logging_snapshots_version_2",
+      "previousFileSha256": "31b0832a288b24ef667d8896e23ed40859f945dcff07224f8ccf49ab2800a969",
+      "fileSha256": "b18ba140f2da84ad0022a070f894a7d5f6c225b509512dd911701db27949d1c1",
+      "proseWordsBefore": 379,
+      "proseWordsAfter": 1144,
+      "parts": [
+        {
+          "id": "databases_storage_logging_snapshots_part_concepts",
+          "proseWordsBefore": 118,
+          "proseWordsAfter": 476,
+          "explainedReflections": 1
+        },
+        {
+          "id": "databases_storage_logging_snapshots_part_trace",
+          "proseWordsBefore": 128,
+          "proseWordsAfter": 475,
+          "explainedReflections": 1
+        },
+        {
+          "id": "databases_storage_logging_snapshots_part_practice",
+          "proseWordsBefore": 133,
+          "proseWordsAfter": 193,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/databases-storage/transaction-boundaries/01-atomic-change.json",
+      "moduleId": "databases_storage_transaction_boundaries_module",
+      "title": "Keep a multi-step database change within one transaction",
+      "previousVersion": 1,
+      "previousVersionId": "databases_storage_transaction_boundaries_version_1",
+      "version": 2,
+      "versionId": "databases_storage_transaction_boundaries_version_2",
+      "previousFileSha256": "6bea6e7e839058c137d4110c82c221e161bb98c1023a4afb59c8885ff844bb86",
+      "fileSha256": "1f916d2c55c0874671a1befac7ab08a4d78c5d89f68de6b570b667414d1b5ab3",
+      "proseWordsBefore": 387,
+      "proseWordsAfter": 1164,
+      "parts": [
+        {
+          "id": "databases_storage_transaction_boundaries_part_concepts",
+          "proseWordsBefore": 122,
+          "proseWordsAfter": 491,
+          "explainedReflections": 1
+        },
+        {
+          "id": "databases_storage_transaction_boundaries_part_trace",
+          "proseWordsBefore": 125,
+          "proseWordsAfter": 474,
+          "explainedReflections": 1
+        },
+        {
+          "id": "databases_storage_transaction_boundaries_part_practice",
+          "proseWordsBefore": 140,
+          "proseWordsAfter": 199,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/embedded-realtime/bounded-events/01-queue-capacity.json",
+      "moduleId": "embedded_realtime_bounded_events_module",
+      "title": "Design a bounded interrupt-to-worker queue",
+      "previousVersion": 1,
+      "previousVersionId": "embedded_realtime_bounded_events_version_1",
+      "version": 2,
+      "versionId": "embedded_realtime_bounded_events_version_2",
+      "previousFileSha256": "30913e55ad400dc8da27c6c27d2f1f285778f294edd6306c365cd4c90618157d",
+      "fileSha256": "41f3de75259b29489ac303b8cd4c49568edff4cfb43efe48ada079cc420260f7",
+      "proseWordsBefore": 390,
+      "proseWordsAfter": 1154,
+      "parts": [
+        {
+          "id": "embedded_realtime_bounded_events_part_concepts",
+          "proseWordsBefore": 125,
+          "proseWordsAfter": 487,
+          "explainedReflections": 1
+        },
+        {
+          "id": "embedded_realtime_bounded_events_part_trace",
+          "proseWordsBefore": 134,
+          "proseWordsAfter": 477,
+          "explainedReflections": 1
+        },
+        {
+          "id": "embedded_realtime_bounded_events_part_practice",
+          "proseWordsBefore": 131,
+          "proseWordsAfter": 190,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/embedded-realtime/task-timing/01-release-and-deadline.json",
+      "moduleId": "embedded_realtime_task_timing_module",
+      "title": "Separate release time from completion deadline",
+      "previousVersion": 1,
+      "previousVersionId": "embedded_realtime_task_timing_version_1",
+      "version": 2,
+      "versionId": "embedded_realtime_task_timing_version_2",
+      "previousFileSha256": "3fe22fee72073e16b50062747c2ff66b98139f82f19c171430e13dd0c1652192",
+      "fileSha256": "12e16bfcfb06d3fa20c47b2413ba81fb22ca21e51df66f9c65e5d18013ffcee2",
+      "proseWordsBefore": 373,
+      "proseWordsAfter": 1111,
+      "parts": [
+        {
+          "id": "embedded_realtime_task_timing_part_concepts",
+          "proseWordsBefore": 131,
+          "proseWordsAfter": 471,
+          "explainedReflections": 1
+        },
+        {
+          "id": "embedded_realtime_task_timing_part_trace",
+          "proseWordsBefore": 127,
+          "proseWordsAfter": 460,
+          "explainedReflections": 1
+        },
+        {
+          "id": "embedded_realtime_task_timing_part_practice",
+          "proseWordsBefore": 115,
+          "proseWordsAfter": 180,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/game-development/scene-composition/01-instance-state.json",
+      "moduleId": "game_development_scene_composition_module",
+      "title": "Compose reusable entities without sharing their state",
+      "previousVersion": 2,
+      "previousVersionId": "game_development_scene_composition_version_1_r2",
+      "version": 3,
+      "versionId": "game_development_scene_composition_version_1_r3",
+      "previousFileSha256": "87973ef7ad06e4c80bb0f5a11ce8d961eeaded48390872f72b431609954beeba",
+      "fileSha256": "fa3b07059356ea95735bf384a3dc1cfe9db3ad655c66fd75ab4d3797e5637005",
+      "proseWordsBefore": 421,
+      "proseWordsAfter": 1212,
+      "parts": [
+        {
+          "id": "game_development_scene_composition_part_concepts",
+          "proseWordsBefore": 132,
+          "proseWordsAfter": 493,
+          "explainedReflections": 1
+        },
+        {
+          "id": "game_development_scene_composition_part_trace",
+          "proseWordsBefore": 149,
+          "proseWordsAfter": 518,
+          "explainedReflections": 1
+        },
+        {
+          "id": "game_development_scene_composition_part_practice",
+          "proseWordsBefore": 140,
+          "proseWordsAfter": 201,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/game-development/simulation-time/01-fixed-updates.json",
+      "moduleId": "game_development_simulation_time_module",
+      "title": "Separate simulation updates from rendered frames",
+      "previousVersion": 1,
+      "previousVersionId": "game_development_simulation_time_version_1",
+      "version": 2,
+      "versionId": "game_development_simulation_time_version_2",
+      "previousFileSha256": "74e1deda66b438a7feeb1ae78412158ddc84d752ceb8f1342faf6f07a2dfadce",
+      "fileSha256": "f533a81a272048e19771ad653114853e5613b90e387d3c559d608e384bf2d681",
+      "proseWordsBefore": 379,
+      "proseWordsAfter": 1129,
+      "parts": [
+        {
+          "id": "game_development_simulation_time_part_concepts",
+          "proseWordsBefore": 123,
+          "proseWordsAfter": 462,
+          "explainedReflections": 1
+        },
+        {
+          "id": "game_development_simulation_time_part_trace",
+          "proseWordsBefore": 130,
+          "proseWordsAfter": 484,
+          "explainedReflections": 1
+        },
+        {
+          "id": "game_development_simulation_time_part_practice",
+          "proseWordsBefore": 126,
+          "proseWordsAfter": 183,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/graphics-gpu/rendering-pipeline/01-triangle-stages.json",
+      "moduleId": "graphics_gpu_rendering_pipeline_module",
+      "title": "Follow geometry through a graphics pipeline",
+      "previousVersion": 1,
+      "previousVersionId": "graphics_gpu_rendering_pipeline_version_1",
+      "version": 2,
+      "versionId": "graphics_gpu_rendering_pipeline_version_2",
+      "previousFileSha256": "d254711a5e6bc6d01aee706c26989040dfbe9571d9924320b642886d71e6940b",
+      "fileSha256": "5f2d6d7935ca0225727b82637efe570b35b5e0ff81ea67f98fa3e19e34b2b7e9",
+      "proseWordsBefore": 378,
+      "proseWordsAfter": 1092,
+      "parts": [
+        {
+          "id": "graphics_gpu_rendering_pipeline_part_concepts",
+          "proseWordsBefore": 123,
+          "proseWordsAfter": 445,
+          "explainedReflections": 1
+        },
+        {
+          "id": "graphics_gpu_rendering_pipeline_part_trace",
+          "proseWordsBefore": 126,
+          "proseWordsAfter": 460,
+          "explainedReflections": 1
+        },
+        {
+          "id": "graphics_gpu_rendering_pipeline_part_practice",
+          "proseWordsBefore": 129,
+          "proseWordsAfter": 187,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/graphics-gpu/resource-dependencies/01-producer-consumer.json",
+      "moduleId": "graphics_gpu_resource_dependencies_module",
+      "title": "Make GPU producer and consumer dependencies explicit",
+      "previousVersion": 2,
+      "previousVersionId": "graphics_gpu_resource_dependencies_version_1_r2",
+      "version": 3,
+      "versionId": "graphics_gpu_resource_dependencies_version_1_r3",
+      "previousFileSha256": "9b23188509906416b2d2ff145617461df72574a5a35ea2c8f03d067fdbb637b0",
+      "fileSha256": "a9588f4fd2e42d7e0bbb429d0ed67023a0a4c3f29c23751436a5189b0a9be5b3",
+      "proseWordsBefore": 423,
+      "proseWordsAfter": 1182,
+      "parts": [
+        {
+          "id": "graphics_gpu_resource_dependencies_part_concepts",
+          "proseWordsBefore": 129,
+          "proseWordsAfter": 470,
+          "explainedReflections": 1
+        },
+        {
+          "id": "graphics_gpu_resource_dependencies_part_trace",
+          "proseWordsBefore": 162,
+          "proseWordsAfter": 515,
+          "explainedReflections": 1
+        },
+        {
+          "id": "graphics_gpu_resource_dependencies_part_practice",
+          "proseWordsBefore": 132,
+          "proseWordsAfter": 197,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/gui-development/event-driven-state/01-signals-and-state.json",
+      "moduleId": "gui_development_event_driven_state_module",
+      "title": "Connect user actions to observable state changes",
+      "previousVersion": 1,
+      "previousVersionId": "gui_development_event_driven_state_version_1",
+      "version": 2,
+      "versionId": "gui_development_event_driven_state_version_2",
+      "previousFileSha256": "631c0d71be284e6268dbe80d9888956210e76d95395117644f7e22fe65d0b855",
+      "fileSha256": "e1b974b6e890ac5322be562c760c11b10d890f1ff1a9b188c37ceb2359579a18",
+      "proseWordsBefore": 389,
+      "proseWordsAfter": 1132,
+      "parts": [
+        {
+          "id": "gui_development_event_driven_state_part_concepts",
+          "proseWordsBefore": 118,
+          "proseWordsAfter": 451,
+          "explainedReflections": 1
+        },
+        {
+          "id": "gui_development_event_driven_state_part_trace",
+          "proseWordsBefore": 132,
+          "proseWordsAfter": 484,
+          "explainedReflections": 1
+        },
+        {
+          "id": "gui_development_event_driven_state_part_practice",
+          "proseWordsBefore": 139,
+          "proseWordsAfter": 197,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/gui-development/responsive-work/01-queued-results.json",
+      "moduleId": "gui_development_responsive_work_module",
+      "title": "Return background results to the GUI thread",
+      "previousVersion": 1,
+      "previousVersionId": "gui_development_responsive_work_version_1",
+      "version": 2,
+      "versionId": "gui_development_responsive_work_version_2",
+      "previousFileSha256": "4300b62c903d81007b669582a539932f755fb078b06f6424e79b607c3819c413",
+      "fileSha256": "fc0f11467656d8fd5a8fa10a9808a445b56d9d35098c700bf342f169296cc35c",
+      "proseWordsBefore": 378,
+      "proseWordsAfter": 1123,
+      "parts": [
+        {
+          "id": "gui_development_responsive_work_part_concepts",
+          "proseWordsBefore": 128,
+          "proseWordsAfter": 477,
+          "explainedReflections": 1
+        },
+        {
+          "id": "gui_development_responsive_work_part_trace",
+          "proseWordsBefore": 127,
+          "proseWordsAfter": 465,
+          "explainedReflections": 1
+        },
+        {
+          "id": "gui_development_responsive_work_part_practice",
+          "proseWordsBefore": 123,
+          "proseWordsAfter": 181,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/language-interoperability/cross-runtime-ownership/01-return-policies.json",
+      "moduleId": "language_interoperability_cross_runtime_ownership_module",
+      "title": "Define ownership when C++ objects cross into Python",
+      "previousVersion": 1,
+      "previousVersionId": "language_interoperability_cross_runtime_ownership_version_1",
+      "version": 2,
+      "versionId": "language_interoperability_cross_runtime_ownership_version_2",
+      "previousFileSha256": "59f9bba102ab424cf6670a21e77c89820b0e73b51a58e2006aba2c7baf715670",
+      "fileSha256": "1da8c81e3eab7eff77c01603763d4c92a29f683291b4f4590d50e5f5dc3b654f",
+      "proseWordsBefore": 390,
+      "proseWordsAfter": 1190,
+      "parts": [
+        {
+          "id": "language_interoperability_cross_runtime_ownership_part_concepts",
+          "proseWordsBefore": 119,
+          "proseWordsAfter": 473,
+          "explainedReflections": 1
+        },
+        {
+          "id": "language_interoperability_cross_runtime_ownership_part_trace",
+          "proseWordsBefore": 137,
+          "proseWordsAfter": 525,
+          "explainedReflections": 1
+        },
+        {
+          "id": "language_interoperability_cross_runtime_ownership_part_practice",
+          "proseWordsBefore": 134,
+          "proseWordsAfter": 192,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/language-interoperability/runtime-coordination/01-gil-boundary.json",
+      "moduleId": "language_interoperability_runtime_coordination_module",
+      "title": "Separate Python access from independent native work",
+      "previousVersion": 1,
+      "previousVersionId": "language_interoperability_runtime_coordination_version_1",
+      "version": 2,
+      "versionId": "language_interoperability_runtime_coordination_version_2",
+      "previousFileSha256": "58ea97fa0e6bec8f483e5d284fcde10f46ab235df13c599a27a7cff45b4a8cbe",
+      "fileSha256": "ba2ce655d272aaec7e2e9a3ba6faa2b415af56b36645d2a63ac61afab1ba5478",
+      "proseWordsBefore": 380,
+      "proseWordsAfter": 1142,
+      "parts": [
+        {
+          "id": "language_interoperability_runtime_coordination_part_concepts",
+          "proseWordsBefore": 119,
+          "proseWordsAfter": 465,
+          "explainedReflections": 1
+        },
+        {
+          "id": "language_interoperability_runtime_coordination_part_trace",
+          "proseWordsBefore": 130,
+          "proseWordsAfter": 488,
+          "explainedReflections": 1
+        },
+        {
+          "id": "language_interoperability_runtime_coordination_part_practice",
+          "proseWordsBefore": 131,
+          "proseWordsAfter": 189,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/machine-learning-infrastructure/inference-contracts/01-evaluation-and-gradients.json",
+      "moduleId": "machine_learning_infrastructure_inference_contracts_module",
+      "title": "Separate model evaluation behavior from gradient recording",
+      "previousVersion": 1,
+      "previousVersionId": "machine_learning_infrastructure_inference_contracts_version_1",
+      "version": 2,
+      "versionId": "machine_learning_infrastructure_inference_contracts_version_2",
+      "previousFileSha256": "39c42865931072d98ae922b46821c544fec7fe6458af70e9d5a111d9ba682295",
+      "fileSha256": "9cd0063ed670d9e6ac382732764f49df37a2f5bbbd629b1de07f2e31bc0d482a",
+      "proseWordsBefore": 397,
+      "proseWordsAfter": 1121,
+      "parts": [
+        {
+          "id": "machine_learning_infrastructure_inference_contracts_part_concepts",
+          "proseWordsBefore": 120,
+          "proseWordsAfter": 451,
+          "explainedReflections": 1
+        },
+        {
+          "id": "machine_learning_infrastructure_inference_contracts_part_trace",
+          "proseWordsBefore": 141,
+          "proseWordsAfter": 475,
+          "explainedReflections": 1
+        },
+        {
+          "id": "machine_learning_infrastructure_inference_contracts_part_practice",
+          "proseWordsBefore": 136,
+          "proseWordsAfter": 195,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/machine-learning-infrastructure/tensor-execution/01-graph-and-data.json",
+      "moduleId": "machine_learning_infrastructure_tensor_execution_module",
+      "title": "Map a tensor computation onto an execution graph",
+      "previousVersion": 2,
+      "previousVersionId": "machine_learning_infrastructure_tensor_execution_version_1_r2",
+      "version": 3,
+      "versionId": "machine_learning_infrastructure_tensor_execution_version_1_r3",
+      "previousFileSha256": "bdc40ee52c8ce49e9d6d12c8726772650f041b507f3081b113bdf4cd319b8957",
+      "fileSha256": "22ca2c1684439378d21de3a45fd3c3c48f2b9996ce67d0e1c5d98badc4c62d0a",
+      "proseWordsBefore": 395,
+      "proseWordsAfter": 1109,
+      "parts": [
+        {
+          "id": "machine_learning_infrastructure_tensor_execution_part_concepts",
+          "proseWordsBefore": 122,
+          "proseWordsAfter": 445,
+          "explainedReflections": 1
+        },
+        {
+          "id": "machine_learning_infrastructure_tensor_execution_part_trace",
+          "proseWordsBefore": 112,
+          "proseWordsAfter": 445,
+          "explainedReflections": 1
+        },
+        {
+          "id": "machine_learning_infrastructure_tensor_execution_part_practice",
+          "proseWordsBefore": 161,
+          "proseWordsAfter": 219,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/network-distributed-systems/replicated-state/01-quorum-commit.json",
+      "moduleId": "network_distributed_systems_replicated_state_module",
+      "title": "Reason about a replicated log commitment",
+      "previousVersion": 2,
+      "previousVersionId": "network_distributed_systems_replicated_state_version_1_r2",
+      "version": 3,
+      "versionId": "network_distributed_systems_replicated_state_version_1_r3",
+      "previousFileSha256": "ab4a5a0c8a2a4ecedb38a1ae56867066b2fbcf307118ce1a09d2c84f5e50714c",
+      "fileSha256": "9b7a3cf94ff8cddfcdcd46bb04a83e825578038fccc0193155c3a78413e08472",
+      "proseWordsBefore": 377,
+      "proseWordsAfter": 1131,
+      "parts": [
+        {
+          "id": "network_distributed_systems_replicated_state_part_concepts",
+          "proseWordsBefore": 117,
+          "proseWordsAfter": 455,
+          "explainedReflections": 1
+        },
+        {
+          "id": "network_distributed_systems_replicated_state_part_trace",
+          "proseWordsBefore": 120,
+          "proseWordsAfter": 479,
+          "explainedReflections": 1
+        },
+        {
+          "id": "network_distributed_systems_replicated_state_part_practice",
+          "proseWordsBefore": 140,
+          "proseWordsAfter": 197,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/network-distributed-systems/stream-protocols/01-message-framing.json",
+      "moduleId": "network_distributed_systems_stream_protocols_module",
+      "title": "Recover messages from a byte stream",
+      "previousVersion": 1,
+      "previousVersionId": "network_distributed_systems_stream_protocols_version_1",
+      "version": 2,
+      "versionId": "network_distributed_systems_stream_protocols_version_2",
+      "previousFileSha256": "609de324e758f10f8f6ac372e321e8f9d92ede0380cfe56dd2b0592d9c46d5da",
+      "fileSha256": "17a1582f91428204d00a78d99cdb32d5123923863ebbc91ada631efb1de59139",
+      "proseWordsBefore": 371,
+      "proseWordsAfter": 1105,
+      "parts": [
+        {
+          "id": "network_distributed_systems_stream_protocols_part_concepts",
+          "proseWordsBefore": 118,
+          "proseWordsAfter": 453,
+          "explainedReflections": 1
+        },
+        {
+          "id": "network_distributed_systems_stream_protocols_part_trace",
+          "proseWordsBefore": 125,
+          "proseWordsAfter": 463,
+          "explainedReflections": 1
+        },
+        {
+          "id": "network_distributed_systems_stream_protocols_part_practice",
+          "proseWordsBefore": 128,
+          "proseWordsAfter": 189,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/numerical-computing/representation-error/01-reason-about-rounded-numbers.json",
+      "moduleId": "numerical_reason_about_rounded_numbers_module",
+      "title": "Reason about rounded numbers",
+      "previousVersion": 2,
+      "previousVersionId": "numerical_reason_about_rounded_numbers_v2",
+      "version": 3,
+      "versionId": "numerical_reason_about_rounded_numbers_v3",
+      "previousFileSha256": "a5259b494cc7f7acf5c6f6afba5c1dfdce4594dfaf5265d96f30233077b4abd2",
+      "fileSha256": "cdcd4f8378b8aaa56be0e9992bce945dfdf631c633134ee21be2a9e6119dacf4",
+      "proseWordsBefore": 385,
+      "proseWordsAfter": 1096,
+      "parts": [
+        {
+          "id": "numerical_reason_about_rounded_numbers_part_1",
+          "proseWordsBefore": 156,
+          "proseWordsAfter": 472,
+          "explainedReflections": 1
+        },
+        {
+          "id": "numerical_reason_about_rounded_numbers_part_2",
+          "proseWordsBefore": 125,
+          "proseWordsAfter": 466,
+          "explainedReflections": 1
+        },
+        {
+          "id": "numerical_reason_about_rounded_numbers_part_3",
+          "proseWordsBefore": 104,
+          "proseWordsAfter": 158,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/numerical-computing/stable-algorithms/01-rearrange-a-sensitive-calculation.json",
+      "moduleId": "numerical_rearrange_a_sensitive_calculation_module",
+      "title": "Rearrange a calculation to retain useful information",
+      "previousVersion": 2,
+      "previousVersionId": "numerical_rearrange_a_sensitive_calculation_v2",
+      "version": 3,
+      "versionId": "numerical_rearrange_a_sensitive_calculation_v3",
+      "previousFileSha256": "865a1ef49372e9b86c63f486477045ae0134d138ebc1a6f22f0c87daa75e7659",
+      "fileSha256": "506a972314466bee3154902bfc5703d0661188bf63c1ed03e6741f1dfa78ddc5",
+      "proseWordsBefore": 396,
+      "proseWordsAfter": 1072,
+      "parts": [
+        {
+          "id": "numerical_rearrange_a_sensitive_calculation_part_1",
+          "proseWordsBefore": 151,
+          "proseWordsAfter": 451,
+          "explainedReflections": 1
+        },
+        {
+          "id": "numerical_rearrange_a_sensitive_calculation_part_2",
+          "proseWordsBefore": 119,
+          "proseWordsAfter": 432,
+          "explainedReflections": 1
+        },
+        {
+          "id": "numerical_rearrange_a_sensitive_calculation_part_3",
+          "proseWordsBefore": 126,
+          "proseWordsAfter": 189,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/performance-engineering/locality-optimization/01-reason-about-useful-bytes.json",
+      "moduleId": "performance_reason_about_useful_bytes_module",
+      "title": "Reason about useful bytes in a layout",
+      "previousVersion": 2,
+      "previousVersionId": "performance_reason_about_useful_bytes_v2",
+      "version": 3,
+      "versionId": "performance_reason_about_useful_bytes_v3",
+      "previousFileSha256": "c3e50ab8174d986e69398ca35762b01d251c40a91c52892188181d2e18c01922",
+      "fileSha256": "a3e3b46229f8c3135d3feae50a82cdc0414b26e692f6fb00ade2ca3f201c9633",
+      "proseWordsBefore": 385,
+      "proseWordsAfter": 1089,
+      "parts": [
+        {
+          "id": "performance_reason_about_useful_bytes_part_1",
+          "proseWordsBefore": 156,
+          "proseWordsAfter": 469,
+          "explainedReflections": 1
+        },
+        {
+          "id": "performance_reason_about_useful_bytes_part_2",
+          "proseWordsBefore": 114,
+          "proseWordsAfter": 449,
+          "explainedReflections": 1
+        },
+        {
+          "id": "performance_reason_about_useful_bytes_part_3",
+          "proseWordsBefore": 115,
+          "proseWordsAfter": 171,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/performance-engineering/measurement-design/01-design-a-fair-benchmark.json",
+      "moduleId": "performance_design_a_fair_benchmark_module",
+      "title": "Design a fair benchmark",
+      "previousVersion": 2,
+      "previousVersionId": "performance_design_a_fair_benchmark_v2",
+      "version": 3,
+      "versionId": "performance_design_a_fair_benchmark_v3",
+      "previousFileSha256": "0d0a0a89b88388567aff0a4ad8801c3270423e593077bf517dbb41b2e5628c13",
+      "fileSha256": "85643b766d5ec7a5d451f0c69060dd3ebb5800f94010f3aec6a6c7f6cd7f5ea8",
+      "proseWordsBefore": 395,
+      "proseWordsAfter": 1081,
+      "parts": [
+        {
+          "id": "performance_design_a_fair_benchmark_part_1",
+          "proseWordsBefore": 162,
+          "proseWordsAfter": 472,
+          "explainedReflections": 1
+        },
+        {
+          "id": "performance_design_a_fair_benchmark_part_2",
+          "proseWordsBefore": 121,
+          "proseWordsAfter": 444,
+          "explainedReflections": 1
+        },
+        {
+          "id": "performance_design_a_fair_benchmark_part_3",
+          "proseWordsBefore": 112,
+          "proseWordsAfter": 165,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/programming-foundations/problem-solving/01-decompose-a-task.json",
+      "moduleId": "foundations_decompose_a_task_module",
+      "title": "Decompose a task before choosing syntax",
+      "previousVersion": 2,
+      "previousVersionId": "foundations_decompose_a_task_v2",
+      "version": 3,
+      "versionId": "foundations_decompose_a_task_v3",
+      "previousFileSha256": "bbf2aacd143589426d989e8a76fe9708337656d6026eb5c482264a10e10a729f",
+      "fileSha256": "62de3ed08769c80af9474714426434da236dae5a0e5238ff302020bf2e334eb8",
+      "proseWordsBefore": 411,
+      "proseWordsAfter": 1131,
+      "parts": [
+        {
+          "id": "foundations_decompose_a_task_part_1",
+          "proseWordsBefore": 158,
+          "proseWordsAfter": 484,
+          "explainedReflections": 1
+        },
+        {
+          "id": "foundations_decompose_a_task_part_2",
+          "proseWordsBefore": 128,
+          "proseWordsAfter": 451,
+          "explainedReflections": 1
+        },
+        {
+          "id": "foundations_decompose_a_task_part_3",
+          "proseWordsBefore": 125,
+          "proseWordsAfter": 196,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/programming-foundations/state-correctness/01-reason-about-a-loop.json",
+      "moduleId": "foundations_reason_about_a_loop_module",
+      "title": "Reason about a loop using an invariant",
+      "previousVersion": 2,
+      "previousVersionId": "foundations_reason_about_a_loop_v2",
+      "version": 3,
+      "versionId": "foundations_reason_about_a_loop_v3",
+      "previousFileSha256": "129fcb8f9e99b652451f4547db579f02e387949488f5a9dd0aebd73396a70ee3",
+      "fileSha256": "c5c8fd242a02b843dd5016c887c097f7d734ea6243d3ccfd815047e3a87f3d00",
+      "proseWordsBefore": 400,
+      "proseWordsAfter": 1157,
+      "parts": [
+        {
+          "id": "foundations_reason_about_a_loop_part_1",
+          "proseWordsBefore": 154,
+          "proseWordsAfter": 493,
+          "explainedReflections": 1
+        },
+        {
+          "id": "foundations_reason_about_a_loop_part_2",
+          "proseWordsBefore": 117,
+          "proseWordsAfter": 466,
+          "explainedReflections": 1
+        },
+        {
+          "id": "foundations_reason_about_a_loop_part_3",
+          "proseWordsBefore": 129,
+          "proseWordsAfter": 198,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/robotics/coordinate-frames/01-transform-observation.json",
+      "moduleId": "robotics_coordinate_frames_module",
+      "title": "Transform an observation with its frame and time",
+      "previousVersion": 1,
+      "previousVersionId": "robotics_coordinate_frames_version_1",
+      "version": 2,
+      "versionId": "robotics_coordinate_frames_version_2",
+      "previousFileSha256": "f12b983657851225197db54a260d3fb9682cc4af7f24c2d39a7c51f6c101509e",
+      "fileSha256": "42a2932391ff3de617b9c15f8c7eb7c81149f004862e49a51d30b1256187b1de",
+      "proseWordsBefore": 378,
+      "proseWordsAfter": 1083,
+      "parts": [
+        {
+          "id": "robotics_coordinate_frames_part_concepts",
+          "proseWordsBefore": 123,
+          "proseWordsAfter": 454,
+          "explainedReflections": 1
+        },
+        {
+          "id": "robotics_coordinate_frames_part_trace",
+          "proseWordsBefore": 127,
+          "proseWordsAfter": 446,
+          "explainedReflections": 1
+        },
+        {
+          "id": "robotics_coordinate_frames_part_practice",
+          "proseWordsBefore": 128,
+          "proseWordsAfter": 183,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/robotics/sensor-communication/01-freshness-contract.json",
+      "moduleId": "robotics_sensor_communication_module",
+      "title": "Specify freshness and delivery expectations",
+      "previousVersion": 1,
+      "previousVersionId": "robotics_sensor_communication_version_1",
+      "version": 2,
+      "versionId": "robotics_sensor_communication_version_2",
+      "previousFileSha256": "2b1835b07174364a295cd37fbfcd8fdc9dd248bf61886a697d47e4204841876c",
+      "fileSha256": "4a893867d1366d19dd9076679a0f4cba235afbea7088801edcc66ce0c6ca1029",
+      "proseWordsBefore": 372,
+      "proseWordsAfter": 1111,
+      "parts": [
+        {
+          "id": "robotics_sensor_communication_part_concepts",
+          "proseWordsBefore": 118,
+          "proseWordsAfter": 470,
+          "explainedReflections": 1
+        },
+        {
+          "id": "robotics_sensor_communication_part_trace",
+          "proseWordsBefore": 132,
+          "proseWordsAfter": 460,
+          "explainedReflections": 1
+        },
+        {
+          "id": "robotics_sensor_communication_part_practice",
+          "proseWordsBefore": 122,
+          "proseWordsAfter": 181,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/scientific-computing/experiment-provenance/01-reproducible-result.json",
+      "moduleId": "scientific_computing_experiment_provenance_module",
+      "title": "Make a computational result reproducible",
+      "previousVersion": 1,
+      "previousVersionId": "scientific_computing_experiment_provenance_version_1",
+      "version": 2,
+      "versionId": "scientific_computing_experiment_provenance_version_2",
+      "previousFileSha256": "c26b1ff429ea568a8e0db78a3e4375f06718a270749eb3982f78587ae27eb304",
+      "fileSha256": "a11457e40929d058b81f29c0a2933f0a3deab81e4c2fe0006cbc0ce7aa134add",
+      "proseWordsBefore": 386,
+      "proseWordsAfter": 1091,
+      "parts": [
+        {
+          "id": "scientific_computing_experiment_provenance_part_concepts",
+          "proseWordsBefore": 125,
+          "proseWordsAfter": 451,
+          "explainedReflections": 1
+        },
+        {
+          "id": "scientific_computing_experiment_provenance_part_trace",
+          "proseWordsBefore": 122,
+          "proseWordsAfter": 438,
+          "explainedReflections": 1
+        },
+        {
+          "id": "scientific_computing_experiment_provenance_part_practice",
+          "proseWordsBefore": 139,
+          "proseWordsAfter": 202,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 1
+    },
+    {
+      "path": "content/units/scientific-computing/linear-systems/01-solve-and-check.json",
+      "moduleId": "scientific_computing_linear_systems_module",
+      "title": "Solve a linear system and check its residual",
+      "previousVersion": 1,
+      "previousVersionId": "scientific_computing_linear_systems_version_1",
+      "version": 2,
+      "versionId": "scientific_computing_linear_systems_version_2",
+      "previousFileSha256": "0721ebcfa2d7ae57e35662e07156cba1411d8c56734fe810fbd4d94465507cac",
+      "fileSha256": "e6a216ba26bf2c6e0a8e07336e29db804a8088e2c802751af3af47dd5b2363c4",
+      "proseWordsBefore": 400,
+      "proseWordsAfter": 1069,
+      "parts": [
+        {
+          "id": "scientific_computing_linear_systems_part_concepts",
+          "proseWordsBefore": 122,
+          "proseWordsAfter": 422,
+          "explainedReflections": 1
+        },
+        {
+          "id": "scientific_computing_linear_systems_part_trace",
+          "proseWordsBefore": 144,
+          "proseWordsAfter": 453,
+          "explainedReflections": 1
+        },
+        {
+          "id": "scientific_computing_linear_systems_part_practice",
+          "proseWordsBefore": 134,
+          "proseWordsAfter": 194,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/security-engineering/resource-resilience/01-bound-resource-consumption.json",
+      "moduleId": "security_bound_resource_consumption_module",
+      "title": "Bound resource consumption at every stage",
+      "previousVersion": 1,
+      "previousVersionId": "security_bound_resource_consumption_v1",
+      "version": 2,
+      "versionId": "security_bound_resource_consumption_v2",
+      "previousFileSha256": "7139082b5ddd402c07135808c41c81d0e7196001d1f582d58df0e62554bbe602",
+      "fileSha256": "4e73def5bb69599aec78dc6841ab4b7d82c533af1d0b9647e63ae198cc0cb664",
+      "proseWordsBefore": 383,
+      "proseWordsAfter": 1094,
+      "parts": [
+        {
+          "id": "security_bound_resource_consumption_part_1",
+          "proseWordsBefore": 151,
+          "proseWordsAfter": 451,
+          "explainedReflections": 1
+        },
+        {
+          "id": "security_bound_resource_consumption_part_2",
+          "proseWordsBefore": 121,
+          "proseWordsAfter": 470,
+          "explainedReflections": 1
+        },
+        {
+          "id": "security_bound_resource_consumption_part_3",
+          "proseWordsBefore": 111,
+          "proseWordsAfter": 173,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/security-engineering/trust-boundaries/01-validate-before-changing-state.json",
+      "moduleId": "security_validate_before_changing_state_module",
+      "title": "Validate before changing state",
+      "previousVersion": 2,
+      "previousVersionId": "security_validate_before_changing_state_v2",
+      "version": 3,
+      "versionId": "security_validate_before_changing_state_v3",
+      "previousFileSha256": "1b22c4020bd515c2741d6788e5894a7f0a22a6bebc5477b27a626815a42832b2",
+      "fileSha256": "cfb72684835bb289190f898199e27938dc1a8001169fad6a936abc7af855de1e",
+      "proseWordsBefore": 386,
+      "proseWordsAfter": 1081,
+      "parts": [
+        {
+          "id": "security_validate_before_changing_state_part_1",
+          "proseWordsBefore": 156,
+          "proseWordsAfter": 459,
+          "explainedReflections": 1
+        },
+        {
+          "id": "security_validate_before_changing_state_part_2",
+          "proseWordsBefore": 115,
+          "proseWordsAfter": 443,
+          "explainedReflections": 1
+        },
+        {
+          "id": "security_validate_before_changing_state_part_3",
+          "proseWordsBefore": 115,
+          "proseWordsAfter": 179,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/software-design-architecture/interface-contracts/01-make-a-service-contract-explicit.json",
+      "moduleId": "design_make_a_service_contract_explicit_module",
+      "title": "Make a service contract explicit",
+      "previousVersion": 2,
+      "previousVersionId": "design_make_a_service_contract_explicit_v2",
+      "version": 3,
+      "versionId": "design_make_a_service_contract_explicit_v3",
+      "previousFileSha256": "5691c9f491f688aa03b4f2c09100303e6d391840ecf767092bcd92c814d9b3d8",
+      "fileSha256": "189930a806e64234d263e879534bc91d53191ddec17518c99adcfb95321b2e9d",
+      "proseWordsBefore": 407,
+      "proseWordsAfter": 1115,
+      "parts": [
+        {
+          "id": "design_make_a_service_contract_explicit_part_1",
+          "proseWordsBefore": 172,
+          "proseWordsAfter": 474,
+          "explainedReflections": 1
+        },
+        {
+          "id": "design_make_a_service_contract_explicit_part_2",
+          "proseWordsBefore": 125,
+          "proseWordsAfter": 473,
+          "explainedReflections": 1
+        },
+        {
+          "id": "design_make_a_service_contract_explicit_part_3",
+          "proseWordsBefore": 110,
+          "proseWordsAfter": 168,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/software-design-architecture/responsibility-boundaries/01-hide-a-changing-decision.json",
+      "moduleId": "design_hide_a_changing_decision_module",
+      "title": "Hide a changing decision behind a stable boundary",
+      "previousVersion": 2,
+      "previousVersionId": "design_hide_a_changing_decision_v2",
+      "version": 3,
+      "versionId": "design_hide_a_changing_decision_v3",
+      "previousFileSha256": "554444a569c38b9d32961a7301a7654f3bf1d0ce64ee5a92f3ceb8e07d6728db",
+      "fileSha256": "faf962b07ab6e22e0bbefc1eecedbfb06a4d798792bb57d4964c54f0506da68f",
+      "proseWordsBefore": 390,
+      "proseWordsAfter": 1092,
+      "parts": [
+        {
+          "id": "design_hide_a_changing_decision_part_1",
+          "proseWordsBefore": 164,
+          "proseWordsAfter": 459,
+          "explainedReflections": 1
+        },
+        {
+          "id": "design_hide_a_changing_decision_part_2",
+          "proseWordsBefore": 109,
+          "proseWordsAfter": 457,
+          "explainedReflections": 1
+        },
+        {
+          "id": "design_hide_a_changing_decision_part_3",
+          "proseWordsBefore": 117,
+          "proseWordsAfter": 176,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/systems-programming/descriptor-io/01-short-reads.json",
+      "moduleId": "systems_programming_descriptor_io_module",
+      "title": "Read the bytes that actually arrived",
+      "previousVersion": 1,
+      "previousVersionId": "systems_programming_descriptor_io_version_1",
+      "version": 2,
+      "versionId": "systems_programming_descriptor_io_version_2",
+      "previousFileSha256": "bb2e8321f97f0ab21e941995444dd8d4fb26f6a05cfc2fcf5145e92497709d01",
+      "fileSha256": "49f159b6606e53d561be47ac35348f70ab3860b3f227b46c57bdcd2077d6187a",
+      "proseWordsBefore": 421,
+      "proseWordsAfter": 1181,
+      "parts": [
+        {
+          "id": "systems_programming_descriptor_io_part_concepts",
+          "proseWordsBefore": 174,
+          "proseWordsAfter": 519,
+          "explainedReflections": 1
+        },
+        {
+          "id": "systems_programming_descriptor_io_part_trace",
+          "proseWordsBefore": 123,
+          "proseWordsAfter": 478,
+          "explainedReflections": 1
+        },
+        {
+          "id": "systems_programming_descriptor_io_part_practice",
+          "proseWordsBefore": 124,
+          "proseWordsAfter": 184,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/systems-programming/process-resources/01-fork-state.json",
+      "moduleId": "systems_programming_process_resources_module",
+      "title": "Separate process memory from shared resources",
+      "previousVersion": 1,
+      "previousVersionId": "systems_programming_process_resources_version_1",
+      "version": 2,
+      "versionId": "systems_programming_process_resources_version_2",
+      "previousFileSha256": "edbbce8df8fc480c04ffc3e5888c0be3776a3f8a232e432aa5bdb7088674d8ca",
+      "fileSha256": "22e74e752a82023909014d1baa58c53614f16d103e7f5ac8fb1dc611e1a78018",
+      "proseWordsBefore": 389,
+      "proseWordsAfter": 1133,
+      "parts": [
+        {
+          "id": "systems_programming_process_resources_part_concepts",
+          "proseWordsBefore": 140,
+          "proseWordsAfter": 476,
+          "explainedReflections": 1
+        },
+        {
+          "id": "systems_programming_process_resources_part_trace",
+          "proseWordsBefore": 129,
+          "proseWordsAfter": 474,
+          "explainedReflections": 1
+        },
+        {
+          "id": "systems_programming_process_resources_part_practice",
+          "proseWordsBefore": 120,
+          "proseWordsAfter": 183,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/testing-software-quality/generated-testing/01-combine-properties-and-fuzzing.json",
+      "moduleId": "quality_combine_properties_and_fuzzing_module",
+      "title": "Combine properties with fuzzing",
+      "previousVersion": 2,
+      "previousVersionId": "quality_combine_properties_and_fuzzing_v2",
+      "version": 3,
+      "versionId": "quality_combine_properties_and_fuzzing_v3",
+      "previousFileSha256": "89b96e7621d7d8666824c312bf8516e0c86dfd276d1ad89497c4fd8e39d07735",
+      "fileSha256": "dc43ae8b7c96c6e42c50206cb1f554e085026138ee43fbbf04e391e947196fce",
+      "proseWordsBefore": 386,
+      "proseWordsAfter": 1097,
+      "parts": [
+        {
+          "id": "quality_combine_properties_and_fuzzing_part_1",
+          "proseWordsBefore": 153,
+          "proseWordsAfter": 474,
+          "explainedReflections": 1
+        },
+        {
+          "id": "quality_combine_properties_and_fuzzing_part_2",
+          "proseWordsBefore": 116,
+          "proseWordsAfter": 448,
+          "explainedReflections": 1
+        },
+        {
+          "id": "quality_combine_properties_and_fuzzing_part_3",
+          "proseWordsBefore": 117,
+          "proseWordsAfter": 175,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 3,
+      "sourceRecordsAfter": 3
+    },
+    {
+      "path": "content/units/testing-software-quality/test-design/01-test-a-partitioned-input-domain.json",
+      "moduleId": "quality_test_a_partitioned_input_domain_module",
+      "title": "Test the boundaries of an input domain",
+      "previousVersion": 1,
+      "previousVersionId": "quality_test_a_partitioned_input_domain_v1",
+      "version": 2,
+      "versionId": "quality_test_a_partitioned_input_domain_v2",
+      "previousFileSha256": "35ec2f835ec5d23d8d959dd2935a6ff0e70f22f894f61d4becb29c78e8696dfd",
+      "fileSha256": "e3510dc831dc1e9357872efaf97532e4156b0184a529ffd92cbcdbe80723f1f6",
+      "proseWordsBefore": 398,
+      "proseWordsAfter": 1111,
+      "parts": [
+        {
+          "id": "quality_test_a_partitioned_input_domain_part_1",
+          "proseWordsBefore": 166,
+          "proseWordsAfter": 462,
+          "explainedReflections": 1
+        },
+        {
+          "id": "quality_test_a_partitioned_input_domain_part_2",
+          "proseWordsBefore": 108,
+          "proseWordsAfter": 466,
+          "explainedReflections": 1
+        },
+        {
+          "id": "quality_test_a_partitioned_input_domain_part_3",
+          "proseWordsBefore": 124,
+          "proseWordsAfter": 183,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/text-data-formats/interchange-contracts/01-design-an-interoperable-record.json",
+      "moduleId": "textdata_design_an_interoperable_record_module",
+      "title": "Design an interoperable data record",
+      "previousVersion": 1,
+      "previousVersionId": "textdata_design_an_interoperable_record_v1",
+      "version": 2,
+      "versionId": "textdata_design_an_interoperable_record_v2",
+      "previousFileSha256": "d89fc966ebda16ebabfeb8e319c31b284f52e7fc80fe513258e8f3970cc12a4a",
+      "fileSha256": "37c3a96db6ba871d3cdecc32ea0d2988eb0043d97ab21450acab75c9d880d2b5",
+      "proseWordsBefore": 374,
+      "proseWordsAfter": 1094,
+      "parts": [
+        {
+          "id": "textdata_design_an_interoperable_record_part_1",
+          "proseWordsBefore": 143,
+          "proseWordsAfter": 454,
+          "explainedReflections": 1
+        },
+        {
+          "id": "textdata_design_an_interoperable_record_part_2",
+          "proseWordsBefore": 116,
+          "proseWordsAfter": 461,
+          "explainedReflections": 1
+        },
+        {
+          "id": "textdata_design_an_interoperable_record_part_3",
+          "proseWordsBefore": 115,
+          "proseWordsAfter": 179,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 2,
+      "sourceRecordsAfter": 2
+    },
+    {
+      "path": "content/units/text-data-formats/unicode-text/01-count-the-right-text-unit.json",
+      "moduleId": "textdata_count_the_right_text_unit_module",
+      "title": "Count the right unit of text",
+      "previousVersion": 1,
+      "previousVersionId": "textdata_count_the_right_text_unit_v1",
+      "version": 2,
+      "versionId": "textdata_count_the_right_text_unit_v2",
+      "previousFileSha256": "c36753ce6892f5bfbc5230010de8f98b15ffab8201a9591a0eb43c6062b717f8",
+      "fileSha256": "76667868d24e8f08a6d640ebda5db3e089211646e400551fc57040156e8d8775",
+      "proseWordsBefore": 381,
+      "proseWordsAfter": 1107,
+      "parts": [
+        {
+          "id": "textdata_count_the_right_text_unit_part_1",
+          "proseWordsBefore": 148,
+          "proseWordsAfter": 465,
+          "explainedReflections": 1
+        },
+        {
+          "id": "textdata_count_the_right_text_unit_part_2",
+          "proseWordsBefore": 121,
+          "proseWordsAfter": 467,
+          "explainedReflections": 1
+        },
+        {
+          "id": "textdata_count_the_right_text_unit_part_3",
+          "proseWordsBefore": 112,
+          "proseWordsAfter": 175,
+          "explainedReflections": 1
+        }
+      ],
+      "sourceRecordsBefore": 1,
+      "sourceRecordsAfter": 2
+    }
+  ]
+}

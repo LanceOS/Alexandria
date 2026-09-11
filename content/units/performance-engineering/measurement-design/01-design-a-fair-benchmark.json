@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "performance_design_a_fair_benchmark_module",
-  "versionId": "performance_design_a_fair_benchmark_v2",
+  "versionId": "performance_design_a_fair_benchmark_v3",
   "slug": "design-a-fair-benchmark",
   "title": "Design a fair benchmark",
   "summary": "Plan a comparison that measures the intended operation and records uncertainty.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The purpose of a benchmark is to make one comparison interpretable. Begin by defining the unit of work, such as resolving 10000 title queries against 100000 fixed records. Define the query distribution as well: all hits on the same short key can favor a different implementation than mixed hits and misses across long titles. Decide whether loading the records and building an index belong in the operation. Either choice can be reasonable, but the resulting claim must name that boundary."
+        },
+        {
+          "type": "paragraph",
+          "text": "Separate the timed operation from its oracle. Before timing, verify that both implementations return the same required results for the workload and additional correctness cases. During timing, ensure results are observably consumed without adding large unrelated work. The benchmark documentation warns that optimization-control helpers do not prohibit every optimization of an expression. A constant expression might still be folded legitimately. Inspect whether the benchmark represents real work instead of assuming one helper call makes the experiment valid."
+        },
+        {
+          "type": "paragraph",
+          "text": "A sample is a set of observations under a sampling design. An arithmetic mean summarizes total observed time divided by observation count, but it does not describe how variable the process is or explain why a difference occurred. Within-process repetitions can share cache and startup state. Separate process runs or builds can introduce other variation. The methodology paper motivates choosing repetition at the level where relevant uncertainty enters; it does not license attaching a confidence label to any three numbers."
+        },
+        {
+          "type": "paragraph",
           "text": "A useful benchmark starts with a specific question: does a new title lookup reduce elapsed time for this library size and query distribution? State the number of records, hit rate, key lengths, and whether setup is part of the operation. A test of one successful lookup into a tiny warm table may answer a different question from a user’s cold search through a large catalog."
         },
         {
           "type": "paragraph",
           "text": "Both implementations must produce the same required result on the same input. Verify correctness outside the timed region before interpreting speed. Ensure the compiler cannot remove unused work, and avoid placing logging or unrelated allocation inside the measurement unless those activities are intentionally part of the workload. Google Benchmark documents tools for controlling these details, but a framework cannot choose the right experiment for you."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A report gives only the fastest observed candidate run and the baseline mean. What prevents a fair interpretation, and what should be retained?",
+          "explanation": "The summaries use different selection rules, favoring the candidate's best case. Retain all raw observations, run order, workload, build settings, timing boundaries, and the planned summary/uncertainty method. Compare like summaries from comparable experiments. An unusually fast run may be worth investigating, but selecting it alone does not establish typical improvement."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "The baseline observations sum to 30.2 milliseconds, so their mean is 30.2/3, approximately 10.0667. Candidate observations sum to 29.4, giving 9.8. Baseline mean divided by candidate mean is about 1.0272: in this arithmetic example, the baseline takes 1.0272 times as long. The reduction relative to baseline is (10.0667-9.8)/10.0667, approximately 2.65 percent. This differs from subtracting one from the speed ratio, which is about 2.72 percent relative to candidate time. State which denominator a percentage uses. Neither calculation turns invented observations into experimental evidence."
+        },
+        {
+          "type": "paragraph",
           "text": "The candidate’s sample mean is smaller, but three invented values establish no real performance result. In a real study, repeated timings are affected by scheduling, frequency changes, cache state, and other activity. Repeating an inner loop within one process may not capture variation introduced when the process starts or the binary is built. The relevant repetition level depends on where variability enters."
         },
         {
           "type": "paragraph",
           "text": "Kalibera and Jones’s peer-reviewed methodology addresses this distinction and reporting uncertainty in performance ratios. A point estimate without its variation can overstate a small improvement. A statistically meaningful change may also be too small to matter to users, so define a practical improvement threshold before collecting data. Use an analysis method appropriate to the experiment’s independence and sampling assumptions."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a contrasting experiment, imagine that the baseline is measured at the start of a session and the candidate only later, when an unrelated background task has stopped. Even unchanged code could appear faster. Suppose a hypothetical control implementation takes twelve milliseconds early and ten later. A candidate taking ten later cannot be credited with a two-millisecond improvement by comparing only against the early control. Time-of-run and implementation choice are confounded."
+        },
+        {
+          "type": "paragraph",
+          "text": "A possible response is to run comparable baseline/candidate blocks in a planned interleaved order while recording conditions and raw observations. Randomization can reduce systematic association with order; it cannot remove every source of bias or make related samples independent. If measurements are paired within blocks, analyze that pairing intentionally rather than pretending each individual timing is unrelated. Also choose a practical threshold: a reliably measured improvement of a few microseconds may be irrelevant if users wait seconds elsewhere. Experimental design and product relevance are different parts of the decision."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical drift example, not collected benchmark data\nEarly session:  unchanged control = 12 ms\nLater session:  unchanged control = 10 ms\nLater session:  candidate         = 10 ms\nInvalid conclusion: candidate caused the entire 2 ms difference\nUseful comparison: control and candidate under comparable conditions",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "An index speeds each query from 10 microseconds to 4 microseconds but needs 3 milliseconds to build. Using those hypothetical costs, when does building it pay off?",
+          "explanation": "Convert 3 milliseconds to 3000 microseconds. For q queries, indexed work is 3000+4q and unindexed work is 10q. The index is faster when 3000<6q, or q>500. At exactly 500 they tie in this model. This calculation depends on whether index construction belongs to the measured operation and whether the index can be reused."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Keep raw results, compiler flags, dependency versions, hardware details, workload generation rules, and timing boundaries. Explain whether setup and warm-up are excluded and why. If profiling suggests a different bottleneck after the change, revise the hypothesis and run a new planned comparison. Benchmarking is evidence about a defined workload and environment, so report that scope alongside any performance claim."
+        },
+        {
+          "type": "paragraph",
+          "text": "A useful result joins a question, workload, correct implementation, timing boundary, sampling design, raw observations, and appropriately scoped analysis. When evidence contradicts the hypothesis, investigate rather than moving the goalposts until a favorable number appears. A benchmark framework manages measurement mechanics; the engineer remains responsible for choosing what the numbers can legitimately say."
         }
       ]
     }
@@ -90,5 +134,5 @@
       "publicationYear": 2013
     }
   ],
-  "version": 2
+  "version": 3
 }

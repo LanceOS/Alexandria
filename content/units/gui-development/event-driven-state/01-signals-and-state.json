@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "gui_development_event_driven_state_module",
-  "versionId": "gui_development_event_driven_state_version_1",
+  "versionId": "gui_development_event_driven_state_version_2",
   "slug": "signals-and-state",
   "title": "Connect user actions to observable state changes",
   "summary": "Trace a small interface without making display text the source of truth.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "gui_development_event_driven_state_part_concepts",
-      "title": "Understand the model",
+      "title": "Requests, accepted state, and notifications",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "An event-driven interface reacts to input and state changes. Qt signals and slots connect objects so that an emitted signal can invoke interested receivers. A slot is also an ordinary callable function when used directly. Keep authoritative application state separate from any particular widget’s presentation. A change notification can update several views without making those views responsible for one another. Emitting only when the value actually changes also avoids needless work and can stop a simple feedback connection from repeatedly announcing the same state. This behavior should follow a clear state contract, not incidental widget order."
+        },
+        {
+          "type": "paragraph",
+          "text": "A request expresses what an input device or caller would like to happen. Accepted state is the value the model actually stores after validation. A notification communicates that accepted state to interested views. Keeping these roles separate lets a slider, keyboard shortcut and remote command share one rule. A signal connection delivers an event; it does not automatically provide validation, authoritative storage or a complete application architecture."
+        },
+        {
+          "type": "paragraph",
+          "text": "For this example, define the model setter as a small sequence: validate the requested percentage, compare it with the current value, store a changed accepted value and notify observers. The equality check is important because a view update may itself produce an input notification. If the echoed request equals the current value, the setter stops without emitting another change. This terminates the simple feedback cycle under the stated synchronous schedule."
+        },
+        {
+          "type": "paragraph",
+          "text": "Presentation derives from the model. The label formats 125 as the text 125%, while the slider displays the number along its range. The model should not need to parse that text to recover its own value. Formatting may change with localization or layout without changing the numeric contract. New views can subscribe to the same accepted value rather than querying another widget as the supposed source of truth."
+        },
+        {
+          "type": "paragraph",
+          "text": "Synchronous delivery deserves deliberate reasoning. A connected receiver can run while the emitting operation is in progress. Storing the accepted value before emission lets receivers observe the new state when they query the model. More complicated callbacks that mutate additional state can introduce reentrancy concerns, so keep the notification contract clear and test traces instead of relying on an assumed visual order."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Starting at 100, trace requests 125,125,80 under the change-only policy. How many state-change notifications occur?",
+          "explanation": "The first request stores 125 and emits once. The second matches the current value, so it emits nothing. The third stores 80 and emits once. There are two notifications and the final state is 80. This count assumes the described request stream and does not include separate validation or user-interaction signals."
         }
       ]
     },
     {
       "id": "gui_development_event_driven_state_part_trace",
-      "title": "Work through an example",
+      "title": "Trace feedback and rejected input",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The label includes formatting that is not part of the numeric model. The slider can request a value, but validation remains at the state boundary so that another input path receives the same rules. A duplicate notification is not required merely because the same setter was called twice. This makes a feedback path from the model to the slider harmless for the unchanged value, provided the update contract is followed."
+        },
+        {
+          "type": "paragraph",
+          "text": "Trace the user request through the model boundary. The requested 125 lies inside [50,200], differs from 100 and is stored. The model emits one accepted-value notification. The slider and label both display 125 in their own representations. If updating the slider echoes a request for 125, the model compares it with the already stored 125 and makes no new change."
+        },
+        {
+          "type": "paragraph",
+          "text": "The final duplicate request is therefore evidence for an explicit setter behavior, not a claim that Qt eliminates all duplicate signals. Another implementation might emit on every call, and another connection graph might have a more complicated cycle. The original trace works because it includes validation, assignment before notification and an equality guard. Each is an application rule that can be checked independently."
+        },
+        {
+          "type": "callout",
+          "title": "Trace feedback and rejected input",
+          "text": "Contrasting invalid input: choose rejection as the model policy and begin at speed 125. A keyboard entry requests 300."
+        },
+        {
+          "type": "paragraph",
+          "text": "The model detects that 300 exceeds the maximum 200 and leaves its accepted value at 125. It reports rejection through a defined error or validation result. Both views continue to display the accepted 125; the keyboard editor may additionally show that its draft input was rejected. Keeping draft text separate from accepted state avoids silently treating the invalid input as the actual playback speed."
+        },
+        {
+          "type": "paragraph",
+          "text": "For comparison, an explicitly clamping model would accept 200 instead and notify observers of 200. That is also a coherent policy, but it is a different contract. If the slider clamps while the label rejects independently, their displays can disagree. The centralized decision ensures that every view receives the same accepted outcome even though error presentation differs."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A second label is added after the model is already 125. Why is connecting it only to future changes insufficient, and how can initialization be made explicit?",
+          "explanation": "No new change may occur immediately, so a future-only connection can leave the new label showing a default value. Initialize its presentation from the current accepted state, then keep it updated through the connection, with ordering appropriate to the same-thread setup. Initial synchronization and change notification are separate jobs. Do not manufacture a fake state change merely to update one new view."
         }
       ]
     },
     {
       "id": "gui_development_event_driven_state_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice consistent views",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Why should the slider and label receive the accepted model value instead of each independently deciding whether 300 is valid?",
           "explanation": "Independent decisions can disagree and display inconsistent state. A shared validation boundary establishes one accepted result for every view. Presentation can differ, but the underlying value remains the same. This is an application design choice implemented with event connections, not a special property automatically guaranteed by signals."
+        },
+        {
+          "type": "paragraph",
+          "text": "An event-driven design becomes testable when every request has one validation boundary and every view reflects accepted state. Trace duplicates, invalid requests and newly attached views alongside ordinary changes. This approach scales to forms and settings panels while leaving formatting local to presentation. More complex asynchronous work adds request identity and lifetime concerns, which the next module addresses."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://doc.qt.io/qt-6/signalsandslots.html",
       "locator": "Primary documentation: Signals, Slots and A Small Example; connections and change detection; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

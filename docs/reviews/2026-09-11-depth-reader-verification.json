@@ -1,0 +1,552 @@
+{
+  "date": "2026-09-11",
+  "baseUrl": "http://127.0.0.1:5173",
+  "modulesChecked": 89,
+  "matchingParts": 267,
+  "matchingSources": 264,
+  "sourceFieldsCompared": [
+    "id",
+    "title",
+    "authors",
+    "edition",
+    "publicationYear",
+    "url",
+    "locator"
+  ],
+  "modules": [
+    {
+      "moduleId": "audio_signal_processing_callback_deadlines_module",
+      "versionId": "audio_signal_processing_callback_deadlines_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "audio_signal_processing_discrete_transforms_module",
+      "versionId": "audio_signal_processing_discrete_transforms_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "build_model_a_build_as_a_graph_module",
+      "versionId": "build_model_a_build_as_a_graph_v3",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "build_define_a_reproducible_artifact_module",
+      "versionId": "build_define_a_reproducible_artifact_v3",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "compilers_language_tools_lexical_analysis_module",
+      "versionId": "compilers_language_tools_lexical_analysis_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "compilers_language_tools_syntax_trees_module",
+      "versionId": "compilers_language_tools_syntax_trees_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "archos_trace_cache_locality_module",
+      "versionId": "archos_trace_cache_locality_v3",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "archos_separate_addresses_from_storage_module",
+      "versionId": "archos_separate_addresses_from_storage_v3",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "parallel_estimate_a_parallel_speedup_limit_module",
+      "versionId": "parallel_estimate_a_parallel_speedup_limit_v3",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "parallel_protect_a_complete_state_transition_module",
+      "versionId": "parallel_protect_a_complete_state_transition_v2",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_dependent_names_module",
+      "versionId": "cpp_dependent_names_v2",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_forwarding_arguments_module",
+      "versionId": "cpp_forwarding_arguments_v2",
+      "parts": 3,
+      "sources": 5
+    },
+    {
+      "moduleId": "cpp_starter_module_first_program",
+      "versionId": "cpp_starter_version_1_r3",
+      "parts": 3,
+      "sources": 8
+    },
+    {
+      "moduleId": "cpp_basics_module_variables",
+      "versionId": "cpp_basics_variables_v3",
+      "parts": 3,
+      "sources": 6
+    },
+    {
+      "moduleId": "cpp_basics_module_expressions",
+      "versionId": "cpp_basics_expressions_v3",
+      "parts": 3,
+      "sources": 6
+    },
+    {
+      "moduleId": "cpp_basics_module_decisions",
+      "versionId": "cpp_basics_decisions_v3",
+      "parts": 3,
+      "sources": 6
+    },
+    {
+      "moduleId": "cpp_basics_module_loops",
+      "versionId": "cpp_basics_loops_v3",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_basics_module_functions",
+      "versionId": "cpp_basics_functions_v3",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_basics_module_output",
+      "versionId": "cpp_basics_output_v3",
+      "parts": 3,
+      "sources": 8
+    },
+    {
+      "moduleId": "cpp_core_classes_value_semantics_invariants_and_operations",
+      "versionId": "cpp_core_classes_value_semantics_invariants_and_operations_v2",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_core_classes_value_semantics_copy_move_and_comparison",
+      "versionId": "cpp_core_classes_value_semantics_copy_move_and_comparison_v3",
+      "parts": 3,
+      "sources": 8
+    },
+    {
+      "moduleId": "cpp_constant_evaluation_module",
+      "versionId": "cpp_constant_evaluation_v2",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_type_directed_branches_module",
+      "versionId": "cpp_type_directed_branches_v2",
+      "parts": 3,
+      "sources": 4
+    },
+    {
+      "moduleId": "cpp_scoped_threads_locks_module",
+      "versionId": "cpp_scoped_threads_locks_v2",
+      "parts": 3,
+      "sources": 4
+    },
+    {
+      "moduleId": "cpp_atomic_publication_module",
+      "versionId": "cpp_atomic_publication_v2",
+      "parts": 3,
+      "sources": 4
+    },
+    {
+      "moduleId": "cpp_coroutine_suspension_module",
+      "versionId": "cpp_coroutine_suspension_v2",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_coroutine_lifetimes_module",
+      "versionId": "cpp_coroutine_lifetimes_v2",
+      "parts": 3,
+      "sources": 4
+    },
+    {
+      "moduleId": "cpp_core_error_handling_optional_results_and_parsing",
+      "versionId": "cpp_core_error_handling_optional_results_and_parsing_v2",
+      "parts": 3,
+      "sources": 4
+    },
+    {
+      "moduleId": "cpp_core_error_handling_exceptions_and_state_guarantees",
+      "versionId": "cpp_core_error_handling_exceptions_and_state_guarantees_v3",
+      "parts": 3,
+      "sources": 4
+    },
+    {
+      "moduleId": "cpp_core_functions_interfaces_parameters_and_results",
+      "versionId": "cpp_core_functions_interfaces_parameters_and_results_v2",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_core_functions_interfaces_overloads_and_lambdas",
+      "versionId": "cpp_core_functions_interfaces_overloads_and_lambdas_v2",
+      "parts": 3,
+      "sources": 4
+    },
+    {
+      "moduleId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges",
+      "versionId": "cpp_core_iterators_algorithms_ranges_algorithms_and_half_open_ranges_v3",
+      "parts": 3,
+      "sources": 4
+    },
+    {
+      "moduleId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines",
+      "versionId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_v2",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_core_library_data_containers_sequences_and_invalidation",
+      "versionId": "cpp_core_library_data_containers_sequences_and_invalidation_v3",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_core_library_data_containers_keys_and_vocabulary_types",
+      "versionId": "cpp_core_library_data_containers_keys_and_vocabulary_types_v3",
+      "parts": 3,
+      "sources": 6
+    },
+    {
+      "moduleId": "cpp_implementation_boundaries_module",
+      "versionId": "cpp_implementation_boundaries_v2",
+      "parts": 3,
+      "sources": 4
+    },
+    {
+      "moduleId": "cpp_feature_compatibility_module",
+      "versionId": "cpp_feature_compatibility_v2",
+      "parts": 3,
+      "sources": 4
+    },
+    {
+      "moduleId": "cpp_core_library_services_text_streams_and_extraction",
+      "versionId": "cpp_core_library_services_text_streams_and_extraction_v3",
+      "parts": 3,
+      "sources": 5
+    },
+    {
+      "moduleId": "cpp_core_library_services_time_and_path_values",
+      "versionId": "cpp_core_library_services_time_and_path_values_v2",
+      "parts": 3,
+      "sources": 6
+    },
+    {
+      "moduleId": "cpp_core_lifetime_ownership_owners_and_borrowers",
+      "versionId": "cpp_core_lifetime_ownership_owners_and_borrowers_v2",
+      "parts": 3,
+      "sources": 4
+    },
+    {
+      "moduleId": "cpp_core_lifetime_ownership_raii_and_unique_ownership",
+      "versionId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_v3",
+      "parts": 3,
+      "sources": 5
+    },
+    {
+      "moduleId": "cpp_object_representations_module",
+      "versionId": "cpp_object_representations_v2",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_memory_resource_lifetimes_module",
+      "versionId": "cpp_memory_resource_lifetimes_v2",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_core_program_organization_declarations_and_linkage",
+      "versionId": "cpp_core_program_organization_declarations_and_linkage_v2",
+      "parts": 3,
+      "sources": 4
+    },
+    {
+      "moduleId": "cpp_core_program_organization_headers_and_modules",
+      "versionId": "cpp_core_program_organization_headers_and_modules_v3",
+      "parts": 3,
+      "sources": 7
+    },
+    {
+      "moduleId": "cpp_core_runtime_polymorphism_interfaces_and_overriding",
+      "versionId": "cpp_core_runtime_polymorphism_interfaces_and_overriding_v3",
+      "parts": 3,
+      "sources": 5
+    },
+    {
+      "moduleId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects",
+      "versionId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_v3",
+      "parts": 3,
+      "sources": 7
+    },
+    {
+      "moduleId": "cpp_core_templates_generic_programming_typed_families",
+      "versionId": "cpp_core_templates_generic_programming_typed_families_v2",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_core_templates_generic_programming_concepts_and_requirements",
+      "versionId": "cpp_core_templates_generic_programming_concepts_and_requirements_v2",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "cpp_core_types_initialization_initialization_and_deduction",
+      "versionId": "cpp_core_types_initialization_initialization_and_deduction_v2",
+      "parts": 3,
+      "sources": 6
+    },
+    {
+      "moduleId": "cpp_core_types_initialization_conversions_and_domain_types",
+      "versionId": "cpp_core_types_initialization_conversions_and_domain_types_v2",
+      "parts": 3,
+      "sources": 5
+    },
+    {
+      "moduleId": "dsa_design_a_bounded_queue_module",
+      "versionId": "dsa_design_a_bounded_queue_v2",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "dsa_count_search_work_module",
+      "versionId": "dsa_count_search_work_v2",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "databases_storage_logging_snapshots_module",
+      "versionId": "databases_storage_logging_snapshots_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "databases_storage_transaction_boundaries_module",
+      "versionId": "databases_storage_transaction_boundaries_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "embedded_realtime_bounded_events_module",
+      "versionId": "embedded_realtime_bounded_events_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "embedded_realtime_task_timing_module",
+      "versionId": "embedded_realtime_task_timing_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "game_development_scene_composition_module",
+      "versionId": "game_development_scene_composition_version_1_r3",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "game_development_simulation_time_module",
+      "versionId": "game_development_simulation_time_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "graphics_gpu_rendering_pipeline_module",
+      "versionId": "graphics_gpu_rendering_pipeline_version_2",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "graphics_gpu_resource_dependencies_module",
+      "versionId": "graphics_gpu_resource_dependencies_version_1_r3",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "gui_development_event_driven_state_module",
+      "versionId": "gui_development_event_driven_state_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "gui_development_responsive_work_module",
+      "versionId": "gui_development_responsive_work_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "language_interoperability_cross_runtime_ownership_module",
+      "versionId": "language_interoperability_cross_runtime_ownership_version_2",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "language_interoperability_runtime_coordination_module",
+      "versionId": "language_interoperability_runtime_coordination_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "machine_learning_infrastructure_inference_contracts_module",
+      "versionId": "machine_learning_infrastructure_inference_contracts_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "machine_learning_infrastructure_tensor_execution_module",
+      "versionId": "machine_learning_infrastructure_tensor_execution_version_1_r3",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "network_distributed_systems_replicated_state_module",
+      "versionId": "network_distributed_systems_replicated_state_version_1_r3",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "network_distributed_systems_stream_protocols_module",
+      "versionId": "network_distributed_systems_stream_protocols_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "numerical_reason_about_rounded_numbers_module",
+      "versionId": "numerical_reason_about_rounded_numbers_v3",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "numerical_rearrange_a_sensitive_calculation_module",
+      "versionId": "numerical_rearrange_a_sensitive_calculation_v3",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "performance_reason_about_useful_bytes_module",
+      "versionId": "performance_reason_about_useful_bytes_v3",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "performance_design_a_fair_benchmark_module",
+      "versionId": "performance_design_a_fair_benchmark_v3",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "foundations_decompose_a_task_module",
+      "versionId": "foundations_decompose_a_task_v3",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "foundations_reason_about_a_loop_module",
+      "versionId": "foundations_reason_about_a_loop_v3",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "robotics_coordinate_frames_module",
+      "versionId": "robotics_coordinate_frames_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "robotics_sensor_communication_module",
+      "versionId": "robotics_sensor_communication_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "scientific_computing_experiment_provenance_module",
+      "versionId": "scientific_computing_experiment_provenance_version_2",
+      "parts": 3,
+      "sources": 1
+    },
+    {
+      "moduleId": "scientific_computing_linear_systems_module",
+      "versionId": "scientific_computing_linear_systems_version_2",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "security_bound_resource_consumption_module",
+      "versionId": "security_bound_resource_consumption_v2",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "security_validate_before_changing_state_module",
+      "versionId": "security_validate_before_changing_state_v3",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "design_make_a_service_contract_explicit_module",
+      "versionId": "design_make_a_service_contract_explicit_v3",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "design_hide_a_changing_decision_module",
+      "versionId": "design_hide_a_changing_decision_v3",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "systems_programming_descriptor_io_module",
+      "versionId": "systems_programming_descriptor_io_version_2",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "systems_programming_process_resources_module",
+      "versionId": "systems_programming_process_resources_version_2",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "quality_combine_properties_and_fuzzing_module",
+      "versionId": "quality_combine_properties_and_fuzzing_v3",
+      "parts": 3,
+      "sources": 3
+    },
+    {
+      "moduleId": "quality_test_a_partitioned_input_domain_module",
+      "versionId": "quality_test_a_partitioned_input_domain_v2",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "textdata_design_an_interoperable_record_module",
+      "versionId": "textdata_design_an_interoperable_record_v2",
+      "parts": 3,
+      "sources": 2
+    },
+    {
+      "moduleId": "textdata_count_the_right_text_unit_module",
+      "versionId": "textdata_count_the_right_text_unit_v2",
+      "parts": 3,
+      "sources": 2
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "audio_signal_processing_callback_deadlines_module",
-  "versionId": "audio_signal_processing_callback_deadlines_version_1",
+  "versionId": "audio_signal_processing_callback_deadlines_version_2",
   "slug": "buffer-budget",
   "title": "Budget work inside an audio callback",
   "summary": "Compute a buffer interval and separate bounded processing from background work.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "audio_signal_processing_callback_deadlines_part_concepts",
-      "title": "Understand the model",
+      "title": "Frames, deadlines, and buffer ownership",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "An audio callback supplies or consumes frames when the audio engine needs them. PortAudio warns against operations with potentially unbounded duration, including allocation, ordinary I/O and mutex operations, in that callback context. Prepare resources and perform slow work elsewhere. A sample rate and frame count provide a useful block-duration calculation, but actual callback scheduling and device buffering remain platform concerns. Design the callback around bounded processing of the supplied frame count, and keep ownership of shared buffers explicit. A fast average run is insufficient if occasional delays exhaust the available audio buffer."
+        },
+        {
+          "type": "paragraph",
+          "text": "A frame contains one sample for each channel at one sampling instant. A stereo block of 240 frames therefore contains 480 sample values, but represents 240/48000 seconds, not 480/48000 seconds. Channel count changes storage and arithmetic work; it does not double the duration of a block at a fixed frame count and sample rate. This distinction is essential when sizing buffers and reading a callback's frameCount argument."
+        },
+        {
+          "type": "paragraph",
+          "text": "Separate the time represented by the samples from the time available to your particular callback. Five milliseconds is the nominal interval in this model. It is not a promise that the scheduler always starts the callback exactly five milliseconds before its data is needed. Device buffering, previously queued work and scheduling delay affect the available margin. A design must know which timing quantities it measures instead of labeling every delay simply latency."
+        },
+        {
+          "type": "paragraph",
+          "text": "A buffer handoff also has states. In our proposed pool a block is free, being filled by the worker, ready for consumption, or being consumed by the callback. Only the owner of the current state may modify it. Publishing ready must occur after filling finishes, and returning free must occur after the last read finishes. Those ordering requirements are part of the handoff primitive's synchronization contract. A queue containing an address alone does not establish them."
+        },
+        {
+          "type": "paragraph",
+          "text": "Preparation can allocate the pool and calculate reusable coefficients before streaming begins. The callback then performs a bounded amount of work for the supplied frames. Inspect everything that operation invokes: a helper that creates a temporary container can allocate, and destroying the last shared owner can trigger expensive cleanup. Moving an obvious allocation out of the callback while leaving hidden cleanup inside it does not settle the timing question."
+        },
+        {
+          "type": "reflection",
+          "prompt": "At 48,000 frames/s, what do 96 stereo frames represent in time and sample count? What is the risk of using sample count in the duration formula?",
+          "explanation": "There are 192 sample values, because each frame has two channels. Duration is 96/48000 = 0.002 seconds, or 2 ms. Dividing 192 by the sample rate would incorrectly infer 4 ms and could lead to an impossible processing budget. Use frame count for duration and multiply by channels and bytes per sample for storage."
         }
       ]
     },
     {
       "id": "audio_signal_processing_callback_deadlines_part_trace",
-      "title": "Work through an example",
+      "title": "Work through consumption and a missed deadline",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The empty-queue policy is explicit and bounded. Waiting indefinitely for the worker would turn a missed preparation into an unbounded callback delay. A callback must fill the required output according to its API contract; reusing uninitialized data is not a valid substitute. Releasing a block to a free pool means the worker may write it again, so the callback must not retain an active read reference after that handoff."
+        },
+        {
+          "type": "paragraph",
+          "text": "Walk through callback 1 by following the ownership, not only the audio values. It removes ready block A, becoming its sole consumer. It copies or processes the required sample values into the engine's output buffer according to the chosen format. It stops using A before making A free. The worker can then overwrite A for a later callback without racing the old consumer. A retained pointer used after that transition would violate the model."
+        },
+        {
+          "type": "paragraph",
+          "text": "For callback 3, the required output still exists even though the producer is late. The stipulated silence policy supplies initialized values for every required frame and channel. The callback records an underrun through the assumed bounded diagnostic mechanism and finishes. This preserves the callback's bounded behavior while making loss of prepared audio explicit. Silence is an application fallback, not successful delivery of the missing block or a general guarantee of imperceptible sound."
+        },
+        {
+          "type": "callout",
+          "title": "Work through consumption and a missed deadline",
+          "text": "Contrasting timing model: suppose a 240-frame callback needs 3.6 ms for processing, with a prescribed 0.8 ms scheduling delay before it starts. For this hypothetical cycle, assume exactly 5 ms from release until the output is needed."
+        },
+        {
+          "type": "paragraph",
+          "text": "The completion time is 0.8 + 3.6 = 4.4 ms, leaving 0.6 ms margin. On a second cycle the same processing takes 3.6 ms but starts 1.8 ms late. Completion is 5.4 ms, so the stipulated deadline is missed by 0.4 ms. The processing routine did not become slower; the end-to-end response changed. These are invented timings that illustrate accounting, not PortAudio measurements."
+        },
+        {
+          "type": "paragraph",
+          "text": "Doubling to 480 frames represents 10 ms of audio. It may provide a different scheduling tradeoff, but it also changes how much work the callback performs and how much audio is buffered. If processing doubles to 7.2 ms and delay remains 1.8 ms, this model finishes at 9 ms, leaving 1 ms margin. That arithmetic does not establish the real device's latency or worst-case scheduling behavior."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The callback has finished copying A into the output buffer but still plans to read A for a meter calculation. May it publish A as free first?",
+          "explanation": "No. The last use includes the meter read. Publishing free permits the worker to overwrite A, so the later meter calculation could race with that write. Either finish the bounded meter calculation before release or copy the small required summary while A is owned. Include that work in the callback budget; deferred ownership release cannot be ignored in the timing analysis."
         }
       ]
     },
     {
       "id": "audio_signal_processing_callback_deadlines_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice budgeting and ownership",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Would printing a diagnostic directly from the callback be acceptable because it usually takes less than five milliseconds?",
           "explanation": "No. The relevant concern is potentially unbounded delay, not the usual duration of a console write. Record a bounded diagnostic signal using an appropriate mechanism and let background code format and print it. The same reasoning applies to seemingly small allocations or mutex-protected helpers."
+        },
+        {
+          "type": "paragraph",
+          "text": "A callback review should now connect sample representation, timing and ownership. Derive duration with units, account for scheduling as well as execution, and trace every block until its last consumer releases it. Practice on a small stream before increasing channels or adding effects. The next useful extension is measuring the actual platform's callback durations and underruns while keeping the same explicit fallback and buffer-state contract."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://portaudio.com/docs/v19-doxydocs/writing_a_callback.html",
       "locator": "Primary documentation: Callback responsibilities and operations with unbounded execution time; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

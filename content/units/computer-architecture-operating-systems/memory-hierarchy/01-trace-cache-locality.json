@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "archos_trace_cache_locality_module",
-  "versionId": "archos_trace_cache_locality_v2",
+  "versionId": "archos_trace_cache_locality_v3",
   "slug": "trace-cache-locality",
   "title": "Trace locality with a tiny cache",
   "summary": "Use an explicit cache model to explain why access order can change memory traffic.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Locality gives a reason that two algorithms with the same number of element accesses can move different amounts of data. The unit retained by a cache is a line, not an abstract application element. A hit means the requested line is already present at the modeled cache level; a miss means it is absent there. A miss at one level does not, by itself, mean a disk access or even a main-memory access, because another level may satisfy it. We will count only misses in one explicitly invented cache."
+        },
+        {
+          "type": "paragraph",
+          "text": "To execute the model, translate each element number into a line name, then track at most two resident names from least recently used to most recently used. A hit moves that name to the recent end. A miss inserts the name; if both slots are occupied, evict the least recently used one first. Fully associative means either resident slot can hold any line name. The line mapping comes from the teaching definition, not from C++ array indexing rules. Cachegrind's manual describes related simulation choices but does not turn this two-slot exercise into a model of your processor."
+        },
+        {
+          "type": "paragraph",
+          "text": "Distinguish first-use misses from missed reuse. A line that has never been loaded must miss in this initially empty model. A later access can still miss if the intervening working set displaced it. The working set here means the distinct lines whose reuse competes for those two slots. Keeping recently needed lines together in time can reduce traffic even though the program computes exactly the same result."
+        },
+        {
+          "type": "paragraph",
           "text": "Processors commonly access memory through caches that retain recently used blocks. Temporal locality means revisiting data soon; spatial locality means accessing nearby data. These are properties of an access pattern relative to a storage system. A cache line contains more than the individual value requested, so neighboring accesses may reuse one fetched line. Actual line sizes, replacement behavior, and prefetching depend on the machine."
         },
         {
           "type": "paragraph",
           "text": "For a trace we will invent a deliberately tiny model: two fully associative cache lines, two numbered elements per line, initially empty, and least-recently-used replacement. Reading an absent line counts one miss and brings that entire line into the cache. The model has no prefetching, writes, other threads, or instruction cache. Stating these assumptions makes the calculation reproducible without pretending to simulate a particular processor."
+        },
+        {
+          "type": "reflection",
+          "prompt": "With a one-line cache, initially empty, and the traversal A,A,B,B,C,C, how many misses occur? Explain why reducing capacity from two lines did not hurt this particular trace.",
+          "explanation": "There are still three misses: the second access to each name immediately reuses the one resident line. The old line is no longer needed when the next line replaces it. Capacity matters only relative to the access pattern; smaller capacity does not necessarily increase misses for every workload."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "Trace traversal two using the resident order. After A, the cache contains [A]; after B, [A,B]. C cannot fit, so it evicts A and leaves [B,C]. The next A evicts B, leaving [C,A]. B then evicts C, and C finally evicts A. Every access misses because each line's reuse is separated by the other two lines. In traversal one, the second access to A happens before another line can evict it; the same reasoning applies to B and C. That produces three first-use misses and three hits. The important difference is reuse distance in this model, not the total number of source-level reads."
+        },
+        {
+          "type": "paragraph",
           "text": "Both traversals read every element once, yet the second repeatedly needs a line that has already been evicted. When C arrives after A and B, it replaces A. The next access needs A again. Counting only six element reads hides this difference in line traffic. A different cache capacity or mapping could produce different totals; the result belongs to the stated model."
         },
         {
           "type": "paragraph",
           "text": "This is why data layout and traversal order are worth investigating together. A collection of records may include fields that an operation never uses. Separating frequently read fields can sometimes increase useful data per fetched line. It can also complicate updates that need whole records. The appropriate layout follows the actual workload rather than a universal rule about arrays or objects."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a second experiment, change only the access pattern to A, B, A, C, A, B. Start cold with two lines again. The third access refreshes A, making B the eviction candidate when C arrives. The fifth access finds A still resident. The last B misses and evicts C. There are four misses and two hits. If one accidentally uses insertion order rather than access recency, the fourth access would evict A and the fifth would miss; that is a different replacement model."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now imagine a three-line cache with the original A, B, C, A, B, C sequence. The first three accesses load all three names and the last three hit. Capacity alone removes those repeated misses without changing the program. This comparison is a useful experimental discipline: vary one assumption so the cause of the changed count is visible. Real performance investigations often vary several things at once, including layout, compiler decisions, and alignment, which makes a timing difference harder to explain."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical two-line LRU cache; order is least recent -> most recent\nAccess A: miss; [A]\nAccess B: miss; [A,B]\nAccess A: hit;  [B,A]\nAccess C: miss; [A,C]\nAccess A: hit;  [C,A]\nAccess B: miss; [A,B]\nTotal: 4 misses, 2 hits",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "A layout change halves simulated misses but does not reduce application time. Name two hypotheses and the observations that would distinguish them.",
+          "explanation": "The application might spend most of its time outside the affected scan; profile where elapsed time is spent. Alternatively, the simulated cache might not represent the machine's actual behavior; compare suitable hardware events and the documented model. Also inspect whether the change introduced conversion or synchronization work. A miss count alone cannot settle which explanation applies."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Use a cache simulator to examine a specified model and hardware counters or profiling to investigate a real system. Cachegrind documents approximation limits, so simulated misses should not be equated with measured processor cycles. Keep correctness tests unchanged while comparing layouts, record the hardware and workload, and measure total application impact. This lesson’s miss counts are hand-worked examples, not benchmark results."
+        },
+        {
+          "type": "paragraph",
+          "text": "Before drawing a conclusion from a cache trace, state line mapping, capacity, initial contents, replacement rule, and which accesses are counted. Then separate the arithmetic result from the performance hypothesis it motivates. This makes locality a testable explanation for a particular workload. The next useful question is often whether data layout or traversal can preserve semantics while bringing each line's useful accesses closer together."
         }
       ]
     }
@@ -78,5 +122,5 @@
       "locator": "Official tool documentation: §5.2.11 Cache and Branch Simulation, §5.8.1 Cache simulation specifics, and §5.8.3 Accuracy; consulted 2026-09-11. Teaching cache traces use an explicitly simplified model."
     }
   ],
-  "version": 2
+  "version": 3
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "game_development_simulation_time_module",
-  "versionId": "game_development_simulation_time_version_1",
+  "versionId": "game_development_simulation_time_version_2",
   "slug": "fixed-updates",
   "title": "Separate simulation updates from rendered frames",
   "summary": "Trace a fixed-step simulation across uneven render intervals.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "game_development_simulation_time_part_concepts",
-      "title": "Understand the model",
+      "title": "State authority and simulation intervals",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "An engine can update presentation whenever it renders while running physics on a separate cadence. Godot exposes variable-frequency processing and fixed-rate physics processing for these roles. A duration argument converts speed into displacement: units per second multiplied by seconds yields units. Applying a fixed displacement each rendered frame makes motion depend on frame rate. A fixed simulation step provides a consistent integration interval, but does not by itself solve collision accuracy, input ordering or replay differences. Choose one authority for gameplay state and let rendering display it. Treat pauses and large delays deliberately instead of allowing an unlimited backlog of catch-up work."
+        },
+        {
+          "type": "paragraph",
+          "text": "A simulation step advances authoritative state by a chosen interval h. A rendered frame displays a view of that state. There need not be one step for each frame: a frame may follow zero, one or several complete steps. An accumulator carries elapsed time that has not yet been simulated. In the simplified algorithm here, its invariant after catch-up is 0 <= accumulator < h, provided catch-up is not capped."
+        },
+        {
+          "type": "paragraph",
+          "text": "Units explain the movement rule. With speed v in units/second and step h in seconds, displacement v*h is in units. For v=2 and h=0.010, each update adds 0.020. Adding 0.020 once per rendered frame instead would move at different rates when the number of frames changes. At fifty frames per second it would travel one unit per second, while at one hundred it would travel two."
+        },
+        {
+          "type": "paragraph",
+          "text": "A fixed interval controls one source of variability, not every numerical or gameplay decision. Inputs must be associated with updates, and the state transition must define how collisions and other interactions are handled. Two runs with the same step size can diverge when input order differs. Likewise a fixed step does not imply that every platform or physics implementation calculates exactly identical floating-point results."
+        },
+        {
+          "type": "paragraph",
+          "text": "Keep presentation smoothing separate from the state transition. A display may interpolate between known states according to a chosen policy, but writing the smoothed position back into physics would change the next simulation input. That would make an ostensibly visual choice part of the gameplay calculation. Decide which state is authoritative before introducing interpolation, extrapolation or camera smoothing."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A constant-motion simulation has completed three 10 ms updates at 2 units/s from position zero, leaving 5 ms in its accumulator. Another frame adds 8 ms. Compute new updates, remainder, total simulated time and position.",
+          "explanation": "The previous remainder is five, so the new accumulator is thirteen. One step runs and leaves three. There have now been four steps, representing forty milliseconds, and position is four times 0.02 = 0.08. Total elapsed time is forty-three milliseconds, matching forty simulated plus three pending."
         }
       ]
     },
     {
       "id": "game_development_simulation_time_part_trace",
-      "title": "Work through an example",
+      "title": "Compare frame partitions and a pause",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "Each update moves the object by two times 0.010, or 0.02 units. Rendering happened three times, but that count is incidental: another sequence of frames with the same total elapsed time could execute different numbers of updates on individual frames. The remaining five milliseconds are retained rather than discarded. Interpolating a presentation between known simulation states is a separate policy; it should not mutate the authoritative physics state."
+        },
+        {
+          "type": "paragraph",
+          "text": "The first frame adds sixteen milliseconds. Subtracting one complete ten-millisecond step leaves six and advances position to 0.02. The second adds seven to the existing six, giving thirteen; one step leaves three and advances to 0.04. The third adds twelve to three, giving fifteen; one step leaves five and advances to 0.06. Each step consumes elapsed time exactly once."
+        },
+        {
+          "type": "paragraph",
+          "text": "The accounting check is 3*10+5=35 milliseconds. This is stronger than checking only the position: discarding the five would make the next frame start from the wrong accumulated time. It also explains why a frame can show the same authoritative position as the previous frame when no complete step is ready. Rendering frequency and simulation progress answer different questions."
+        },
+        {
+          "type": "callout",
+          "title": "Compare frame partitions and a pause",
+          "text": "Contrasting frame sequence: use elapsed intervals 4 ms, 4 ms and 27 ms, still totaling 35 ms."
+        },
+        {
+          "type": "paragraph",
+          "text": "After frame one the accumulator is four and no update runs. After frame two it is eight and still no update runs. Adding twenty-seven produces thirty-five, so frame three runs three updates and leaves five. The final authoritative position is again 0.06, but all three updates occurred before the last rendered frame. This equivalence depends on the toy constant-motion model and unchanged inputs."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now prescribe a 2-second pause and a catch-up cap of five updates per frame. Starting with zero remainder, the cap simulates only 50 ms and leaves 1950 ms pending if time is retained. Repeating catch-up can keep the application behind. Dropping excess time avoids that backlog but intentionally advances simulated time differently from wall time. Pausing and resynchronizing are other explicit policies; none can be silently chosen without affecting game behavior."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Two runs have identical elapsed time and step size, but one applies a movement input before step two and the other after step two. Must their positions match?",
+          "explanation": "No. The state transition sees different input during step two. Equal timing arithmetic only gives comparable step counts; it does not make the sequence of inputs identical. A replay design needs an explicit association between inputs and simulation steps, along with compatible numerical and engine behavior. Record the required event ordering rather than inferring it from rendered frames."
         }
       ]
     },
     {
       "id": "game_development_simulation_time_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice accumulator accounting",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "If a game multiplies every movement by frame duration, is its physics necessarily stable at any frame rate?",
           "explanation": "No. Scaling a constant velocity fixes the units of displacement, but numerical integration and collision handling can still behave differently with large or changing steps. This example uses constant motion with no collisions. More complicated dynamics require an appropriate integration method, timestep policy and validation."
+        },
+        {
+          "type": "paragraph",
+          "text": "To reason about a game loop, account separately for elapsed time, complete simulation steps and presentation. Verify the accumulator invariant and use units to derive each update. Then test alternative frame partitions and long pauses. This makes timing policy visible before introducing more complex dynamics, where integration error and collision behavior require their own evidence and validation."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://docs.godotengine.org/en/stable/tutorials/scripting/idle_and_physics_processing.html",
       "locator": "Primary documentation: Processing types and delta; variable rendering frequency and fixed physics updates; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

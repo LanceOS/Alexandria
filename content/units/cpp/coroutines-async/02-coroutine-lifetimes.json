@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_coroutine_lifetimes_module",
-  "versionId": "cpp_coroutine_lifetimes_v1",
+  "versionId": "cpp_coroutine_lifetimes_v2",
   "slug": "coroutine-lifetimes",
   "title": "Keep coroutine inputs alive across suspension",
   "summary": "Give suspended work an owner and ensure every borrowed object outlives its use.",
@@ -23,6 +23,19 @@
         {
           "type": "paragraph",
           "text": "Passing a std::string by value lets the coroutine retain an owning parameter. The copy or move into coroutine state has a cost, but that cost can be the correct price of an interface that allows the caller to continue. Passing std::string_view by value would only copy a view. Always inspect the ownership semantics of the parameter type, not just whether its declaration contains an ampersand."
+        },
+        {
+          "type": "paragraph",
+          "text": "The key change from an ordinary synchronous inspection is that the caller can finish its full expression before the body first uses an argument. With this wrapper’s initial suspension, announce returns a task before its output statement runs. Any borrowed argument must therefore survive a later resume, not merely the call that created the task. A reference parameter records a relationship; it does not own the related object."
+        },
+        {
+          "type": "paragraph",
+          "text": "A value parameter only solves that problem when its type owns the required data. std::string owns its character sequence, so retaining a value parameter gives the task suitable state for this example. std::string_view is a small non-owning description of someone else’s characters; copying it into a frame retains the description without retaining those characters. The same reasoning applies to pointers, spans, and objects that contain borrowed members."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A task accepts a configuration object by value, but one field is a pointer into the caller’s local buffer. Has value passing established ownership of everything the task needs?",
+          "explanation": "No. The outer object is retained by value, but the pointer still borrows the buffer. Review the ownership of every dependency used after suspension, including members of value parameters. Either retain appropriate ownership of that buffer or require it to remain alive and enforce that lifetime at the calling boundary."
         }
       ]
     },
@@ -49,6 +62,29 @@
         {
           "type": "paragraph",
           "text": "This is abandonment of a local teaching task, not a protocol for canceling an external operation. If an event loop has retained a handle, destroying the frame while it can still resume that handle creates a lifetime bug. A real runtime must coordinate operation cancellation, unregistration, outstanding callbacks, and frame destruction."
+        },
+        {
+          "type": "paragraph",
+          "text": "The temporary Atlas string initializes the coroutine’s string parameter, and the coroutine state retains an owning parameter copy according to the coroutine rules. The exact copy/move and allocation details can depend on permitted optimizations, so the important guarantee is ownership of the needed string value rather than a claimed number of heap allocations. When the caller’s temporary expires, the later body use still has an owning value available."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Ownership and execution timeline",
+          "code": "Create temporary string \"Atlas\"\nCreate coroutine state with an owning string parameter\nInitial suspension returns task to main\nEnd of call expression: caller temporary expires\nFirst resume prints owned title, then suspends\nDestroy task: destroy suspended frame state\nThe remaining \"finished\" statement is not executed"
+        },
+        {
+          "type": "paragraph",
+          "text": "There are two different endings to compare. A second resume would continue past the explicit await, print finished, and reach final suspension. In the existing program, owner destruction instead abandons the remaining computation and cleans up the frame. Both can correctly release owned state under this wrapper’s invariant, but they produce different output. Do not use a destructor as if it were a request to run the rest of a coroutine to completion."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now change only the parameter type to const std::string& in a separate conceptual example. The call can bind a reference to the temporary for the call expression, but that binding does not extend the temporary through an arbitrary future resume. Because the body has not yet used title when initial suspension returns, the later access would occur after the temporary is gone. The original value parameter is an ownership decision that prevents this particular dangling use."
+        },
+        {
+          "type": "reflection",
+          "prompt": "What changes if main resumes the original owning task twice before destroying it? Describe both the output and the final frame state.",
+          "explanation": "The first resume prints Atlas and suspends at the explicit await. The second prints finished and reaches final suspension. Destruction then destroys the completed, suspended frame. The owning string remains valid for the body’s use in both cases; the difference from the original program is whether remaining computation was resumed before cleanup."
         }
       ]
     },
@@ -64,6 +100,22 @@
         {
           "type": "paragraph",
           "text": "For each suspension point, list the objects needed afterward and who keeps them alive. Test early completion and abandonment as deliberately as the success path. Library task types can package these rules, but their ownership, cancellation, and exception contracts must be read. C++23 supplies std::generator for a particular synchronous generator use case; it does not retroactively make all C++20 coroutine return types standard task abstractions."
+        },
+        {
+          "type": "paragraph",
+          "text": "An external callback introduces another owner-like responsibility even if it does not formally own the frame. Suppose an I/O operation has retained a handle to resume later. Destroying the frame while that callback can still invoke the handle creates a use-after-destruction risk. Cancellation must therefore include a protocol for outstanding operations, callback unregistration or quiescence, and the point at which destruction is safe. A stop flag alone does not establish all of those events."
+        },
+        {
+          "type": "paragraph",
+          "text": "A member coroutine can retain access through this without retaining the containing object. Keeping the task wrapper alive is not automatically enough to keep the object whose members it uses alive. Similarly, copying a view into a task says nothing about whether the source container reallocates or is destroyed during suspension. Review every suspension point as a place where outside code can make progress and invalidate a dependency."
+        },
+        {
+          "type": "paragraph",
+          "text": "Test early abandonment as deliberately as normal completion. Relevant cases include destroying before the first resume, destroying after an intermediate suspension, completing normally, and moving the owner before resuming. The wrapper permits a moved-from empty handle and checks it before operations; the new owner must be the one that eventually destroys the frame. These tests exercise ownership state transitions rather than merely reproducing one successful output."
+        },
+        {
+          "type": "paragraph",
+          "text": "The transferable rule is to draw a dependency graph for suspended state. Label which objects are owned, which are borrowed, which actors may still resume the coroutine, and what event ends each relationship. A library task abstraction can package those rules, but its contract must actually say how they work. This teaching owner supplies only the local single-thread case, leaving scheduler and cancellation policies explicitly outside its guarantee."
         }
       ]
     }
@@ -109,5 +161,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4950/coro.generator",
       "locator": "Primary standards draft: C++23 generator overview; later-library distinction only. Consulted 2026-09-11; not the published ISO edition."
     }
-  ]
+  ],
+  "version": 2
 }

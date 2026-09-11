@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "security_validate_before_changing_state_module",
-  "versionId": "security_validate_before_changing_state_v2",
+  "versionId": "security_validate_before_changing_state_v3",
   "slug": "validate-before-changing-state",
   "title": "Validate before changing state",
   "summary": "Trace syntax, meaning, and permission checks for a reading-log request.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "A trust boundary is a point where data or authority moves from one context into another. The browser's form and the server's persistent store are different contexts: restrictions in the form do not constrain arbitrary clients. The server must establish the facts needed for its own state transition. For a reading-session update, those facts include an accepted duration, a real target resource, an authenticated identity, and permission for that identity to perform this action on that resource."
+        },
+        {
+          "type": "paragraph",
+          "text": "Authentication and authorization answer different questions. Authentication identifies the caller according to the service's identity mechanism. Authorization evaluates a caller, action, and resource against policy. A valid user identifier does not grant access to every book. Likewise, syntax and semantics are different validation layers: a decimal string can be well formed yet out of range. Combining all these questions into one boolean called valid can make it harder to see which promise a later operation relies on."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use an explicit representation policy. Here the duration field contains decimal digits only and represents one through 120 minutes. Whole-field checking rejects trailing characters instead of accepting a numeric prefix. Length and representability checks protect the conversion operation itself. If an application deliberately supports normalization or alternate spellings, define that process before validation and ensure every component uses the same interpretation. Silent coercion is dangerous because one component may approve one value while another acts on a different value."
+        },
+        {
+          "type": "paragraph",
           "text": "A server receives a request to add reading minutes to a book. The request may come from a well-behaved interface, a modified client, or a malformed file imported by a user. Treat its bytes as untrusted until the server has checked the relevant rules. A browser form that restricts values improves usability but does not prevent another client from sending different bytes."
         },
         {
           "type": "paragraph",
           "text": "Separate the questions. Syntactic validation asks whether the field has the accepted structure. Semantic validation asks whether its value makes sense for the application. Authorization asks whether this caller may perform this action on this book. OWASP’s guidance distinguishes syntax and semantics; adding an explicit authorization step in our example prevents a valid value from being mistaken for a permitted operation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A client sends minutes=\"025\" and another sends minutes=\"25x\". Under the stated decimal-digit contract, explain the outcomes without relying on a library's default coercions.",
+          "explanation": "The first contains only digits and represents twenty-five, so it passes duration validation under this contract; authorization is still required. The second contains a forbidden trailing x and must be rejected as a whole field. Parsing a prefix and discarding the suffix would implement a different grammar."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "In the first original request, the trailing x prevents the whole string from matching the duration grammar. No parsed prefix is used to mutate state. In the second, all characters are digits, but 250 exceeds 120. In the third, twenty-five is an accepted value but U2 does not own B7 under the example's policy, so the server denies the operation. These are independent barriers: fixing a malformed field does not grant ownership, and being an owner does not make an out-of-range duration acceptable. Only a request meeting every required condition can enter the commit path."
+        },
+        {
+          "type": "paragraph",
           "text": "Do not accept a numeric prefix and quietly discard the rest unless the protocol expressly defines that behavior. Validate the entire field, its length, and its representable range before converting or allocating based on it. Error handling should preserve the previous state. For a concurrent service, checks that depend on mutable state must remain valid at commit time through an appropriate transaction or coordination mechanism."
         },
         {
           "type": "paragraph",
           "text": "Validation is not a universal substitute for safe downstream APIs. A validated string can still require parameterized database queries or context-specific output encoding. The correct operation depends on the destination context. Keep internal error details useful for diagnostics without exposing unrelated records or sensitive implementation information to an unauthorized caller."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a concurrent change to authorization state. In a hypothetical policy, only the current owner may add a session. U1 is initially the owner of B7. Request A checks ownership and pauses; another allowed operation transfers the book to U2; A then resumes and appends a session using the stale check. Whether that is permitted must be defined by the service. Under a current-owner-at-commit policy, A must not commit on its old observation."
+        },
+        {
+          "type": "paragraph",
+          "text": "One implementation approach is to make the permission-dependent check and mutation part of a transaction or conditional state transition with appropriate concurrency semantics. Simply checking twice outside any coordination can leave another gap after the second check. This lesson does not prescribe a database isolation mode; it shows which condition must still hold when state changes. Keep downstream protections distinct too: validated input does not replace parameterized queries, and authorization does not select the right output-encoding context. Each boundary needs the operation appropriate to that destination."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical current-owner-at-commit policy\nOwner(B7)=U1\nA checks U1 may modify B7 -> true\nAn authorized transfer changes Owner(B7)=U2\nA tries to commit using its old observation\nRequired outcome: revalidate through coordinated commit or reject/retry\nThe earlier successful check alone no longer establishes permission",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "Give a valid-looking request that must still be denied to authenticated U2 when only U1 owns B7. What state should the test compare before and after?",
+          "explanation": "Use book B7 and duration \"25\". Syntax and range pass, but the ownership policy denies U2. Compare B7's session list and aggregate reading minutes before and after; neither should change. Also ensure the rejection does not expose unrelated book details that the caller is not allowed to see."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Create tests for empty input, oversized input, range edges, trailing data, a missing book, and a book owned by another user. Assert that rejected requests leave state unchanged. NIST’s SSDF recommends integrating security practices into development; this lesson applies that general direction through a concrete boundary specification and tests. No fixed checklist proves a service secure, but an explicit boundary makes its assumptions reviewable."
+        },
+        {
+          "type": "paragraph",
+          "text": "Trace an accepted request from bytes to interpreted values, permission checks, and a state transition. Then trace rejections and races that could invalidate an earlier decision. Keep identity, policy, syntax, semantics, and destination-specific protections visible rather than treating one validation call as a universal defense. A boundary is reviewable when every committed change has an explicit justification that is still valid at commit time."
         }
       ]
     }
@@ -98,5 +142,5 @@
       "locator": "Expert security guidance: Introduction, Enforce Least Privileges, Deny by Default, and Validate the Permissions on Every Request; consulted 2026-09-11. Application policy determines which caller/resource/action combinations are permitted."
     }
   ],
-  "version": 2
+  "version": 3
 }

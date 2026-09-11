@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_type_directed_branches_module",
-  "versionId": "cpp_type_directed_branches_v1",
+  "versionId": "cpp_type_directed_branches_v2",
   "slug": "type-directed-branches",
   "title": "Selecting an implementation with if constexpr",
   "summary": "Choose a well-formed implementation for a type without confusing compile-time selection with runtime execution.",
@@ -23,6 +23,19 @@
         {
           "type": "paragraph",
           "text": "A requires expression can ask whether a particular expression is valid. Here it asks whether a const reference of the deduced type supports size(). That is a syntactic capability check, not proof that size means pages, that the result is cheap to obtain, or that every use has the intended units. Naming and documenting the semantic requirement remains the author’s job."
+        },
+        {
+          "type": "paragraph",
+          "text": "The problem is not deciding whether a particular collection is empty. It is deciding which expressions exist for a type. A vector has a size member; std::size_t is a scalar count with no such member. A runtime Boolean cannot make value.size() a valid expression for std::size_t. The compiler must select an implementation whose dependent expressions make sense for the specialization being formed."
+        },
+        {
+          "type": "paragraph",
+          "text": "The requires expression describes one candidate operation without performing it. Here a compound requirement asks whether value.size() is valid and its result satisfies the indicated conversion concept. It does not call size to learn a runtime count. The function can therefore select the size branch while processing a vector whose contents were obtained during execution. Compile-time selection of code and runtime evaluation of that code are separate events."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If a vector contains a different number of elements on each call, must itemCount instantiate a new branch for every size?",
+          "explanation": "No. The specialization is selected from the vector type, and its size operation reads the current object at runtime when used that way. A vector of length zero and one of length three use the same type-directed branch. A change in data is not automatically a change in template specialization."
         }
       ]
     },
@@ -50,6 +63,29 @@
           "type": "callout",
           "title": "Discarded does not mean arbitrary text",
           "text": "Both branches must parse. Outside templates, if constexpr is not a general mechanism for hiding invalid code. Even in templates, dependent validity and the rules for ill-formed templates still matter."
+        },
+        {
+          "type": "paragraph",
+          "text": "For chapters, deduction gives T as std::vector<int>. The const reference permits observation without copying the vector, and size is callable on that const object. The requirement succeeds, the size branch returns 3, and the alternative dependent static_assert is not instantiated. For the explicit std::size_t{7} argument, the member expression is unavailable, so the alternative branch is instantiated. Its type assertion succeeds and the original count 7 is returned."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Second worked case — accepted representation versus rejected type",
+          "code": "const vector<int> empty{} -> size branch -> count 0\nstd::size_t{0} -> scalar branch -> count 0\nint{7} -> no size member -> scalar branch -> type assertion fails\nA positive signed value is rejected too: branch selection is based on its type."
+        },
+        {
+          "type": "paragraph",
+          "text": "Rejecting int{7} is deliberate even though seven could be represented as a count. The interface chooses one scalar type whose value domain fits its purpose, rather than adding a value-dependent sign check. If signed counts should be accepted, design another contract that checks negative values before conversion. The current template should not silently accept int because a particular positive example happens to work."
+        },
+        {
+          "type": "paragraph",
+          "text": "An object with a size() member is not automatically a useful collection. The return might describe a different unit or have values outside the intended nonnegative representable count domain. The syntactic requirement helps reject expressions that cannot be formed, while semantic requirements describe what accepted operations mean. The conversion concept also has semantic expectations; satisfying compiler-checkable expressions alone is not proof of every domain property."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A type offers size() returning a signed integer, sometimes negative to indicate an error. Should it be passed directly to this itemCount?",
+          "explanation": "Not under the stated count contract. The expression may satisfy the compiler-visible conversion requirement, yet converting a negative error code to std::size_t would not yield a meaningful item count. Give the error state an explicit representation or validate it before using this adapter. This is a semantic boundary that a successful requires expression does not resolve."
         }
       ]
     },
@@ -65,6 +101,18 @@
         {
           "type": "paragraph",
           "text": "Constrained overloads may be clearer when alternatives have different contracts. A single if constexpr body works well when the interface has one coherent meaning and only the implementation varies. If many nested branches accumulate, reconsider the abstraction before adding more traits. C++23 adds if consteval for a different question about evaluation context; it is not used by this C++20 example."
+        },
+        {
+          "type": "paragraph",
+          "text": "Discarding a branch is constrained by the template rules. The source must still be valid syntax, and nondependent mistakes cannot generally be hidden just because a condition later selects the other branch. The useful mechanism is avoiding instantiation of a dependent substatement that does not apply to a specialization. Keep a rejected-type example separate from runnable examples so its intended diagnostic role is clear."
+        },
+        {
+          "type": "paragraph",
+          "text": "A single if constexpr body is a good fit when both branches implement the same promise through different representations. Constrained overloads can be clearer when the alternatives have different inputs, effects, or error policies. For instance, accepting signed counts with validation is more than spelling the same operation differently. Combining too many such policies in one nested body can hide the interface boundary."
+        },
+        {
+          "type": "paragraph",
+          "text": "Debug in three stages: identify the deduced T, evaluate the type requirement, then inspect only the branch instantiated for that T while also checking definition-time validity. This turns a long template diagnostic into a specific question about a representation. Keep the later C++23 if consteval distinction in mind: that construct asks about evaluation context, whereas this lesson selects by a type’s available operation."
         }
       ]
     }
@@ -110,5 +158,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4950/stmt.if",
       "locator": "Primary standards draft: C++23 if consteval, paragraphs 4–6; edition boundary only. Consulted 2026-09-11; not the published ISO edition."
     }
-  ]
+  ],
+  "version": 2
 }

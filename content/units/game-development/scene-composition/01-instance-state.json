@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "game_development_scene_composition_module",
-  "versionId": "game_development_scene_composition_version_1_r2",
+  "versionId": "game_development_scene_composition_version_1_r3",
   "slug": "instance-state",
   "title": "Compose reusable entities without sharing their state",
   "summary": "Reason about scene instances, paths and lifecycle boundaries.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "game_development_scene_composition_part_concepts",
-      "title": "Understand the model",
+      "title": "Separate definitions, instances, and resources",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "A scene packages a tree of nodes that can be instantiated as part of a larger world. Node paths select particular nodes in that tree, rather than selecting every node of a given type. This makes tree structure part of an interface whenever outside code reaches through it. Godot provides operations to instantiate scenes, add nodes and defer node deletion. A useful design separates reusable structure from mutable state belonging to one entity. Give a scene a small public behavior such as apply_damage, rather than making every caller know the path to its health label. This allows presentation children to change without changing the gameplay contract."
+        },
+        {
+          "type": "paragraph",
+          "text": "Separate three identities when reading a scene design: the reusable definition, one instantiated node tree and any resource objects referenced by that tree. The definition describes how to construct a target. A and B are distinct targets in the world. Mesh M can be one shared resource because this example treats it as immutable. These relationships cannot be inferred merely from two things having the same name or appearance."
+        },
+        {
+          "type": "paragraph",
+          "text": "Mutable health is authoritative gameplay state. A health label is a presentation derived from that state. If damage changes only the label, later gameplay may still read the old health. If damage changes only the field, the display may become stale. A root behavior can validate the request, update the field, update presentation and emit a relevant event as one documented application operation. The engine does not invent that contract for you."
+        },
+        {
+          "type": "paragraph",
+          "text": "An internal node path is a dependency on tree structure. A path relative to the target root can hide that detail from external callers, but the implementation still owns it. Resolve the intended child when it exists, handle missing dependencies according to the scene contract and update paths when names or nesting change. Keeping a reference avoids repeating a lookup, but adds the obligation that the referenced object remains valid."
+        },
+        {
+          "type": "paragraph",
+          "text": "Define lifecycle states as deliberately as data fields. A target may be active, scheduled for removal and eventually destroyed. In a proposed gameplay policy, scheduled targets stop accepting damage immediately, even if engine deletion occurs later. That policy prevents scoring or events from being generated for an entity already removed logically. It must coexist with the actual engine lifecycle rather than pretending a deferred removal call is immediate C++ destruction."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Target A has health five. The proposed damage contract rejects negative amounts and clamps health at zero. Trace requests -2 and then 9.",
+          "explanation": "The -2 request is rejected, so health remains five and there is no accepted damage-state change. The request for nine computes a remaining value below zero and clamps it to zero under this explicit application policy. Presentation is then derived from zero. The clamp and rejection rules are design choices for this exercise, not automatic Godot behavior."
         }
       ]
     },
     {
       "id": "game_development_scene_composition_part_trace",
-      "title": "Work through an example",
+      "title": "Trace private state and accidental sharing",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The external call remains unchanged because the caller depends on the root behavior. The scene implementation must still update any internal node-path lookup affected by the rename, or use a retained reference that remains valid. An external path ending in HealthLabel would have become stale. Sharing an immutable asset is different from sharing the mutable health field. A common template does not imply common instance state. Conversely, deliberately shared resource objects must be treated according to their own mutability and lifetime rules, rather than assumed private because two scene instances exist."
+        },
+        {
+          "type": "paragraph",
+          "text": "Initially each target owns a health value of ten. Damage to A computes 10-3=7 and updates only A's presentation. B has received no operation, so its health stays ten. The mesh remains unchanged because the example never mutates the shared asset. A's next damage computes 7-2=5 after the label rename and internal path correction. External callers still name the gameplay behavior, not the presentation child."
+        },
+        {
+          "type": "paragraph",
+          "text": "The rename tests the boundary in a specific way. It shows that an external caller of apply_damage need not change. It does not show that all internal implementation code is independent of the node tree. The internal lookup must name StatusText, or a valid retained reference must already identify the surviving label object. This is the difference between hiding a dependency and making it cease to exist."
+        },
+        {
+          "type": "callout",
+          "title": "Trace private state and accidental sharing",
+          "text": "Contrasting ownership bug: suppose both targets refer to one mutable HealthData resource H, initially holding ten, instead of owning independent health values."
+        },
+        {
+          "type": "paragraph",
+          "text": "A applies damage three by changing H.health to seven. B's next read through H also returns seven. Instantiating a second node tree did not duplicate the deliberately shared resource. If the requirement is independent target health, construct separate mutable state for A and B while continuing to share immutable geometry. If the requirement is a shared team health pool, sharing can be correct, but the operation should express that team-level meaning."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now schedule B for deferred deletion. Under our proposed policy B becomes inactive immediately, so a later damage request is ignored or rejected with a defined result. Existing listeners and handles must follow the engine's lifetime mechanism. Merely checking that an old pointer is non-null does not prove that gameplay interaction remains valid or that a delayed callback may safely dereference it."
+        },
+        {
+          "type": "reflection",
+          "prompt": "How would you verify that a health resource is independent without relying only on two identical starting labels?",
+          "explanation": "Assign or mutate A's accepted health through its public operation, then inspect the authoritative values for both A and B. If B changes unexpectedly, inspect their ownership references to determine whether they share mutable storage. Identical initial labels cannot reveal aliasing. Also check a second instance created later, because construction paths can accidentally reuse a resource even when one manually created pair is correct."
         }
       ]
     },
     {
       "id": "game_development_scene_composition_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice entity contracts and lifecycle",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Why is a root-level apply_damage operation a more stable interface than a caller editing a nested label directly?",
           "explanation": "The operation expresses a gameplay intention and can update health, presentation and events consistently. Editing a label changes only presentation and couples the caller to a path. The scene can then be rearranged or displayed differently while preserving the same gameplay operation. The benefit comes from the boundary, not from adding more inheritance."
+        },
+        {
+          "type": "paragraph",
+          "text": "A reusable entity needs a clear gameplay interface, private mutable instance state and deliberate shared assets. Draw those ownership relationships before adding more child nodes. When the tree changes, repair internal dependencies and verify that external behaviors retain their meaning. The same method extends to inventory items, menus and composite actors: sharing definitions saves work, while sharing mutable state changes semantics."
         }
       ]
     }
@@ -74,5 +125,5 @@
       "locator": "Primary documentation: Getting nodes, Node paths, Creating nodes and Instancing scenes; tree composition and deferred deletion; consulted 2026-09-11"
     }
   ],
-  "version": 2
+  "version": 3
 }

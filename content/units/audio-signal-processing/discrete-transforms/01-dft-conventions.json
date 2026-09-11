@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "audio_signal_processing_discrete_transforms_module",
-  "versionId": "audio_signal_processing_discrete_transforms_version_1",
+  "versionId": "audio_signal_processing_discrete_transforms_version_2",
   "slug": "dft-conventions",
   "title": "Interpret a discrete Fourier transform convention",
   "summary": "Track frequency bins and normalization in a small exact transform.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "audio_signal_processing_discrete_transforms_part_concepts",
-      "title": "Understand the model",
+      "title": "Define the transform and its units",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "A discrete Fourier transform expresses a finite sequence using complex sinusoidal components. Conventions matter when comparing libraries: the exponent sign, output order and scaling must match. FFTW uses an unnormalized forward transform with a negative exponent, and its backward transform is also unnormalized. A forward followed by backward transform therefore multiplies the original sequence by its length. A frequency-bin label also needs the sample rate; a bin index by itself is not a frequency in hertz. This module studies exact finite arithmetic identities, not floating-point FFT error or spectral leakage."
+        },
+        {
+          "type": "paragraph",
+          "text": "Let N be the number of samples, n a time-sample index and k a frequency-bin index. Both indices run from zero to N-1, but they label different domains. The forward sum combines every input sample into each output bin. The complex exponential supplies a rotating weight; changing k changes how quickly that weight rotates across the input. An FFT computes this same mathematical transform by a more efficient algorithm. It does not introduce a different definition of frequency."
+        },
+        {
+          "type": "paragraph",
+          "text": "For N=4 the required rotations are especially simple. The powers of exp(-i*pi/2) cycle through 1, -i, -1 and i. Each bin uses those weights in a different order. At k=0 every weight is one, so X[0] is always the sum of the four input values. This immediately provides a check for the zero-frequency result before considering the remaining bins."
+        },
+        {
+          "type": "paragraph",
+          "text": "The sample interval is 1/fs seconds, where fs is the sample rate. The DFT frequency grid has spacing fs/N, so N=4 and fs=8 give 2 Hz. The four sample instants are 0, 0.125, 0.25 and 0.375 seconds; the period represented by the transform grid is N/fs=0.5 seconds. Confusing the last timestamp with the grid period would produce the wrong bin spacing."
+        },
+        {
+          "type": "paragraph",
+          "text": "A complex bin has both a magnitude and a phase. Its magnitude alone loses information about where a sequence is shifted. Likewise the negative-frequency interpretation is a labeling convention for sampled complex sinusoids, not an additional array beyond the N returned values. For real input the positive and negative bins are related, but this lesson retains the complete complex transform so that no packed real-transform layout is silently assumed."
+        },
+        {
+          "type": "reflection",
+          "prompt": "For a length-four DFT, forward bin k sums x[n] times exp(-2*pi*i*k*n/4) over n=0,1,2,3. The unnormalized backward transform uses the positive exponent and no division. For x=[2,2,2,2], compute both results and explain each scale factor.",
+          "explanation": "The zero-frequency sum is eight; all other bins cancel, so X=[8,0,0,0]. The backward sum receives the constant contribution eight at each time index, producing [8,8,8,8]. Dividing by N=4 gives [2,2,2,2]. The input amplitude of two and the transform-length factor of four are separate quantities."
         }
       ]
     },
     {
       "id": "audio_signal_processing_discrete_transforms_part_trace",
-      "title": "Work through an example",
+      "title": "Work through cancellation and a shifted impulse",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "At every forward bin, the single nonzero term is exp(0), which equals one. At backward index zero, the four terms add to four; at the other indices they cancel. The last bin can be interpreted as a negative frequency because sampling identifies frequencies separated by the sample rate. The Nyquist bin lies at the boundary between positive and negative interpretations. These labels explain ordering; they do not imply the impulse is a single-frequency signal."
+        },
+        {
+          "type": "paragraph",
+          "text": "For the impulse's backward transform at n=1, write the four terms explicitly: 1+i-1-i=0. At n=2 the terms are 1-1+1-1=0. At n=3 they are 1-i-1+i=0. Only n=0 adds four copies of one. Dividing all four backward values by four therefore recovers the input. This demonstrates cancellation instead of treating the inverse result as a fact to memorize."
+        },
+        {
+          "type": "paragraph",
+          "text": "The constant-sequence check has the same arithmetic with the roles exchanged. At forward bin zero, four ones sum to four. At bin one, the weights sum to 1-i-1+i=0; bins two and three also cancel. Thus an input that never changes across these samples produces only the zero-frequency component on this grid. No particular numerical implementation is needed to verify either trace."
+        },
+        {
+          "type": "callout",
+          "title": "Work through cancellation and a shifted impulse",
+          "text": "Contrasting sequence: shift the impulse one sample to x=[0,1,0,0], keeping N=4 and fs=8 Hz."
+        },
+        {
+          "type": "paragraph",
+          "text": "Only n=1 contributes now, so X[k]=exp(-i*2*pi*k/4). Substituting k=0,1,2,3 gives X=[1,-i,-1,i]. Every magnitude is still one, just as for the original impulse, but the phases differ. If an application discarded phase, it could not distinguish these two sequences from their magnitudes alone."
+        },
+        {
+          "type": "paragraph",
+          "text": "Apply the positive-exponent backward sum at n=1: each product is one, so the result is four. At n=0 the four frequency values cancel. The other two time indices also cancel. After dividing by four, the nonzero sample is at index one, where it belongs. This checks both the exponent sign and the location of a shifted feature. A wrong sign can reverse the shift even when magnitudes look plausible."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If the sample rate changes from 8 Hz to 12 Hz while the four sample values stay identical, which outputs change?",
+          "explanation": "The four mathematical transform values stay the same because the DFT sum uses the samples and N, not fs. Their physical frequency labels change: spacing becomes 12/4=3 Hz and the signed labels become 0,3,6,-3 Hz, with the Nyquist ambiguity at 6 Hz. The interpreted time spacing also changes. Record sample rate with the transformed data."
         }
       ]
     },
     {
       "id": "audio_signal_processing_discrete_transforms_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice normalization and frequency labels",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "If the backward transform produces values four times larger than the input in this example, has the FFT implementation necessarily failed?",
           "explanation": "No. That is the stated unnormalized convention for a length-four transform. Dividing once by four recovers the original sequence. Applying normalization twice would instead make the result too small. The library contract and the application’s scaling policy must agree."
+        },
+        {
+          "type": "paragraph",
+          "text": "When exchanging spectra, write the exponent sign, array order, sample rate, length and normalization location next to the data contract. Use impulse, shifted-impulse and constant inputs to test distinct properties; a round trip alone can conceal two mutually compensating mistakes. General spectral analysis adds windowing, leakage and numerical-error questions. Those require additional models beyond the exact four-sample identities established here."
         }
       ]
     }
@@ -74,5 +125,6 @@
       "url": "https://www.fftw.org/fftw3_doc/The-1d-Discrete-Fourier-Transform-_0028DFT_0029.html",
       "locator": "Primary documentation: Section 4.8.1; sign, bin order and unnormalized forward/backward transforms; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

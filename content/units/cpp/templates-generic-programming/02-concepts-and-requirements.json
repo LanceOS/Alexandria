@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_templates_generic_programming_concepts_and_requirements",
-  "versionId": "cpp_core_templates_generic_programming_concepts_and_requirements_v1",
+  "versionId": "cpp_core_templates_generic_programming_concepts_and_requirements_v2",
   "slug": "concepts-and-requirements",
   "title": "Concepts and explicit requirements",
   "summary": "State the expressions a generic interface needs and separate syntax from semantics.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This module assumes templates as typed families and the distinction between compile-time deduction and runtime values. A constraint describes which template arguments an interface is prepared to accept. A requires expression provides one way to ask about expressions involving those arguments. Keep the two uses of requires separate: a requires-clause constrains a declaration, while a requires-expression computes a Boolean answer about the well-formedness and stated properties of its requirements in the relevant template context."
+        },
+        {
+          "type": "paragraph",
           "text": "A template body can produce a long error when an unsupported type reaches an expression deep inside it. C++20 concepts let an interface name requirements on its template arguments. A constrained function can participate in overload resolution only when its associated constraints are satisfied. This places an important part of the contract near the declaration instead of leaving every limitation to emerge from an implementation error."
         },
         {
           "type": "paragraph",
+          "text": "Read HasSize from inside outward. The local notation const T& value provides an expression with the same const access that print_size will have. value.size() must be usable, and the compound requirement asks whether its result meets convertible_to<std::size_t>. This standard concept requires both implicit and explicit conversion with matching results under its semantic conditions; it is more specific than simply observing that some cast compiles. The local parameter is notation for checking expressions and has no runtime storage or lifetime. Defining the concept does not construct sample objects or call size to measure anything."
+        },
+        {
+          "type": "paragraph",
           "text": "A requires expression asks whether specified types and expressions are valid in the relevant substitution context. Its local parameter names are notation for the checks; they do not create runtime objects. A compound requirement can also examine an expression’s result type. In this lesson, HasSize requires a size member whose result can convert to std::size_t. The name explains the small capability the interface actually uses."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Should HasSize also require sorting, random access and heap allocation because std::vector has those capabilities? Explain using a hypothetical fixed-size value that exposes a const size query.",
+          "explanation": "No. print_size uses only the const size expression and a conversion of its result. A fixed-size value could meet that requirement without supporting sorting or dynamic allocation. Requiring unrelated facilities would reject valid implementations without improving this function’s argument. Use the narrow capability that matches the code, while separately documenting the semantic promise that the reported count is meaningful."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The string assertion is checked at compilation by substituting std::string into the requirement. Its const size query provides a suitable count result. For int, there is no corresponding member expression, so the HasSize<int> value is false in this template requirement context and the negated assertion succeeds. At runtime, the first actual print_size call observes the five characters in Atlas and prints five. The second observes three vector elements and prints three. The temporary input objects remain alive for their complete calls; the function does not retain its const-reference arguments afterward."
+        },
+        {
+          "type": "paragraph",
           "text": "print_size accepts any type satisfying HasSize and calls its size member through a const reference. Both the string and vector meet the requirement, so the same template supplies the output for their different concrete types. int does not have that member. The static_assert checks this fact during compilation rather than making an intentionally failing program part of the lesson’s runnable example."
         },
         {
           "type": "paragraph",
           "text": "The requirement checks size on a const object, matching the function’s parameter. Requiring it only on a mutable object would be too weak for this implementation. The convertible_to requirement describes a permitted result conversion, but the printed value should also make sense as a count. A malicious or poorly designed class could return a changing or misleading value while satisfying the expression-level checks."
+        },
+        {
+          "type": "paragraph",
+          "text": "A contrasting type supplies size only as a non-const member function. It may work when called on a mutable object, but HasSize intentionally checks a const reference, so that type does not satisfy the required expression. This is a useful rejection: print_size’s own parameter would otherwise make the body’s call invalid. Changing the requirement to use a mutable object while leaving the implementation const would conceal a mismatch rather than make the interface more general in a sound way."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now consider a type whose const size member returns the signed integer negative one as an error signal. Integer conversion to size_t can be structurally available, so the expression check does not establish that the result is a meaningful element count. The application’s semantic contract must require a nonnegative, accurate count or return a richer error-aware result instead. Similarly, a callable that changes answers unpredictably may violate assumptions of generic algorithms even when its signature looks right. Concepts improve the interface’s structural description, but they are not a runtime test suite or a proof of every domain law."
+        },
+        {
+          "type": "reflection",
+          "prompt": "You replace const T& with T& in the requires expression but leave print_size unchanged. What unsupported type can now pass the weaker check, and where would the implementation still fail?",
+          "explanation": "A type with only a mutable size member can satisfy the weaker expression test. print_size still receives const T&, so its call to that member remains invalid when the function body is instantiated. Requirements should model the exact expressions and access qualifications the implementation uses. Generality is useful only when the accepted types actually support the promised operation."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "Would HasSize prove that a user-defined size member always reports the true number of stored elements?",
           "explanation": "No. The requirement checks that the expression exists with an appropriate result conversion. The meaning of that result is a semantic contract that the type’s implementation and documentation must uphold."
+        },
+        {
+          "type": "paragraph",
+          "text": "Design constraints by writing down the implementation’s expressions, including constness and result use. Check an accepted type, a deliberately rejected type and a structurally accepted but semantically misleading type. These three cases reveal what the compiler can enforce and what remains a documented behavioral contract. Constraints should make generic interfaces more understandable without encouraging claims that every accepted implementation is mathematically correct."
         }
       ]
     }
@@ -106,5 +140,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/concept.convertible",
       "locator": "N4861, [concept.convertible], explicit and implicit conversion requirements and equality of their results; consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

@@ -1,0 +1,131 @@
+{
+  "tablesPreserved": 24,
+  "rowsPreserved": 1627,
+  "currentModulesMatch": 89,
+  "integrityCheck": [
+    "ok"
+  ],
+  "foreignKeyViolations": 0,
+  "tableCounts": [
+    {
+      "table": "categories",
+      "before": 3,
+      "after": 3
+    },
+    {
+      "table": "exercise_attempt_results",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "table": "exercise_attempts",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "table": "exercise_drafts",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "table": "exercise_grading_specs",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "table": "exercise_versions",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "table": "exercises",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "table": "instance_metadata",
+      "before": 1,
+      "after": 1
+    },
+    {
+      "table": "lesson_part_versions",
+      "before": 375,
+      "after": 642
+    },
+    {
+      "table": "lesson_parts",
+      "before": 267,
+      "after": 267
+    },
+    {
+      "table": "module_version_sources",
+      "before": 346,
+      "after": 610
+    },
+    {
+      "table": "module_versions",
+      "before": 125,
+      "after": 214
+    },
+    {
+      "table": "modules",
+      "before": 89,
+      "after": 89
+    },
+    {
+      "table": "schema_migrations",
+      "before": 5,
+      "after": 5
+    },
+    {
+      "table": "sessions",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "table": "source_references",
+      "before": 272,
+      "after": 295
+    },
+    {
+      "table": "topic_categories",
+      "before": 28,
+      "after": 28
+    },
+    {
+      "table": "topics",
+      "before": 25,
+      "after": 25
+    },
+    {
+      "table": "units",
+      "before": 91,
+      "after": 91
+    },
+    {
+      "table": "user_credentials",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "table": "user_lesson_part_progress",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "table": "user_module_progress",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "table": "user_settings",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "table": "users",
+      "before": 0,
+      "after": 0
+    }
+  ]
+}

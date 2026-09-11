@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "build_model_a_build_as_a_graph_module",
-  "versionId": "build_model_a_build_as_a_graph_v2",
+  "versionId": "build_model_a_build_as_a_graph_v3",
   "slug": "model-a-build-as-a-graph",
   "title": "Model a build as a dependency graph",
   "summary": "Explain why a library requirement must reach the targets that consume it.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "A build graph explains both why an output must exist and when work may run. A node can represent an artifact or a target, and a directed dependency says that one needs another. An executable needs the object files and libraries used by its link command. An object file needs its source, included headers, generated inputs, and the relevant toolchain settings. An omitted edge may appear harmless when a previous build left the needed file behind, then fail when tasks run in a different order."
+        },
+        {
+          "type": "paragraph",
+          "text": "There are several stages to distinguish. Configuration evaluates the project's build description and options. Generation produces a backend's build rules. Building executes those rules. A generated source file may be produced during the build by another tool; it is not the same thing as CMake generating the backend description. Separate build directories keep different configurations and generated artifacts from accidentally overwriting one another, but directory separation alone does not make the dependency graph complete."
+        },
+        {
+          "type": "paragraph",
+          "text": "Usage requirements describe what a consumer actually needs to compile or link correctly. A library's own implementation settings are not automatically requirements for every downstream target. Conversely, a needed public-header include directory cannot remain private merely because exporting fewer settings looks cleaner. In CMake 3.31, target-level requirements propagate through relationships between targets. The labels PRIVATE, INTERFACE, and PUBLIC express where those requirements apply; additional static-link behavior must be understood from the documented link model rather than reduced to a three-word slogan."
+        },
+        {
+          "type": "paragraph",
           "text": "A build is a graph of outputs and the inputs needed to produce them. An executable may need object files and a library; an object file depends on source text, included headers, compiler options, and generated inputs. A build tool can schedule independent work only when those dependencies are known. Adding a delay or relying on an accidental build order does not describe a missing dependency."
         },
         {
           "type": "paragraph",
           "text": "CMake first configures and generates a buildsystem. The chosen backend then executes compilation and linking commands. Keep the source tree distinct from a build directory so different configurations can coexist. Debug and optimized builds are different artifacts with different settings, not just alternative names for the same executable. Generated files also need declared producers and consumers."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A library's public header includes codec.hpp. Its include directory is PRIVATE, so only the library's own compilation receives that path. Why might the library build succeed while a client fails?",
+          "explanation": "The library's own compilation can find the header, but the client's compilation also reads the public header and therefore needs codec.hpp. The necessary include requirement must reach consumers through the target interface. A test that builds only the library does not exercise that consumer requirement."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "Follow the original reader-app -> reading-library -> text-codec chain from the consumer's point of view. The application includes a public reading-library header. That header includes a codec header, so compiling the application requires the codec's include location even if the application never names a codec type directly. A private diagnostic macro used only while compiling reading-library's source does not follow that path into the public header. A global include directory can mask the distinction locally, because every target happens to find everything. A separate consumer build exposes which requirements are genuinely exported."
+        },
+        {
+          "type": "paragraph",
           "text": "The dependency should carry the requirement that actually follows from using the target. If a public library header requires a codec type, a consumer cannot compile without access to that type’s headers. CMake’s target usage requirements provide a way to propagate such information. Setting one global include path may make the local project compile while concealing that the exported library is incomplete."
         },
         {
           "type": "paragraph",
           "text": "Link requirements have additional details, especially for static libraries whose consumers may need implementation dependencies at final link time. Do not infer all link behavior from the simple compile-requirement labels alone; follow the versioned buildsystem documentation. The main principle is to express dependencies on targets and their requirements instead of scattering copied flags across unrelated directories."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a generated protocol header. In a hypothetical build, generating it takes twenty milliseconds; compiling app.cpp after it exists takes thirty; compiling an independent utility takes forty; final linking takes ten. The correct graph permits generation and utility compilation to overlap. The application object becomes ready after fifty milliseconds, the utility after forty, and linking then finishes at sixty. Sequentially performing all four tasks would take one hundred. The graph provides the reason for safe overlap; the timings are invented to make the dependency argument visible."
+        },
+        {
+          "type": "paragraph",
+          "text": "If app.cpp compilation has no declared dependency on the generated header, an incremental build may use yesterday's file. A clean parallel build may instead try compiling before generation. Sleeping before compilation merely changes the chance of failure and does not describe which inputs require regeneration. A generation rule needs declared outputs and relevant input dependencies, with consuming targets connected to the rule. If the generator's input changes, the graph must arrange for regeneration before recompiling affected consumers. CMake's add_custom_command documentation provides the versioned mechanism; this trace intentionally describes the graph without pretending to be a complete portable build script."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical build graph and times, independent resources assumed\nschema -> generate header (20 ms) -> compile app (30 ms) -> link (10 ms)\nutility source ------------------> compile utility (40 ms) -^\nAt 40 ms: utility object ready\nAt 50 ms: app object ready\nAt 60 ms: executable ready\nSerial execution of all work: 100 ms",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "In the hypothetical graph, generation rises from twenty to fifty milliseconds while utility compilation stays forty. What is the new total time, and would more utility workers remove that limit?",
+          "explanation": "The application path becomes fifty plus thirty, or eighty milliseconds, before linking. Add ten for a ninety-millisecond total. The utility path is already shorter; additional utility workers cannot shorten the dependent generation-to-app-to-link path. The graph identifies the relevant bottleneck under these timing assumptions."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Validate the build from an empty build directory and, for a reusable library, from a small separate consumer project. Record the toolchain, configuration, and dependency versions used. These checks support the build graph’s completeness; they do not replace application tests. A portable build description should make required inputs discoverable to both the build tool and the next developer."
+        },
+        {
+          "type": "paragraph",
+          "text": "Review a build by asking where each output comes from, what can invalidate it, and what consumes it. Then build from clean inputs and test a reusable library from a separate consumer. This makes target requirements observable and exposes stale-file assumptions. A correct graph supports incremental and parallel work; reproducible release bytes require additional control over the inputs and environment."
         }
       ]
     }
@@ -76,7 +120,16 @@
       ],
       "url": "https://cmake.org/cmake/help/v3.31/manual/cmake-buildsystem.7.html",
       "locator": "Official versioned documentation: CMake 3.31 (page build 3.31.12), Binary Targets, Build Specification and Usage Requirements, Target Usage Requirements, Transitive Compile Properties, and Transitive Link Properties; consulted 2026-09-11."
+    },
+    {
+      "id": "build_model_a_build_as_a_graph_module_source_custom_command_depth",
+      "title": "CMake 3.31: add_custom_command",
+      "authors": [
+        "Kitware and CMake contributors"
+      ],
+      "url": "https://cmake.org/cmake/help/v3.31/command/add_custom_command.html",
+      "locator": "Official versioned documentation: CMake 3.31, Generating Files signature, OUTPUT, DEPENDS and BYPRODUCTS; inspected 2026-09-11. Supports declared generation and consumer dependencies; lesson timing values are hypothetical."
     }
   ],
-  "version": 2
+  "version": 3
 }

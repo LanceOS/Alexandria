@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_error_handling_exceptions_and_state_guarantees",
-  "versionId": "cpp_core_error_handling_exceptions_and_state_guarantees_v2",
+  "versionId": "cpp_core_error_handling_exceptions_and_state_guarantees_v3",
   "slug": "exceptions-and-state-guarantees",
   "title": "Exceptions and state guarantees",
   "summary": "Separate the path to a handler from the promise about state after failure.",
@@ -18,11 +18,28 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This module assumes RAII, vector ownership and checked state transitions. An exception changes control flow; an exception guarantee describes the state visible after that change. Those are separate ideas. A caller deciding whether to retry, inspect old data or abandon an operation needs the state contract, not just a list of exception types. Define the protected state first. In replace_pages, the promise concerns the target vector’s contents if preparation or validation fails before the commit."
+        },
+        {
+          "type": "paragraph",
           "text": "An exception transfers control from a failing operation to a matching handler. While that transfer unwinds intervening scopes, destructors run for constructed automatic objects that must leave those scopes. This is where RAII becomes particularly valuable: a local vector still releases its storage without a separate cleanup branch. Exceptions and resource ownership therefore work together, but exception syntax alone does not restore every application variable to its previous value."
         },
         {
           "type": "paragraph",
+          "text": "A useful design splits work into preparation, validation and commitment. Preparation creates a candidate result without modifying the protected state. Validation establishes the candidate’s invariant. Commitment replaces the old state using an operation whose failure behavior is understood. This organization concentrates the difficult transition at one point. It can require extra temporary storage, so the strong guarantee has a cost that should be evaluated against the caller’s need to retain old data. An in-place algorithm may still be appropriate when its weaker failure contract is sufficient and clearly communicated."
+        },
+        {
+          "type": "paragraph",
           "text": "An error-handling contract should explain both how failure is reported and what state remains afterward. The basic guarantee preserves valid invariants and avoids resource leaks. The strong guarantee leaves the protected operation’s observable state unchanged on failure. A non-throwing guarantee promises the operation will not let an exception escape. These are design descriptions; each function’s implementation and component contracts must justify the particular promise."
+        },
+        {
+          "type": "paragraph",
+          "text": "noexcept does not make a potentially failing operation safe by suppressing errors. If an exception escapes a function declared non-throwing, std::terminate is called. Declare it only when the operation’s design and members justify that contract. Destructors used for cleanup should avoid throwing during unwinding. For normal reporting, catch exceptions at a boundary that can recover or explain the failure; avoid catching merely to discard the problem and continue with guessed state."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A developer declares the replacement operation replace_pages noexcept while retaining an explicit throw for invalid input. Does this strengthen recoverability for the caller? Explain which failure-reporting and protected-state contracts must instead be reviewed.",
+          "explanation": "No. An exception escaping a non-throwing function causes termination, so the caller’s ordinary catch cannot recover in the intended way. Review whether the function should propagate failure, return a result, or truly guarantee that no exception escapes. Separately review the target-state guarantee. A function can preserve target state on failure while still intentionally throwing; noexcept and unchanged-on-failure describe different properties."
         }
       ]
     },
@@ -44,11 +61,24 @@
         },
         {
           "type": "paragraph",
+          "text": "For the rejected input, prepared first becomes an independent copy containing eight and negative one. Validation visits eight successfully, then detects the forbidden negative value before swap is reached. Unwinding destroys prepared, releasing its storage. The handler prints Rejected, and the still-unchanged target prints four and six. For the accepted input, prepared contains eight and ten and every check passes. swap exchanges the two vectors’ contents: target now owns the candidate values, while prepared holds the old four and six. Normal function exit destroys prepared and cleans up that former target storage."
+        },
+        {
+          "type": "paragraph",
           "text": "replace_pages first creates an independent vector called prepared. If allocation while copying fails, target has not been changed. The function then validates every proposed page count and throws invalid_argument if it encounters a negative value. Destruction of prepared handles its storage during unwinding. Because the original target is still untouched, the rejected input cannot leave only part of the old vector replaced."
         },
         {
           "type": "paragraph",
           "text": "After all validation succeeds, swap commits the prepared vector into target. This example uses std::vector<int> with its default allocator, so the swap supplies a suitable non-throwing commit. The first call is rejected and caught by reference. Printing the target afterward shows the old values 4 and 6. The second call succeeds and replaces them with 8 and 10."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider an in-place replacement that clears target and then appends each input value after checking it. With input eight followed by negative one, the first append can succeed and the second value can trigger rejection. target is left containing only eight. That may preserve a valid nonnegative vector and avoid leaks, but it has lost the original four and six. The strong guarantee therefore fails even though every individual statement had sensible local behavior. Exception safety must be assessed across the complete operation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Immediately after a successful swap, which vector owns the old target contents? Explain why the cleanup is correct without a manual clear or delete.",
+          "explanation": "prepared owns the former target contents after the exchange, while target owns the validated candidate. As the local prepared vector leaves scope, its destructor releases the storage it then owns. The two owners still have separate cleanup responsibilities. Calling manual delete would be incorrect; an extra clear is unnecessary for this ownership argument. The suitable non-throwing swap contract is what allows commitment after preparation."
         }
       ]
     },
@@ -62,12 +92,16 @@
         },
         {
           "type": "paragraph",
-          "text": "noexcept does not make a potentially failing operation safe by suppressing errors. If an exception escapes a function declared non-throwing, std::terminate is called. Declare it only when the operation’s design and members justify that contract. Destructors used for cleanup should avoid throwing during unwinding. For normal reporting, catch exceptions at a boundary that can recover or explain the failure; avoid catching merely to discard the problem and continue with guessed state."
+          "text": "Now consider calling replace_pages with the same vector as both target and input, assuming its current values satisfy the intended domain. The initial copy still creates independent prepared storage before any modification. Validation inspects that copy; the later swap can replace the target safely without reading a partially modified input. This illustrates why aliasing is an interface concern even for apparently read-only inputs. The reasoning would be different for an algorithm that mutates target while traversing input. Also note that not every failure is invalid_argument: allocation can fail during preparation. The protected target remains unchanged, but a recovery boundary must choose which exception categories it can actually handle."
         },
         {
           "type": "reflection",
           "prompt": "Why would clearing target before validating input weaken this operation’s guarantee?",
           "explanation": "If validation then failed, the original contents would already be lost. target could still be a valid empty vector, but failure would no longer leave it unchanged, so the strong guarantee for the target contents would not hold."
+        },
+        {
+          "type": "paragraph",
+          "text": "Review exceptional paths with the same precision as successful paths. Identify each constructed owner, each possible failure before commitment, the protected state at that point, and the operation used to commit. Include aliasing and external side effects in the review. RAII solves cleanup for its resources; preparation and a justified commit are what give this particular update its stronger target-state promise."
         }
       ]
     }
@@ -118,5 +152,5 @@
       "locator": "N4861, [default.allocator]; consulted 2026-09-11. std::allocator declares is_always_equal as true_type, making the vector<int> swap specification non-throwing in this example."
     }
   ],
-  "version": 2
+  "version": 3
 }

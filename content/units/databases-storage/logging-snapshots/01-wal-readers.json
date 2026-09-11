@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "databases_storage_logging_snapshots_module",
-  "versionId": "databases_storage_logging_snapshots_version_1",
+  "versionId": "databases_storage_logging_snapshots_version_2",
   "slug": "wal-readers",
   "title": "Trace readers across a write-ahead log commit",
   "summary": "Separate committed state, reader snapshots and checkpoint progress.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "databases_storage_logging_snapshots_part_concepts",
-      "title": "Understand the model",
+      "title": "Snapshots, visibility, and physical storage",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "In SQLite WAL mode, changes are appended to a write-ahead log, and a commit record establishes a completed transaction. A reader remembers an end mark and consults committed page versions no later than that mark. A checkpoint moves eligible log content back into the database file; it is not the same event as committing a transaction. Long-lived readers can constrain checkpoint progress. The WAL therefore participates in persistent database state and must not be casually detached from a live database file. Durability under power failure also depends on documented synchronization settings and storage behavior, not simply the existence of a log."
+        },
+        {
+          "type": "paragraph",
+          "text": "A snapshot is a rule selecting which committed versions a reader may see. It is not necessarily a complete private copy of the database. In the WAL model, the reader records an end mark and uses it when selecting page contents. A later log entry can exist physically without belonging to that reader's view. Separating physical placement from logical visibility makes two simultaneous readers' different results understandable."
+        },
+        {
+          "type": "paragraph",
+          "text": "A write transaction appends changed content and establishes commitment in the log. Checkpointing addresses a different storage question: which eligible changes can be copied back into the main database file without breaking active readers' views? A successful commit therefore need not mean the main file alone contains the latest logical state. The transaction boundary and the storage-consolidation boundary should appear as separate events in operational diagrams."
+        },
+        {
+          "type": "paragraph",
+          "text": "R1's view is stable only for the lifetime of its read transaction. Ending that transaction releases its snapshot and beginning another acquires a new view under the actual schedule. Merely reissuing a SELECT inside the same transaction is not the same as starting a fresh transaction. This distinction matters when a long-lived screen appears to show stale data even though other connections can read the new value."
+        },
+        {
+          "type": "paragraph",
+          "text": "Keep snapshot consistency separate from durability settings and backup consistency. Snapshot consistency explains what a running reader sees. Durability concerns what survives a failure under the configured synchronization and storage contract. Backup consistency concerns obtaining a coherent database state while files may change. A diagram of R1 and R2 answers the first question; it cannot, by itself, certify the other two."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A read transaction R2 began at end mark E1, where stock is five. It stays open while a later writer commits stock four at E2. What value does R2 read, and what must it do to observe E2?",
+          "explanation": "It continues to read the value five associated with its existing snapshot, under the stipulated schedule. Ending that read transaction and beginning a new one after E2 allows it to observe four. A second SELECT alone does not necessarily change the snapshot. This is a transaction-lifetime issue rather than a guarantee that every screen refresh starts a new view."
         }
       ]
     },
     {
       "id": "databases_storage_logging_snapshots_part_trace",
-      "title": "Work through an example",
+      "title": "Trace newer commits behind an older reader",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "Both readers can be correct at the same wall-clock moment because they observe different committed snapshots. R1 is not required to change mid-transaction when R2 sees five. The checkpoint consolidates storage while preserving the visibility obligations of active readers. Treating the database file alone as the entire current state could miss committed changes still residing in the WAL. Use the database’s supported backup or checkpoint workflow instead of assembling an assumed snapshot by copying files independently."
+        },
+        {
+          "type": "paragraph",
+          "text": "Follow each read decision using the end mark. R1 starts at E0, where stock is eight. The writer commits five at E1. When R1 reads again, E1 is later than its allowed view, so the existence of five does not change its result. R2 starts after commitment and can include E1. Thus eight and five are not contradictory answers: each is qualified by a different transaction."
+        },
+        {
+          "type": "paragraph",
+          "text": "When R1 ends, the checkpoint no longer needs to preserve that reader's old-view requirement. It may still face other readers or conditions, so ending R1 is permission for further progress rather than proof that every log byte is immediately removed. An operational graph should record reader lifetimes alongside writes; log growth may be explained by retained views rather than a broken commit mechanism."
+        },
+        {
+          "type": "callout",
+          "title": "Trace newer commits behind an older reader",
+          "text": "Contrasting schedule: leave R1 open while two additional transactions commit stock values four at E2 and three at E3."
+        },
+        {
+          "type": "paragraph",
+          "text": "R1 still reads eight under E0. A new reader R3 beginning after E3 reads three, assuming no later write. If R1 ends and starts a new transaction after E3, its new snapshot also sees three. Reusing the label R1 for a connection can obscure this change, so label the transactions R1-old and R1-new when analyzing a trace."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now imagine copying only the main database file before a checkpoint has moved these committed changes back. That copy may omit the newest committed state represented in the WAL. Separately copying a changing WAL at another instant does not establish a coherent snapshot either. Use SQLite's supported backup workflow and verify its result. The safe method follows the engine's state model rather than assuming independently timed file copies form a transaction."
+        },
+        {
+          "type": "reflection",
+          "prompt": "An operator sees a large WAL but new readers correctly see recent commits. Does deleting the WAL solve a demonstrated corruption problem?",
+          "explanation": "No. The observation is compatible with valid committed changes and checkpoint constraints caused by readers. Deletion can detach state required by the database. Investigate transaction lifetimes, checkpoint outcomes and storage conditions through documented operations. The file's size alone neither establishes corruption nor identifies which content is safe to discard."
         }
       ]
     },
     {
       "id": "databases_storage_logging_snapshots_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice transaction views and checkpoints",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Does a commit have to wait until its changed pages are copied into the main database file before a new reader can see them?",
           "explanation": "No. In WAL mode a new reader can use the committed log content appropriate to its end mark. Checkpointing transfers eligible content later. The distinction is central to concurrent readers and writers, while the exact durability guarantees still depend on the configured synchronization and underlying storage."
+        },
+        {
+          "type": "paragraph",
+          "text": "You can now explain a value by naming its committed version and the reader's view, independently of the file currently storing it. Keep write commitment, snapshot release and checkpoint progress separate when debugging. Transfer this reasoning to other versioned storage systems by checking their own visibility and reclamation rules; the specific SQLite end-mark mechanism is not a universal implementation detail."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://sqlite.org/wal.html",
       "locator": "Primary documentation: Sections 2, 2.1 and 2.2; committed records, reader end marks and checkpoints; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

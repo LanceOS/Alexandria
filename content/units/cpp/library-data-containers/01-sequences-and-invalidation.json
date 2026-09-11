@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_library_data_containers_sequences_and_invalidation",
-  "versionId": "cpp_core_library_data_containers_sequences_and_invalidation_v2",
+  "versionId": "cpp_core_library_data_containers_sequences_and_invalidation_v3",
   "slug": "sequences-and-invalidation",
   "title": "Sequence containers and invalidation",
   "summary": "Choose an owning sequence and keep references valid across its modifications.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This module assumes values, references and the owner–borrower distinction. A sequence container supplies several contracts at once: which elements currently exist, how positions are reached, which modifications are available, and what happens to previously obtained access after a modification. Keep these contracts separate while choosing a container. A program can select a valid index today and still misuse a reference tomorrow because the collection changed between those two operations."
+        },
+        {
+          "type": "paragraph",
           "text": "A container owns a collection of elements and defines how they are arranged and accessed. std::vector is a useful starting point for a sequence whose length can change. For element types other than bool, vector is a contiguous container and manages its storage automatically. The vector<bool> specialization has different storage and reference behavior. std::array represents a fixed number of elements as part of its own value. Neither choice requires writing new or delete, so the first design question can focus on the application’s required operations."
         },
         {
           "type": "paragraph",
+          "text": "Use size to reason about the live sequence and capacity only to reason about allocation planning. If size is two, the current element positions are zero and one, regardless of how much spare allocation exists. A request to reserve four slots prepares for future construction; it does not create four strings. Conversely, resize can add actual elements or remove existing ones. The distinction is visible in application behavior: a two-title list with spare capacity still contains exactly two titles, whereas a resized four-title list contains four string objects, including any newly default-inserted ones."
+        },
+        {
+          "type": "paragraph",
           "text": "A vector’s size is the number of existing elements. Its capacity is the number of elements that can fit in its current allocation without reallocation. reserve requests enough capacity for a future number of elements but does not increase size. resize changes the number of existing elements. Confusing these operations can lead to indexing storage where no vector element exists, even when memory has already been reserved."
+        },
+        {
+          "type": "reflection",
+          "prompt": "An empty vector<int> reserves ten elements of capacity, then resizes to three. What changed at each step, and which positions may now be read? Do you know its exact capacity?",
+          "explanation": "reserve prepares allocation capacity without creating any elements. resize then creates three int elements through the vector’s default insertion behavior, so positions zero, one and two exist; the new integers are zero for this ordinary default-allocator case. Capacity remains at least ten, but the request does not establish an exact portable value. Position three is outside size even though spare storage exists."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "At the start, titles has no elements. reserve establishes capacity of at least four while leaving size zero. The two append operations then construct actual string elements, bringing size to one and then two. Because the capacity is sufficient for these insertions, they do not need reallocation. The program prints a lower-bound comparison about capacity rather than assuming an exact allocation policy. Erasing begin removes Atlas and shifts the following sequence into its resulting order, leaving Orbits as the sole element. Calling front afterward is justified by the known size one, not by the earlier reserve request."
+        },
+        {
+          "type": "paragraph",
           "text": "The example reserves space for at least four elements and then appends two strings. It deliberately prints a comparison about capacity rather than its exact value, because the implementation may allocate more space than requested. The two strings are the only accessible elements at that point. After erasing the first element, the second becomes the first, and the vector’s size is one."
         },
         {
           "type": "paragraph",
-          "text": "No element reference or iterator is retained across the erasure. That matters because vector erasure invalidates iterators and references at or after the erased position. Reallocation during insertion is broader: it invalidates access to every element and the old end iterator. A vector object can stay alive throughout these operations while its borrowed element access becomes invalid. Reacquiring access afterward makes the example’s ownership reasoning straightforward."
+          "text": "No element reference or iterator is retained across the erasure. That matters because vector erasure invalidates iterators and references at or after the erased position. Reallocation during insertion is broader: it invalidates access to every element and the old end iterator. Even without reallocation, appending invalidates the old end iterator at the insertion point, while element iterators before that point remain valid. A vector object can stay alive throughout these operations while its borrowed element access becomes invalid. Reacquiring access afterward makes the example’s ownership reasoning straightforward."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a second trace with four values A, B, C and D, and an iterator to C. Erasing B invalidates iterators and references at or after B, including the saved access to C. It is not enough to reason that some character C appears somewhere in the vector afterward. The contract says the old access cannot be retained across this erasure. If the operation needs to find C again, reacquire it from the updated container using the application’s search or indexing rule."
+        },
+        {
+          "type": "paragraph",
+          "text": "Indices introduce a related logical issue. Saving the number two as C’s old position avoids storing an iterator, but after erasing B, position two names D. An index can remain within bounds while identifying the wrong record. If identity must survive insertions and erasures, use a stable application identifier and look it up, or choose an appropriate data structure with an explicit identity model. This is distinct from memory safety: a bounds-valid read can still be an incorrect application result. Container selection must account for both retained access and the meaning of positions."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A vector already has enough capacity for another element. Does appending preserve every iterator, including the old end iterator? Explain how to structure a later search.",
+          "explanation": "Without reallocation, references and iterators before the insertion point remain valid, but the old past-the-end iterator is invalidated by the insertion at the end. Reacquire the current begin and end for the later search. If reallocation were required, all element access would need review as well. Capacity planning narrows invalidation in this case; it does not freeze every boundary value indefinitely."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "After reserve(4) on an empty vector, may the program assign to titles[0]?",
           "explanation": "No. reserve changes available capacity but creates no elements. The vector is still empty. push_back, emplace_back, or an appropriate resize must create an element before indexing it."
+        },
+        {
+          "type": "paragraph",
+          "text": "For each mutation, write the pre-operation size, the possible reallocation, the invalidated positions, and the new logical ordering. Then reacquire access at the point of use when that is simple. Optimize allocation only after this reasoning is correct. A vector’s convenience comes from a well-defined owning interface, while its safe use still depends on connecting every access to the current sequence contract."
         }
       ]
     }
@@ -107,5 +141,5 @@
       "locator": "N4861, [vector.modifiers]; consulted 2026-09-11. Insertion and erase invalidation requirements."
     }
   ],
-  "version": 2
+  "version": 3
 }

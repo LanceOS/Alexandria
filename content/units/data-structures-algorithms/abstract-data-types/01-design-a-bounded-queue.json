@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "dsa_design_a_bounded_queue_module",
-  "versionId": "dsa_design_a_bounded_queue_v1",
+  "versionId": "dsa_design_a_bounded_queue_v2",
   "slug": "design-a-bounded-queue",
   "title": "Design a bounded queue from its contract",
   "summary": "Trace FIFO behavior and a circular representation with a clear capacity rule.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "A queue separates observable order from the storage arrangement that implements it. A client that enqueues jobs A, B, and C expects to receive them in that order, even if memory addresses or array indices change. For this lesson front observes the oldest job without removing it, dequeue returns and removes it, and enqueue either inserts the whole new job or reports full without changing the queue. Empty front and dequeue report empty. These explicit outcomes distinguish a valid empty queue from a broken representation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Let capacity be a positive integer C. Our representation uses C slots, a head in the range 0 through C-1, and a count in the range 0 through C. Logical item j, for 0 <= j < count, occupies slot (head + j) modulo C. This equation is the bridge between the public sequence and physical storage. When count is zero, head remains a valid index but does not identify an active item. When count equals C, every slot is active. We deliberately keep count so full and empty remain distinguishable."
+        },
+        {
+          "type": "paragraph",
+          "text": "On successful enqueue, calculate the next slot using the old count, establish the new stored value, then increase count. On successful dequeue, obtain the oldest value, finish the required element-lifetime work, move head to (head + 1) modulo C, and decrease count. These are conceptual steps, not exception-safe C++ code: a real implementation must specify what happens if creating or transferring an element fails. Finite index arithmetic also needs representability checks; a mathematical remainder formula does not automatically prevent overflow in head + count."
+        },
+        {
+          "type": "paragraph",
           "text": "A print service needs to preserve job arrival order. A queue promises that removal returns the oldest queued item, which is first-in, first-out behavior. That promise does not require linked nodes, a particular class, or contiguous storage. Define operations such as enqueue, front, and dequeue, then state what they do in empty and full states. The service in this lesson has capacity three and rejects a new job when full."
         },
         {
           "type": "paragraph",
           "text": "A bounded queue can use three storage slots, a head index, and a count. Head identifies the oldest occupied slot; count ranges from zero through three. When space exists, the insertion slot is the remainder of head plus count divided by capacity. Slots outside the active sequence have no logical meaning, even if old bytes remain there. A real implementation must additionally manage the stored objects’ lifetimes."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A capacity-four queue has head=3 and count=2. Which slots are occupied, and where does the next successful enqueue write?",
+          "explanation": "Logical positions zero and one map to slots 3 and 0. The next insertion uses (3 + 2) modulo 4 = 1. After it succeeds, count becomes three while head stays three. Reading slots in ascending order would not preserve FIFO order."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "The original wraparound trace is a sequence proof in miniature. After A and B, head is zero and count is two, so their logical positions are slots zero and one. Removing A changes head to one and count to one. Inserting C uses (1 + 1) modulo 3 = 2. Inserting D uses (1 + 2) modulo 3 = 0. The final logical positions are therefore one, two, zero: B, C, D. Rejection of E must happen before any occupied slot is overwritten. A raw storage dump [D, B, C] is not the queue's public order."
+        },
+        {
+          "type": "paragraph",
           "text": "After wraparound, physical slot order differs from logical arrival order. Reading slots zero, one, and two would incorrectly present D before B. The head and count provide the interpretation that turns raw storage into a queue. Check the invariant after each successful operation: exactly count logical items begin at head and proceed cyclically, with each item removed at most once."
         },
         {
           "type": "paragraph",
           "text": "In this model, index updates take constant work and storage is fixed. Copying an arbitrarily large job payload need not take constant time, so distinguish queue bookkeeping from element operations. Fixed capacity bounds storage but introduces a rejection policy. Growing storage avoids this particular full state while introducing allocation and possible relocation costs."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now drain that full queue and refill it. Removing B changes head from one to two and count from three to two. Removing C advances head from two to zero and leaves count one. Removing D advances head to one and leaves count zero. There may still be old slot contents in this abstract drawing, but no job remains logically queued. Enqueuing F next uses slot one, which is exactly the current head, and produces a one-item queue."
+        },
+        {
+          "type": "paragraph",
+          "text": "A different full policy would change this result. An overwrite-on-full ring could discard B to accept E; it may be useful for a recent-events buffer, but it violates this print service's rejection contract. Blocking until space exists introduces waiting, cancellation, and coordination obligations absent from our sequential queue. Those are alternatives to evaluate from the service's needs, not optimizations that can be substituted invisibly. Likewise, a ring alone is not a concurrent queue: multiple producers updating head or count need a separate synchronization design."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical continuation from head=1, count=3, logical [B,C,D]\ndequeue B -> head=2, count=2, logical [C,D]\ndequeue C -> head=0, count=1, logical [D]\ndequeue D -> head=1, count=0, logical []\nenqueue F -> write slot 1; head=1, count=1, logical [F]",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "Design a short operation sequence that detects a queue which overwrites its oldest item when full, despite promising rejection.",
+          "explanation": "Enqueue A, B, and C into the capacity-three queue, then attempt E and require a full result. Drain the queue and require A, B, C in that order, followed by empty. Checking only the failure result is insufficient: the implementation might report full after already corrupting A."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Write tests from the public behavior: empty removal, fill to capacity, rejected insertion, wraparound, and repeated drain-and-refill cycles. Tests should compare the logical removal sequence, not demand one internal slot arrangement. That separation lets the implementation change while the service contract remains stable. Choosing a structure starts with the required behavior, then checks whether its representation makes those operations affordable."
+        },
+        {
+          "type": "paragraph",
+          "text": "The reusable skill is to pair an abstract sequence with a representation equation and failure policy. Count constant-time index updates separately from payload transfer, allocation, and waiting. A small fixed ring offers bounded storage and predictable bookkeeping, but it makes overload visible to the caller. When using a C++ library container later, ask which parts of this contract it supplies and which service policies must still be written around it."
         }
       ]
     }
@@ -86,5 +130,6 @@
       "url": "https://xlinux.nist.gov/dads/HTML/bigOnotation.html",
       "locator": "Official NIST reference documentation: formal definition, tight versus upper bounds, and computation models; entry modified 2019-09-06; consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

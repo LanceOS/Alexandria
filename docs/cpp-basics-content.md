@@ -1,6 +1,6 @@
 # C++ Basics content
 
-Seven short, original modules establish the reading interface with this hierarchy:
+Seven original tutorials introduce C++ through this hierarchy:
 
 ```text
 Software & Computing
@@ -16,7 +16,7 @@ Software & Computing
             └── Output and buffering
 ```
 
-Each module has three parts, complete C++20 examples with expected output, and short explanations or ungraded reflection prompts. The first module covers a greeting program; the following modules introduce named values, arithmetic, selection, repetition, simple functions, and output buffering in that order. Further-reading links appear at the bottom of each module's final section and can be expanded in earlier sections. Final sections link to the next module in the same subunit, or back to the learning path at the end.
+Each module has three parts, complete C++20 examples with expected output, detailed explanations, step-by-step and contrasting worked cases, and ungraded practice with explained answers. The first module covers a greeting program; the following modules introduce named values, arithmetic, selection, repetition, simple functions, and output buffering in that order. The [depth review](reviews/2026-09-11-depth-cpp-basics-advanced.md) records the expanded teaching and evidence. Further-reading links appear at the bottom of each module's final section and can be expanded in earlier sections. Final sections link to the next module in the same subunit, or back to the learning path at the end.
 
 Installation creates no exercises, accounts, attempts, or learner progress. All modules use content schema version 1 and an empty completion policy. Reading does not claim a grade or persist completion.
 
@@ -41,7 +41,7 @@ Moving the original definitions to JSON changed neither their lesson content nor
 
 The explanations and examples are written for Alexandria; book pages and extracts are not imported into the application. The runtime stores bibliographic metadata, section locators, and public reference links. The 2026-09-11 corrections address audit findings BAS-R01 and BAS-L01.
 
-All **27 standards-draft citation records across the seven modules** now identify the frozen **C++20 working draft N4861 (2020)**. Every one of their 25 distinct destination sections was opened and its relevant passages checked against the taught claim before updating the citation. The records include paragraph locators, an access date, and an explicit distinction between a primary standards draft and the published ISO edition. The HTML rendering identifies its underlying draft sources and generation date. [N4861 contents](https://timsong-cpp.github.io/cppwp/n4861/).
+The correction release's **27 standards-draft citation records across the seven modules** identify the frozen **C++20 working draft N4861 (2020)**. Every one of their 25 distinct destination sections was opened and its relevant passages checked against the taught claim before updating the citation. The depth expansion adds focused references, documented in its review above. The records include paragraph locators, an access date, and an explicit distinction between a primary standards draft and the published ISO edition. The HTML rendering identifies its underlying draft sources and generation date. [N4861 contents](https://timsong-cpp.github.io/cppwp/n4861/).
 
 The mapping requires two edition-specific adjustments: the assignment clause is `[expr.ass]` in N4861, while the current draft calls it `[expr.assign]`; N4861 places the variable `auto` explanation directly in `[dcl.spec.auto]`, paragraphs 1 and 4, with deduction in `[dcl.type.auto.deduct]`, rather than in a `[dcl.spec.auto.general]` subsection. The other 24 distinct URL suffixes remain the same, with their N4861 paragraph locations verified individually. [Assignment](https://timsong-cpp.github.io/cppwp/n4861/expr.ass), [placeholder types](https://timsong-cpp.github.io/cppwp/n4861/dcl.spec.auto).
 

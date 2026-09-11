@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_error_handling_optional_results_and_parsing",
-  "versionId": "cpp_core_error_handling_optional_results_and_parsing_v1",
+  "versionId": "cpp_core_error_handling_optional_results_and_parsing_v2",
   "slug": "optional-results-and-parsing",
   "title": "Optional results and complete parsing",
   "summary": "Represent an unsuccessful conversion without inventing a sentinel value.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "Before this lesson, understand functions returning values and character ranges with an excluded end. Parsing is a boundary between untrusted text and a typed application value. The parser must establish more than “some digits were found.” It needs a policy for empty input, accepted syntax, complete consumption, representability, and domain meaning. Keeping these checks together means callers can use a successful result as a page count without independently reconstructing the same validation sequence."
+        },
+        {
+          "type": "paragraph",
           "text": "Some unsuccessful operations are expected possibilities, such as a user entering text that is not a page count. Returning an arbitrary number to signal failure can confuse that signal with a valid result. std::optional<int> represents either an integer or no integer. It keeps presence separate from the contained value, so zero can remain a meaningful successful result rather than a hidden error code."
         },
         {
           "type": "paragraph",
+          "text": "Separate the parser’s state space from the integer’s state space. An engaged optional containing zero is a successful parse of a count with value zero. A disengaged optional supplies no count at all. Treating both as ordinary zero would collapse valid data and failure into the same representation. Conversely, selecting a fallback with value_or is a caller policy that deliberately merges those cases for a particular purpose. That can be useful for an optional display setting, but is usually inappropriate when bad input must be reported and corrected rather than silently accepted."
+        },
+        {
+          "type": "paragraph",
           "text": "optional manages storage and lifetime for its contained value when present. Its Boolean conversion reports whether that value exists. Dereferencing an empty optional violates the access precondition; it does not provide an automatic fallback. value can instead report an empty access by throwing bad_optional_access, and value_or can supply a chosen fallback. The appropriate operation depends on the caller’s intended policy for absence."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Suppose parse_pages returns optional<int>, with a present value meaning a valid page count and absence meaning invalid input. A caller uses parse_pages(text).value_or(0) and stores that number immediately. Which distinction has disappeared, and how could a C++20 interface preserve useful failure messages?",
+          "explanation": "The caller can no longer distinguish malformed input from a successfully entered zero. Keep the optional presence test when a generic invalid-input response is enough. For different messages, design a result containing either the validated count or a named error category, for example through a variant or a small result class with a coherent invariant. Keep the C++20 baseline explicit rather than silently introducing C++23 expected."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "For 24, the nonempty check passes, value begins at zero, and the input range contains exactly two characters. from_chars consumes both digits, reports no error, and sets value to twenty-four. The stopping pointer equals the input boundary and the value is nonnegative, so returning value constructs an engaged optional. For 12x, numeric conversion itself succeeds on the prefix and produces twelve, but the stopping pointer identifies x instead of the end. The complete-field check rejects it. The caller tests presence before reading the integer, so it cannot accidentally print the successfully parsed prefix of a rejected field."
+        },
+        {
+          "type": "paragraph",
           "text": "parse_pages rejects empty input before creating a character range, then uses from_chars to parse an integer. The result includes both an error code and a pointer to the first unconsumed character. A successful numeric prefix is insufficient for this interface: 12x must fail rather than silently become 12. Requiring the returned pointer to equal the input end enforces consumption of the entire field."
         },
         {
           "type": "paragraph",
           "text": "The function also rejects negative values because a page count must be nonnegative in this application. from_chars reports values outside the int range through its error code. Integer parsing here does not skip leading whitespace, so a space-prefixed number is also rejected. These decisions define a strict field format. If surrounding whitespace should be accepted, trimming would be a separate, explicit part of the interface."
+        },
+        {
+          "type": "paragraph",
+          "text": "A second input matrix exposes the distinction between lexical and numeric policy. The field -3 can be parsed as a signed integer, then fails the nonnegative domain check. The field +3 is rejected by this integer from_chars syntax because a leading plus sign is not accepted. The field 003 consists entirely of accepted decimal digits and produces three. The field -0 produces zero, so it passes the current nonnegative-value policy even though it has a minus sign. If the format must forbid that spelling, add a separate lexical rule; a value comparison cannot distinguish positive zero from this parsed result."
+        },
+        {
+          "type": "paragraph",
+          "text": "Trailing whitespace is also meaningful here. The field 24 followed by a space leaves that space unconsumed, so the complete-field policy rejects it. A trimming layer could intentionally accept surrounding whitespace before calling this parser, but should define what counts as whitespace. Very long digit sequences can fail the representability check even when their characters look numeric. Such failures must not lead to use of an unvalidated destination. The function combines all unsuccessful cases into absence because its current caller needs only success or failure, not a detailed diagnostic taxonomy."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Classify the fields 7, 7x, -7, 007 and -0 under this exact parser. For each rejected field, identify the layer that rejects it rather than calling every failure a bad integer.",
+          "explanation": "7 and 007 fully parse to nonnegative integers, so both succeed with seven. -0 succeeds with zero under the current numeric policy. 7x has a valid numeric prefix but fails complete consumption. -7 is a syntactically valid signed integer but fails domain validation. This layered explanation shows precisely which rule must change if an application later chooses different spellings or domain values."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "Would parse_pages(\"0\") return an empty optional?",
           "explanation": "No. Parsing succeeds, consumes the full input, and produces a nonnegative value. The optional contains zero, and its Boolean test is true because it tests presence rather than the numeric value."
+        },
+        {
+          "type": "paragraph",
+          "text": "A parser’s return type should describe what its caller is entitled to assume. Trace syntax, range and domain checks in order, then decide whether absence carries enough information. Use a test matrix containing valid boundaries, partial prefixes and semantically invalid values. Whole-field validation makes the parser useful beyond its original happy-path sample without making every caller an expert in low-level conversion details."
         }
       ]
     }
@@ -117,5 +151,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4950/expected",
       "locator": "N4950, [expected]; consulted 2026-09-11. Supports the explicitly marked C++23 facility discussion only; not used in the C++20 program."
     }
-  ]
+  ],
+  "version": 2
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "embedded_realtime_bounded_events_module",
-  "versionId": "embedded_realtime_bounded_events_version_1",
+  "versionId": "embedded_realtime_bounded_events_version_2",
   "slug": "queue-capacity",
   "title": "Design a bounded interrupt-to-worker queue",
   "summary": "Account for capacity, copied data and overload behavior.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "embedded_realtime_bounded_events_part_concepts",
-      "title": "Understand the model",
+      "title": "Queue capacity, ownership, and event meaning",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "A message queue decouples event production from later processing, but finite capacity remains a design constraint. Zephyr message queues copy fixed-size data items into a waiting receiver or queue storage. They can serve threads and interrupt handlers, subject to restrictions on waiting in interrupt context. Copying a record containing a pointer copies the address, not the pointed-to object. Consequently a queue is not automatically an ownership-transfer mechanism. Prefer a small self-contained event record when that fits the application. Decide what happens on a full queue before deployment: losing the newest event, retaining only the latest measurement, reporting a fault and applying backpressure have different meanings."
+        },
+        {
+          "type": "paragraph",
+          "text": "A bounded queue has an occupancy between zero and its capacity. A successful queued enqueue increases occupancy by one; a dequeue decreases it by one. A rejected enqueue does neither. These simple accounting rules let you analyze bursts before implementing interrupt code. They also expose an important distinction: an event can occur in the world without being accepted into the queue. A diagnostic should distinguish produced, accepted, consumed and rejected events."
+        },
+        {
+          "type": "paragraph",
+          "text": "A self-contained record carries the values needed for later processing, such as a sequence number, timestamp and measurement. If the queue copies that record, a producer can reuse its own temporary storage after the copy finishes. A pointer record instead carries a location whose lifetime and mutation rules remain external. For example, three copies of the address of one sensor scratch buffer do not preserve three historical measurements when that buffer is overwritten."
+        },
+        {
+          "type": "paragraph",
+          "text": "Capacity is a bound on waiting items, not a guarantee of eventual throughput. A burst can temporarily exceed the worker's service rate even if average production is modest. Sustained production faster than consumption eventually exhausts any finite queue unless the system rejects, combines or slows work. Choose the behavior from the meaning of the events: replacing an old temperature may be acceptable for a display, while losing an increment event changes a counter."
+        },
+        {
+          "type": "paragraph",
+          "text": "The worker's scheduling is part of this design. A queue can absorb a period during which the worker receives no processor time, but it cannot force the worker to run. Likewise, the queue API's synchronization does not establish a deadline for the whole processing pipeline. State the expected arrival pattern, worker service opportunities and full-queue behavior before deciding that a particular capacity is sufficient."
+        },
+        {
+          "type": "reflection",
+          "prompt": "With capacity four and initially empty storage, events A,B,C,D,E arrive in that order before any worker runs. Under reject-new policy, what are the accepted sequence, occupancy and rejected count?",
+          "explanation": "The first four events A,B,C,D are accepted in order. E is rejected. Occupancy remains four and the rejected count is one. Increasing capacity from three to four absorbs one more event in this burst, but does not eliminate the need for a full-queue result or prove that larger future bursts are safe."
         }
       ]
     },
     {
       "id": "embedded_realtime_bounded_events_part_trace",
-      "title": "Work through an example",
+      "title": "Compare bursts with different service opportunities",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The trace makes the lost event visible: D was never accepted. Treating enqueue as infallible would silently remove this information. The capacity calculation concerns record storage only; kernel metadata, stack use and alignment must be budgeted separately. If records instead contain pointers to a reused producer buffer, all three entries could describe the same changing bytes. Such a design needs a buffer pool and a clear rule for when each buffer may be reused."
+        },
+        {
+          "type": "paragraph",
+          "text": "For the original burst, occupancy moves 0→1→2→3 for A, B and C. D finds occupancy already equal to capacity, so it is rejected; the accepted sequence remains A,B,C. Consuming A leaves B,C in order. Produced count is four, accepted count three, consumed count one and rejected count one. Accepted minus consumed equals the two records still waiting, which checks the accounting."
+        },
+        {
+          "type": "paragraph",
+          "text": "The 24-byte calculation concerns only three eight-byte records. It says nothing about the worker stack, diagnostic counter, kernel object or any externally referenced buffers. A pool design needs a second accounting invariant covering free, queued and processing buffers. Missing a buffer on an error path can gradually exhaust that pool even when queue occupancy itself looks reasonable."
+        },
+        {
+          "type": "callout",
+          "title": "Compare bursts with different service opportunities",
+          "text": "Contrasting burst schedule: retain capacity three, but let the worker consume one event immediately after each pair of arrivals."
+        },
+        {
+          "type": "paragraph",
+          "text": "A and B arrive, producing [A,B]; the worker consumes A, leaving [B]. C and D arrive, producing [B,C,D]; the worker consumes B, leaving [C,D]. All four events were accepted. The arrival count and capacity match the original trace, but the service opportunities differ. Capacity planning therefore requires a timeline rather than just a total event count."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now extend the pattern indefinitely: every interval adds two records and removes one. Occupancy grows by one per interval until capacity is reached, then rejection begins. The successful first four arrivals do not prove long-term stability. An application that can combine multiple measurements into a current value changes the work semantics; it must specify that aggregation rather than presenting it as lossless preservation of every event."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The queue stores pointers to one scratch record. The producer writes 10, enqueues its address, writes 20 and enqueues the same address. What history has actually been preserved?",
+          "explanation": "There are two copies of one address, not independent snapshots of 10 and 20. If the worker reads after the second write, both pointers designate the current record containing 20, subject also to synchronization and lifetime rules. Copy self-contained values or allocate distinct pool records with explicit ownership if the requirement is to preserve both observations."
         }
       ]
     },
     {
       "id": "embedded_realtime_bounded_events_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice overflow and copied data",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Can an interrupt handler wait indefinitely for the worker to create space in this queue?",
           "explanation": "No. Interrupt-context operations must follow the platform API restrictions; a design that waits for lower-priority worker progress can prevent the very work required to free space. Use the supported nonwaiting operation and handle failure explicitly. The overflow policy is part of the application contract, not an accidental consequence of queue size."
+        },
+        {
+          "type": "paragraph",
+          "text": "A queue review is now an accounting exercise with application meaning. Trace arrivals and service, name the dropped event, and count both queue storage and external resources. Extend the model with real interrupt bursts and worker scheduling only when those assumptions are available. A larger buffer is one design parameter; overflow handling, ownership and service capacity remain separate obligations."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://docs.zephyrproject.org/latest/kernel/services/data_passing/message_queues.html",
       "locator": "Primary documentation: Concepts; fixed-size copied messages, capacity and ISR restrictions; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

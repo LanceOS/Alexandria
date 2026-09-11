@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership",
-  "versionId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_v2",
+  "versionId": "cpp_core_lifetime_ownership_raii_and_unique_ownership_v3",
   "slug": "raii-and-unique-ownership",
   "title": "RAII and exclusive ownership",
   "summary": "Let object destruction release resources and move ownership when responsibility changes.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This lesson assumes local scope and the difference between objects and aliases. A resource has a cleanup obligation: allocated storage must eventually be released, a lock relinquished, or a handle closed according to its own API. RAII places that obligation inside an object whose destructor performs the cleanup. This changes how you reason about control flow. Instead of locating a separate release call on every ordinary exit path, identify the responsible owner and the point at which its lifetime ends."
+        },
+        {
+          "type": "paragraph",
           "text": "Resource Acquisition Is Initialization, usually shortened to RAII, ties responsibility for a resource to an object’s lifetime. A vector already applies this idea to its element storage: its destructor releases the storage it owns. The same approach works for file handles, locks, and other resources through suitable owner types. Cleanup becomes part of normal scope exit instead of an extra statement that each successful and unsuccessful path must remember."
         },
         {
           "type": "paragraph",
+          "text": "Distinguish the owner object from the resource it owns. first is a local unique_ptr object; the separately created string is another object. Moving the unique_ptr creates a new arrangement of responsibility without requiring a second independent string or two simultaneous deleters for the same allocation. The standard’s move contract makes the source empty and gives the destination the previous pointer. The owner’s scope can therefore change while the resource continues to exist. This is useful when construction occurs in one part of a program and responsibility must be handed to another, but plain value members remain simpler when this separation serves no purpose."
+        },
+        {
+          "type": "paragraph",
           "text": "The C++ language specifies when destructors run; choosing RAII owners is a programming recommendation built on that mechanism. For a constructed local object, leaving its block normally invokes its destructor. Constructed members are also destroyed when their containing object is destroyed. These rules are the foundation of deterministic resource management. Later exception handling extends this reasoning to stack unwinding when control transfers to a handler."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A function stores a title only until it returns and never transfers ownership. Compare a local string with a unique_ptr<string> for that job, then identify a requirement that could justify the pointer owner.",
+          "explanation": "A local string directly expresses the required lifetime and already manages its character storage. Adding unique_ptr introduces another owner and indirection without helping this short-lived use. A concrete need to transfer exclusive responsibility for a separately allocated object to another scope could justify unique_ptr. The decision follows the resource’s required ownership behavior, not the mistaken idea that every RAII-managed object must be dynamically allocated."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Immediately after make_unique succeeds, first owns a string whose value is Atlas. The nested block creates second by applying unique_ptr’s move constructor to first. At that point first is empty, second owns the same string, and the object has one cleanup obligation rather than two. The first output line inspects only owner states; it does not dereference the empty source. The next line accesses the string through its current owner. At the closing brace, second’s destructor deletes the string. The final test of first is still valid because the empty owner itself continues to exist until main exits."
+        },
+        {
+          "type": "paragraph",
           "text": "make_unique constructs a string and returns a unique_ptr that owns it. unique_ptr represents exclusive responsibility for that object: it cannot be copied into another independent owner. The program creates a second owner object by moving from first. The string is then owned by second, while first becomes empty. Printing the two Boolean states makes this transfer observable without relying on memory addresses or implementation-specific layouts."
         },
         {
           "type": "paragraph",
           "text": "std::move is a cast that makes an expression eligible for move operations. It does not independently relocate an object or release its storage. Here unique_ptr’s move constructor performs the ownership transfer. When the inner block ends, second is destroyed and releases the string automatically. first is still a valid, empty unique_ptr afterward, so testing its state remains safe even though the previously owned string no longer exists."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a contrasting control-flow scenario, imagine a helper that acquires one unique_ptr, checks whether some input is acceptable, and returns early on rejection. If the owner is a successfully constructed local object, ordinary return destroys it and invokes its cleanup. A manually managed raw allocation would need a corresponding cleanup operation before that return. The RAII version makes both the success and rejection paths depend on the same owner-lifetime mechanism rather than on duplicated statements."
+        },
+        {
+          "type": "paragraph",
+          "text": "Borrowing introduces a different issue. Suppose an observer obtains the string’s raw address from first before the move. Moving ownership to second does not itself destroy the string, so the observer can still refer to that live object while second keeps it alive. When the inner block ends, the observer becomes dangling even if the raw pointer variable remains in scope. The move transfers responsibility, not a lifetime extension for all possible observers. Never construct an additional independent owning unique_ptr from that borrowed address. Its mere availability for access does not grant a second cleanup obligation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "After ownership moves from first to second, does the string necessarily need to be recreated at another address? Explain what remains true for an existing observer and when its access ends.",
+          "explanation": "The specified unique_ptr move transfers the stored pointer and deleter relationship; it does not need to move the string object itself. An existing observer can still access the live string while the destination owner keeps it alive and no other invalidating operation occurs. Its usable lifetime ends when that resource is destroyed, which is the end of the inner block here. The observer owns nothing and must not delete the string."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "Why is dereferencing first immediately after the move invalid?",
           "explanation": "The move leaves first empty. Its Boolean state can be tested, but dereference requires an actual object. second is the owner that provides access to the string until the inner block ends."
+        },
+        {
+          "type": "paragraph",
+          "text": "In a cleanup review, name the responsible owner, the resource’s release operation, and every path that ends or transfers ownership. Separately enumerate borrowers that may survive those paths. RAII makes the cleanup obligation easier to follow, but does not make dangling observers impossible. The next class-design step is to compose such owners as members so the containing type can inherit coherent cleanup without manually repeating resource code."
         }
       ]
     }
@@ -115,7 +149,18 @@
       ],
       "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-raii",
       "locator": "R.1, R.21, and R.24; edited by Bjarne Stroustrup and Herb Sutter; page dated June 14, 2026; consulted 2026-09-11. Advisory guidance on RAII, preferring exclusive ownership when sharing is unnecessary, and breaking shared-ownership cycles with weak_ptr; not normative language requirements."
+    },
+    {
+      "id": "cpp_core_lifetime_ownership_raii_and_unique_ownership_depth_unique_ptr_single_ctor",
+      "title": "C++20 working draft N4861: unique.ptr.single.ctor",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr.single.ctor",
+      "locator": "N4861 [unique.ptr.single.ctor]; paragraphs 16–20, exclusive ownership transfer and empty source after move; consulted 2026-09-11."
     }
   ],
-  "version": 2
+  "version": 3
 }

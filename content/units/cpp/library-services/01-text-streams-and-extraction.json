@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_library_services_text_streams_and_extraction",
-  "versionId": "cpp_core_library_services_text_streams_and_extraction_v2",
+  "versionId": "cpp_core_library_services_text_streams_and_extraction_v3",
   "slug": "text-streams-and-extraction",
   "title": "Text streams and extraction state",
   "summary": "Parse an in-memory record while checking whether each requested field was obtained.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "Bring together parsing policy, string ownership and Boolean tests. A stream carries an input position, formatting rules and state flags as well as a source or destination of characters. Reading a value advances that position and may update the flags. This is different from indexing a string at a fixed position: later operations depend on earlier extraction success and on what characters remain. String streams let you inspect this behavior using repeatable records instead of interactive experiments."
+        },
+        {
+          "type": "paragraph",
           "text": "A string stores characters, while a parser decides what those characters mean. String streams connect ordinary strings to the same formatted input and output interface used by console streams. istringstream reads from text in memory; ostringstream accumulates formatted output into a string. This makes a small parsing example repeatable without relying on interactive input, external files, or the timing of a user’s keystrokes."
         },
         {
           "type": "paragraph",
+          "text": "Define the exact record grammar in ordinary language before reading it: one whitespace-delimited title token, one integer page count, then only optional whitespace until the end. The integer must be nonnegative. That format deliberately cannot represent every book title. If titles with spaces are required, choose a quoting or framing convention and use an appropriate parser. A failure to parse such a title under this grammar is a format mismatch, not something initialization or another input attempt can automatically repair. The classic locale makes the particular formatted interpretation consistent for this teaching example."
+        },
+        {
+          "type": "paragraph",
           "text": "Formatted extraction attempts to interpret the next input according to the destination type. Extracting a string token normally stops at whitespace, and extracting an integer interprets a numeric field. These rules describe a simple whitespace-separated record, not a universal document format. A title containing spaces needs another convention, such as explicit quoting, a delimiter, or a separate line. Choose the format before deciding which extraction operations implement it."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why would reading the title Atlas of Stars with this record parser fail to mean a single title? Describe a format change instead of simply repeating extraction until it succeeds.",
+          "explanation": "The first string extraction obtains Atlas; the next integer extraction encounters of and fails. The grammar does not delimit the whole title as one field. A revised format could place the title on its own line or introduce explicitly parsed quoting and escaping. Specify where the title ends and how exceptional characters are encoded, then update parsing and tests together. Arbitrary retries would discard or reinterpret data without establishing the intended record structure."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Trace both the position and the fields. The title extraction reads Atlas and stops before the following separator. The integer extraction skips the intervening whitespace according to the configured stream rules and reads 120. The chained condition verifies that these required fields were obtained before the program constructs a label. Three trailing spaces remain. ws consumes them and encounters the end of the in-memory sequence, so the subsequent eof test accepts the complete record. The nonnegative check accepts 120. Finally the output stream formats the two validated fields, and its returned owning string is sent to cout."
+        },
+        {
+          "type": "paragraph",
           "text": "The example reads a title token followed by a page count. It tests the chained extraction expression before using the pair. If either extraction fails, the program prints a failure message and stops normally. This is safer than reading fields first and assuming that every input supplied valid values. Local initialization gives variables a defined starting state, but that alone does not turn unsuccessful parsing into valid application data."
         },
         {
           "type": "paragraph",
           "text": "The input stream then consumes trailing whitespace with std::ws. Checking eof afterward enforces that no unexpected trailing field remains in this demonstration. This is a deliberate whole-record policy; another application might allow comments or multiple records. The negative-value check is separate because syntactically valid integer text can still violate the domain’s rule that a page count be nonnegative."
+        },
+        {
+          "type": "paragraph",
+          "text": "A contrasting record Atlas 120 extra successfully provides the two required fields but leaves a third token. ws can consume the separator before extra, yet stops when it sees the first non-whitespace character. Because the record is not exhausted, the program rejects it. Atlas -2 reaches the end successfully but fails domain validation instead. Atlas many fails the required integer extraction, so the program takes the earlier malformed-record branch. These cases separate missing or malformed fields, surplus data and valid syntax with an unacceptable value."
+        },
+        {
+          "type": "paragraph",
+          "text": "The record Atlas 120 with no trailing spaces highlights a subtler state issue. Successful integer extraction can already set eofbit upon reaching the end. A later ws constructs a sentry; if the stream is already not good, that sentry can add failbit. This program deliberately checks complete exhaustion after ws rather than treating the later stream Boolean state as a second verdict on the already validated fields. Do not generalize this into ignoring stream errors everywhere: it is a specific whole-record check over an in-memory string after the required extraction has succeeded. Follow the state transitions required by each operation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Classify Atlas 0, Atlas -1, Atlas 12 extra and Atlas words. Which successful format cases still need a separate domain check?",
+          "explanation": "Atlas 0 is a valid complete record because zero is nonnegative. Atlas -1 has a valid title and integer but fails the page-count domain. Atlas 12 extra fails the trailing-data rule after both required extractions succeed. Atlas words fails integer extraction. Any syntactically valid integer, including a negative one, still needs the domain check; stream conversion alone does not know what a page count means."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "Why would the input Atlas 120 extra be rejected even though the first two extractions succeed?",
           "explanation": "After reading the title and count, std::ws stops before the non-whitespace word extra. The stream is not at end of input, so the complete-record check rejects the unexpected trailing data."
+        },
+        {
+          "type": "paragraph",
+          "text": "When debugging stream input, record the required fields, remaining characters and state flags at each boundary. Check required extraction before interpreting its destination values, then apply the format’s complete-record and domain rules. Formatting output into an owned string is useful for composition, but it does not establish file durability, Unicode validity or any property outside the stream operation’s actual contract."
         }
       ]
     }
@@ -129,5 +163,5 @@
       "locator": "N4861, [istream.sentry]; consulted 2026-09-11. Paragraphs 2–3: sentry state checks, failbit when the input is already not good, and locale-based whitespace handling."
     }
   ],
-  "version": 2
+  "version": 3
 }

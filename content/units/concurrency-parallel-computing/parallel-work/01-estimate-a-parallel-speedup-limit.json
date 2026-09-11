@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "parallel_estimate_a_parallel_speedup_limit_module",
-  "versionId": "parallel_estimate_a_parallel_speedup_limit_v2",
+  "versionId": "parallel_estimate_a_parallel_speedup_limit_v3",
   "slug": "estimate-a-parallel-speedup-limit",
   "title": "Estimate the limit of parallel speedup",
   "summary": "Derive a fixed-workload bound before deciding how many workers to use.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The motivation for a scaling model is to reject implausible promises before building a complex scheduler. Define elapsed time as the time until the entire fixed batch is complete. Speedup is one-worker time divided by p-worker time for the same required result. Efficiency is speedup divided by p: it compares the achieved speedup with using every worker perfectly. Neither metric is meaningful if the parallel implementation quietly processes fewer records or uses a different accuracy requirement."
+        },
+        {
+          "type": "paragraph",
+          "text": "Our baseline consists of a serial stage and a divisible stage that run one after the other. The serial 200 milliseconds cannot overlap useful parallel work in this model. The 800-millisecond stage can be split into equal independent pieces with no extra work. With p identical workers, each handles 800/p milliseconds, so total elapsed time is 200 + 800/p. The denominator in the speedup expression must include both terms. Dividing the whole 1000 milliseconds by p would incorrectly assume the serial stage also accelerates."
+        },
+        {
+          "type": "paragraph",
+          "text": "Useful independence concerns data and ordering. If one task needs another task's result, a dependency edge constrains their schedule. Sharing an input that is read only may still permit independent computation, while updating one common result may require coordination. A critical path is a chain of dependent work that cannot be shortened merely by adding workers. Granularity describes task size: enough tasks help distribute work, but each task must contain enough useful computation to justify its scheduling and communication costs."
+        },
+        {
+          "type": "paragraph",
           "text": "Concurrency concerns managing activities whose lifetimes overlap. Parallel execution performs work at the same time on multiple processing resources. A single-core system can be concurrent by switching between activities. Conversely, a parallel computation requires useful independent work and enough resources to perform it. An asynchronous interface alone does not establish either a speedup or a particular thread count."
         },
         {
           "type": "paragraph",
           "text": "Consider a fixed batch with 200 milliseconds of unavoidable serial work and 800 milliseconds that can be divided evenly among workers. Assume no scheduling, communication, or synchronization overhead and identical worker performance. The total time with p workers is 200 plus 800 divided by p. This is an idealized model, not a measured property of an implementation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "For the 200 ms serial plus 800 ms divisible-work model, calculate ideal time, speedup, and efficiency with eight workers.",
+          "explanation": "Time is 200 + 800/8 = 300 milliseconds. Speedup is 1000/300, about 3.33. Efficiency is 3.33/8, about 0.417 or 41.7 percent. More workers improve elapsed time but lower this efficiency measure because the serial stage occupies a larger fraction of the remaining time."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "At four workers, each receives an ideal 200 milliseconds from the divisible stage. Add the unaccelerated 200 to obtain 400, then divide baseline time 1000 by 400 to get speedup 2.5. Efficiency is 2.5/4 = 0.625, or 62.5 percent, even without overhead. This is not evidence of a faulty runtime: it follows from the serial stage. As p grows, 800/p approaches zero while the 200 remains, so speedup approaches five. Adding the illustrative 40 milliseconds of overhead increases time to 440 and changes speedup to 1000/440, approximately 2.27."
+        },
+        {
+          "type": "paragraph",
           "text": "The unaccelerated portion limits the result. Expressing the serial fraction as s gives the fixed-workload ideal speedup 1 / (s + (1 - s) / p). LLNL’s tutorial presents this reasoning as Amdahl’s Law. The assumptions matter: changing the problem size, algorithm, memory behavior, or serial fraction changes what comparison the formula describes."
         },
         {
           "type": "paragraph",
           "text": "Real task graphs also contain dependencies and imbalance. One worker with a much longer task can determine completion time while others sit idle. Smaller tasks may distribute work better, but too many tiny tasks spend more time on scheduling and communication. Shared memory bandwidth or a contended resource can become a limit even when the arithmetic work is independent."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a different limitation: four indivisible tasks taking 500, 100, 100, and 100 milliseconds, after the same 200-millisecond serial stage. Their total work is still 800 milliseconds, but four workers cannot divide the longest task automatically. Assigning one task per worker makes the divisible-stage replacement last 500 milliseconds, giving total 700 and speedup about 1.43. Three workers become idle long before the longest task finishes. The previous 400-millisecond prediction relied on balanced divisible work and does not describe this task graph."
+        },
+        {
+          "type": "paragraph",
+          "text": "If the 500-millisecond task can instead be broken into five independent 100-millisecond tasks, there are eight equal tasks. Four workers can execute two waves in 200 milliseconds under the zero-overhead assumptions, restoring total 400. That is an algorithmic decomposition change, not merely a higher thread count. If those five pieces depend sequentially on one another, splitting their code into five tasks does not remove the 500-millisecond dependency path. A dependency graph therefore helps explain both opportunities and hard limits."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical fixed-workload comparison, no scheduling overhead\nSerial stage: 200 ms\nFour indivisible tasks: [500,100,100,100] ms\nFour workers: parallel stage finishes after 500 ms\nTotal = 200 + 500 = 700 ms; speedup = 1000/700 ~= 1.43\nIf replaced by eight independent 100 ms tasks:\ntwo waves of four tasks = 200 ms; total = 400 ms",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "Suppose the four-worker overhead is 650 milliseconds rather than 40. Is this implementation faster than the baseline, and what should be investigated?",
+          "explanation": "The modeled time becomes 200 + 200 + 650 = 1050 milliseconds, so speedup is about 0.952 and the implementation is slower. Investigate scheduling, communication, synchronization, and whether work was duplicated. An available core is not itself evidence that assigning additional tasks will help."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Create a dependency graph, identify the longest dependent path, and record what data each task reads and writes. Preserve a sequential reference implementation for correctness comparisons. For floating-point reductions, changing the grouping can change the result because addition is not generally associative in finite precision. Report both the workload size and the worker count in scaling experiments, so a fixed-workload speedup is not confused with throughput on a growing workload."
+        },
+        {
+          "type": "paragraph",
+          "text": "A useful parallelization proposal states fixed work, dependency structure, expected balance, overhead assumptions, and correctness criteria. Use the ideal formula as a bound under its assumptions, then compare measured behavior with that prediction. If the workload grows with the number of workers, label that different experiment explicitly. For numerical reductions, include the effect of regrouping arithmetic in the correctness comparison."
         }
       ]
     }
@@ -89,5 +133,5 @@
       "locator": "Normative API specification for OpenMP 5.2, §1.3 Execution Model; task execution and fork-join model, not a specification of std::thread; consulted 2026-09-11."
     }
   ],
-  "version": 2
+  "version": 3
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_constant_evaluation_module",
-  "versionId": "cpp_constant_evaluation_v1",
+  "versionId": "cpp_constant_evaluation_v2",
   "slug": "constant-evaluation",
   "title": "Computing and checking constants",
   "summary": "Distinguish a function that can be constant-evaluated from an interface that requires constant evaluation.",
@@ -23,6 +23,19 @@
         {
           "type": "paragraph",
           "text": "A consteval function is an immediate function. Calls in the ordinary contexts shown here must produce constant expressions. This is useful for a configuration that should be rejected during compilation when its arguments are unsuitable. The goal is an early, clear failure, not a claim that computation is free: compiler time and memory are resources too."
+        },
+        {
+          "type": "paragraph",
+          "text": "Separate three questions that share similar spellings: may an expression be evaluated as a constant, must this use be a constant expression, and may the resulting object later change? constexpr on a suitable function addresses eligibility; the call context supplies the requirement. constexpr on a variable requires an appropriate constant initializer and makes that variable const. consteval makes the function immediate. constinit constrains initialization of a static- or thread-storage variable without imposing const qualification."
+        },
+        {
+          "type": "paragraph",
+          "text": "For example, square can serve a fixed configuration and ordinary runtime input because multiplication is permitted when its operands and result satisfy the rules. A constexpr variable initialized from square(4) requires a compile-time-valid result. An ordinary int initialized from a call using a changing input has no such language-level requirement. A compiler may still optimize a runtime expression, but that optimization is different from an interface that must be accepted or rejected as a constant expression."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A reviewer replaces constinit int sessions{2} with constexpr int sessions{2}, keeping ++sessions in main. Is this just a stronger initialization check?",
+          "explanation": "No. The constexpr variable is const, so the increment becomes invalid. constinit established initialization timing while allowing later mutation. Choose the declaration according to both initialization and mutability requirements; the keywords are not interchangeable levels of optimization."
         }
       ]
     },
@@ -49,6 +62,29 @@
         {
           "type": "paragraph",
           "text": "sessions has static storage duration. constinit requires static initialization, but does not make the variable const; incrementing it in main is allowed. This separates initialization timing from mutability. The example is single-threaded: choosing constinit would not make concurrent increments safe."
+        },
+        {
+          "type": "paragraph",
+          "text": "Walk through the sample in dependency order. checkedWidth receives 4, finds neither invalid-bound condition true, and returns 4. width is initialized from that required constant result. square(width) computes 16, allowing area to be initialized as constexpr. static_assert compares 16 with 16 and accepts the declaration. None of these statements prints anything. Later main increments the separately stored sessions from 2 to 3 and inserts the two observed values into the stream."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Contrasting configuration cases — required constant evaluation",
+          "code": "checkedWidth(1) -> accepted width 1 -> square gives 1\ncheckedWidth(8) -> accepted width 8 -> square gives 64\ncheckedWidth(0) -> selects throw -> required constant expression fails\ncheckedWidth(9) -> selects throw -> required constant expression fails\nA runtime try/catch is not how these invalid configurations are accepted."
+        },
+        {
+          "type": "paragraph",
+          "text": "The throw expression is useful here because evaluating it is disallowed in the required constant expression. Its presence in a branch does not automatically reject every call: accepted inputs avoid that branch. This makes the input boundary executable as a compile-time check. Keep the distinction between a declaration containing an operation and a particular evaluation taking that operation. The sample deliberately keeps all accepted widths small enough that the later multiplication is representable."
+        },
+        {
+          "type": "paragraph",
+          "text": "A static assertion checks the expression written at its location. area == 16 is a regression check for this configuration, not a proof of square for all possible arguments. If square is called elsewhere with a large runtime int, the same signed-overflow concern still applies. Constant evaluation can reject an invalid evaluated operation in a required constant context; it does not add runtime checks to every ordinary call of the function."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Suppose the supported width range changes to 1 through 6. Which checks would expose both ends of the new policy, and which sample assertion should remain?",
+          "explanation": "Check acceptance at 1 and 6 and rejection at 0 and 7 in deliberately separate negative compilation cases. Keep the concrete square(4) result check if width 4 remains part of the sample. Boundary tests exercise the validation policy; the area assertion exercises one derived value. Do not place an intentionally rejected call into a listing advertised as a runnable successful program."
         }
       ]
     },
@@ -64,6 +100,18 @@
         {
           "type": "paragraph",
           "text": "Use small compile-time checks to document boundaries and invariants that can actually be known at translation. Keep runtime validation for values read from files, networks, or users. Later modules can build lookup tables and compile-time parsers, but should still state input limits, failure behavior, and the cost imposed on every translation unit using the facility."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use compile-time work where the program must know the answer before execution: fixed dimensions, configuration validation, or a small lookup table are examples. Values read later from a user or file still require a runtime interface and its own error policy. Attempting to force such a value through an immediate function does not validate it earlier; it makes the call unsuitable for that interface."
+        },
+        {
+          "type": "paragraph",
+          "text": "There is also an engineering cost to placing work in widely included headers. Every affected translation can need to parse and evaluate the definitions it uses. A small compile-time calculation can clarify a contract; a large generated structure may lengthen builds or diagnostics. Compare these costs in the actual project rather than claiming constexpr universally improves speed. The language guarantee concerns eligible constant evaluation and required contexts, not a benchmark result."
+        },
+        {
+          "type": "paragraph",
+          "text": "When reviewing a declaration, annotate the call context, accepted input range, failure phase, and later mutability. For this example those annotations distinguish immediate width validation, a constexpr area, and mutable statically initialized session state. This method prevents a keyword-based design in which const, constexpr, consteval, and constinit are chosen because they sound similar rather than because they satisfy a particular requirement."
         }
       ]
     }
@@ -99,5 +147,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.constinit",
       "locator": "Primary standards draft, [dcl.constinit]: static initialization without implied const qualification. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
     }
-  ]
+  ],
+  "version": 2
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "scientific_computing_linear_systems_module",
-  "versionId": "scientific_computing_linear_systems_version_1",
+  "versionId": "scientific_computing_linear_systems_version_2",
   "slug": "solve-and-check",
   "title": "Solve a linear system and check its residual",
   "summary": "Connect a matrix solver result to the equations it is meant to satisfy.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "scientific_computing_linear_systems_part_concepts",
-      "title": "Understand the model",
+      "title": "Equations, elimination, and residual meaning",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "A linear-system solver seeks x satisfying A x = b. Eigen offers decomposition-based solve operations, with choices depending on properties of A and the accuracy and cost requirements. Do not select a method solely because its name is familiar; a decomposition that requires an invertible or positive-definite matrix needs evidence for that assumption. After solving, evaluate how well the candidate satisfies the original equations. The residual r = b - A x measures that discrepancy. It is useful diagnostic evidence, but closeness to a true solution also depends on sensitivity of the problem and the scaling of its data."
+        },
+        {
+          "type": "paragraph",
+          "text": "A linear system connects unknown quantities through simultaneous constraints. The vector x contains the unknowns, each row of A supplies coefficients for one equation, and b gives that equation's required right-hand side. Solving means finding values that satisfy the whole collection together. Substituting a candidate into only one row cannot establish that it solves every equation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Elimination combines equations without changing their common solutions when the permitted operations are reversible. Multiplying one equation by a nonzero factor preserves it; subtracting one equation from another removes a chosen variable while retaining a recoverable relationship. The two-by-two trace uses these steps explicitly. Larger libraries package such work into decompositions whose suitability depends on rank, definiteness, shape and numerical requirements."
+        },
+        {
+          "type": "paragraph",
+          "text": "A residual evaluates the candidate in the original system: r=b-A*x_candidate. Its components describe unsatisfied equations, not direct errors in the unknowns. If x_true is an exact solution, r=A*(x_true-x_candidate). The matrix therefore maps solution error to residual. A matrix that strongly shrinks some directions can hide a substantial solution error behind a small residual."
+        },
+        {
+          "type": "paragraph",
+          "text": "To summarize a vector's size, one useful norm is the maximum absolute component. For the perturbed candidate residual (-0.01,0.02), this infinity norm is 0.02. Dividing by a nonzero scale such as the corresponding norm of b can provide context, but the chosen quantity must be defined. Relative checks need an explicit policy when their denominator is zero, and scaling alone does not remove sensitivity to the matrix."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The original system 2x+y=5 and x+3y=5 has solution (2,1). Change only the second right-hand side to 5.1. Solve exactly and compare with (2,1).",
+          "explanation": "Doubling the second equation yields 2x+6y=10.2; subtracting the first gives 5y=5.2 and y=1.04. Then x=(5-1.04)/2=1.98. The solution change is (-0.02,0.04). This is a different input problem, not an error in the original solution. Substitution gives 5 and 5.1 as required."
         }
       ]
     },
     {
       "id": "scientific_computing_linear_systems_part_trace",
-      "title": "Work through an example",
+      "title": "Trace elimination and a sensitive system",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The residual tests the original equations, providing a check independent of the elimination steps. Its components have the units of b; their size cannot be judged without a scale. An application might compare a norm of the residual with a documented scale involving A, x and b, while treating zero denominators carefully. A tiny residual for a very sensitive system does not establish a tiny error in x. That distinction motivates studying conditioning before interpreting solver success as scientific correctness."
+        },
+        {
+          "type": "paragraph",
+          "text": "The second equation multiplied by two gives 2x+6y=10. Subtracting the first equation cancels 2x and leaves 5y=5, so y=1. Substituting into the first gives 2x+1=5 and hence x=2. Checking the second gives 2+3=5. These independent substitutions verify both constraints after the elimination."
+        },
+        {
+          "type": "paragraph",
+          "text": "For (2.01,0.99), the first row gives 4.02+0.99=5.01 and the second gives 2.01+2.97=4.98. Subtracting from the original right-hand side gives the stated residual. Its maximum magnitude divided by max(|5|,|5|) is 0.02/5=0.004. That is a defined relative residual measure, not a claim that the solution has relative error exactly 0.004."
+        },
+        {
+          "type": "callout",
+          "title": "Trace elimination and a sensitive system",
+          "text": "Contrasting sensitivity: use the exact diagonal system x=1 and 0.000001*y=0.000001. Its exact solution is (1,1). Consider the candidate (1,0)."
+        },
+        {
+          "type": "paragraph",
+          "text": "The candidate satisfies the first equation and misses the second by only 0.000001, so the maximum absolute residual is one millionth. Yet the second unknown is wrong by one, and the maximum absolute solution error is one. The small second diagonal coefficient makes the residual insensitive to a large error in y."
+        },
+        {
+          "type": "paragraph",
+          "text": "This does not contradict the usefulness of residuals. It shows why interpreting them requires scaling and conditioning information. If the second equation were multiplied by one million, it would become y=1 and reveal residual one for the same candidate. Row scaling changes the numerical residual representation while preserving the exact solution set. A solver's returned vector therefore needs checks appropriate to the actual scaled problem."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The equations are x+y=2 and 2x+2y=4. Does elimination establish one unique pair, and what changes if the second right-hand side becomes five?",
+          "explanation": "Subtracting twice the first equation from the second gives 0=0 when the right-hand side is four, leaving infinitely many pairs with x+y=2. It does not determine a unique solution. With right-hand side five the subtraction gives 0=1, so no exact solution exists. A decomposition choice must account for rank and consistency rather than assuming every returned pair solves an invertible system."
         }
       ]
     },
     {
       "id": "scientific_computing_linear_systems_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice perturbed and singular systems",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Why is checking only whether the solver returned a vector weaker than checking the residual?",
           "explanation": "A returned vector has the correct representation but may not satisfy the intended equations closely enough. A residual connects the result back to the mathematical problem. It still must be interpreted with scale, conditioning and the solver assumptions, so it is one part of validation rather than a universal pass certificate."
+        },
+        {
+          "type": "paragraph",
+          "text": "Solve and verify are separate steps: derive a candidate, substitute into the original equations and interpret a defined residual measure with scale and sensitivity. Test dependent and inconsistent systems alongside ordinary ones. The next level is method selection and conditioning analysis for the matrices your application actually produces, supported by the library's documented assumptions rather than a familiar solver name."
         }
       ]
     }
@@ -82,5 +133,6 @@
       "url": "https://www.netlib.org/lapack/lug/node75.html",
       "locator": "Primary documentation: Error measures, vector norms and condition number; sensitivity and interpreting numerical errors; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

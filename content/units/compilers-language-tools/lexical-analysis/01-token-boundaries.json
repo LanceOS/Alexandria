@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "compilers_language_tools_lexical_analysis_module",
-  "versionId": "compilers_language_tools_lexical_analysis_version_1",
+  "versionId": "compilers_language_tools_lexical_analysis_version_2",
   "slug": "token-boundaries",
   "title": "Turn characters into a token stream",
   "summary": "Separate lexical recognition from expression meaning.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "compilers_language_tools_lexical_analysis_part_concepts",
-      "title": "Understand the model",
+      "title": "Design a token and cursor contract",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "A lexer groups input characters into tokens that later stages can interpret. LLVM’s Kaleidoscope tutorial illustrates returning a token category while preserving information such as an identifier name or numeric value. Tokenization answers where an identifier or literal begins and ends; it does not establish whether a variable exists or whether addition is valid for its type. A useful token can retain both interpreted information and its source range for diagnostics. Define the accepted character set and literal grammar explicitly. A tutorial language with decimal integers and ASCII names is much smaller than C++ lexical syntax, including its preprocessing rules."
+        },
+        {
+          "type": "paragraph",
+          "text": "A token is a structured result, not merely a substring. Its category tells the parser which grammar rule may apply; its spelling preserves what appeared in the input; an interpreted numeric value supports later calculations; its source range connects all of these to diagnostics. A lexer can retain the original source once and store ranges rather than copying every spelling. That design then requires the source storage to outlive any token views that refer to it."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use a cursor pointing at the next unread character. Before each token, skip accepted whitespace. At a letter, consume the maximal run allowed by the identifier rule; at a digit, consume the maximal run of digits. For a recognized punctuation character, consume exactly one character. At an unsupported character, return an explicit lexical error with its position. At the end, return an end token. Every non-end step must advance or report failure, otherwise malformed input can cause an infinite retry loop."
+        },
+        {
+          "type": "paragraph",
+          "text": "The half-open range [start,end) includes start but excludes end. Its length is end-start, so [8,10) covers exactly the two digits at positions eight and nine. Adjacent tokens may share an endpoint without sharing a character. An end token's empty range is useful because there is no source character to consume, yet the parser still needs to distinguish completion from the absence of a token."
+        },
+        {
+          "type": "paragraph",
+          "text": "Keep recognition separate from conversion. For a chosen bounded integer representation, the spelling can be a valid digit sequence even when its value exceeds the supported maximum. Recognize all of the digits first, then either produce the represented value or report the range error. Silently keeping only some digits changes the program. The tiny language's ASCII rule also avoids pretending that byte offsets are automatically character positions for arbitrary Unicode text."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Use zero-based half-open positions. Identifiers start with an ASCII letter and continue with letters or digits; integers contain decimal digits; *, + and parentheses are individual tokens. Tokenize a7*(3+20), then identify which later phase decides the multiplication grouping.",
+          "explanation": "The tokens are Identifier a7 [0,2), Star [2,3), LeftParen [3,4), Integer 3 [4,5), Plus [5,6), Integer 20 [6,8), RightParen [8,9), and End [9,9). The lexer only recognizes the punctuation. The parser uses the parentheses and precedence grammar to make the addition an operand of multiplication."
         }
       ]
     },
     {
       "id": "compilers_language_tools_lexical_analysis_part_trace",
-      "title": "Work through an example",
+      "title": "Trace boundaries and malformed input",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The digit in rate2 belongs to the identifier under these rules, while the separate sequence 12 is a numeric token. The star is recognized without deciding that multiplication has higher precedence than addition. That decision belongs to the parser’s expression grammar. Source ranges let a later error point back to the exact token even after spaces have been discarded. Numeric conversion should report out-of-range values rather than silently accepting a truncated result."
+        },
+        {
+          "type": "paragraph",
+          "text": "Starting at zero, the cursor sees r and enters the identifier rule. It consumes r, a, t, e and 2, then stops at the space. The stopping character is not part of the token. Skipping that space puts the cursor at six, where plus consumes one character. After another skipped space, digits at eight and nine form a single literal. The star ends that literal and starts its own token at ten."
+        },
+        {
+          "type": "paragraph",
+          "text": "After consuming the final 3, the cursor equals the input length, twelve. Returning End at [12,12) lets the parser require the entire expression to finish. It would be a different contract to stop after recognizing the first complete prefix and ignore remaining input. Retaining source locations makes that distinction visible when a later parser rejects a token it did not expect."
+        },
+        {
+          "type": "callout",
+          "title": "Trace boundaries and malformed input",
+          "text": "Contrasting input: tokenize rate_2 + 12 under exactly the original rules, without adding underscore to the identifier grammar."
+        },
+        {
+          "type": "paragraph",
+          "text": "The lexer first recognizes rate at [0,4). At position four it sees underscore, which is neither accepted whitespace, a digit, a letter nor recognized punctuation. It reports a lexical error there. It must not skip the character and produce the same result as rate2, because that would hide an invalid program. A recovering editor lexer may choose to emit an error token and continue, but that is an explicit recovery policy; the parser must not treat the result as successful compilation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now compare 12rate. The lexical rules alone permit an Integer(12) followed by Identifier(rate). Whether adjacency like this is a grammatical expression belongs to the parser. By contrast, the underscore case fails before parsing. This pair separates a valid sequence of token shapes from a valid arrangement of those tokens."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Suppose the implementation permits integer values only through 255. How should it handle 256+1, and why is returning Integer(25) incorrect?",
+          "explanation": "It should consume the whole spelling 256, determine that the represented value exceeds 255, and report a range error for [0,3). Returning 25 would lose a digit or leave 6 to be interpreted separately, changing the source meaning. The maximum is an explicit limit of this hypothetical implementation, not a limit of C++ integers or LLVM."
         }
       ]
     },
     {
       "id": "compilers_language_tools_lexical_analysis_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice tokenization and diagnostics",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Can the lexer determine that rate2 is an undeclared variable simply from recognizing an identifier token?",
           "explanation": "No. Recognition establishes that the spelling has the shape of an identifier. Declaration checking needs a symbol environment and language rules, normally handled during later semantic analysis. Separating these concerns lets the same lexer handle identifiers used in declarations and references without guessing their meaning."
+        },
+        {
+          "type": "paragraph",
+          "text": "The lexer contract is now precise enough to implement and test: cursor progress, token categories, source ranges, numeric limits and errors are all observable. Compare results across whitespace variations, while checking that location changes remain correct. The next module consumes these tokens to establish grouping. Keeping declaration lookup and type rules out of this stage lets each later diagnostic address the right kind of failure."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl01.html",
       "locator": "Primary documentation: Section 1.2 The Lexer; tokenization and lexical information; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

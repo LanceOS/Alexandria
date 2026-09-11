@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_templates_generic_programming_typed_families",
-  "versionId": "cpp_core_templates_generic_programming_typed_families_v1",
+  "versionId": "cpp_core_templates_generic_programming_typed_families_v2",
   "slug": "typed-families",
   "title": "Templates as families of typed operations",
   "summary": "Write a small function and class template without giving up static type checking.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This module assumes function interfaces, const references and value returns. Look for the common operation before introducing a template. larger compares two values with the same type and returns a selected value of that type. The shared structure is useful only if “less than” and the returned value have coherent meanings for each supported type. Parameterizing syntax does not establish those meanings or create operations missing from a type."
+        },
+        {
+          "type": "paragraph",
           "text": "A template describes a family of declarations parameterized by types or certain compile-time values. A function template can express an operation once and let the compiler form suitable specializations for different argument types. This does not mean a single untyped function inspects arbitrary objects at runtime. Each specialization still has concrete parameter and result types, and its required expressions must be valid for those types."
         },
         {
           "type": "paragraph",
+          "text": "Read template<class T> as a declaration of a type parameter. Inside the template, T can be used where a type is required, including parameter declarations, return types and members. At a use such as larger with two int arguments, deduction determines a concrete T and the corresponding specialization must support the necessary expressions. A class-template specialization such as Box<int> similarly has an int member. Box<std::string> has a string member and is a different class type; sharing the template spelling does not make their objects interchangeable or create a common runtime base class."
+        },
+        {
+          "type": "paragraph",
           "text": "The template parameter T in larger names the type used for both inputs and the returned value. The function requires that the two values can be compared and that the selected value can initialize the result. These requirements are implicit in its body. The example uses int and std::string because both support the intended comparison and value operations. A later lesson adds constraints to state such requirements directly at the interface."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Consider the described larger template taking two const T& arguments and returning the selected T by value. A new type supports < but cannot be copied from the selected const argument. Does it meet the requirements, and why might returning a reference create a different problem?",
+          "explanation": "No. The body must also initialize its by-value result from the selected const argument. Merely supporting comparison does not meet every expression requirement. Returning a reference would avoid that particular copy but would change the contract to borrowing, which can dangle when temporary arguments expire. A move-aware selection interface would need its own ownership and source-state design rather than a casual return-type substitution."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "For the numeric call, the two argument types both support T = int. The comparison four less than nine is true, so the conditional expression selects right, and the return produces the integer value nine. That value initializes pages.value. For the string call, both temporaries have type std::string; the comparison is lexical ordering of character sequences. Atlas precedes Orbits, so the returned value is an owning copy of Orbits and initializes title.value. The temporary arguments may then finish their lifetimes without taking either Box member’s value away. The output reads those independently owned members."
+        },
+        {
+          "type": "paragraph",
           "text": "Calling larger(4, 9) deduces T as int from the argument types. The string call deduces T as std::string and selects the lexically larger title. Deduction is not a general search for a type that every argument could convert into: larger(4, 9.0) would propose conflicting types for T and fail deduction. An explicit template argument can request a chosen specialization, but the resulting conversions must still match the intended computation."
         },
         {
           "type": "paragraph",
           "text": "Box is a class template that stores one value of its parameter type. Box<int> and Box<std::string> are distinct class types. The objects in main own their members, so their values do not borrow data from the calls that produced them. This simple wrapper is deliberately small; a production abstraction should add a meaningful domain contract rather than wrap a type solely to demonstrate template syntax."
+        },
+        {
+          "type": "paragraph",
+          "text": "A contrasting call supplies four as an int and 9.5 as a double. Ordinary deduction finds inconsistent candidates for the same T and does not search for a compromise type. Deliberately requesting larger<double> instead chooses the double specialization, allowing the int argument to be converted and comparing 4.0 with 9.5. Deliberately requesting larger<int> permits conversion in the opposite direction, so the fractional part is discarded before the function compares four with nine. Both explicit requests express a conversion policy; only the caller’s domain requirement determines which, if either, is appropriate."
+        },
+        {
+          "type": "paragraph",
+          "text": "Equal inputs reveal another part of the implementation’s contract. If left is not less than right, the conditional expression selects left. For two equal integer values the distinction is unobservable in the returned value. For a richer type whose ordering considers only a primary key, two unequal records might compare equivalent, and choosing the left record becomes a meaningful tie policy. Generic code needs that semantic question even if every expression compiles. State whether an algorithm is selecting an object, combining records or merely computing a numeric maximum before choosing its comparison and result representation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Predict larger<double>(4, 9.5) and larger<int>(4, 9.5), and explain why the second result cannot retain the fraction merely because the original literal was floating point.",
+          "explanation": "The double specialization compares 4.0 and 9.5 and returns 9.5. The int specialization receives converted integer arguments, so 9.5 is truncated to nine before the comparison and the return is nine. An explicit template argument selects the concrete parameter and result type; it does not disable its conversion rules. Prefer explicit domain reasoning over adding a template argument just to make a diagnostic disappear."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "Why does larger(4, 9.0) fail ordinary deduction even though int can convert to double?",
           "explanation": "The same parameter T is deduced from both arguments, producing int and double. Ordinary deduction does not first pick a common type by applying that conversion. The caller must choose consistent argument types or deliberately request a suitable specialization."
+        },
+        {
+          "type": "paragraph",
+          "text": "List a generic operation’s actual expression requirements, its semantic laws and its lifetime contract. Then test distinct concrete types and boundary cases such as ties and mixed representations. Templates are valuable when those requirements describe a real family of operations. Constraints in the next module make part of that family explicit at the interface, while semantic meaning still requires careful design and examples."
         }
       ]
     }
@@ -106,5 +140,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/temp.inst",
       "locator": "N4861, [temp.inst], implicit instantiation and required reachable definitions; consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

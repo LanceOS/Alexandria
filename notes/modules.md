@@ -2,6 +2,8 @@
 
 Status: Planning draft. This document records the intended learning experience and proposed implementation boundaries. It does not define the initial course catalog or commit to an implementation schedule.
 
+The [curriculum depth and teaching standard](curriculum-depth.md) is an adopted content requirement for all current and future units and modules. Fast learning comes from organization and sequencing; every module must still provide detailed explanations, worked and contrasting examples, and meaningful practice with explained answers. The implementation proposals below do not defer that content requirement.
+
 ## Purpose
 
 Alexandria should help people learn efficiently through clear sequencing, detailed explanations, worked examples, and meaningful practice. Modules should provide enough depth to develop understanding and apply it, including mathematical reasoning and writing code where appropriate.

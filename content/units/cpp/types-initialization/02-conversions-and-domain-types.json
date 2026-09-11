@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_types_initialization_conversions_and_domain_types",
-  "versionId": "cpp_core_types_initialization_conversions_and_domain_types_v1",
+  "versionId": "cpp_core_types_initialization_conversions_and_domain_types_v2",
   "slug": "conversions-and-domain-types",
   "title": "Conversions and domain types",
   "summary": "Use conversion rules and distinct types to keep different kinds of values from being confused.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This lesson assumes integer division, initialization, and simple function arguments. The aim is to make representation changes visible at the point where they affect meaning. A conversion can be required by an assignment, an arithmetic operation, or an explicitly written cast. Each has a source value, a destination type and a rule for producing the result. Ask separately whether the language defines that result and whether the application accepts it. A specified result is not automatically a sensible book identifier or reading duration."
+        },
+        {
+          "type": "paragraph",
           "text": "A value has both a representation and an application meaning. An integer might represent pages, seconds, or a database identifier. The compiler knows the declared type, but it does not infer that two int variables use different units. Converting between integer and floating-point representations can also discard information. Good declarations therefore answer two questions: what values can this representation hold, and what do those values mean to the application?"
         },
         {
           "type": "paragraph",
+          "text": "A useful domain analysis starts before choosing a type. A status is one of a small number of named alternatives; a page count is a quantity with arithmetic; an identifier primarily supports identity and lookup. Even if all three could be encoded using integers, their allowed operations differ. Status::queued plus another status has no meaning in this design. Adding two book identifiers is similarly questionable, although an unsigned-int alias does not prevent it. Distinct types let an interface preserve these differences. An alias mainly improves vocabulary; it cannot add validation or remove the underlying type’s operations."
+        },
+        {
+          "type": "paragraph",
           "text": "An alias introduced with using gives an existing type another name. It can make a declaration easier to read, but it does not stop arguments of the underlying type from being passed. A scoped enumeration introduced with enum class creates a distinct type and keeps its enumerators inside that type’s scope. It is appropriate for a small set of named choices, such as whether a reading item is queued or finished."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Design the type boundary for two integer-valued identifiers, BookId and MemberId, that must never be accidentally interchanged. Would two using aliases solve it?",
+          "explanation": "Two aliases of the same integer type would still be interchangeable. Distinct small classes provide separate types and can expose only the comparisons and construction operations the application needs. Validation belongs at their construction boundary if some integer values are forbidden. A scoped enumeration is useful for a closed set of named choices, but it does not by itself describe an open-ended, validated identifier space."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Follow the average expression from its operands outward. pages and sessions are both int objects with values five and two. static_cast<double>(pages) produces the floating-point value five before division is performed. The division therefore uses a floating-point operand and converts the other operand appropriately. The exact rational result is five halves, which this example can represent exactly as 2.5. Moving the cast outside the integer division changes the computation: five divided by two first becomes two, and converting two to double still represents two. Neither assignment to a double result nor more printed decimal places recreates information already discarded."
+        },
+        {
+          "type": "paragraph",
           "text": "The calculation converts pages to double before division. Both operands then participate in floating-point division, producing 2.5 for this exact example. Dividing the two integers first would produce 2, and converting that result afterward would not recover the discarded fraction. The placement of the conversion is therefore part of the algorithm. The example deliberately uses small nonnegative inputs and a nonzero divisor so those assumptions remain visible."
         },
         {
           "type": "paragraph",
           "text": "The BookId alias documents the intent of id, but its type is still unsigned int. Status, by contrast, is a separate enumeration type. The program tests a named enumerator instead of relying on a magic integer. No conversion to an integer is needed to choose a label. This keeps the output decision connected to the application meaning instead of an incidental numeric encoding."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider importing a measured reading duration of negative 2.75 seconds into an integer field. Floating-to-integer conversion truncates toward zero, producing negative two when that truncated value is representable. It does not round to the nearest integer and does not implement mathematical floor, which would give negative three. A positive 2.75 similarly truncates to two. Choosing rounding, rejection, or truncation is a domain policy, so it should be explicit in the importing operation instead of silently inherited from a cast."
+        },
+        {
+          "type": "paragraph",
+          "text": "The policy must also address range. A cast from an arbitrary huge floating value, infinity, or NaN is not a validation mechanism for an integer destination. The floating-to-integer rule requires the truncated value to be representable. For an introductory importer, restrict accepted input to a documented finite range and validate before conversion. In a different direction, integer-to-floating conversion can lose precision for sufficiently large integers even when the floating type has a much larger magnitude range. Precision asks which nearby values can be distinguished; range asks how large a magnitude can be represented. These are independent properties."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A program stores the result of 9 / 4 in a double and prints 2. Explain the error and where the conversion belongs if the desired result is 2.25.",
+          "explanation": "Both division operands are integers, so the fraction is discarded before the assignment. Convert at least one operand to double before dividing; then the operation computes 2.25 for these exact small values. Converting the already computed integer result, or changing only the result variable’s declaration, comes too late. Also retain a nonzero-divisor condition."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "Does BookId prevent passing an ordinary unsigned int where a BookId is expected?",
           "explanation": "No. It is an alias for unsigned int, so both names denote the same type. A separate class would be needed to enforce a distinct identifier type while providing suitable validation and operations."
+        },
+        {
+          "type": "paragraph",
+          "text": "Treat a cast as a visible implementation step in a larger argument: identify the unit or domain, decide the acceptable information loss, establish representability, and only then convert. Keep named choices as named choices when numeric encodings are unnecessary. Later strong domain types and duration libraries build on this reasoning; their benefit is making the assumptions harder to mix up at call sites."
         }
       ]
     }
@@ -128,5 +162,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.mul",
       "locator": "N4861, [expr.mul]; consulted 2026-09-11. Usual arithmetic conversions and integer division truncation."
     }
-  ]
+  ],
+  "version": 2
 }

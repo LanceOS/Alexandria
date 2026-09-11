@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "numerical_reason_about_rounded_numbers_module",
-  "versionId": "numerical_reason_about_rounded_numbers_v2",
+  "versionId": "numerical_reason_about_rounded_numbers_v3",
   "slug": "reason-about-rounded-numbers",
   "title": "Reason about rounded numbers",
   "summary": "Use a small decimal model to see why grouping can change an arithmetic result.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "A numerical result has at least three possible reference points: the intended physical quantity, the exact mathematical result for the supplied inputs, and the value actually stored by the program. They need not agree. A sensor may supply an uncertain input before any computation occurs. A finite format may then approximate that input, and arithmetic can round intermediate results. Keeping these stages separate prevents an unrealistic accuracy claim such as “printing twelve decimals means the measurement is accurate to twelve decimals.”"
+        },
+        {
+          "type": "paragraph",
+          "text": "Significant digits describe precision relative to magnitude. In the three-digit decimal model, 1.00, 10.0, and 1.00 times 10^3 each carry three significant digits, but the spacing between nearby values differs. Near 1000, 1001 rounds to 1000 under the stated nearest rule; near one, 1.01 is representable. This is different from rounding every quantity to three places after the decimal point. Our examples avoid exponent limits and halfway ties so we can isolate the effect of precision."
+        },
+        {
+          "type": "paragraph",
+          "text": "To trace a calculation, first write the exact result of each operation on the currently stored inputs, then round that intermediate before continuing. Do not secretly keep extra digits until the end. That would describe a different arithmetic model. Cancellation means subtracting quantities whose leading digits nearly agree. The subtraction may expose uncertainty introduced earlier rather than being the operation that originally lost the information. A useful investigation therefore examines the path through intermediate values, not just the last operator."
+        },
+        {
+          "type": "paragraph",
           "text": "Finite representations cannot store every real number exactly. A computation therefore combines input approximation with rounding introduced by operations. More printed digits do not create information that was never represented. Goldberg’s published survey explains representation, rounding error, and cancellation; its historical discussion is useful conceptual background but is not a replacement for the current hardware and language specifications."
         },
         {
           "type": "paragraph",
           "text": "For the trace, use three significant decimal digits and round to the nearest representable value after every operation. Assume a sufficiently wide exponent range so overflow and underflow are irrelevant. This is a deliberately small arithmetic model that makes lost low-order information visible on paper. The chosen values avoid halfway rounding cases, so no tie-breaking rule is needed for this example."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A developer rounds each input measurement to fewer digits before summing so that the displayed answer looks stable. What information should you request before accepting that change?",
+          "explanation": "Ask about input uncertainty, required output accuracy, units, and the effect of that extra rounding on representative and difficult cases. A consistent-looking answer can still be biased or inaccurate. Compare against an independent reference and distinguish intentionally quantized input from unintended loss in the algorithm. Formatting after calculation is a separate decision."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "In the first grouping, 1000 and one are both exact inputs, but their sum 1001 needs four significant digits. Rounding stores 1000; subtracting 1000 then exactly produces zero from those stored values. The absolute error relative to the exact real sum one is |0-1|=1, and relative error is 1/1=100 percent. In the second grouping, -999 fits in three significant digits, so adding 1000 returns one exactly in the toy model. This does not establish that regrouping to the right is always best; it identifies why this chosen set of magnitudes behaves differently."
+        },
+        {
+          "type": "paragraph",
           "text": "The first grouping loses the contribution of b before the large values cancel. The final subtraction is not enough to restore that information. This demonstrates non-associativity in the specified finite arithmetic: changing grouping changes the result. A parallel reduction or an aggressive optimization that changes evaluation grouping therefore deserves numerical review, even when both expressions are algebraically equivalent over the reals."
         },
         {
           "type": "paragraph",
           "text": "Absolute error is the magnitude of the difference between a computed result and a reference. Relative error divides that magnitude by the magnitude of a nonzero reference. Near zero, relative error can become enormous or undefined, while absolute error may better describe the application’s needs. A tolerance should come from the units, input uncertainty, and accuracy requirement rather than one magic constant used everywhere."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a second example, add ten one-unit corrections to a stored total of 1000 using the same three-digit model. Each separate update computes exact 1001 from the currently stored 1000, then rounds back to 1000. After ten updates the result is still 1000, although the exact sum is 1010. If the ten corrections are first accumulated from zero, their sum ten is exactly representable; adding that once to 1000 produces representable 1010. The change improves this case by preserving small contributions until they are large enough to survive the final addition."
+        },
+        {
+          "type": "paragraph",
+          "text": "The first method has absolute error ten and relative error 10/1010, approximately 0.009901, or 0.9901 percent. Whether that is acceptable depends on what the units and decision mean. Ten missing cents, ten missing kilometers, and ten missing experimental counts are different requirements. The toy regrouping is not a universal summation algorithm: mixed signs, larger lists, and other magnitudes require their own analysis. Use it to recognize that an algorithm can repeatedly discard individually valid small inputs without producing an exception."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical three-significant-digit decimal arithmetic\nRepeated updates: start 1000; repeat ten times round(1000+1)=1000\nFinal stored total: 1000; exact total: 1010\nGrouped updates: round(1+...+1)=10; round(1000+10)=1010\nAbsolute error of repeated updates: 10\nRelative error: 10/1010 ~= 0.009901",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "A reference value is 100 and the computed value is 100.04. Under the explicit rule absolute error <= 0.01 + 0.001*|reference|, does it pass? What about reference zero and computed 0.02?",
+          "explanation": "For reference 100, the allowance is 0.01+0.1=0.11 and the error is 0.04, so it passes. At reference zero, the allowance is 0.01 and the error is 0.02, so it fails. This invented tolerance illustrates combining absolute and relative scales; it is not a recommendation for all quantities."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Test representative magnitudes, near-zero results, and difficult cancellation cases against an independent high-accuracy reference when possible. Record the rounding assumptions and whether non-finite values are allowed. Separate exact counts, which may belong in integer arithmetic, from measured quantities that inherently carry uncertainty. Numerical correctness begins with defining an acceptable result, not merely checking that an arithmetic expression compiles."
+        },
+        {
+          "type": "paragraph",
+          "text": "Numerical review starts by naming the representation, rounding model, reference, and permitted error. Trace difficult magnitudes step by step and include near-zero outputs where relative error alone is unsuitable. A non-crashing calculation may still fail its numerical contract. This distinction becomes especially important when parallel execution or compiler options change the grouping of operations."
         }
       ]
     }
@@ -80,5 +124,5 @@
       "publicationYear": 1991
     }
   ],
-  "version": 2
+  "version": 3
 }

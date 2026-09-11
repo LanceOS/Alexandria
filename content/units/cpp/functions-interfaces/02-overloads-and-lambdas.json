@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_functions_interfaces_overloads_and_lambdas",
-  "versionId": "cpp_core_functions_interfaces_overloads_and_lambdas_v1",
+  "versionId": "cpp_core_functions_interfaces_overloads_and_lambdas_v2",
   "slug": "overloads-and-lambdas",
   "title": "Overloads and local callable objects",
   "summary": "Predict simple overload selection and use a lambda with a deliberate capture.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This module brings together function calls and object lifetime. Overloads answer which function a call names; captures answer which state a callable object carries. They solve different problems. The compiler resolves the overload using declarations and argument types, while a lambda object can store values that are later used each time it is invoked. Separating these stages prevents a common confusion: a stored callable is not a delayed overload search based on whatever value happens to arrive at runtime."
+        },
+        {
+          "type": "paragraph",
           "text": "Overloading allows several functions to share a name when their parameter lists distinguish the calls. The compiler considers the available declarations and the conversions needed for each argument. In a simple overload set, an exact match is preferred to a numeric conversion. Return types alone do not provide an ordinary way to overload a function, because a call must select which function supplies its result."
         },
         {
           "type": "paragraph",
+          "text": "For the simple numeric overloads, make a two-column candidate table. An int argument needs no numeric conversion to reach label(int), but needs a conversion to reach label(double). A double argument reverses that preference. A float argument can undergo floating-point promotion to double, which ranks better than its floating-to-integral conversion to int. These examples are governed by conversion categories, not by whether the numeric value happens to have a fractional part. A double containing 4.0 still selects the double overload. More complex cases add other ranking rules, so use this table as an introductory tool rather than an exhaustive algorithm."
+        },
+        {
+          "type": "paragraph",
           "text": "The two label overloads represent the same broad operation for two numeric types. label(4) selects the int overload, while label(4.5) selects the double overload. This is selection based on the argument expressions’ types, not a runtime test of the values. Real overload sets can become ambiguous when different candidates require competing conversions. Keep related overloads easy to distinguish instead of relying on surprising conversion chains."
+        },
+        {
+          "type": "reflection",
+          "prompt": "With only label(int) and label(double), predict the chosen overload for a double variable containing 4.0 and a float variable containing 4.0f. Explain without using the presence of a fractional value.",
+          "explanation": "The double argument exactly matches label(double). The float argument promotes to double, which is preferred over conversion to int in this overload set. Both select label(double) even though their current values are whole numbers. If labels must depend on mathematical integrality, that is a separate value test and policy inside an appropriate operation."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The two label calls finish before the lambda is created. Each returns a string_view into a string literal, so the view borrows characters with a lifetime long enough for the output. Next limit is initialized to ten. Creating allowed evaluates its value capture and stores that ten in the closure. No pages comparison occurs yet. The assignment to the outer limit changes it to twenty, then the two calls supply twelve and eight as fresh parameter values. The saved ten makes the comparisons false and true respectively. Printing the outer limit demonstrates that captured state and surrounding state now differ."
+        },
+        {
+          "type": "paragraph",
           "text": "The lambda expression constructs a callable object and stores it in allowed. Its parameter pages is an input supplied each time the callable is invoked. Its capture limit comes from the surrounding scope when the lambda object is created. The brackets describe captured state; the parentheses describe call-time inputs. These are separate channels of information, which explains why changing the outer limit afterward does not change this lambda’s saved value."
         },
         {
           "type": "paragraph",
           "text": "Capturing limit by value gives the closure its own copy of the integer. The later assignment changes the original limit to 20, but allowed still compares each argument with 10. Both output lines therefore follow from the closure’s stored state. auto is convenient because every lambda expression has its own closure type, and the caller normally needs to invoke that type without spelling its implementation-specific name."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a contrasting scheduling scenario, imagine saving a predicate to apply to a later batch of requests. Capturing the threshold integer by value makes the predicate a snapshot of the rule at creation. Capturing by reference makes it consult a live setting at each invocation, provided that setting still exists. Neither policy is universally right: a historical batch report may require the original threshold, while a current admission decision may require the latest one. The lifetime and policy choices should be made together."
+        },
+        {
+          "type": "paragraph",
+          "text": "If the predicate is returned from a helper whose threshold is a local integer, a reference capture cannot safely provide that live setting after the helper returns. Copying the closure afterward merely copies the borrowing relationship. A value capture of that integer avoids this particular dangling relationship because the closure contains its own integer. This does not imply that every value capture owns everything reachable through it: copying a pointer or a view would still copy a non-owning handle. Inspect the captured type as well as the capture punctuation when reviewing retained callbacks."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A report must apply the same threshold to every row even if the settings object changes between rows. Would [&limit] or [limit] express that requirement for an int threshold? Explain the lifetime consequence as well.",
+          "explanation": "[limit] stores the integer value present at closure creation, so all rows use that snapshot. The closure’s integer does not depend on the lifetime of the original limit. [&limit] would observe subsequent changes and require the original integer to remain alive. Both forms can be safe for immediate local use, but only the copied integer naturally expresses this stable-batch policy."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "What would allowed(12) return if the lambda captured &limit instead?",
           "explanation": "It would return true because the call occurs after the original limit becomes 20. That reference capture would be safe in this program because the lambda is called while limit is alive, but it would require more care if retained beyond main’s scope."
+        },
+        {
+          "type": "paragraph",
+          "text": "Read a callable in three stages: determine the selected operation, identify its stored state, and then trace each invocation with its call-time inputs. A lambda is an ordinary callable object whose execution happens when something invokes it. When such an object is passed to an algorithm or retained as a callback, review both what it computes and how long its captured dependencies remain valid."
         }
       ]
     }
@@ -105,6 +139,18 @@
       "edition": "N4861 (C++20 working draft)",
       "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.spec.auto",
       "locator": "N4861, [dcl.spec.auto]; consulted 2026-09-11. Placeholder type deduction from initializers."
+    },
+    {
+      "id": "cpp_core_functions_interfaces_overloads_and_lambdas_depth_conv_fpprom",
+      "title": "C++20 working draft N4861: conv.fpprom",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/conv.fpprom",
+      "locator": "N4861 [conv.fpprom]; paragraphs 1–2, float-to-double promotion used in overload ranking; consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

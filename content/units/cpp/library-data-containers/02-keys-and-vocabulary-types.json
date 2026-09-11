@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_library_data_containers_keys_and_vocabulary_types",
-  "versionId": "cpp_core_library_data_containers_keys_and_vocabulary_types_v2",
+  "versionId": "cpp_core_library_data_containers_keys_and_vocabulary_types_v3",
   "slug": "keys-and-vocabulary-types",
   "title": "Keys, records, and alternative values",
   "summary": "Use maps and vocabulary types to express relationships without parallel containers.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "Start from the difference between a position and an identity. In a vector, an integer position selects where a value currently appears; in a map, a key identifies an association according to a comparison rule. A counting task needs one count for each distinct title even when repeated occurrences are separated in the input. A map expresses that relationship directly. The resulting collection has one element per equivalent key, not one element per input occurrence."
+        },
+        {
+          "type": "paragraph",
           "text": "A sequence is useful when position matters, but many applications identify information by a key. A map connects each unique key with an associated value. This avoids maintaining two separate vectors whose matching positions must stay synchronized. The map owns both keys and values. With the default ordering for strings, iteration visits keys in lexical order, so its printed order can be predicted from the keys rather than insertion history."
         },
         {
           "type": "paragraph",
+          "text": "Representation choices also encode whether information is simultaneous or alternative. A record with title and pages holds both fields. A variant of int and string holds one of two different forms at a time, subject to its documented exceptional valueless state. An optional integer holds either an integer or no value. These distinctions reduce the number of informal conventions callers must remember. A sentinel such as negative one or an empty string can collide with an otherwise meaningful value unless the application reserves it explicitly. Vocabulary types make the structural relationship visible while leaving domain validation to your design."
+        },
+        {
+          "type": "paragraph",
           "text": "An ordered map uses its comparison relation to decide whether keys are equivalent. This relation must satisfy the ordering requirements of the container. Unordered maps instead combine hashing with a compatible equality relation and do not promise a lexical iteration order. Container selection therefore affects more than the spelling of insertion: it changes ordering, performance guarantees, and the requirements imposed on keys."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Choose a representation for each: a required title plus page count, a possibly missing page count, and a field containing either a count or a textual status. Explain why one representation should not be used indiscriminately for all three.",
+          "explanation": "Use a named record for simultaneously required fields, optional<int> for presence or absence of a count, and a variant with the relevant alternative types for the count-or-status choice. A tuple can group values but may communicate field meaning less clearly than a record. None of these alone checks nonnegative counts or allowed statuses. The shape of the type encodes the relationship; validated construction and operations encode the domain rules."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Trace the input in its original order. The first Orbits occurrence has no map entry, so indexing inserts a zero count and increment changes it to one. Atlas is missing next, so it receives its own zero and then one. The second Atlas uses the existing mapped value and increments it to two. The iteration order comes from the ordered string keys, which yields Atlas before Orbits rather than preserving insertion order. Finally reading contains the integer alternative with value twenty-four. get_if<int> succeeds, and only after the pointer test does the program read that contained value."
+        },
+        {
+          "type": "paragraph",
           "text": "The example counts titles by using a map from string to int. counts[title] finds the associated count; if the key is missing, it inserts a value-initialized integer, which is zero. Incrementing then records the occurrence. This behavior is convenient for counting, but it also means indexing is not a read-only lookup. To inspect without inserting, use a lookup operation such as find or contains."
         },
         {
           "type": "paragraph",
           "text": "The structured binding in the loop gives names to the key and count stored in each map element. The const reference avoids copying the strings and prevents modifications through this loop. The original input contains Atlas twice and Orbits once, so the output reflects both aggregation and key order. The sample is tiny enough that all counts fit in int; an unbounded counting service would need a deliberate overflow policy."
+        },
+        {
+          "type": "paragraph",
+          "text": "A contrasting lookup task wants to display a count only if a title has already appeared. Indexing with a new key is wrong for that requirement because it creates an association with zero. A find-style lookup instead lets the caller distinguish absence from an existing zero count without insertion. This matters when zero itself represents a known book with no recorded sessions: absent and known-with-zero may require different user-interface messages. The representation should retain whichever distinction the application actually needs."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now set the Reading value conceptually to a string status such as paused. Asking get_if<int> returns a null pointer; asking for the string alternative returns access to the status. No integer conversion is attempted because the question is which alternative exists. If a later operation replaces the contained value, previously borrowed access to the old alternative must not be retained. A handler that assumes every Reading always contains pages therefore needs either an enforced precondition or an explicit alternative-handling branch. A valid variant type alone cannot prove that an integer page count is nonnegative or that a status string is recognized."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Given the titles Cedar, Atlas, Cedar, Atlas, Cedar, derive the ordered map output and the number of map elements. Why is that element count different from the input length?",
+          "explanation": "Atlas has count two and Cedar has count three, so default string ordering prints Atlas first and Cedar second. The map contains two associations because it represents distinct equivalent keys. The input has five occurrences. Counting changes the mapped integer for a repeated key rather than inserting a separate map element for every occurrence. All arithmetic fits comfortably in int for this finite example."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "What happens if counts[\"New\"] is used only to check whether that title exists?",
           "explanation": "It inserts New with a zero count when the key is missing, changing the container during the supposed check. contains or find expresses a lookup without that insertion side effect."
+        },
+        {
+          "type": "paragraph",
+          "text": "Choose containers for the relationship you need and choose vocabulary types for the states you must distinguish. Before using an access operation, ask whether it can insert, report absence, throw, or return a borrow. Then make those outcomes visible in the caller. This keeps lookups from silently mutating state and keeps alternative values from being interpreted through unsupported guesses."
         }
       ]
     }
@@ -127,7 +161,18 @@
       "edition": "N4861 (C++20 working draft)",
       "url": "https://timsong-cpp.github.io/cppwp/n4861/unord.req",
       "locator": "N4861, [unord.req]; consulted 2026-09-11. Paragraphs 2–6: hash and equality requirements, equal hashes for equivalent keys, and unspecified absolute iteration order."
+    },
+    {
+      "id": "cpp_core_library_data_containers_keys_and_vocabulary_types_depth_variant_get",
+      "title": "C++20 working draft N4861: variant.get",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/variant.get",
+      "locator": "N4861 [variant.get]; paragraphs 7–10, get_if returns null for a nonmatching alternative; consulted 2026-09-11."
     }
   ],
-  "version": 2
+  "version": 3
 }

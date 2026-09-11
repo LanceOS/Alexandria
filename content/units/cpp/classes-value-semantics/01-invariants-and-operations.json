@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_classes_value_semantics_invariants_and_operations",
-  "versionId": "cpp_core_classes_value_semantics_invariants_and_operations_v1",
+  "versionId": "cpp_core_classes_value_semantics_invariants_and_operations_v2",
   "slug": "invariants-and-operations",
   "title": "Classes that maintain a useful invariant",
   "summary": "Put related state behind operations that preserve its meaning.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "Bring the earlier lessons on initialization, functions and arithmetic boundaries into this class. The class’s invariant is a statement about every usable public state: total is nonnegative, completed is nonnegative, and completed does not exceed total. Each public operation can be reviewed as a small proof. Construction must establish the statement, queries must observe it without breaking it, and updates must either preserve it or report failure while leaving the previous valid state available."
+        },
+        {
+          "type": "paragraph",
           "text": "A class groups representation and operations into a type. Its most useful purpose is often to preserve a relationship between values. A reading-progress value, for example, can require a nonnegative total and a completed count between zero and that total. This relationship is an invariant: it should hold after construction and after every successful public operation. Users of the class should not have to reconstruct that argument every time they inspect it."
         },
         {
           "type": "paragraph",
+          "text": "The representation stores total and completed rather than storing total, completed and remaining independently. remaining is derived as total minus completed. Storing all three quantities would create another consistency obligation after every update. A derived query avoids that duplicated state for this simple class. This is a design tradeoff, not a universal ban on caching: if a later expensive calculation needs a cache, its update rules must be explicit. Here subtraction is simple and its representability follows directly from the invariant, so a separate remaining member would add more opportunities for inconsistent state than benefit."
+        },
+        {
+          "type": "paragraph",
           "text": "Private data members prevent ordinary callers from assigning arbitrary values directly. That alone does not establish an invariant; the constructor and public operations must still be correct. The example defines a clear input policy: a negative requested total is normalized to zero. A different application might reject that input instead. The important design step is to choose and communicate the policy rather than leave the resulting state accidental."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A teammate adds a public setter that assigns completed directly. What must its contract enforce, and why does making completed private not solve an incorrect setter?",
+          "explanation": "The setter must accept only values between zero and the current total, or apply another explicitly defined policy that preserves that relationship. For a rejection policy it must check before mutation and leave state unchanged when invalid. Private access prevents callers from bypassing operations, but the implementation of each allowed operation still determines whether invalid states can be created. Encapsulation reduces the review surface; it does not prove the remaining code correct."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Start with construction from ten: total_ becomes ten and completed_ becomes zero, establishing the invariant. advance(4) first checks that four is nonnegative and no greater than the remaining ten. It adds four, leaving the valid state (10, 4). advance(8) then checks against the new remaining amount six, rejects the request, and leaves that same state intact. The Boolean outputs describe two different attempted transitions, not two updates. Finally completed returns four and remaining computes six from the valid representation. Each observation can be explained from a specific earlier transition."
+        },
+        {
+          "type": "paragraph",
           "text": "The constructor initializes total_ before its body runs, and completed_ uses its default member initializer of zero. Member initialization follows the order of member declarations in the class, regardless of the order written in a constructor’s initializer list. Here that order is uncomplicated, but it becomes important when one member’s initialization depends on another. An explicit constructor also prevents an ordinary integer from silently becoming a Progress value through implicit conversion."
         },
         {
           "type": "paragraph",
           "text": "advance rejects negative additions and additions larger than the remaining amount. It checks before adding, so accepted arithmetic stays within the already representable total. A rejected operation leaves the object unchanged and reports false. The output therefore records a successful advance of four pages, an unsuccessful attempt to add eight more, and a remaining amount of six. This small contract makes the update easy to test."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now trace the boundary case of construction from negative five. The declared normalization policy makes total zero and completed zero. advance(0) succeeds and changes nothing: zero fits within zero remaining pages. advance(1) fails without mutation, and advance(-1) also fails. This reveals an intentional interface choice: returning true means that the requested operation was accepted, not necessarily that state changed. If a user interface needs to distinguish accepted no-ops from actual progress, that is an additional outcome to design rather than an assumption to attach to bool."
+        },
+        {
+          "type": "paragraph",
+          "text": "A tempting alternative guard compares completed plus pages with total. That computes the addition before knowing whether it fits. For large positive page requests, the attempted sum can exceed the int range even though the eventual comparison would reject it. The chosen subtraction-based guard relies on already valid state: total minus completed is between zero and total, so it is representable. Once pages is known to fit that remaining amount, the accepted sum cannot exceed total. The ordering of validation and mutation is therefore part of the correctness argument, not merely a stylistic preference."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Trace Progress{7} followed by advance(7), advance(0), and advance(1). Give all results and the final completed and remaining values, explaining the zero request.",
+          "explanation": "The first call returns true and reaches completed seven. The zero request also returns true because zero is nonnegative and no greater than the remaining zero; it leaves state unchanged. The final request returns false because one exceeds zero remaining. The final queries return seven and zero. These results distinguish a rejected update from an accepted operation that happens to be a no-op."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "Why check pages against total_ - completed_ before adding it?",
           "explanation": "The invariant makes the remaining amount nonnegative and representable. Checking the addition against that amount avoids overshooting the total and prevents the accepted sum from overflowing int."
+        },
+        {
+          "type": "paragraph",
+          "text": "Class design begins with valid states and permitted transitions. Write those down before adding getters, setters or inheritance. Prefer queries that expose meaningful values rather than writable references into the representation. This lets a caller depend on the invariant without knowing every storage detail and gives tests a principled set of boundary cases: construction limits, exact completion, zero changes and rejected requests."
         }
       ]
     }
@@ -106,5 +140,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/class.copy.ctor",
       "locator": "N4861, [class.copy.ctor]; consulted 2026-09-11. Implicit memberwise copy/move and special-member declaration conditions."
     }
-  ]
+  ],
+  "version": 2
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "robotics_coordinate_frames_module",
-  "versionId": "robotics_coordinate_frames_version_1",
+  "versionId": "robotics_coordinate_frames_version_2",
   "slug": "transform-observation",
   "title": "Transform an observation with its frame and time",
   "summary": "Track direction, units and timestamps when combining sensor coordinates.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "robotics_coordinate_frames_part_concepts",
-      "title": "Understand the model",
+      "title": "Frames, direction, units, and time",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "A point is meaningful relative to a coordinate frame. ROS 2 tf2 tracks relationships between frames over time and can transform stamped data between source and target frames. Direction matters: converting coordinates from sensor to world uses the corresponding data transformation, and the reverse conversion uses its inverse. A moving robot also makes time part of the question. Combining an old measurement with a new pose can describe a location that was never observed. Write down source frame, target frame, units and timestamp before applying arithmetic. Translation-only examples are useful first checks, but real rigid transforms generally include rotation as well."
+        },
+        {
+          "type": "paragraph",
+          "text": "A coordinate pair is not a complete observation. The same numbers can identify different physical points in different frames, and the same moving frame can identify different world locations at different times. Carry source frame, units and observation timestamp with the measurement. The target frame states the coordinates you want to obtain; it does not change which physical observation you are describing."
+        },
+        {
+          "type": "paragraph",
+          "text": "For translation-only data transformations with aligned axes, world coordinates equal sensor coordinates plus the world position of the sensor origin. This direction can be checked by transforming the local origin (0,0): it should become the sensor's world position. The inverse subtracts that translation. Calling the transform world_from_sensor helps communicate the data direction, while the actual API's frame and transform conventions must still be checked."
+        },
+        {
+          "type": "paragraph",
+          "text": "Rotation changes both components before translation. For the explicit two-dimensional convention used later, a positive ninety-degree rotation maps (x,y) to (-y,x). The translation then places the rotated local origin at its world position. Reversing the transformation requires undoing translation and then undoing rotation; merely negating the translation does not generally invert the combined operation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Time selection is an application decision when required transform data is missing. Waiting may yield the requested transform but consume a deadline. Dropping a measurement preserves the time contract but loses information. Estimation can provide a value under an additional motion model, whose error assumptions must be stated. Silently choosing the latest available pose produces a different temporal question while preserving deceptively plausible numbers."
+        },
+        {
+          "type": "reflection",
+          "prompt": "At the observation timestamp, a sensor with world origin (4,1) measures local point (2,3). A second frame has world origin (1,0). All axes are aligned and units are metres. What coordinates describe the observation in the second frame?",
+          "explanation": "The world point is (6,4). Subtracting the second frame's world origin gives (5,4) in that frame. Transforming its origin provides a sanity check: world (1,0) must map to local (0,0). This calculation assumes aligned axes and the same metre units; a rotated frame would need an additional inverse rotation."
         }
       ]
     },
     {
       "id": "robotics_coordinate_frames_part_trace",
-      "title": "Work through an example",
+      "title": "Trace translation and a rotated observation",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The wrong-time result is one metre away in x even though every addition is arithmetically correct. The error is semantic: the transform and measurement describe different moments. The round trip checks direction for this simple model. If rotation were present, subtracting a translation alone would not form the full inverse. Frame-aware APIs reduce manual bookkeeping, but they still require correctly identified frames and a policy for unavailable transform data."
+        },
+        {
+          "type": "paragraph",
+          "text": "The observation is stamped at one second, so use the sensor origin (4,1) from that time. Add componentwise: 2+4=6 and 3+1=4. The result (6,4) is a world coordinate for that recorded observation. Applying the inverse at the same time subtracts (4,1), recovering (2,3). This checks direction and arithmetic under the translation-only assumptions."
+        },
+        {
+          "type": "paragraph",
+          "text": "The pose at two seconds is (5,1). Using it adds an extra metre in the world x direction, yielding (7,4). The arithmetic operation is identical, but the input pair no longer describes one observation time. A finite result and a successful API call cannot detect that semantic mismatch if the wrong timestamp was supplied intentionally or by mistake."
+        },
+        {
+          "type": "callout",
+          "title": "Trace translation and a rotated observation",
+          "text": "Contrasting rotation: at one second let sensor axes be rotated ninety degrees counterclockwise relative to world axes, and let the sensor origin remain at world (4,1). Keep the observed local point (2,3)."
+        },
+        {
+          "type": "paragraph",
+          "text": "First rotate the local vector using the stated convention: (2,3) becomes (-3,2). Then add translation: (-3,2)+(4,1)=(1,3). For the inverse, subtract the origin to obtain (-3,2), then rotate clockwise using (a,b)→(b,-a), recovering (2,3). The inverse requires both steps in the reverse order."
+        },
+        {
+          "type": "paragraph",
+          "text": "If translation is added before rotation, the incorrect calculation rotates (6,4) into (-4,6). This demonstrates that the two operations do not commute in this example. The numbers and rotation convention are deliberately explicit; they do not substitute for reviewing a real system's handedness, axis naming and transform representation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A point was measured at one second, but the available buffer contains only a transform at two seconds. Is substituting it equivalent to a successful exact-time lookup?",
+          "explanation": "No. The translation example shows that substitution changes the world location by one metre. The application must either wait within its permitted deadline, reject the observation, or explicitly estimate under a documented model. Reporting which policy was used is part of the result. A missing transform should not be hidden by relabeling newer data as if it described the measurement time."
         }
       ]
     },
     {
       "id": "robotics_coordinate_frames_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice transformations and unavailable data",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "If the coordinate calculation compiles and produces finite numbers, has the robot necessarily located the observed point correctly?",
           "explanation": "No. The types and arithmetic may be valid while frame direction, units or timestamps are wrong. In the trace both world results are finite, but only (6,4) corresponds to the stated observation time. Correct data interpretation must be checked alongside numerical calculation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Frame-aware reasoning begins before matrix arithmetic. Name the physical quantity, data direction, units and time, then derive a small origin and round-trip check. Use explicit rotation examples to test operation order. These checks transfer to camera, arm and map coordinates, while the real robot's transform conventions and timing uncertainty remain part of the measurement contract."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://raw.githubusercontent.com/ros2/ros2_documentation/jazzy/source/Concepts/Intermediate/About-Tf2.rst",
       "locator": "Primary documentation: Overview, Publishing transforms and Position; official documentation source, coordinate frames and time; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

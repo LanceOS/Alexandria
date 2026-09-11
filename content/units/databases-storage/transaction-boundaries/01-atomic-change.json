@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "databases_storage_transaction_boundaries_module",
-  "versionId": "databases_storage_transaction_boundaries_version_1",
+  "versionId": "databases_storage_transaction_boundaries_version_2",
   "slug": "atomic-change",
   "title": "Keep a multi-step database change within one transaction",
   "summary": "Define a data invariant and trace commit versus rollback.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "databases_storage_transaction_boundaries_part_concepts",
-      "title": "Understand the model",
+      "title": "Transactions, invariants, and connection state",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "A transaction groups database operations under a commit or rollback boundary. SQLite supports explicit transactions and has only one simultaneous writer, while readers have their own transaction behavior. An application must examine errors rather than assume every statement failure automatically rolls back all prior work. Different errors can leave different transaction states. Treat transaction completion as an explicit operation with a result. A C++ connection object going out of scope and a successful business operation are not interchangeable events. Start by writing the invariant the transaction is intended to preserve, then locate every statement that participates in it."
+        },
+        {
+          "type": "paragraph",
+          "text": "Atomicity concerns the database changes enclosed by a transaction boundary: the operation should not finish with only an arbitrary subset committed. It does not decide whether the operation is sensible. Moving three items twice preserves the total but may still be a business error. Correctness therefore has at least two layers: preserve structural invariants such as nonnegative quantities, and perform exactly the intended transfer according to an application identity and result policy."
+        },
+        {
+          "type": "paragraph",
+          "text": "Think of the connection as having state before examining statements. Outside an explicit transaction, SQLite can create transactions automatically for statements. Inside the explicit transfer, both updates participate in the same transaction. A successful update is progress within that transaction; it is not the same as successful commitment. Keep a record of whether the transaction is active, whether its intended work completed and what the final commit or rollback reported."
+        },
+        {
+          "type": "paragraph",
+          "text": "Validation also belongs inside the consistency story. Reading A=8, leaving the transaction, and later subtracting three assumes the stock did not change in between. Our worked example explicitly excludes competing writers so that arithmetic is visible. In a concurrent application the stock check and the update need an appropriate transaction or conditional-update contract. A rejected quantity must remain a deliberate result even when the SQL statement itself ran without an execution error."
+        },
+        {
+          "type": "paragraph",
+          "text": "SQLite documents that different errors can leave a transaction active or roll it back. Do not use a single catch-all assumption about connection state. In particular, a busy result from COMMIT can leave the transaction active so that commit can be retried. Retrying that commit is a different operation from repeating the two stock updates. The recovery path must know which stage failed before deciding what can safely run again."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Bins initially contain A=8 and B=2. Attempt to transfer nine items from A to B. What should validation establish before either update, and what committed state should remain after rejection?",
+          "explanation": "Nine exceeds A=8, so the application rejects the requested transfer. If no mutation has occurred, quantities remain A=8 and B=2. In a concurrent implementation the availability check must be tied to the actual update so another writer cannot invalidate the assumption. Reporting a negative quantity after the fact is not equivalent to enforcing the precondition."
         }
       ]
     },
     {
       "id": "databases_storage_transaction_boundaries_part_trace",
-      "title": "Work through an example",
+      "title": "Trace rollback and a busy commit",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The intermediate total of seven is an unfinished transaction state, not a valid completed transfer. If each update were committed independently, a failure between them could leave that invalid state permanently visible. The rollback branch is explicit because a failed statement alone does not uniformly tell the application which earlier changes survived. Quantity checks and constraints should also prevent an attempted transfer larger than the available stock."
+        },
+        {
+          "type": "paragraph",
+          "text": "Trace the invariant at each boundary. Initially 8+2=10. The debit creates a private intermediate calculation 5+2=7. The credit restores 5+5=10. Only after commit succeeds is the completed transfer established for the database. This temporary violation inside the logical operation is why the two updates belong together. A transaction is not a requirement that every individual statement already express the whole business invariant."
+        },
+        {
+          "type": "paragraph",
+          "text": "In the rollback alternative, the first update succeeded and the second did not. We explicitly assume rollback succeeds, which discards the transfer's unfinished change and restores A=8, B=2. If rollback itself fails, the trace no longer establishes that final state. The application should surface an unresolved outcome and use the database's documented recovery information rather than announce that the stock is definitely restored."
+        },
+        {
+          "type": "callout",
+          "title": "Trace rollback and a busy commit",
+          "text": "Contrasting retry: both stock updates finish, producing A=5 and B=5 within the active transaction, but COMMIT reports SQLITE_BUSY."
+        },
+        {
+          "type": "paragraph",
+          "text": "Under SQLite's documented busy-commit behavior, the transaction remains active. Once the blocking condition is resolved, retrying COMMIT can complete this same transfer. If the application instead reruns the debit and credit first, it changes the transaction's values to A=2 and B=8. The invariant total remains ten, yet it moved six items rather than three. An invariant check alone would miss this duplicate business action."
+        },
+        {
+          "type": "paragraph",
+          "text": "A different ambiguity occurs if commitment succeeds but the client loses the response. Blindly starting the transfer again can also duplicate it. One possible application design records a unique transfer identifier and its accepted outcome in the same transaction as the quantities, allowing a retry to find the earlier result. That is a proposed idempotency design, not a feature automatically supplied by every connection wrapper."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why does a destructor that attempts rollback not prove a successful transfer, and what additional outcome does the caller need?",
+          "explanation": "Rollback cleanup can help prevent unfinished work from escaping, but successful business completion requires an explicit successful commit after all intended statements and checks. The caller must receive that result. A destructor also has an error-reporting problem if cleanup fails, so the design must not discard the explicit completion result or silently equate leaving scope with success."
         }
       ]
     },
     {
       "id": "databases_storage_transaction_boundaries_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice validation and completion",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "If the second statement fails, is it enough for the caller to print an error and continue using the same connection?",
           "explanation": "No. It must establish the transaction state and handle it deliberately, commonly by rolling back the intended operation and checking the outcome. Earlier changes may still be part of an active transaction. Continuing without resolving that state can mix an abandoned transfer with unrelated work and obscure the invariant."
+        },
+        {
+          "type": "paragraph",
+          "text": "Review a database change by naming its invariant, participating statements, active transaction state and completion result. Then trace failures at each boundary, including statement failure, busy commit and lost response. The same method transfers to account changes, reservation systems and multi-row edits, while the details of isolation and recovery must be checked for the actual database engine and configuration."
         }
       ]
     }
@@ -71,7 +122,8 @@
         "SQLite developers"
       ],
       "url": "https://sqlite.org/lang_transaction.html",
-      "locator": "Primary documentation: Sections 2, 2.1 and 3; explicit transactions, one writer, error handling; consulted 2026-09-11"
+      "locator": "Primary documentation: sections 2 Transactions, 2.1 Read transactions versus write transactions, 2.2 DEFERRED, IMMEDIATE, and EXCLUSIVE transactions, 2.3 Implicit versus explicit transactions (including busy COMMIT and retry), and 3 Response To Errors Within A Transaction; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

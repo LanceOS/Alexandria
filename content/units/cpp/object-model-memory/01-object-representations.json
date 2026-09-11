@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_object_representations_module",
-  "versionId": "cpp_object_representations_v1",
+  "versionId": "cpp_object_representations_v2",
   "slug": "object-representations",
   "title": "Objects, storage, and representation",
   "summary": "Reason about an object’s value separately from the bytes that represent it.",
@@ -23,6 +23,19 @@
         {
           "type": "paragraph",
           "text": "For a complete trivially copyable object, the language permits saving its underlying bytes into a suitable byte array and copying them back to restore its value. That narrow rule is useful for understanding representations. It does not authorize byte-copying ownership-bearing objects such as std::string, nor does it define a representation shared by different machines or program versions."
+        },
+        {
+          "type": "paragraph",
+          "text": "A value such as the integer 42 is the meaning an operation uses. An object representation is the storage-level encoding through which an implementation maintains that meaning. The two are related but not interchangeable: padding can contribute to storage without contributing to the value, and implementation choices can produce different layouts for the same abstract value. A program that depends on a representation therefore needs a narrower contract than one that only uses ordinary integer operations."
+        },
+        {
+          "type": "paragraph",
+          "text": "There are also three distinct validity questions: does the storage provide enough bytes, is its address suitably aligned, and is there a live object of the intended type whose representation may be accessed this way? A cast changes a pointer expression’s type; it does not provide a general proof of those conditions. The byte-saving example avoids that construction problem by working with an int whose lifetime has already begun."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why is the saved array sized with sizeof(count) rather than a literal 4, even on a machine where int appears to occupy four bytes?",
+          "explanation": "The round trip must copy the complete representation of this int on the selected implementation. sizeof(count) expresses that size directly without assuming a particular width. A literal four would introduce a platform assumption and might copy too little or too much elsewhere. The example is about a language-permitted round trip, not a fixed external encoding."
         }
       ]
     },
@@ -49,6 +62,29 @@
         {
           "type": "paragraph",
           "text": "Storage must have appropriate size and alignment, and an object’s lifetime must have begun before ordinary object operations are valid. Explicit construction and destruction require matching those transitions. Casting an arbitrary buffer to T* does not generally satisfy all of them. std::bit_cast is another constrained tool for representation conversion: equal size and trivially copyable types are necessary, but a produced representation must still be valid for its destination type."
+        },
+        {
+          "type": "paragraph",
+          "text": "The static assertion establishes that int meets the trivially copyable condition used by this demonstration. The first memcpy writes the current representation into an array large enough to hold it. Assigning 9 then changes the int through an ordinary value operation. The second memcpy restores the saved representation to the same live object, and the specified round-trip guarantee restores its original value. Nothing in that trace requires guessing how 42 is laid out in memory."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Second worked case — distinguish saved representation from current value",
+          "code": "count begins as 42\nsaved receives count’s representation\ncount is assigned 9\nPrinting count now would observe 9\nRestore saved into the same count object\nPrinting count afterward observes 42\nChanging count never changed the independently saved byte array."
+        },
+        {
+          "type": "paragraph",
+          "text": "A valid round trip is narrower than accepting arbitrary input bytes. If an external file supplies a byte sequence, you no longer know that it came from a valid object of this type under the same representation rules. A different width, byte order, or invalid destination representation can break the reasoning. The demonstration deliberately copies bytes it just saved rather than manufacturing a pattern or treating an untrusted file as an object."
+        },
+        {
+          "type": "paragraph",
+          "text": "Nor does byte copying replace an ownership-aware copy operation. A string may manage storage and internal relationships that its constructors, assignments, and destructor maintain. Duplicating its raw bytes is not the same as asking the type to create another valid independently owned string. The trivially copyable restriction is a real boundary; removing the static assertion while reusing the same code would not make the technique general."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Could a test compare raw bytes of two objects and use equality of their field values as a promise that every byte must match?",
+          "explanation": "Not generally. Padding and representation choices are not the same as the semantic values of the fields. Compare values with their specified operations when that is the requirement. A representation-level comparison needs a separately justified contract covering every compared byte; the local restoration guarantee does not establish such a contract."
         }
       ]
     },
@@ -64,6 +100,22 @@
         {
           "type": "paragraph",
           "text": "Use this material when implementing low-level libraries whose contracts require representation access. Prefer values, standard containers, and explicit serialization in ordinary code. Deeper work on unions, implicit object creation, placement construction, and pointer reuse belongs here, with a standards reference for each operation; it should not be inferred from an example that happens to work in one compiler."
+        },
+        {
+          "type": "paragraph",
+          "text": "Define a portable format independently of an in-memory class. For a bounded nonnegative count, a hypothetical format could specify two eight-bit octets in most-significant-first order and reject values outside 0 through 65535. The value 258 would then be represented by octets 1 and 2 because 1 times 256 plus 2 equals 258. This is an explicit format calculation, not a claim that a C++ int occupies two bytes or uses that order."
+        },
+        {
+          "type": "paragraph",
+          "text": "Encoding and decoding such a format operate on values according to its rules. A decoder checks that the input contains the required fields and that each field is valid before constructing the application value. Versioning and optional fields require additional format rules. These checks belong to serialization even when a particular machine’s memory layout happens to resemble the format today."
+        },
+        {
+          "type": "paragraph",
+          "text": "std::bit_cast is also constrained. Equal size and trivially copyable source and destination types are necessary, but they do not imply that every possible source bit pattern represents a valid destination value. Study the exact result-representation rule before using it for a new pair of types. It is not a universal parsing operation, ownership transfer, or way to ignore lifetime requirements."
+        },
+        {
+          "type": "paragraph",
+          "text": "For ordinary application logic, copying a value through its type’s supported operation is usually the clearer statement of intent. Reach for representation access when a low-level contract actually requires it, and write down the type, lifetime, size, alignment, and representation assumptions that make each operation valid. That checklist explains the safe example without licensing unrelated pointer or serialization tricks."
         }
       ]
     }
@@ -99,5 +151,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/bit.cast",
       "locator": "Primary standards draft, [bit.cast]: constraints and valid result representations. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
     }
-  ]
+  ],
+  "version": 2
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines",
-  "versionId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_v1",
+  "versionId": "cpp_core_iterators_algorithms_ranges_lazy_range_pipelines_v2",
   "slug": "lazy-range-pipelines",
   "title": "Lazy range pipelines",
   "summary": "Combine filtering and transformation while tracking the data that a view borrows.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This lesson assumes half-open traversal, pure predicates and owner lifetimes. A pipeline is a description of how to obtain values when traversal asks for them. Its stages are composed in a particular order. Filtering examines source elements and determines which are eligible; transformation determines the value exposed for an eligible element. There is no automatically stored intermediate vector between those stages in this example, so the timing of evaluation follows iteration rather than the visual placement of the declaration alone."
+        },
+        {
+          "type": "paragraph",
           "text": "C++20 ranges add interfaces that work with a range as an object and provide views that describe transformed sequences. A view is designed to be lightweight to move and compose, but it is not simply a synonym for a container. Some views own state and some refer to external data. The important lifetime question is which objects ultimately keep the underlying elements alive."
         },
         {
           "type": "paragraph",
+          "text": "Separate the source, the pipeline and the collected result in your diagram. pages owns the original six integers. selected contains the adaptor state needed to traverse the lvalue source through the two operations. saved eventually owns new integer values copied from the traversal. Only the third object is the independent materialized result. This separation answers both cost and lifetime questions: a view can avoid storing all results up front, but consumers may recompute transformed values on access, and a borrow-based pipeline still needs its underlying source."
+        },
+        {
+          "type": "paragraph",
           "text": "A filter view selects elements whose predicate is true. A transform view applies a callable when an element is accessed through the view. Joining these operations with the pipe syntax builds a pipeline. In the example, the input vector is an lvalue, so the pipeline refers to that existing vector. Constructing the pipeline does not immediately create another vector containing every transformed result."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A function builds a filter-and-transform pipeline over its local vector, then must return results usable after that vector is destroyed. Compare returning this borrowing pipeline with returning a vector that owns the collected results. Why is copying the pipeline insufficient?",
+          "explanation": "Returning this pipeline preserves a description that ultimately borrows the local vector, so its later element access dangles after the vector’s destruction. Copying that description does not copy the backing integers into an owning collection. Returning a vector of collected results by value provides its independently owned elements. Another API could accept caller-owned input with an explicit lifetime contract, but that is a different borrowing interface rather than an independent returned result."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "When traversal begins, the filter looks for an even source element. One is rejected; two is accepted and exposed to the multiply-by-ten transform, producing twenty. Advancing searches onward: three is rejected and four produces forty, then five is rejected and six produces sixty. The loop appends each obtained integer to saved after printing it. No result is produced for a rejected source element. After the traversal reaches its boundary, saved has exactly three elements and can provide those stored values without invoking the filter or transform again."
+        },
+        {
+          "type": "paragraph",
           "text": "The predicate selects even page counts: 2, 4, and 6. The transformation multiplies each selected count by ten, producing 20, 40, and 60 as the loop visits them. The example prints each value and appends it to a separate vector. The source and pipeline remain alive for the entire loop, and neither is structurally modified during iteration. Those decisions keep the borrowing relationships easy to verify."
         },
         {
           "type": "paragraph",
           "text": "The second vector is a materialized result: it owns its three integers after the loop completes. This creates a clear lifetime boundary if later code needs the values after the source or pipeline goes away. The explicit loop is portable C++20. Some newer convenience facilities for collecting ranges require later standards and library support, so this course does not silently depend on them."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a contrasting pipeline order with the same source and transformation. If you multiply every input by ten first and then filter for even results, all six transformed values are even, producing ten, twenty, thirty, forty, fifty and sixty. Filtering even source values first produces only twenty, forty and sixty. The same two callables therefore express different algorithms when their order changes. Before composing stages, state whether the selection predicate is about original data or transformed data."
+        },
+        {
+          "type": "paragraph",
+          "text": "A second practical distinction is how many times a consumer needs the results. A report that repeatedly traverses a stable computed collection might choose to materialize once so later work reads stored results. A consumer that stops early may benefit from describing the computation without filling an entire result vector. These are workload-dependent tradeoffs, not a blanket performance claim for laziness. Predicate stability and owner lifetime still matter. In particular, a filter over a forward range may cache its beginning, and mutating the source can invalidate assumptions even when storage addresses stay unchanged. Keeping the source stable throughout this example avoids those subtleties."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Change only the selection rule to values greater than four, keeping multiplication by ten. Predict printed values and saved.size. How does an input with no matching values behave?",
+          "explanation": "Five and six satisfy the new predicate, so traversal prints fifty and sixty and saves two values. If no input matches, the filter’s traversal reaches its end without exposing an element, the transform produces no output for that traversal, and saved remains empty. There is no placeholder transformed value for rejected elements. The source must still supply a valid range during the search for a match."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "Would returning this pipeline from a helper with a local pages vector provide an independent result?",
           "explanation": "No. The pipeline built from that local lvalue would refer to its elements. Destroying the local vector would invalidate that access. Returning the materialized saved vector supplies an owning result instead."
+        },
+        {
+          "type": "paragraph",
+          "text": "For each stage, explain what data it sees, when it runs, what it produces, and what it borrows. Trace a reordered pipeline as a genuinely different algorithm, then decide whether the final result should remain a view or become an owner. Clear evaluation and lifetime models make ranges understandable without attributing hidden storage, execution counts or universal speedups to the pipe syntax."
         }
       ]
     }
@@ -106,5 +140,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/iterator.requirements.general",
       "locator": "N4861, [iterator.requirements.general]; consulted 2026-09-11. Half-open ranges, sentinels, and dereferenceability."
     }
-  ]
+  ],
+  "version": 2
 }

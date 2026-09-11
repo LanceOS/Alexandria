@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_memory_resource_lifetimes_module",
-  "versionId": "cpp_memory_resource_lifetimes_v1",
+  "versionId": "cpp_memory_resource_lifetimes_v2",
   "slug": "memory-resource-lifetimes",
   "title": "Give a memory resource an explicit lifetime",
   "summary": "Use a polymorphic memory resource without letting its clients outlive the storage they need.",
@@ -23,6 +23,19 @@
         {
           "type": "paragraph",
           "text": "Individual deallocation calls do not reclaim that resource’s storage for general reuse. Releasing or destroying the resource releases its upstream allocations as a group. This makes the lifetime of the resource part of every client’s contract. It is not a universal replacement for the default allocator, and it does not make the contained objects immortal or automatically run their destructors."
+        },
+        {
+          "type": "paragraph",
+          "text": "Allocator choice and object ownership are different relationships. The vector owns its elements and uses an allocator to request their storage. The polymorphic allocator refers to a memory_resource that supplies that storage through a common interface. The arena may in turn refer to a caller-provided initial buffer and an upstream resource. Following this chain tells you which objects must remain usable until each client finishes its work."
+        },
+        {
+          "type": "paragraph",
+          "text": "A monotonic resource is useful when allocations belong to one phase and can be discarded together. It advances through available storage and can acquire larger upstream blocks when needed. Individual deallocation requests do not generally make earlier portions available for arbitrary reuse. That tradeoff simplifies phase-oriented allocation, but a long-lived workload repeatedly growing and discarding objects may retain much more storage until the phase ends."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A parser returns a pmr vector allocated from an arena local to the parser function. Does moving the vector into the caller solve the lifetime dependency?",
+          "explanation": "No. A moved container can still use an allocator referring to the same arena. Once the local arena is destroyed, that relationship is invalid for the returned client. Keep the resource alive with the client, or transfer the values into storage owned through a suitable longer-lived resource before returning. Moving a wrapper does not automatically move its allocation service."
         }
       ]
     },
@@ -49,6 +62,29 @@
         {
           "type": "paragraph",
           "text": "A container refers to a resource; it does not extend the resource’s lifetime through shared ownership. Returning this vector while arena is local would leave a client pointing at an expired resource. Releasing an arena while a client can still use its allocations similarly breaks the design. Avoid treating a container move as proof that its resource relationship has disappeared."
+        },
+        {
+          "type": "paragraph",
+          "text": "Read the sample from the outside inward. buffer supplies local storage with a declared alignment. arena is then constructed over that storage and may fall back to its default upstream resource. counts is created in an inner scope with an allocator referring to arena. reserve requests capacity before insertion, and the three push_back operations create values 2, 3, and 4. Accumulation begins at zero and produces 9 without relying on any particular allocation count."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Lifetime trace — clients leave before their dependencies",
+          "code": "Construct buffer\nConstruct arena referring to buffer and an upstream resource\nConstruct counts referring to arena\nInsert 2, 3, 4; compute 9\nDestroy counts at the inner closing brace\nCall arena.release() after the client is gone\nDestroy arena, then destroy buffer"
+        },
+        {
+          "type": "paragraph",
+          "text": "The inner scope is a correctness device, not merely visual indentation. It ensures the vector destroys its elements and completes its storage-release interaction while its resource is still alive. Calling arena.release then releases any upstream allocations as a group. The resource manages storage; it does not know how to perform arbitrary element destructors on behalf of still-existing containers. Client destruction and resource release therefore cannot be exchanged casually."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a second phase that creates another vector after the first has been destroyed. Releasing the arena at the phase boundary can discard the first phase’s upstream blocks before the next phase allocates. That is a different pattern from keeping one vector alive, clearing its elements, releasing its backing storage, and continuing to use retained capacity. A cleared container can still remember capacity and its allocator relationship."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why does the lesson avoid promising that its 1024-byte buffer guarantees zero upstream allocations on every implementation?",
+          "explanation": "The resource must meet actual size and alignment requests, and the container’s allocation strategy is not inferred just from the three values printed. The example permits fallback through the configured upstream resource. A no-fallback requirement needs an explicit allocation policy and a tested or proven capacity bound for the supported implementation and workload, rather than assuming the visible buffer size proves it."
         }
       ]
     },
@@ -64,6 +100,22 @@
         {
           "type": "paragraph",
           "text": "This resource does not synchronize simultaneous allocations. Keep it within one thread of control at a time or provide an appropriate external discipline. Measure memory use and workload behavior before choosing a resource strategy. Architecture courses explain caches and virtual memory; this C++ unit owns the allocator interface and the lifetimes required to use it correctly."
+        },
+        {
+          "type": "paragraph",
+          "text": "Reserve can make the intended growth phase clearer, but it is not a release operation. If a vector grows through multiple capacities, the resource may retain storage corresponding to earlier requests until the arena is released. Measuring only the vector’s final size can therefore underestimate the phase’s storage footprint. Measure requested storage and peak retained memory when evaluating this strategy for a real workload."
+        },
+        {
+          "type": "paragraph",
+          "text": "Do not share the arena across simultaneously allocating threads without an appropriate external discipline. The resource’s storage policy does not supply synchronization for those operations. Conversely, placing a mutex around allocation does not extend a buffer or resource lifetime. Thread safety and dependency lifetime must both match the clients’ use, just as they do in the earlier shared-state lessons."
+        },
+        {
+          "type": "paragraph",
+          "text": "Choose the end of a phase from the last possible use of every client, including views or references borrowed from its elements. Destroying the obvious vector while another object still retains an element reference does not complete that use. A document-processing phase works well when its temporary values are consumed or copied into their intended lasting homes before the arena is discarded."
+        },
+        {
+          "type": "paragraph",
+          "text": "A resource decision should be documented as a workload choice: which clients allocate, what owns the resource and initial buffer, whether fallback is allowed, what ends the phase, and what memory measurements justify the strategy. This gives a reviewer enough information to check safety and usefulness without interpreting monotonic allocation as a general performance guarantee."
         }
       ]
     }
@@ -99,5 +151,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.capacity",
       "locator": "Primary standards draft, [vector.capacity]: reserve and invalidation. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
     }
-  ]
+  ],
+  "version": 2
 }

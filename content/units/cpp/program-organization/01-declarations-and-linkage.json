@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_program_organization_declarations_and_linkage",
-  "versionId": "cpp_core_program_organization_declarations_and_linkage_v1",
+  "versionId": "cpp_core_program_organization_declarations_and_linkage_v2",
   "slug": "declarations-and-linkage",
   "title": "Declarations, definitions, and linkage",
   "summary": "Understand what a caller needs to compile and what a complete program needs to link.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This lesson assumes functions, namespaces and basic compilation of one file. A declaration answers what a name denotes at a point where it is used. A definition supplies the entity’s implementation or storage as required by its kind. A definition is also a declaration, but many useful declarations are not definitions. In a growing project, this distinction lets a source file compile a call from an agreed interface without embedding the whole implementation at that call site."
+        },
+        {
+          "type": "paragraph",
           "text": "A declaration introduces information about a name, such as a function’s parameter and return types. A definition also supplies the entity’s defining content, such as a function body. A caller needs a suitable declaration when the call is compiled; the complete program also needs the required definition. This separation allows several source files to use one implementation through a shared interface."
         },
         {
           "type": "paragraph",
+          "text": "Keep three questions separate. Scope asks where a name can be found in source text. Linkage asks whether declarations in different scopes or translation units can refer to the same entity. The definition rules ask which defining contents may coexist in the complete program. A namespace organizes names but does not, by itself, turn every member into a private implementation detail. The unnamed-namespace helper in this example has a different linkage role from library::pages_after even though both names can be used inside the same source file."
+        },
+        {
+          "type": "paragraph",
           "text": "A translation unit is the source processed as one unit of translation, including the effects of included material. A project can contain many translation units that are compiled separately and then linked. The compiler checks what the current unit declares and defines. The linker resolves references among the resulting object files and libraries. Build tools coordinate these steps, but the language’s definition and linkage rules explain which combinations are valid."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A client sees the declaration of a function pages_after and compiles to an object file containing a call to it, but the final executable link omits its implementation object. What has succeeded, what remains missing, and why does including the declaration again not provide the missing body?",
+          "explanation": "Compilation can type-check the call and produce an object file containing a reference to the operation. The complete link still needs the required definition. Including the declaration again provides the same interface information, not an implementation. Add the correct implementation object or library to the link and verify its declaration matches the client’s intended function. The language requirement and the build configuration must agree."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Read from top to bottom for name availability, then follow calls for execution. Before main, the declaration establishes that library::pages_after accepts two ints and returns int. bonus is defined as a translation-unit-local helper returning two. The call supplies ten and that two, and the later pages_after definition adds them to produce twelve. The function body’s later location does not mean it executes later during source scanning; source order establishes declarations, while main’s call establishes runtime flow. The finite arithmetic here remains within int range."
+        },
+        {
+          "type": "paragraph",
           "text": "The example declares pages_after in namespace library before main uses it. The body appears later in the same file, so this remains a complete program that needs only main.cpp. The declaration gives the compiler the necessary interface at the call, and the definition supplies the computation. Placing the same interface in a header and the body in one implementation file would apply the same basic separation across a project."
         },
         {
           "type": "paragraph",
           "text": "The helper bonus is defined in an unnamed namespace. Its name has internal linkage, so it denotes a helper local to this translation unit rather than a public function that another implementation file should use. The library namespace groups the public operation’s name but does not by itself hide an implementation from the linker. Scope and linkage answer related but different questions about names."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a contrasting project arrangement, place the pages_after declaration in a header, its non-inline definition in one implementation file, and main in a client file that includes the header. Both source files should use the same interface declaration. The client can compile against that declaration, but producing a complete executable also requires the implementation’s compiled definition to participate in the link. Omitting that implementation does not become correct by including the header more times. Conversely, removing the visible declaration from the client cannot be repaired merely by adding an object file at link time."
+        },
+        {
+          "type": "paragraph",
+          "text": "A second failure duplicates the ordinary non-inline definition in two implementation files. Each file can look individually sensible while the whole program violates its definition requirements. The fix is to decide which file owns that definition or deliberately redesign it as an eligible consistent inline entity. Adding internal linkage indiscriminately would create separate entities and could change intended sharing. Treat a build diagnostic as evidence about a particular stage and entity, then inspect declarations, definitions and linkage together before changing visibility or build inputs."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Two source files each define an unnamed-namespace helper called bonus. Are those intended to denote one shared public helper? Compare this with a declared public library::bonus defined once.",
+          "explanation": "The unnamed-namespace helper names have internal linkage within their respective translation units and do not provide one shared externally named helper. A public declaration and one corresponding external definition instead let clients refer to the same operation across translation units. Choose deliberately: local helpers may use the same spelling independently, whereas a shared interface needs consistent declaration and definition ownership."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "Would moving the declaration below main be sufficient if no earlier declaration remained?",
           "explanation": "No. The call must encounter a declaration that supplies the function interface. The compiler does not generally scan later declarations to repair an unknown function name at an earlier call."
+        },
+        {
+          "type": "paragraph",
+          "text": "Diagnose organization problems by tracing a name through the stages: where its declaration becomes visible, which entity that declaration denotes, where its definition is supplied, and which build input brings that definition into the program. This is more reliable than treating every compiler or linker failure as an include-path problem. Headers and modules build on these rules to organize larger interfaces."
         }
       ]
     }
@@ -115,5 +149,6 @@
       "url": "https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html",
       "locator": "GCC online manual, §3.2: compilation stages, -c, and output kinds; consulted 2026-09-11. Implementation documentation, not a C++ language requirement."
     }
-  ]
+  ],
+  "version": 2
 }

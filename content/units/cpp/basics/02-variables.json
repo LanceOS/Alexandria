@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_basics_module_variables",
-  "versionId": "cpp_basics_variables_v2",
+  "versionId": "cpp_basics_variables_v3",
   "slug": "variables-types-initialization",
   "title": "Variables, types, and initialization",
   "summary": "Give values useful names, choose simple types, and begin with a known value.",
@@ -39,6 +39,29 @@
         {
           "type": "paragraph",
           "text": "The output statements read the stored values. Later, chapter = 4; assigns a new value to an object that already exists. Initialization gives that object its first value; assignment replaces its current value. Nothing changes the earlier line of output. The quoted labels are fixed text, while the unquoted names ask the program to use their current values."
+        },
+        {
+          "type": "paragraph",
+          "text": "A variable is useful because later statements can refer to information by its role instead of repeating a literal. Trace the first program as a changing state: chapter begins at 3, minutes at 12.5, shelf at B, and ready at true. Each output statement reads the corresponding current value. The assignment to chapter occurs only after those reads, so it affects the last line and later uses, not the earlier output. A printed line is an observation made at a particular time, not a live display bound to the variable."
+        },
+        {
+          "type": "paragraph",
+          "text": "A name is also different from the text used to label it. In the expression that prints Chapter:, the quoted word is fixed output while the unquoted chapter is a lookup of the declared object. Renaming the variable consistently would not automatically rename the label. Changing the label would not alter the stored integer. This distinction becomes valuable when debugging: check whether the wrong part is the data, the calculation that changes it, or the presentation that describes it."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Worked state trace — two distinct int objects",
+          "code": "Initialize chapter = 3\nInitialize savedChapter from chapter -> savedChapter = 3\nAssign chapter = 4\nRead chapter -> 4\nRead savedChapter -> 3"
+        },
+        {
+          "type": "paragraph",
+          "text": "For these ordinary integers, initializing savedChapter from chapter copies its value at that point. It does not create a permanent connection between their names. The second object is useful as a snapshot precisely because later assignments to chapter do not update it. Other language mechanisms can deliberately refer to an existing object, but those require a different declaration; this module is about independent scalar objects."
+        },
+        {
+          "type": "reflection",
+          "prompt": "In a separate scalar example, completed starts at 2. Initialize savedCompleted from completed, then assign 3 to completed. Which two counts are observed after assignment? What changes if you take the snapshot after the assignment instead?",
+          "explanation": "The earlier snapshot keeps 2 while completed holds 3, because the two int objects store independent values. Taking the snapshot after assignment instead gives savedCompleted the value 3 as well. Initialization reads the source value at that specific point; it does not create a live connection. Record the observation order when you need both an earlier and a current count."
         }
       ]
     },
@@ -63,6 +86,23 @@
           "type": "callout",
           "title": "Start from a known value",
           "text": "Inside main, int chapter; alone does not initialize chapter to zero. Do not read it before giving it a value. Write int chapter{3}; when you know the starting chapter, or int chapter{}; when zero is the appropriate starting value. Braces do not validate the meaning of your data: a valid integer can still be the wrong chapter."
+        },
+        {
+          "type": "paragraph",
+          "text": "Choose a type by asking what operations and values the application requires. A chapter count is integral, a ready flag answers a yes-or-no question, and a duration may need a fractional part. Choosing double for every value would hide distinctions and introduce rounding where none is needed. Choosing int for every value would lose meaningful fractions and make Boolean intentions less clear. A type is part of the description of the data, even when several types could happen to represent today’s small example."
+        },
+        {
+          "type": "paragraph",
+          "text": "There are two separate questions at initialization: can the language represent this value in the selected type, and is the value valid for this application? Braces reject the floating-to-integer initialization with 3.5 because it is narrowing. Yet int chapter{-3} can be a valid language-level initialization even if your catalog has no negative chapters. A compiler diagnostic helps enforce the first question. Conditions and application rules are needed for the second. Do not treat successful compilation as input validation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A draft uses int minutes{12.5} for a duration and int chapter{-2} for a chapter number. What kind of problem does each reveal, and what would a deliberate repair look like?",
+          "explanation": "The duration initialization is ill-formed narrowing: use a suitable fractional representation such as double if half minutes are meaningful, or explicitly redesign the data to use a whole-number unit. The chapter initialization can compile but violates an assumed positive-chapter rule; check the allowed range before accepting it. Removing braces only to suppress the first diagnostic would avoid explaining the intended units."
+        },
+        {
+          "type": "paragraph",
+          "text": "Initialization is especially important for automatic scalar variables. A variable declaration with no initializer is not a promise of a sensible default. Giving it zero with empty braces establishes a known value, but zero should still mean something: no chapters completed is a reasonable count, while no selected chapter may deserve an explicit representation in a later lesson. Prefer a deliberate initial state to a placeholder that is immediately overwritten and could accidentally be read first."
         }
       ]
     },
@@ -94,6 +134,18 @@
           "type": "reflection",
           "prompt": "Would replacing completed = 3; with readingGoal = 3; be another way to produce the same output?",
           "explanation": "No. readingGoal was defined as const, so that assignment is rejected. The two names describe different information: work completed and the fixed goal. Keep the goal unchanged and update completed. A useful name and a suitable type help protect the meaning of a program, not just its syntax."
+        },
+        {
+          "type": "paragraph",
+          "text": "Read the second program as two different policies. The goal is fixed for this run, while completed changes as work is recorded. const expresses the first policy at the point of definition. It does not mean the value must be identical in every run of every program. Here the initializer is a literal for simplicity; the key lesson is that ordinary assignment through this variable is unavailable after initialization."
+        },
+        {
+          "type": "paragraph",
+          "text": "Type deduction removes a repeated type spelling, not the type itself. The initializer 2 leads auto completed to int; assigning 3 is then an assignment to an existing int. It does not rerun deduction. If the initializer were 2.0, the deduced type would instead be double. Therefore a small change to the initializer can affect later arithmetic, including division. When reviewing auto, inspect the initializer and its resulting type together."
+        },
+        {
+          "type": "paragraph",
+          "text": "You are ready to use these ideas in expressions when you can annotate each definition with its type, name, first value, and mutability, then trace every later write. That annotation is more informative than saying that a variable is simply a box: it records which values fit, which operations are available, and which changes your design permits."
         }
       ]
     }
@@ -168,5 +220,5 @@
       "edition": "N4861 (C++20 working draft)"
     }
   ],
-  "version": 2
+  "version": 3
 }

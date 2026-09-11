@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "design_make_a_service_contract_explicit_module",
-  "versionId": "design_make_a_service_contract_explicit_v2",
+  "versionId": "design_make_a_service_contract_explicit_v3",
   "slug": "make-a-service-contract-explicit",
   "title": "Make a service contract explicit",
   "summary": "Design a reservation operation that callers can use without guessing hidden rules.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The purpose of a service contract is to let a caller decide what to do without reading the implementation. The function name and parameter types identify an operation, but they do not fully describe allowed inputs, state changes, failures, returned ownership, or timing assumptions. A reservation request is especially useful for practicing this distinction because “reserve three seats” sounds clear until capacity is insufficient or a later step fails."
+        },
+        {
+          "type": "paragraph",
+          "text": "Model the state explicitly. Capacity is fixed for this small example; available counts unreserved seats; a collection records each successful reservation identifier and its count. With no cancellation, available plus the sum of recorded reservation counts must equal original capacity. A successful operation adds exactly one record with a fresh identifier and decreases available by that record's positive count. A rejected operation adds no record and changes no availability. The invariant and outcomes together define what an implementation must preserve."
+        },
+        {
+          "type": "paragraph",
+          "text": "Preconditions can be handled in different ways by different APIs. This lesson's public service reports invalid count as a defined result, so callers can supply zero and receive a controlled rejection. Its internal commit calculation can instead assume a positive accepted count because a prior validation step establishes that fact. Document which layer checks a condition and which relies on it. A promised no-change failure is stronger than merely leaving some valid state; it gives callers a clear basis for deciding whether another attempt makes sense."
+        },
+        {
+          "type": "paragraph",
           "text": "A seat-reservation service exposes reserve(event, count). The name suggests a job, but leaves crucial questions unanswered. Can count be zero? Does failure reserve some seats? Does the result identify a reservation? Can the caller retry? An interface consists of these observable rules as well as its parameter and return types. The Core Guidelines recommend explicit interfaces and stated preconditions and postconditions; those recommendations are expert guidance rather than an automatic proof of design quality."
         },
         {
           "type": "paragraph",
           "text": "For our small in-memory service, a valid request contains a positive count. It succeeds only when that count does not exceed the available capacity. A success subtracts exactly that count and returns a new reservation identifier. A capacity failure leaves availability unchanged. Invalid input is reported distinctly. We deliberately exclude network failures and persistent transactions here, because those add uncertainty about what happened after a request was sent."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Capacity is six. Trace reserve(2), reserve(4), reserve(1), and reserve(-1) under the stated contract. What state must remain after every rejection?",
+          "explanation": "The first two calls succeed with distinct reservation identifiers, leaving availability four and then zero. The request for one reports insufficient capacity; the negative request reports invalid count. Neither rejection changes the two reservations or zero availability. Their recorded counts sum to six, preserving the capacity invariant."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "Start with four available seats and no reservation records. Requesting three passes the positive-count check and the capacity check, so one transition records R1 with three seats and reduces availability to one. The invariant reads 1+3=4. Requesting two cannot be satisfied in full, so both pieces of state stay unchanged. Requesting zero is invalid even though it would not exceed capacity. The order of these outcomes matters to the contract: a caller can distinguish an invalid request from a valid request that cannot currently succeed. A partial reservation after the second request would break the published all-or-nothing promise."
+        },
+        {
+          "type": "paragraph",
           "text": "The trace makes the failure guarantee observable. If the second request first deducted one seat and then reported failure, it would violate the contract. An implementation should prepare any fallible work before committing the state change, or otherwise restore a valid prior state. The precise mechanism depends on the storage and execution model; this example assumes sequential calls and ordinary completion."
         },
         {
           "type": "paragraph",
           "text": "Ownership also belongs in the contract. If a query returns a view into internal reservation data, state how long it remains valid and what changes invalidate it. Returning an independent value can simplify callers’ reasoning but may have copying costs. Choose between these designs according to real usage, then express the decision in the C++ interface rather than burying it in an implementation comment."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a contrasting failure, suppose creating the new reservation record may fail because temporary storage cannot be obtained. A faulty implementation first decrements availability, then attempts to create the record. With initial availability four and a request for three, failure leaves availability one and no matching reservation: 1+0 does not equal four. Returning an error is insufficient because the promised state guarantee is already broken."
+        },
+        {
+          "type": "paragraph",
+          "text": "One possible sequential strategy is to prepare fallible data before making an irreversible visible change, then perform a commit whose required operations cannot fail under the established assumptions. Another strategy uses a transaction or explicit rollback that restores the promised state. Neither phrase is an implementation by itself: review exactly which operations can fail, what state they touch, and whether rollback can also fail. This lesson excludes concurrent calls and uncertain network delivery. Moving the same contract to a network would additionally need a policy for retries when the caller does not know whether the first request committed."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical fallible-record scenario\nInitial: available=4; reservations=[]\nFaulty order: subtract 3 -> available=1\nRecord creation fails -> reservations=[]\nInvariant broken: 1+0 != 4\nRequired failure outcome: available=4; reservations=[]\nA prepared commit or reliable transaction must establish that outcome",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "A query returns a view into the service's internal reservation array. A caller retains it while making another reservation that may relocate the array. What contract information is missing?",
+          "explanation": "The caller needs a validity period and the operations that invalidate the view. A view is not an independent snapshot. The API could return an owning value, forbid retaining a view across mutation, or offer another documented lifetime policy. The implementation and C++ types must support the chosen promise; a convenient return type alone does not define it."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Write tests that assert both the outcome and the resulting state. Keep implementation details such as vector positions out of those tests unless they are public requirements. Document retry and concurrency behavior before expanding the service to multiple workers or a network. A precise small contract creates a reliable starting point; it does not silently grant guarantees for a more complicated deployment."
+        },
+        {
+          "type": "paragraph",
+          "text": "Review an interface by tracing success, each failure class, and the resulting observable state. Make ownership and lifetime promises as explicit as numeric limits. A stable contract supports tests that survive implementation replacement, while a new promise such as partial reservation, concurrent access, or retry deduplication requires deliberate design. Precise scope is what makes a small interface dependable."
         }
       ]
     }
@@ -90,5 +134,5 @@
       "publicationYear": 1969
     }
   ],
-  "version": 2
+  "version": 3
 }

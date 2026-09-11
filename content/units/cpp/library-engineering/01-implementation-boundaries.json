@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_implementation_boundaries_module",
-  "versionId": "cpp_implementation_boundaries_v1",
+  "versionId": "cpp_implementation_boundaries_v2",
   "slug": "implementation-boundaries",
   "title": "Separate a public interface from its implementation",
   "summary": "Use an implementation pointer to reason about dependencies without assuming universal binary compatibility.",
@@ -23,6 +23,19 @@
         {
           "type": "paragraph",
           "text": "This is a design technique, not a promise that any pair of compilers produces compatible binaries. An ABI also involves calling conventions, object layout, symbol names, runtime libraries, and build options. The GCC ABI documentation describes its toolchain’s compatibility policy; those details cannot be generalized to all C++ implementations."
+        },
+        {
+          "type": "paragraph",
+          "text": "A private data member is hidden from ordinary client access, but its declaration can still expose representation dependencies in a public header. The client compiler needs enough information to lay out the public class. If that layout directly contains a changing implementation type, private access does not remove the build dependency. Pimpl moves the changing representation behind an indirection so the public class can declare an incomplete implementation type."
+        },
+        {
+          "type": "paragraph",
+          "text": "The public contract should describe what Counter does rather than how it stores the count. Clients can construct it, increment it within its supported range, and ask for its value. They cannot name or manipulate count directly through the public interface. The implementation file supplies the actual Impl definition and out-of-line operations. This separation can reduce client recompilation for representation-only changes, provided the public declarations and relevant build contract remain stable."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If count were an ordinary private int member directly in Counter’s public header, would changing its representation be invisible to client compilation?",
+          "explanation": "No. Private access restricts what client source may name, but the header still contributes the class layout clients compile against. Pimpl hides the representation definition behind an owning pointer. That can reduce one kind of dependency, at the cost of indirection and allocation; it is a design tradeoff rather than stronger access control alone."
         }
       ]
     },
@@ -49,6 +62,29 @@
         {
           "type": "paragraph",
           "text": "Copying is intentionally disabled. This class also does not promise move support; adding it requires an explicit decision about operations on moved-from objects. The indirection and allocation are real costs. Small value types often benefit from exposing a simple representation rather than allocating an implementation object."
+        },
+        {
+          "type": "paragraph",
+          "text": "Read the listing at its marked boundary. The public declaration includes unique_ptr because that is the member type, forward declares the nested Impl, and declares the destructor without defining it there. After the implementation definition makes Impl complete, the constructor can create it with make_unique and the destructor can be defaulted at a point where default deletion has the required type information. The placement of that definition is part of the idiom’s correctness."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Worked object lifetime",
+          "code": "Construct Counter -> allocate and construct Impl with count = 0\nCall increment -> follow impl_ and change count to 1\nCall value -> observe 1 through the const member function\nDestroy Counter -> unique_ptr invokes deletion where Impl is complete\nImpl is destroyed and its owned allocation is released"
+        },
+        {
+          "type": "paragraph",
+          "text": "The class deliberately prevents copying. Copying only a raw owning address would not create two independent counters; unique_ptr is noncopyable, and Counter explicitly deletes its copy operations. If copying is needed, decide whether a copy should duplicate the current count into a new implementation object or share state under a different design. That is an interface decision, not a mechanical consequence of adding a pointer member. The current declarations also do not promise movement or operations on a moved-from Counter."
+        },
+        {
+          "type": "paragraph",
+          "text": "A second implementation could add an internal diagnostic counter or change how count is represented while preserving the public operations. Clients that only use the unchanged declaration need not parse the new internal type definition. Yet behavior remains a separate compatibility promise: changing increment to add two would break expectations even if every exported signature and object layout remained unchanged."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Why is defining ~Counter() = default inside the public class a risky replacement for this out-of-line definition?",
+          "explanation": "The inline definition can require destruction of unique_ptr<Impl> in client contexts where Impl is incomplete, while the default deleter requires completeness at its use. Defining the destructor after Impl is complete keeps that requirement on the implementation side. The combined one-file listing could hide the dependency mistake unless the intended header and implementation are considered separately."
         }
       ]
     },
@@ -64,6 +100,22 @@
         {
           "type": "paragraph",
           "text": "Document ownership, valid states, exception behavior, and supported build configurations alongside the API. Test a representative client across the library boundary when claiming binary compatibility. Template definitions, inline functions, and exported data introduce different client dependencies. Use release engineering for packaging and distribution, and keep this unit focused on the C++ interface mechanisms that those releases must preserve."
+        },
+        {
+          "type": "paragraph",
+          "text": "Specify compatibility in separate dimensions. Source compatibility asks whether a client can rebuild against the new declarations. Binary compatibility asks whether existing compiled clients can work with the new binary under the supported ABI conditions. Behavioral compatibility asks whether the documented operations still mean what callers expect. A change can satisfy one dimension and fail another, so a release claim should identify which promise is being made."
+        },
+        {
+          "type": "paragraph",
+          "text": "The ABI depends on the supported toolchain, runtime, platform, symbols, and relevant options. Pimpl can stabilize one public representation boundary, but it cannot make arbitrary compiler/runtime combinations interchangeable. GNU’s documented ABI policy is evidence for that toolchain’s scope, not a universal C++ rule. Test a representative separately built client under the configuration you intend to support when making a binary-compatibility claim."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a small value used in tight collections, allocating a separate Impl for every element can be a poor tradeoff. The extra allocation, indirection, and ownership machinery may outweigh the benefit of hiding an already simple representation. Use the idiom when its dependency boundary serves the library’s needs, and measure costs in the actual workload instead of treating encapsulation as a performance claim."
+        },
+        {
+          "type": "paragraph",
+          "text": "Before publishing this interface, state the valid count range, construction-failure policy, copy and move policy, thread-safety expectations, and supported binary configurations. The sample’s single increment only demonstrates one valid path. These explicit policies turn a small mechanism demonstration into an interface that other modules can reason about and release engineering can package responsibly."
         }
       ]
     }
@@ -108,5 +160,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr.dltr.dflt",
       "locator": "Primary standards draft, [unique.ptr.dltr.dflt]: default deletion requires a complete type. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
     }
-  ]
+  ],
+  "version": 2
 }

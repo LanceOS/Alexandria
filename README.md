@@ -2,7 +2,7 @@
 
 A local, self-hosted learning library. This first implementation provides the application home page, library browsing shell, shared UI components, and a small server with SQLite persistence.
 
-The catalog starts with Software, AI, and Mathematics categories and no topics. The server includes local accounts, sessions, per-user settings, and administrator catalog APIs. The optional curriculum contains C++ core and advanced units, supporting computing subjects, and application tracks, all using the established three-section lesson format. The original seven C++ Basics lessons retain their content and identities. The unit overview and section-based reader support both themes, next-module navigation, and further-reading links; learner progress and grading remain future work. Source books stay outside the application.
+The catalog starts with Software, AI, and Mathematics categories and no topics. The server includes local accounts, sessions, per-user settings, and administrator catalog APIs. The optional curriculum contains C++ core and advanced units, supporting computing subjects, and application tracks, all using the established three-section lesson format. All 89 modules provide detailed explanations, worked and contrasting examples, and practice with explained answers under the standing [curriculum depth standard](notes/curriculum-depth.md). The original seven C++ Basics lessons retain their identities and published history. The unit overview and section-based reader support both themes, next-module navigation, and further-reading links; learner progress and grading remain future work. Source books stay outside the application.
 
 ## Start locally
 

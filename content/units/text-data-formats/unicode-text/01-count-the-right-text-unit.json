@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "textdata_count_the_right_text_unit_module",
-  "versionId": "textdata_count_the_right_text_unit_v1",
+  "versionId": "textdata_count_the_right_text_unit_v2",
   "slug": "count-the-right-text-unit",
   "title": "Count the right unit of text",
   "summary": "Trace two Unicode representations of an accented letter without confusing bytes with user-visible characters.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "Text length becomes a practical design question when a cursor moves, a username is limited, or a transport buffer is bounded. A byte is an encoding/storage unit. A Unicode code point identifies a position in the Unicode codespace; Unicode scalar values exclude surrogate code points and are the values represented by valid UTF-8 sequences. A grapheme cluster is a segmentation unit intended to keep certain sequences together for operations such as editing. A displayed glyph is a rendering result. These units belong to different stages and should not share an unexplained variable called characterCount."
+        },
+        {
+          "type": "paragraph",
+          "text": "For UTF-8, start from validated bytes and decode complete scalar values. Counting decoded values answers a code-point question, but editing may require grapheme boundaries from the chosen Unicode segmentation rules. A base letter followed by a combining accent demonstrates why decoding is not enough. Display width requires still more information and cannot be inferred simply from either count. Our examples use Unicode 16.0.0 and its default extended grapheme rules; a product may tailor behavior, but should document that choice."
+        },
+        {
+          "type": "paragraph",
+          "text": "Normalization and segmentation also answer different questions. Normalization can derive a consistent representation for chosen equivalence rules. Segmentation locates boundaries in a sequence. Neither means that all visually similar text is interchangeable. A case-sensitive identifier policy, for example, still distinguishes uppercase and lowercase unless an additional comparison rule is specified. Keep the original display string when needed and derive comparison keys through an intentional, documented process."
+        },
+        {
+          "type": "paragraph",
           "text": "A text field may have several different lengths. The byte length describes encoded storage. The code-point count describes the sequence of Unicode values. Grapheme clusters group sequences that should usually remain together during editing. None of these is universally interchangeable with display width, because fonts, shaping, language conventions, and terminal behavior affect presentation. State the intended unit whenever specifying a text limit."
         },
         {
           "type": "paragraph",
           "text": "UTF-8 represents Unicode scalar values using variable-length byte sequences. An arbitrary byte offset can land inside one encoded value. Even an offset at a code-point boundary can split a base letter from its combining mark. Unicode’s general-structure chapter distinguishes encoding forms, code points, and grapheme clusters; this lesson uses those distinctions to design an original text-field example."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A backend validates ten code points while the interface says ten user-perceived characters. What must be clarified and tested before treating those limits as equivalent?",
+          "explanation": "They are not generally equivalent. Choose a segmentation policy and Unicode version for the user-facing limit, then apply a separate encoded-size limit. Test combining sequences and other multi-code-point clusters as well as ordinary letters. Specify whether normalization happens before counting and how malformed input is handled so independent components enforce the same policy."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "Representation A contains the single scalar value U+00E9. Its UTF-8 encoding has two bytes, C3 A9, so a byte count is two while the code-point count is one. Representation B contains U+0065 followed by U+0301. Their encodings have one and two bytes respectively, producing three bytes and two code points. The combining accent belongs with the preceding e in this example's grapheme segmentation, so both sequences form one cluster. Canonical equivalence explains why a normalization-aware comparison can treat them alike, while raw byte equality does not. These observations do not require assuming a particular font renders every possible combining sequence identically."
+        },
+        {
+          "type": "paragraph",
           "text": "A byte-for-byte comparison sees different sequences. If the application intends canonical equivalence to compare equal, choose and apply a documented normalization policy before that comparison. Do not assume every visually similar string is canonically equivalent. Compatibility normalization can erase distinctions that matter for some domains, so it is a product and data-contract decision rather than a universal cleanup step."
         },
         {
           "type": "paragraph",
           "text": "Truncating representation B after its first byte preserves valid UTF-8 but removes the accent. Truncating representation A after its first byte creates an incomplete encoding. A storage limit in bytes and an editing limit in grapheme clusters therefore need different operations. Use a tested Unicode implementation for decoding and segmentation instead of incrementing a byte pointer and calling each step a character."
+        },
+        {
+          "type": "paragraph",
+          "text": "For a contrasting editing example, append the letter x to the decomposed representation. The bytes are 65 CC 81 78: four bytes, three code points, and two extended grapheme clusters in this case. A one-cluster prefix should retain e plus its accent and remove x. A two-byte prefix instead retains 65 CC, ending halfway through the accent's UTF-8 encoding. A one-byte prefix is valid UTF-8 but retains only plain e, changing the visible content by removing the accent."
+        },
+        {
+          "type": "paragraph",
+          "text": "This produces a concrete two-limit policy. Suppose a field permits at most two grapheme clusters and at most four UTF-8 bytes. The full decomposed e-accent-plus-x meets both limits. A field containing two clusters with longer encodings could meet the editing limit but exceed the byte budget; the service must apply both checks. A grapheme count alone does not bound encoded size, since combining sequences can contain multiple marks. Avoid truncating during validation unless truncation is explicitly the product behavior: silent alteration of identifiers can produce surprising collisions."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical prefix choices for U+0065 U+0301 U+0078\nUTF-8 bytes: 65 CC 81 78\nFull sequence: 4 bytes, 3 code points, 2 grapheme clusters\nFirst grapheme cluster: 65 CC 81 -> e with acute accent\nFirst 2 bytes: 65 CC -> incomplete UTF-8 sequence\nFirst byte: 65 -> plain e; valid encoding, changed content",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "Compare the precomposed U+00E9 followed by x with the decomposed e-accent followed by x. Give byte, code-point, and grapheme counts for each.",
+          "explanation": "The precomposed form uses C3 A9 78: three bytes, two code points, and two grapheme clusters. The decomposed form uses 65 CC 81 78: four bytes, three code points, and two clusters. Their canonical equivalence does not make their original byte sequences identical. A byte budget can distinguish them unless the contract specifies normalization before applying that budget."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Decide how malformed input is handled: reject it or replace invalid sequences according to an explicit policy. Keep original text when the application needs faithful display or audit history, while deriving normalized keys for matching if required. Test accented text, combining sequences, empty input, and multi-byte values. Version the Unicode-dependent behavior when compatibility matters, because text processing is part of the data contract."
+        },
+        {
+          "type": "paragraph",
+          "text": "Follow the pipeline from encoded bytes to decoded values, segmentation, comparison, and rendering. Give each limit or offset a named unit. Use a tested implementation of the selected Unicode rules instead of approximating clusters by bytes or code points. The examples show why text correctness is part of an interface and data contract, while C++ strings merely provide containers for the representation chosen."
         }
       ]
     }
@@ -76,6 +120,20 @@
       ],
       "url": "https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-2/",
       "locator": "Official standard exposition, Unicode 16.0.0: §2.5 Encoding Forms, §2.11.5 Characters and Grapheme Clusters, §2.12 Equivalent Sequences; consulted 2026-09-11."
+    },
+    {
+      "id": "textdata_count_the_right_text_unit_module_source_segmentation_depth",
+      "title": "Unicode Standard Annex #29: Unicode Text Segmentation, Revision 45",
+      "authors": [
+        "Josh Hadley (editor)",
+        "The Unicode Consortium"
+      ],
+      "publisher": "The Unicode Consortium",
+      "publicationYear": 2024,
+      "edition": "Unicode 16.0.0",
+      "url": "https://www.unicode.org/reports/tr29/tr29-45.html",
+      "locator": "Unicode 16.0.0 standard annex, revision 45 (2024-08-28): §2 Conformance and §3.1 Default Grapheme Cluster Boundary Specification, including GB9 and GB999; inspected 2026-09-11. Default extended grapheme rules and declared tailoring, not display-width guarantees."
     }
-  ]
+  ],
+  "version": 2
 }

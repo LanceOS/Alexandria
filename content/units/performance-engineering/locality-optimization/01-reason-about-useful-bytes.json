@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "performance_reason_about_useful_bytes_module",
-  "versionId": "performance_reason_about_useful_bytes_v2",
+  "versionId": "performance_reason_about_useful_bytes_v3",
   "slug": "reason-about-useful-bytes",
   "title": "Reason about useful bytes in a layout",
   "summary": "Compare record and field layouts using an explicit traffic model.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The question is whether the data needed by a frequent operation occupies the storage it brings through the memory system. An array of records keeps each record's fields together. Separate arrays keep one field from many records together. Neither organization is inherently superior: they privilege different access patterns. Our operation is a full sequential scan of page counts, so the page-count field is useful and the other 60 bytes per record are not used by this operation."
+        },
+        {
+          "type": "paragraph",
+          "text": "Define traffic precisely. The calculation counts unique 64-byte lines fetched by a cold scan at one modeled level, assuming each required line is fetched once. It does not count file reads, instruction fetches, writes, allocation, or a different cache level's traffic. Record size and alignment are explicit assumptions, not deductions from declaring a C++ structure with particular fields. Padding, field placement, and actual platform alignment would need separate verification before applying the arithmetic to real objects."
+        },
+        {
+          "type": "paragraph",
+          "text": "For packed counts, each 64-byte line holds sixteen four-byte values, so sixteen consecutive count accesses can share one fetched line. In the record layout, each requested count belongs to a different aligned 64-byte record and line. The useful fraction is therefore 4/64 for records and 64/64 for full lines of packed counts. The calculation motivates an experiment when count scans matter; it does not establish whether arithmetic, memory bandwidth, cache latency, or another stage limits application time."
+        },
+        {
+          "type": "paragraph",
           "text": "A catalog stores a four-byte year, a four-byte page count, and 56 bytes of other data in each record. Assume a 64-byte record size and a scan that reads only page counts. A record-oriented representation makes whole-record access convenient, but the scan uses only four of every 64 bytes it brings through the simplified memory model. If this scan dominates runtime, separating page counts becomes a plausible experiment."
         },
         {
           "type": "paragraph",
           "text": "Define a second representation with page counts packed contiguously in a separate array. Other fields remain elsewhere and records share a stable index. This arrangement increases useful density for the page-count scan, while potentially adding work to operations that need all fields of one record. The appropriate layout is determined by the important operations and their frequencies."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A scan saves 20 milliseconds but converting each freshly loaded dataset to the new layout costs 35 milliseconds. The application performs one scan per load. Does the change improve that modeled workload?",
+          "explanation": "It adds a net 15 milliseconds per load-and-scan cycle, assuming no other differences, so it does not improve this workload. With many scans on one converted dataset, the conversion could be amortized. Include loading, conversion, scans, and other changed operations in the timing boundary instead of measuring only the favorable loop."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "For 1024 records, record storage occupies 1024*64=65536 bytes. Because every line contributes one count, the scan requires 1024 lines under the model. The packed array has 1024*4=4096 bytes, which fills 4096/64=64 aligned lines. Dividing 65536 by 4096 gives a sixteen-to-one traffic ratio. Useful data is the same 4096 bytes in either representation. There is no reason to multiply the result by the number of fields: the operation reads only counts. There is also no elapsed-time unit in this calculation, so claiming sixteen times faster would add an unsupported step."
+        },
+        {
+          "type": "paragraph",
           "text": "The calculation assumes each required line is fetched once and no relevant data is already cached. Real machines have prefetchers, multiple cache levels, finite memory bandwidth, and other bottlenecks. The record scan may overlap memory accesses effectively. The packed version might require conversion work elsewhere. None of those effects appears in this simple byte count."
         },
         {
           "type": "paragraph",
           "text": "An estimate is useful when it provides a falsifiable explanation. Predict fewer data-cache misses or lower bandwidth demand for the scan, then investigate with an appropriate tool. Cachegrind’s manual documents its simulation model and omissions; hardware counters also require careful interpretation. Measure end-to-end time as well as a focused scan so moved work does not disappear from the comparison."
+        },
+        {
+          "type": "paragraph",
+          "text": "Change the workload to retrieve a complete record by index. In the original layout, one aligned 64-byte line supplies all its fields. In a simplified split representation, suppose the count is in one line and the remaining fields are in a distinct line. A cold single-record lookup now requires two lines instead of one. This deliberately small countermodel explains why optimizing a favorable scan can make another operation worse. A real layout may have more arrays, already-cached lines, or different field sizes, so its count must be worked out separately."
+        },
+        {
+          "type": "paragraph",
+          "text": "Alignment creates another boundary. If a packed 4096-byte count array starts four bytes into a line, it extends across 65 lines rather than 64: the first line contributes 60 bytes, 63 complete middle lines contribute 4032, and the last contributes four. Those sum to 4096 useful bytes. The fetched amount becomes 65*64=4160 bytes. Packing still reduces the model's traffic substantially, but the exact ratio is no longer sixteen. Checking boundary alignment avoids treating a convenient round-number example as a universal formula."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical boundary model: packed counts start 4 bytes into a line\nUseful bytes: 4096\nFirst line: 60 useful bytes\n63 middle lines: 4032 useful bytes\nLast line: 4 useful bytes\nTotal lines: 1+63+1=65; fetched bytes: 4160\nSeparate hypothetical whole-record lookup: one record line versus two split lines",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "Repeat the aligned scan calculation for 1000 records. How many packed lines are needed, and why is ordinary integer division insufficient?",
+          "explanation": "The count data occupies 4000 bytes. Sixty-two lines hold 3968 bytes and leave 32, so 63 lines are needed. Packed traffic is 4032 bytes; the aligned 64-byte record layout needs 1000 lines or 64000 bytes. The partially occupied final line must still be fetched, so round the line count upward rather than truncating it."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Keep the public behavior fixed and use existing correctness tests while comparing implementations. Include operations that insert records, load data, and retrieve whole records, not just the favorable scan. Record memory consumption and conversion costs where relevant. A smaller traffic estimate can justify an experiment; retaining the new layout requires evidence that its practical benefit outweighs its complexity and other costs."
+        },
+        {
+          "type": "paragraph",
+          "text": "Treat a layout proposal as a hypothesis with an explicit operation mix. Preserve the association between fields when inserting, deleting, or reordering parallel arrays. Measure correctness and total cost, then use traffic estimates and profiling to explain the observations. The benefit must justify both the update invariants and the cost of operations that need whole records."
         }
       ]
     }
@@ -87,5 +131,5 @@
       "locator": "Official project documentation: Runtime and Reporting Considerations, Preventing Optimization, Reporting Statistics, and Random Interleaving; consulted 2026-09-11."
     }
   ],
-  "version": 2
+  "version": 3
 }

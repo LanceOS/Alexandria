@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "language_interoperability_runtime_coordination_module",
-  "versionId": "language_interoperability_runtime_coordination_version_1",
+  "versionId": "language_interoperability_runtime_coordination_version_2",
   "slug": "gil-boundary",
   "title": "Separate Python access from independent native work",
   "summary": "Trace a scoped interpreter-lock boundary with explicit data ownership.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "language_interoperability_runtime_coordination_part_concepts",
-      "title": "Understand the model",
+      "title": "Identify Python-facing and native phases",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "For the conventional configuration described here, Python object access requires the interpreter lock. pybind11 does not implicitly release it when Python calls a C++ function. Scoped release can allow independent native work to run without holding that lock, and the lock must be reacquired before touching Python objects again. Object destruction can count as Python access: a seemingly ordinary C++ wrapper destructor may adjust a Python reference count. Plan scope boundaries around both explicit operations and cleanup. The interpreter lock also does not replace a concurrency design for native state accessed by other C++ threads."
+        },
+        {
+          "type": "paragraph",
+          "text": "Divide a binding call into a Python-facing phase, a native computation phase and a Python-facing result phase. The first validates and converts Python input. The second operates only on native storage under its own synchronization rules. The third constructs the Python result. The scope of the released interpreter lock should match the middle phase precisely, including temporary objects and exceptional exits."
+        },
+        {
+          "type": "paragraph",
+          "text": "Copying input is a deliberate ownership choice in this example. After validation, the native array contains independent integer values. Another Python operation changing the original list does not change that array. A zero-copy design might avoid the copy, but then it must establish the exporting object's lifetime, buffer validity and permitted concurrent mutation. Releasing the GIL does not by itself establish any of those properties."
+        },
+        {
+          "type": "paragraph",
+          "text": "Cleanup belongs to the execution path. A C++ object wrapping a Python reference can access Python when it is copied, assigned or destroyed, even if the source line looks like ordinary native code. Place such cleanup where the interpreter contract is satisfied. RAII release and acquisition objects help express scope boundaries, but the surrounding ownership layout must ensure that Python-facing destructors do not run inside a released region."
+        },
+        {
+          "type": "paragraph",
+          "text": "The GIL is not a general application lock. Independent native threads can access C++ state outside it, and native libraries may have their own synchronization requirements. Keeping the GIL held does not automatically coordinate a thread that never acquires it. Conversely, releasing it can expose existing shared native state to concurrent calls that were previously serialized by the Python call path."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A binding safely copies Python values [2,4,6,8] into private native storage and then sums that copy. The Python list changes to [2,4,6,100] after the copy completes. What result does this model return, and what assumption makes the answer valid?",
+          "explanation": "It returns twenty because it computes from the completed private native copy, not from the later Python list contents. The answer assumes copying finished safely while Python access was permitted and that the native array has no shared mutable aliases. A borrowed zero-copy view would require a different mutation and lifetime analysis."
         }
       ]
     },
     {
       "id": "language_interoperability_runtime_coordination_part_trace",
-      "title": "Work through an example",
+      "title": "Trace private computation and a Python callback",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The copy gives the native work stable private input, so another Python operation cannot mutate the data it is reading. This costs memory and time, which must be included when evaluating whether releasing the lock is worthwhile. For four integers the overhead may exceed any benefit; the example explains the boundary rather than recommending an optimization. Returning to the Python-facing phase only after reacquisition also keeps conversion and reference-count changes in the intended context."
+        },
+        {
+          "type": "paragraph",
+          "text": "The first phase checks the four values and copies them while the GIL is held. The released phase starts with a private array and computes partial sums 2, 6, 12 and 20. None of those additions needs Python object access under the explicit assumptions. The release scope then ends, reacquiring the GIL before the binding creates the Python integer and performs Python-wrapper cleanup."
+        },
+        {
+          "type": "paragraph",
+          "text": "This ordering also matters when work fails. Suppose the native calculation reports an error through ordinary C++ state or an exception. The binding must return to a valid Python-facing context before translating that failure into a Python exception or manipulating Python objects. The finite success trace does not remove the need to review destruction order on every exceptional path."
+        },
+        {
+          "type": "callout",
+          "title": "Trace private computation and a Python callback",
+          "text": "Contrasting callback: after processing the first two values, the native computation wants to call a Python progress function with the partial sum six."
+        },
+        {
+          "type": "paragraph",
+          "text": "That operation crosses back into Python, so it requires the appropriate GIL acquisition and a live callback object. The explicit contract should say whether the binding wrapper performs that acquisition automatically for this callback form or whether the native code must do it. Do not infer it from the callback's name. Once the Python call returns, native computation can continue under the intended release policy."
+        },
+        {
+          "type": "paragraph",
+          "text": "Frequent callbacks may make the phase boundary expensive and complicated. A proposed alternative records native progress values and delivers fewer Python notifications while the lock is held. That changes observation frequency and error handling, so it is a design tradeoff rather than a free optimization. For the tiny four-integer sum, keeping the simpler fully held call can be the sensible implementation after measuring the whole call."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A native cache is shared by two released calls, and both update one ordinary counter. Does reacquiring the GIL only when returning make those earlier writes safe?",
+          "explanation": "No. Later acquisition does not retroactively synchronize concurrent conflicting native accesses. The cache needs an appropriate C++ synchronization design during the updates, or it must avoid sharing mutable state. This is separate from the requirement to hold the interpreter lock when creating Python results. Trace native data races and Python access boundaries as distinct obligations."
         }
       ]
     },
     {
       "id": "language_interoperability_runtime_coordination_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice mutation and synchronization",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "After releasing the GIL, can two native worker threads safely write the same ordinary C++ variable because Python is no longer involved?",
           "explanation": "No. C++ data-race rules still apply to shared native memory. Releasing the interpreter lock only changes access to that runtime lock; it neither makes an ordinary variable atomic nor synchronizes other workers. This example avoids the issue by using private data and no shared writes."
+        },
+        {
+          "type": "paragraph",
+          "text": "A sound binding boundary accounts for input ownership, interpreter access, native concurrency and cleanup on success and failure. Release the GIL only around work that satisfies all those conditions and benefits from the complexity. This lesson deliberately assumes conventional GIL-enabled CPython; free-threaded builds and subinterpreter configurations require their own documented contracts and cannot be inferred from this trace."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://pybind11.readthedocs.io/en/stable/advanced/misc.html",
       "locator": "Primary documentation: Global Interpreter Lock and Common Sources of GIL Errors; scoped release and reacquisition; lesson assumes a conventional GIL-enabled CPython build; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

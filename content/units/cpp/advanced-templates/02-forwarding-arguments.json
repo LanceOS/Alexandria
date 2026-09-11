@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_forwarding_arguments_module",
-  "versionId": "cpp_forwarding_arguments_v1",
+  "versionId": "cpp_forwarding_arguments_v2",
   "slug": "forwarding-arguments",
   "title": "Forwarding arguments without changing their category",
   "summary": "Use a forwarding reference and std::forward to preserve a caller’s choice of lvalue or rvalue.",
@@ -23,6 +23,19 @@
         {
           "type": "paragraph",
           "text": "The expression naming a parameter is an lvalue even when that parameter has rvalue-reference type. Merely passing value onward would therefore choose lvalue behavior. std::forward<T>(value) uses the deduced T to preserve the category needed at the forwarding boundary. In contrast, std::move expresses a choice to treat an expression as an rvalue regardless of how a caller originally supplied it."
+        },
+        {
+          "type": "paragraph",
+          "text": "Distinguish a variable’s declared type from the value category of an expression that names it. In relay, value always has a name, and the expression value is an lvalue. This remains true when its declared parameter type is std::string&&. The function needs a deliberate expression transformation to pass on rvalue behavior; merely declaring an rvalue reference does not make every later use of its name an rvalue."
+        },
+        {
+          "type": "paragraph",
+          "text": "The special deduction applies because T is deduced at this call and appears as an unqualified template type parameter in T&&. With an lvalue string, T becomes std::string&, and collapsing the resulting reference combination yields a string lvalue reference parameter. With the temporary, T becomes std::string, yielding a string rvalue reference parameter. A concrete std::string&& parameter has no such deduction rule, and const T&& changes the pattern."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If relay replaced std::forward<T>(value) with value, which inspect overload would each existing call choose?",
+          "explanation": "Both would select the const std::string& overload because both uses of the named parameter are lvalue expressions. The rvalue-reference overload cannot bind that named lvalue expression. The temporary argument still remains alive during the call, but its category is no longer forwarded to the next interface."
         }
       ]
     },
@@ -50,6 +63,29 @@
           "type": "callout",
           "title": "Do not forward into dangling storage",
           "text": "This adapter completes its inspection during the call. If inspect instead retained a reference to the temporary, forwarding would not extend the temporary’s lifetime. Ownership must be designed explicitly at an asynchronous or stored-callback boundary."
+        },
+        {
+          "type": "paragraph",
+          "text": "For relay(title), the deduced reference type tells std::forward to produce an lvalue expression. That expression can bind inspect’s const reference and prints borrow. For relay(std::string{\"Maps\"}), the non-reference T tells forward to produce an rvalue expression, making the rvalue-reference overload the better match and printing rvalue. The call is synchronous in both cases, and the selected functions only print; there is no string resource transfer to infer from the output."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Second worked deduction case — a const lvalue",
+          "code": "Caller declares const std::string title{\"Atlas\"}.\nrelay(title): T is const std::string&.\nReference collapsing gives a const std::string& parameter.\nstd::forward<T>(value) remains a const lvalue.\ninspect(const std::string&) is selected; output is borrow."
+        },
+        {
+          "type": "paragraph",
+          "text": "Constness and value category are separate parts of the result. Forwarding a const lvalue does not remove constness or grant permission to move resources out of it. Likewise, std::move does not promise a resource transfer: it changes the expression category so an appropriate consuming operation may be selected. The eventual constructor or function defines whether data is copied, moved, observed, or rejected."
+        },
+        {
+          "type": "paragraph",
+          "text": "A move-only owner passed through an adapter is a useful design thought experiment. If the caller supplies an lvalue, preserving the category can prevent accidental consumption when the downstream interface requires an rvalue. If the caller explicitly supplies an rvalue, the downstream operation may be allowed to take ownership. Replacing forward with unconditional move would erase that distinction, potentially consuming a caller object that was offered only as an lvalue."
+        },
+        {
+          "type": "reflection",
+          "prompt": "An adapter forwards the same rvalue string into two consumers, each permitted to move from it. Why is the second call not entitled to the original text?",
+          "explanation": "The first consumer may have changed the source string by moving from it. Forwarding the expression again preserves a category, not a snapshot of the earlier value. The second consumer sees the object in its current valid but possibly unspecified moved-from state. Specify one consumption, make a deliberate copy when appropriate, or redesign the interface rather than assuming two forwards duplicate ownership."
         }
       ]
     },
@@ -65,6 +101,18 @@
         {
           "type": "paragraph",
           "text": "Use this technique when preserving the argument category is part of the adapter’s job. A normal const reference or a value parameter is often easier to explain for a concrete operation. Forwarding the same argument more than once can also be surprising if an earlier consumer moves from it. Specify whether the adapter consumes, borrows, or stores each argument before introducing a variadic forwarding interface."
+        },
+        {
+          "type": "paragraph",
+          "text": "Forwarding does not solve a stored-reference lifetime problem. The temporary Maps survives through the full expression containing the relay call, which is enough for the synchronous inspect used here. If inspect saved a reference for later use, that reference would outlive the temporary after the full expression ends. A correct asynchronous boundary must own what it retains or require and enforce a longer external lifetime."
+        },
+        {
+          "type": "paragraph",
+          "text": "Choose a simpler parameter when category preservation is not part of the operation. A read-only inspection can often accept a const reference directly. A function that always needs its own independent value can take a value parameter and define how it stores that value. Forwarding references are appropriate for adapters that deliberately preserve downstream overload behavior; they are not a default spelling for every generic input."
+        },
+        {
+          "type": "paragraph",
+          "text": "Review a forwarding function with a trace containing four items: the caller expression, deduced T, collapsed parameter type, and category of the forwarded expression. Then separately record ownership and lifetime effects of the consumer. That final separation prevents the common leap from selected rvalue overload to assumed cheap move, permanent lifetime, or safe repeated consumption. The type mechanism can preserve an interface choice, but the application still has to define the choice’s meaning."
         }
       ]
     }
@@ -99,6 +147,29 @@
       "publicationYear": 2020,
       "url": "https://timsong-cpp.github.io/cppwp/n4861/basic.life",
       "locator": "Primary standards draft, [basic.life]: object and reference lifetime boundaries. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition."
+    },
+    {
+      "id": "cpp_forwarding_arguments_module_depth_collapse",
+      "title": "C++20 working draft N4861: references",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/dcl.ref",
+      "locator": "Primary standards draft, [dcl.ref] paragraph 6: reference collapsing used in the lvalue, rvalue, and const-lvalue deduction traces; consulted 2026-09-11.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
+    },
+    {
+      "id": "cpp_forwarding_arguments_module_depth_movedfrom",
+      "title": "C++20 working draft N4861: moved-from library types",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/lib.types.movedfrom",
+      "locator": "Primary standards draft, [lib.types.movedfrom] paragraph 1: standard-library objects have a valid but unspecified moved-from state unless otherwise specified; consulted 2026-09-11. Supports the repeated-consumption string exercise.",
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)"
     }
-  ]
+  ],
+  "version": 2
 }

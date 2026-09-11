@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_atomic_publication_module",
-  "versionId": "cpp_atomic_publication_v1",
+  "versionId": "cpp_atomic_publication_v2",
   "slug": "atomic-publication",
   "title": "Publish a result with release and acquire",
   "summary": "Build a happens-before argument for one writer and one reader instead of treating atomic as a universal safety switch.",
@@ -23,6 +23,19 @@
         {
           "type": "paragraph",
           "text": "A release operation on an atomic object can synchronize with an acquire operation that reads the value it publishes. In this single-publication example, the writer stores the result before releasing the flag. The reader waits until it observes that publication with acquire semantics and reads the result afterward. Those steps form a happens-before path from the write to the read."
+        },
+        {
+          "type": "paragraph",
+          "text": "Publication transfers permission to observe completed data. The ordinary result is initially unavailable to the reader, even though its storage already exists. The writer initializes it and then publishes readiness. The reader must establish that it has observed the relevant publication before accessing the result. This is a one-way handoff with one write to the payload, so its ownership and ordering story is intentionally smaller than a reusable queue."
+        },
+        {
+          "type": "paragraph",
+          "text": "Atomicity of ready only answers whether accesses to that atomic object participate safely in its atomic rules. It does not, by itself, order operations on a separate ordinary int. The release store and matching acquire observation supply that connection. The important relationship is which store the acquire reads, not merely that both threads contain operations with release and acquire names somewhere in their source."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The writer stores ready = true with release semantics before assigning result = 42. Has it published the same guarantee?",
+          "explanation": "No. The payload write now occurs after the release operation, so the intended happens-before path from payload write through publication to payload read is missing. A reader observing true could access result without the required ordering against that write. Prepare the payload before publishing readiness."
         }
       ]
     },
@@ -49,6 +62,29 @@
         {
           "type": "paragraph",
           "text": "Using relaxed ordering for the flag would still make flag operations atomic, but would remove this argument for ordering result. Repeating the protocol by toggling the flag is a different problem: an observer can miss intermediate changes, and the writer might overwrite data still being read. A queue, mutex, or versioned protocol needs its own proof."
+        },
+        {
+          "type": "paragraph",
+          "text": "Name the events to make the proof inspectable: W writes 42 to result, S stores true to ready with release ordering, L is the acquire observation of that true value, and R reads result for output. W is sequenced before S in the writer. S synchronizes with L in this single-store protocol. L precedes R in the reader. Together these relations place W before R, allowing the ordinary payload read under the stated absence of later writes."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Two valid timing cases — same publication argument",
+          "code": "Reader first: wait observes false -> can block -> writer writes result, stores true, notifies -> wait observes true -> read 42\nWriter first: writer writes result, stores true, notifies -> reader checks ready and observes true -> read 42\nThe stored state records readiness even if the notification preceded the wait."
+        },
+        {
+          "type": "paragraph",
+          "text": "The writer-first case explains why a notification is not a standalone message that must be caught at exactly the right moment. The atomic state is checked around waiting. If true is already visible when wait checks against false, the differing value allows it to return. The notification assists a thread that may be blocked; the release/acquire state observation is what supports the payload ordering proof."
+        },
+        {
+          "type": "paragraph",
+          "text": "A waiting implementation may internally wake and recheck, but this wait interface returns only after observing a value different from the supplied old value. That observation matters because a mere wake-up would not justify reading result. The sample uses the one-way false-to-true transition, avoiding the possibility that a transient intermediate state changes back before the reader observes it."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If notify_one remained but the store and wait used relaxed ordering, which part of the event proof would fail?",
+          "explanation": "The release-to-acquire synchronization relation would be absent. The flag operations remain atomic, but the sample would no longer order the ordinary payload write before its read through that flag. Notification alone does not repair the missing relation. The writer’s eventual destruction-time join occurs after the output statement here, so it cannot justify an earlier unsynchronized read."
         }
       ]
     },
@@ -64,6 +100,22 @@
         {
           "type": "paragraph",
           "text": "Default sequentially consistent atomic operations are often easier to reason about; weaken ordering only with a specific correctness argument and measured reason. Atomic does not mean lock-free on every target, and lock-free does not mean faster for every workload. This lesson establishes safe publication under its stated assumptions, not general progress guarantees or a reusable concurrent container."
+        },
+        {
+          "type": "paragraph",
+          "text": "A second publication requires a new design. Imagine setting ready back to false, changing result, and storing true again while the reader from the first publication still uses result. The flag’s individual accesses may remain atomic, yet the payload can be overwritten during a read. The reader may also miss a brief false-to-true cycle. A Boolean carries one state bit, not a count of all events or an acknowledgement of completed consumption."
+        },
+        {
+          "type": "paragraph",
+          "text": "Choose a mutex-protected shared object when a multi-field update and its readers need one coherent critical section. Choose a queue when every item must be delivered separately. A versioned protocol needs rules for payload ownership, wraparound, reader retries, and reclamation; adding an integer version field does not supply those rules automatically. The simple publication proof should be extended only after those requirements are explicit."
+        },
+        {
+          "type": "paragraph",
+          "text": "The result and flag are declared before writer, so writer’s destruction completes before those objects leave scope. That lifetime ordering remains necessary even though the payload read has already been synchronized through ready. Synchronization does not keep an expired object alive, and a surviving object does not automatically make concurrent access safe. Keep both arguments in the review."
+        },
+        {
+          "type": "paragraph",
+          "text": "Start with the strongest straightforward ordering and a small protocol you can explain. Weaker ordering is justified by a complete correctness argument and a measured need, not by assuming every atomic instruction is free or lock-free. This example guarantees the published value under its assumptions; it makes no target-independent latency, scheduling, or progress claim."
         }
       ]
     }
@@ -109,5 +161,6 @@
       "url": "https://timsong-cpp.github.io/cppwp/n4861/atomics.types.operations",
       "locator": "Primary standards draft: atomic::wait effects and notify_one; paragraphs 29–33. Consulted 2026-09-11; not the published ISO edition."
     }
-  ]
+  ],
+  "version": 2
 }

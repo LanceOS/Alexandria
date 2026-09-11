@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_basics_module_loops",
-  "versionId": "cpp_basics_loops_v2",
+  "versionId": "cpp_basics_loops_v3",
   "slug": "repeating-work",
   "title": "Repeating work",
   "summary": "Trace a small for loop and a while loop, including the test that makes each stop.",
@@ -44,6 +44,25 @@
         {
           "type": "paragraph",
           "text": "The body sees step values 1, 2, and 3. After the third update, step is 4 and the next test fails. There is no fourth execution of the body. The declaration in the for header limits the name step to the loop. The name total remains available afterward because its declaration belongs to the surrounding main body."
+        },
+        {
+          "type": "paragraph",
+          "text": "The accumulator and the loop counter have different jobs. step identifies the contribution about to be processed; total summarizes contributions already processed. Before the first body, total is zero because no steps have been added. After adding step 1 it becomes 1, after step 2 it becomes 3, and after step 3 it becomes 6. Initializing total inside the body would lose that history on every iteration, so its placement before the loop is part of the algorithm."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Detailed accumulation trace — state before and after each body",
+          "code": "test step  condition  total before  contribution  total after\n1          true       0             1             1\n2          true       1             2             3\n3          true       3             3             6\n4          false      6             none          6"
+        },
+        {
+          "type": "paragraph",
+          "text": "The final row matters even though it prints nothing. It proves that the loop stops before adding 4. A useful statement that remains true at each test is: total contains the sum of earlier step values. It starts true for the empty sum; each body extends it by the current step; at termination it describes the complete result. This is the beginning of an invariant argument, developed more formally in Programming Foundations."
+        },
+        {
+          "type": "reflection",
+          "prompt": "What changes if total is reset to zero at the start of each body? Trace all three updates rather than guessing from the final line.",
+          "explanation": "The bodies produce totals 1, 2, and 3, because each first discards the previous sum. The final total is 3, not 6. The counter still visits the intended three values, so checking only the iteration count would miss the error. An accumulator must retain the earlier contributions required by its invariant."
         }
       ]
     },
@@ -75,6 +94,29 @@
           "type": "callout",
           "title": "Name the reason it will stop",
           "text": "Each iteration moves remaining toward a false condition. If you remove the decrement from this example, remaining stays 3 and the program keeps printing. Before running a changed loop, identify what can make its condition false."
+        },
+        {
+          "type": "paragraph",
+          "text": "The countdown uses a different state story. remaining describes work still to be announced. While it is positive, the program prints that current value and then reduces it by one. Starting at 3, the successive positive states are 3, 2, and 1. Reaching zero makes the next test false. The program does not need a separate test after the body, because control returns to the while condition automatically."
+        },
+        {
+          "type": "paragraph",
+          "text": "A termination argument needs a direction and a boundary, not merely an update statement. Decreasing a positive integer by one approaches the stopping boundary at zero. Increasing it instead would move away from that boundary; increasing indefinitely can also overflow the finite signed type, so describing that version as safely running forever would be inaccurate. For this small countdown, the decreasing quantity and lower bound establish that only finitely many body executions occur."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Contrasting update order — conceptual trace for remaining initially 3",
+          "code": "Print then decrement: output 3, 2, 1; stop at remaining = 0\nDecrement then print: output 2, 1, 0; stop at remaining = 0\nBoth perform three body executions.\nThe observed value differs because the observation occurs at a different point."
+        },
+        {
+          "type": "paragraph",
+          "text": "The same final state can hide different behavior along the way. Both countdown variants end at zero, yet one announces zero and the other does not. This is why checking just the final value is insufficient for a program whose required behavior includes intermediate output. Record the observation point in a trace, especially when the loop both changes state and reports it."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Start the countdown at remaining = 1. Compare printing before the decrement with printing after it. How many times does each body run, what does it print, and why does each loop stop?",
+          "explanation": "Both enter once because the first test is 1 > 0. Printing first observes 1; decrementing first makes the printed value 0. Both then return to the condition with remaining equal to zero, so the next test fails and the following Go! statement runs. The equal iteration counts and final state do not imply equal intermediate output."
         }
       ]
     },
@@ -98,6 +140,23 @@
         {
           "type": "paragraph",
           "text": "Keep these experiments small. Our counters and sums remain comfortably within the range of int. A loop is not a reason to ignore numeric limits: increasing a bound dramatically can make arithmetic overflow or make a program run much longer than intended. The useful habit here is tracing a few deliberate values, then checking the output."
+        },
+        {
+          "type": "paragraph",
+          "text": "Design tests around zero, one, and several iterations. Zero checks whether the initial condition correctly skips work; one exposes whether initialization and the final update fit together; several reveal accumulation and repeated-state errors. For a loop intended to process the numbers 1 through a small bound, also ask whether the endpoint is inclusive. A loop starting at zero and using a strict upper bound can have the same iteration count but add different values."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A new task should sum 1 through 4. Give the expected total and explain how to adapt the original loop without accidentally summing 0 through 3.",
+          "explanation": "Keep the start at 1 and use an inclusive bound of 4, giving contributions 1, 2, 3, and 4 and a total of 10. Starting at 0 with a strict bound of 4 would still perform four iterations, but its contributions would sum to 6. Count, values visited, and accumulated result are distinct checks."
+        },
+        {
+          "type": "paragraph",
+          "text": "Do not generalize the small demonstration into an unbounded numeric routine. Even if the final sum fits in a chosen type, a counter update at an extreme inclusive bound may overflow after the last useful body execution. A production interface needs a documented input range and a loop representation that remains valid at that range’s boundaries. These examples use tiny values to let you study iteration without concealing a numeric precondition."
+        },
+        {
+          "type": "paragraph",
+          "text": "Choose for when initialization, test, and update form one compact counting story. Choose while when the continuation condition is the clearest description of changing state. Either can express these examples, but clarity comes from making the progress measure and the observation point explicit. Functions will let you name the entire repeated calculation so callers can reason about its inputs and result separately from its implementation."
         }
       ]
     }
@@ -139,5 +198,5 @@
       "edition": "N4861 (C++20 working draft)"
     }
   ],
-  "version": 2
+  "version": 3
 }

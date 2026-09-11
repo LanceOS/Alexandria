@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects",
-  "versionId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_v2",
+  "versionId": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_v3",
   "slug": "owning-polymorphic-objects",
   "title": "Owning a collection of implementations",
   "summary": "Combine virtual interfaces with exclusive ownership without losing derived behavior.",
@@ -18,11 +18,24 @@
       "blocks": [
         {
           "type": "paragraph",
+          "text": "This lesson combines virtual dispatch with exclusive ownership and vector invalidation. Draw the collection as a vector of owners, each pointing to a separate complete implementation object. The vector’s element type is uniform, while those implementation objects need not have the same derived type. Moving the owners allows the container to organize responsibility without copying only a base portion of the implementations. The virtual interface determines behavior; unique_ptr and the vector determine who performs cleanup."
+        },
+        {
+          "type": "paragraph",
           "text": "A vector has one element type, but that element type can be an owner of a common interface. vector<unique_ptr<Notice>> can own several concrete kinds of Notice while preserving each complete object. The unique_ptr values share a static type; their owned objects may have different dynamic types. This separates the container’s uniform representation from the runtime behavior chosen through the interface."
         },
         {
           "type": "paragraph",
+          "text": "There are two different locations that a borrower might designate. A reference to notices[i] refers to a unique_ptr element stored in the vector’s allocation. A pointer returned by that owner’s get refers to the separately allocated Notice implementation. Reallocation can invalidate the first location while leaving the second object alive because moving unique_ptr transfers its stored ownership. This does not make the second pointer permanently safe. It still needs some owner to keep that object alive, and erasing or replacing the responsible owner can end the relationship."
+        },
+        {
+          "type": "paragraph",
           "text": "Exclusive ownership makes responsibility straightforward. Each element owns one implementation, and the vector owns its elements. Destroying the vector destroys those owners, which destroy their corresponding objects. The base class’s virtual destructor is essential for the ordinary deletion through a base pointer used here. A nonvirtual public destructor would not provide the correct contract for deleting derived objects in this way."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A saved pointer to one separately allocated implementation object survives an append that reallocates the vector of unique_ptr owners. Its owning element is then erased without transferring ownership elsewhere. Explain the difference between these events and identify which one ends the object lifetime.",
+          "explanation": "The append moves unique_ptr elements to new vector storage while transferring responsibility for the same separately allocated objects, so the saved object pointer can remain valid. Erasing the owner destroys its implementation object under the stated conditions, ending that lifetime and invalidating the borrow. A saved reference to the unique_ptr element itself would have been invalidated by the earlier reallocation. Always identify which layer a handle addresses."
         }
       ]
     },
@@ -44,11 +57,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The first make_unique constructs Welcome and returns its temporary exclusive owner. Inserting it transfers ownership into the vector’s first element. The second insertion similarly gives the vector a Reminder owner. For each element, the loop borrows the owner rather than copying it, calls text virtually, then performs a checked pointer cast. The Welcome check yields null, so it prints no day count. The Reminder check succeeds, and days returns three. When the vector is destroyed at scope exit, destroying its owner elements deletes their complete objects through Notice’s virtual destructor contract."
+        },
+        {
+          "type": "paragraph",
           "text": "make_unique creates each concrete object, and push_back transfers the resulting owner into the vector. No owning raw pointer escapes and no manual delete is needed. During the loop, the const reference refers to the unique_ptr element; using its arrow operator reaches the owned object. The virtual text call prints the implementation-specific message while ownership stays in the collection."
         },
         {
           "type": "paragraph",
           "text": "The program also demonstrates a checked pointer dynamic_cast to Reminder. Because Notice is polymorphic, the runtime check can determine whether the object supports that derived type. A successful result borrows the Reminder object, allowing the days query. A failed pointer cast returns nullptr, which the condition handles without dereferencing it. The cast neither copies the object nor creates a second owner."
+        },
+        {
+          "type": "paragraph",
+          "text": "Consider a contrasting relocation trace with a saved reference to the first unique_ptr element and a saved raw pointer to its Welcome object. Suppose a later append exceeds capacity and reallocates the vector. The reference into the old vector storage is invalidated. The separate Welcome object can remain alive under the moved owner, so the raw object pointer can still be used under that continuing ownership assumption. Treating both handles as interchangeable would either reject valid object access unnecessarily or, worse, retain an invalid reference into the vector."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now erase the owning element instead. Unless ownership was deliberately transferred elsewhere before erasure, destruction of its unique_ptr destroys the Welcome object. The raw pointer no longer provides usable access. A successful dynamic_cast on a live object earlier does not change that outcome: it checks a type relationship and returns a borrow, not a lifetime subscription. A later cast is not a safe probe for whether an old dangling pointer has become usable again. Track the owner transition before using either the base pointer or a derived pointer obtained from it."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The loop is generalized to permit empty unique_ptr elements. Which line needs an additional precondition check, and does dynamic_cast’s null result make the whole original loop safe automatically?",
+          "explanation": "notice->text() requires a nonempty owner and appears before the cast, so the generalized loop must check the owner before dereferencing it. dynamic_cast of a null pointer can return null, but that does not repair the preceding invalid access. The current example establishes nonempty elements through successful make_unique insertions. If empty owners become a valid collection state, the interface and iteration policy must explicitly handle them."
         }
       ]
     },
@@ -68,6 +98,10 @@
           "type": "reflection",
           "prompt": "Does the pointer returned by dynamic_cast keep the Reminder alive after its owning element is erased?",
           "explanation": "No. The pointer borrows the object and has no ownership effect. Erasing the owning unique_ptr destroys the Reminder, so the borrowed pointer must not be used afterward."
+        },
+        {
+          "type": "paragraph",
+          "text": "Follow the complete chain of responsibility: the collection owns its unique_ptr elements, each nonempty element owns one implementation, and casts or references only borrow access. Verify the base deletion contract and each dereference precondition. Type-specific inspection can be useful, but repeated casts should prompt a review of whether the common interface expresses the caller’s real need. Ownership and dynamic type answer different questions and both must remain correct."
         }
       ]
     }
@@ -127,7 +161,29 @@
       "edition": "N4861 (C++20 working draft)",
       "url": "https://timsong-cpp.github.io/cppwp/n4861/expr.delete",
       "locator": "N4861, [expr.delete]; consulted 2026-09-11. Paragraph 3: the virtual-destructor contract for ordinary deletion through a base pointer, as used by unique_ptr<Notice>."
+    },
+    {
+      "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_depth_vector_modifiers",
+      "title": "C++20 working draft N4861: vector.modifiers",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/vector.modifiers",
+      "locator": "N4861 [vector.modifiers]; paragraph 1, reallocation invalidation for references to vector owner elements; consulted 2026-09-11."
+    },
+    {
+      "id": "cpp_core_runtime_polymorphism_owning_polymorphic_objects_depth_unique_ptr_single_ctor",
+      "title": "C++20 working draft N4861: unique.ptr.single.ctor",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "publicationYear": 2020,
+      "edition": "N4861 (C++20 working draft)",
+      "url": "https://timsong-cpp.github.io/cppwp/n4861/unique.ptr.single.ctor",
+      "locator": "N4861 [unique.ptr.single.ctor]; paragraphs 16–24, moves transfer stored pointers and clear source owners; consulted 2026-09-11."
     }
   ],
-  "version": 2
+  "version": 3
 }

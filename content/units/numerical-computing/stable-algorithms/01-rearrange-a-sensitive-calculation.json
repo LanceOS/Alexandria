@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "numerical_rearrange_a_sensitive_calculation_module",
-  "versionId": "numerical_rearrange_a_sensitive_calculation_v2",
+  "versionId": "numerical_rearrange_a_sensitive_calculation_v3",
   "slug": "rearrange-a-sensitive-calculation",
   "title": "Rearrange a calculation to retain useful information",
   "summary": "Compare equivalent square-root expressions under a finite-precision model.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The quantity f(x)=sqrt(1+x)-1 measures a change from the baseline value one. When x is tiny and positive, both terms being subtracted are near one while their difference is much smaller. That scale separation makes the direct calculation fragile: an intermediate can lose the small perturbation even though the desired output is representable. The goal is to preserve the information relevant to that small result, not to make every operation exact."
+        },
+        {
+          "type": "paragraph",
+          "text": "Rationalization is a derivation, not a numerical incantation. Let r=sqrt(1+x). Multiplying (r-1) by (r+1)/(r+1) gives (r*r-1)/(r+1). In exact real arithmetic r*r=1+x, so the numerator simplifies to x. The result is x/(sqrt(1+x)+1). For real x >= -1 the square root is defined and the denominator is at least one, so this algebraic transformation does not introduce division by zero. An implementation still needs representable intermediate values and appropriate treatment of non-finite inputs."
+        },
+        {
+          "type": "paragraph",
+          "text": "The numerator now carries the small original x directly. An approximate denominator near two perturbs the result modestly for the small positive inputs considered here, whereas subtracting two nearly equal rounded values can erase it. This is an application of numerical analysis to a specific expression. The source survey explains rounding and cancellation; the algebra and decimal traces in this lesson are original examples, not claimed measurements of a particular math library."
+        },
+        {
+          "type": "paragraph",
           "text": "Suppose we need the small increment produced by sqrt(1 + x) minus 1, for a positive x much smaller than one. Over real numbers the expression is straightforward. In finite precision, forming 1 + x may discard x before the square root is computed. Subtracting one then leaves zero, even though the true result is positive. The problematic information was lost in an intermediate step."
         },
         {
           "type": "paragraph",
           "text": "Multiply numerator and denominator by (sqrt(1 + x) + 1). The product of the two conjugates is x, giving x / (sqrt(1 + x) + 1). The equivalent expression keeps the small x in its numerator and divides it by a quantity close to two. This is an original worked application of the cancellation principles discussed in Goldberg’s survey."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A refactor restores the direct expression because it is shorter and agrees for x=3. Design a regression check that explains why the refactor is unsafe for the intended domain.",
+          "explanation": "Include tiny positive inputs for which 1+x rounds to one in the tested representation, compare with a trusted higher-precision evaluation, and require the domain's stated error bound. Record why these inputs are selected: they expose loss before subtraction. Keep x=3 as an ordinary case, but do not let its exact result one stand in for the difficult range."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "Use the four-digit decimal model operation by operation. The exact 1.00000001 is closer to representable 1.000 than to its next four-digit neighbor, so the stored sum is one. The square root of that stored one is one, and the direct subtraction gives zero. In the rearranged path, the same rounded sum produces denominator two, but the numerator remains x=1.000 times 10^-8. Dividing by two gives 5.000 times 10^-9, which is representable under our unbounded-enough exponent assumption. The result is approximate because the true denominator is slightly larger than two, so the exact positive result is slightly smaller than 5 times 10^-9."
+        },
+        {
+          "type": "paragraph",
           "text": "The rearranged expression still rounds; it has not created exact real arithmetic. It avoids the particular loss that turns the numerator into zero in the direct path. The example assumes positive x and sufficient exponent range. For other inputs, domain restrictions, division safety, overflow, and underflow need fresh analysis. Algebraic equivalence alone is not enough to choose an implementation."
         },
         {
           "type": "paragraph",
           "text": "Algorithmic error also differs from uncertainty in the data. If x came from subtracting two noisy measurements, rearranging this later formula cannot recover digits those measurements never determined. Conditioning describes how the exact problem responds to input perturbations; stability concerns the error introduced by the algorithm. A stable method can still yield an uncertain answer to a poorly conditioned problem."
+        },
+        {
+          "type": "paragraph",
+          "text": "Contrast the small-perturbation case with x=-0.75. Here 1+x=0.25, its square root is 0.5, and direct subtraction yields -0.5. The rearranged expression gives -0.75/(0.5+1)=-0.75/1.5=-0.5. Both paths are exact in the chosen four-digit decimal model. This case shows that a numerically motivated transformation should also preserve ordinary behavior where the original expression already works."
+        },
+        {
+          "type": "paragraph",
+          "text": "Domain edges expose different questions. At x=0 both formulas return zero; a relative-error metric using an exact reference zero is undefined and needs an absolute criterion. At x=-1 both real formulas give -1, while x less than -1 is outside the real square-root domain. An application promising only small nonnegative inputs should reject unsupported negatives rather than accidentally broadening its contract because the algebra happens to allow them. If the input itself is uncertain, for example x is estimated only within one percent, the rearrangement cannot recover that missing certainty."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical contrast in four-significant-digit decimal arithmetic\nx=-0.7500 -> 1+x=0.2500 -> sqrt=0.5000\nDirect: 0.5000-1.000 = -0.5000\nRearranged: -0.7500/(0.5000+1.000) = -0.5000\nAt x=0: both give 0\nAt x=-1: both give -1 in real arithmetic\nFor x<-1: no real square root of 1+x",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "Under the same four-digit model, analyze x=1.000 times 10^-4 through both formulas. Do not keep hidden extra digits.",
+          "explanation": "The first exact sum is 1.0001 and rounds to 1.000. The direct path therefore returns zero again. The rearranged denominator rounds to 2.000, while the original x remains available in the numerator, giving 5.000 times 10^-5. That is a rounded approximation to the exact positive result, whose denominator is slightly above two."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Compare candidate formulas over the actual application range using a trusted higher-precision reference and a stated error metric. Keep the domain restrictions visible in the interface and check special values deliberately. Prefer an established numerical library when it provides the operation and accuracy guarantees required. Document the reason for a rearrangement so a future cleanup does not restore the shorter but less accurate expression."
+        },
+        {
+          "type": "paragraph",
+          "text": "When equivalent formulas disagree, identify which intermediate rounded away information and whether a transformation keeps that information until it contributes to the result. Check the derivation's domain and denominator before translating it to code. Numerical stability and input conditioning remain separate: a better algorithm controls avoidable arithmetic error, while better data or a different problem formulation may be required to reduce inherent uncertainty."
         }
       ]
     }
@@ -80,5 +124,5 @@
       "publicationYear": 1991
     }
   ],
-  "version": 2
+  "version": 3
 }

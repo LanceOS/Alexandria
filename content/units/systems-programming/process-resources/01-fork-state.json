@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "systems_programming_process_resources_module",
-  "versionId": "systems_programming_process_resources_version_1",
+  "versionId": "systems_programming_process_resources_version_2",
   "slug": "fork-state",
   "title": "Separate process memory from shared resources",
   "summary": "Trace what process creation duplicates and what remains connected.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "systems_programming_process_resources_part_concepts",
-      "title": "Understand the model",
+      "title": "Process memory, handles, and kernel state",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "On successful fork, execution continues in both a parent and a child process. The parent receives the child process identifier and the child receives zero; failure creates no child. Ordinary private memory starts with the same contents but subsequent writes are separate. File descriptors require a different model: each process has its own descriptor entries, while inherited entries refer to the same open file description and can share a file offset. Copying a local integer and inheriting a kernel resource therefore do not have identical effects. Process creation in a multithreaded program also has important restrictions before the child executes another program. This lesson uses a single-threaded parent and does not provide a general fork wrapper."
+        },
+        {
+          "type": "paragraph",
+          "text": "A process contains more than variables: it has an address space, descriptor entries and relationships to kernel-managed resources. fork duplicates parts of that state with different sharing rules. For ordinary private memory in this lesson, parent and child begin with equal values but can then diverge. Equal contents do not imply that a later assignment in one process updates the other."
+        },
+        {
+          "type": "paragraph",
+          "text": "A file descriptor is a small per-process handle. The inherited handles can refer to one shared open file description, which contains state such as the file offset. Distinguish the handle table entry from the underlying open instance. This is similar to drawing two references to one object, except the rules come from the operating system rather than C++ ownership types."
+        },
+        {
+          "type": "paragraph",
+          "text": "The return value selects the control path. In the parent, successful fork returns the child's process identifier; in the child it returns zero. On failure the caller gets -1 and no child is created. Code that treats every nonzero result as the parent-success branch would conflate failure with success. Decide what work and cleanup belongs to each branch before adding communication."
+        },
+        {
+          "type": "paragraph",
+          "text": "Scheduling does not impose the deterministic order shown in a paper trace. Parent-first reads and child-first reads are both possible unless the application establishes an order. If output values depend on that order, record the synchronization premise. The lesson's single-threaded parent also avoids pretending that arbitrary C++ operations after a multithreaded fork are safe; the documented restrictions for that configuration need separate treatment."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A parent and child have private integer values nine and four, respectively, and inherited descriptors share file offset four. The parent privately changes its integer from nine to eleven without file operations. What are the child integer and shared file offset?",
+          "explanation": "The child integer remains four because it belongs to separate private memory. The shared file offset remains four because the integer assignment performs no file operation. This separates an ordinary memory mutation from kernel-resource state. Neither making the private integer atomic nor renaming its variable changes which storage is shared."
         }
       ]
     },
     {
       "id": "systems_programming_process_resources_part_trace",
-      "title": "Work through an example",
+      "title": "Compare inherited offsets with independent opens",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The child does not observe nine merely because the parent assigned it first. Conversely, the child does not start reading at byte zero merely because its descriptor number was copied. The shared open file description connects the two reads. Draw separate boxes for parent memory and child memory, then arrows from both descriptor entries to a single offset box. This picture predicts both outcomes without treating every resource as either entirely shared or entirely copied."
+        },
+        {
+          "type": "paragraph",
+          "text": "After successful fork, there are two private integer objects starting at seven. Parent assignment produces its own nine; child assignment produces its own four. The order of those writes does not connect the storage. The inherited descriptors, however, both reach the shared offset. Parent's two-byte read advances it from zero to two, so child's later read begins at C and advances it to four."
+        },
+        {
+          "type": "paragraph",
+          "text": "The resulting pairs AB and CD therefore depend on the prescribed read order, while the final private values do not depend on one process seeing the other's write. Drawing memory boxes separately from the shared open file description prevents the contradictory assumptions that everything is copied or everything is shared. Each resource needs its own documented inheritance rule."
+        },
+        {
+          "type": "callout",
+          "title": "Compare inherited offsets with independent opens",
+          "text": "Contrasting schedule: let the child read first, then the parent, with the same successful two-byte transfers and no other access."
+        },
+        {
+          "type": "paragraph",
+          "text": "The child reads AB at offset zero and advances the shared offset to two. The parent then reads CD and advances it to four. The final offset is unchanged from the original trace, but which process obtained each pair is reversed. Thus checking only the final offset would miss an ordering-dependent application result."
+        },
+        {
+          "type": "paragraph",
+          "text": "For comparison, imagine each process independently opens the file after fork, under a separate explicit scenario with fresh open instances and offsets initially zero. Their reads can then each start at AB because the offsets belong to separate open file descriptions. This comparison does not claim that copying a descriptor number creates that independence; the new open operations and their results establish a different resource graph."
+        },
+        {
+          "type": "reflection",
+          "prompt": "fork fails and returns -1. How many child processes were created, and why should the program avoid waiting for a successful-child result that it never obtained?",
+          "explanation": "No child was created by that failed call. The caller should handle the error and preserve or release its existing resources according to its own contract. It has no valid newly created child identifier from this operation. Treating the failure as an ordinary parent-success branch could lead to unrelated or invalid lifecycle operations and hide the original cause."
         }
       ]
     },
     {
       "id": "systems_programming_process_resources_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice fork outcomes and state",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Would making the private integer a C++ atomic automatically share it between these processes?",
           "explanation": "No. Atomic operations do not change the backing storage of an ordinary private object. This example still has separate process memory. Interprocess communication or explicitly shared storage requires an operating-system design and its own synchronization contract; a type qualifier cannot create that connection."
+        },
+        {
+          "type": "paragraph",
+          "text": "Reason about process creation by inventorying private memory, handles and shared kernel resources separately. Then trace return branches and explicitly ordered operations. Communication of a child's computed value requires a deliberate interprocess channel; local assignment is insufficient. Lifecycle completion and cleanup are part of that operating-system design, while C++ resource wrappers can help express ownership only after the underlying sharing rules are correct."
         }
       ]
     }
@@ -72,6 +123,16 @@
       ],
       "url": "https://man7.org/linux/man-pages/man2/fork.2.html",
       "locator": "Primary documentation: DESCRIPTION and RETURN VALUE; separate address spaces and shared open file descriptions; consulted 2026-09-11"
+    },
+    {
+      "id": "systems_programming_process_resources_source_open",
+      "title": "Linux manual: open(2)",
+      "authors": [
+        "Linux man-pages project"
+      ],
+      "url": "https://man7.org/linux/man-pages/man2/open.2.html",
+      "locator": "Primary documentation: DESCRIPTION; each successful open creates a new open file description with its own offset initially at the file beginning; consulted 2026-09-11."
     }
-  ]
+  ],
+  "version": 2
 }

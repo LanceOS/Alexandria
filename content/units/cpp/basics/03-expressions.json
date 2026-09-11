@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_basics_module_expressions",
-  "versionId": "cpp_basics_expressions_v2",
+  "versionId": "cpp_basics_expressions_v3",
   "slug": "expressions-arithmetic",
   "title": "Expressions and arithmetic",
   "summary": "Combine values, make grouping clear, and understand why the operand types matter.",
@@ -44,6 +44,19 @@
           "type": "callout",
           "title": "Grouping is one question",
           "text": "Precedence describes how an expression is grouped. It is not a general rule for the order in which every part of a more complicated expression executes. These examples only read values. Keep updates in separate statements while learning to reason about expressions."
+        },
+        {
+          "type": "paragraph",
+          "text": "Work an expression from its grouping and operand types toward its result. In pagesPerDay * days, both named values are small integers, so multiplying 5 by 3 produces the integer 15. The const on totalPages prevents a later ordinary assignment to that result; it does not change the multiplication rule. The name adds meaning: the multiplication combines pages per day with a number of days, leaving a page count. Keeping units in names helps expose mistakes that the built-in integer type cannot distinguish."
+        },
+        {
+          "type": "paragraph",
+          "text": "For 2 + 3 * 4, first write the implicit grouping as 2 + (3 * 4). The inner multiplication yields 12, then addition yields 14. For (2 + 3) * 4, the explicitly grouped addition yields 5, then multiplication yields 20. The difference is not a formatting issue. Parentheses change the expression being computed. A useful debugging technique is to replace a complicated calculation with named intermediate results whose meanings and values can be checked separately."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A learner says 12 - 4 - 2 should be 10 because 4 - 2 is 2. Identify the missing reasoning step and compute both possible groupings.",
+          "explanation": "The written expression groups as (12 - 4) - 2, giving 8 - 2 = 6. The learner evaluated 12 - (4 - 2), which requires explicit parentheses and gives 10. Determine the grouping before computing the numbers. This example uses pure reads, so it teaches associativity without introducing side effects or assumptions about operand evaluation order."
         }
       ]
     },
@@ -75,6 +88,24 @@
           "type": "reflection",
           "prompt": "If both 7s in the integer calculations became 8, what would wholeGroups and leftOver contain?",
           "explanation": "wholeGroups would contain 4 and leftOver would contain 0: four groups of two use all eight items. Predict both values together. The quotient counts complete groups and the remainder tells you what remains, for these nonnegative integers and this positive divisor."
+        },
+        {
+          "type": "paragraph",
+          "text": "Integer division answers a different question from fractional division. Given seven pages and groups of two pages, the integer quotient counts three complete groups. The remainder records the one page not assigned to those complete groups. Together they reconstruct the original quantity: 3 times 2 plus 1 equals 7. This reconstruction is a useful independent check on a quotient-and-remainder calculation; it is stronger than remembering one expected number."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Second worked case — quotient and remainder with a negative dividend",
+          "code": "Assume representable int operands and a nonzero divisor.\n-7 / 2 -> -3, because truncation is toward zero\n-7 % 2 -> -1\nReconstruct: (-3) * 2 + (-1) = -7\nRounding downward to -4 would describe a different division rule."
+        },
+        {
+          "type": "paragraph",
+          "text": "The negative example prevents an easy overgeneralization from positive inputs. C++ integer division discards the fractional part toward zero, so its result for -3.5 is -3 rather than -4. For a representable quotient, the quotient and remainder satisfy the reconstruction identity. If your application needs mathematical floor division or a nonnegative modular index, you need an explicitly designed calculation instead of assuming that / and % already implement that convention."
+        },
+        {
+          "type": "paragraph",
+          "text": "The order of conversion is the central lesson of convertedAfter. The initializer first computes 7 / 2 as an integer expression, obtaining 3. Only then is 3 represented in the destination double. The fractional information was never present in that result. In 7.0 / 2 the common operand type changes before division, so 3.5 is available. A destination with more precision cannot repair a lossy earlier operation."
         }
       ]
     },
@@ -93,6 +124,23 @@
         {
           "type": "paragraph",
           "text": "Floating-point values also have finite precision. Many familiar decimal fractions, such as 0.1 on common binary floating-point implementations, cannot be represented exactly. Our example uses 3.5 to keep the result simple. For now, practice with small values: predict the type, add parentheses to show the grouping, calculate the result, and only then compile and compare the output."
+        },
+        {
+          "type": "paragraph",
+          "text": "Assignment is a state transition, not an algebraic equation. In pages = pages + 2, the right side uses the value from before the assignment and the left side identifies the object to change. Starting at 5, the successive statements pages += 2 and pages += 2 produce 7 and then 9. Evaluating the same update twice therefore has a different effect from merely reading an expression twice. Keep updates visible as separate statements until you can explain both the values computed and the state changed."
+        },
+        {
+          "type": "paragraph",
+          "text": "Check dangerous operations before evaluating them. Discovering afterward that a divisor was zero does not undo undefined behavior. Likewise, choosing a larger destination type does not guarantee that multiplication performed in a smaller signed operand type was representable. The small examples intentionally avoid these hazards; the next modules teach conditions and interfaces that let you make such preconditions explicit. For division there is also a signed boundary case when the mathematical quotient is not representable, even with a nonzero divisor."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use a four-column paper trace for a new calculation: intended quantity and units, operand types and grouping, intermediate numeric results, and the state after assignment. For the daily-pages example the columns identify pages, int multiplication, 15, and an unchanged source pair with a newly initialized result. This connects arithmetic to program state and prepares you to put calculations behind conditions and inside functions without losing track of when information is read or changed."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Nine items are shared between four groups. Predict 9 / 4, 9 % 4, and 9.0 / 4. Which result answers “complete items per group,” and which answers “fractional average”?",
+          "explanation": "The integer quotient is 2 and remainder is 1 because 2 times 4 plus 1 equals 9. The floating calculation is 2.25. Use the quotient when items are indivisible and keep the remainder as part of the result; use a fractional average when a fractional quantity is meaningful. These are different questions, so choosing an operator or type begins with the application requirement."
         }
       ]
     }
@@ -167,5 +215,5 @@
       "edition": "N4861 (C++20 working draft)"
     }
   ],
-  "version": 2
+  "version": 3
 }

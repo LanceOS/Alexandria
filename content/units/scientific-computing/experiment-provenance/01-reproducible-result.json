@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "scientific_computing_experiment_provenance_module",
-  "versionId": "scientific_computing_experiment_provenance_version_1",
+  "versionId": "scientific_computing_experiment_provenance_version_2",
   "slug": "reproducible-result",
   "title": "Make a computational result reproducible",
   "summary": "Record inputs, transformations and parameters so a result can be reconstructed.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "scientific_computing_experiment_provenance_part_concepts",
-      "title": "Understand the model",
+      "title": "Identify inputs, transformations, and meaning",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "A computational result depends on more than source code. It also depends on the data, processing steps, parameters and software environment used to obtain it. Wilson and colleagues recommend preserving raw data, recording transformations, making dependencies explicit and tracking changes in scientific projects. A reproducible workflow should make those relationships inspectable instead of relying on memory or a file named final. Keep raw observations separate from derived outputs. Version identifiers and a run record help explain what changed between analyses, but merely obtaining the same output does not validate the scientific model or the quality of the measurements."
+        },
+        {
+          "type": "paragraph",
+          "text": "Provenance is the chain connecting a reported result to inputs and processing decisions. In a small project that chain may be a few files and a run record; in a larger one it may be a dependency graph. The purpose is the same: another person should be able to identify which observations, transformations and settings produced the particular output, rather than guessing from the latest contents of a directory."
+        },
+        {
+          "type": "paragraph",
+          "text": "Distinguish raw observations from derived values. A unit conversion produces a derived dataset; it should not silently replace the only copy of the measurements. If a later conversion bug is discovered, preserved raw data makes correction possible. The run record should say both input and output units so that a number such as 0.004 is interpretable without opening the source code."
+        },
+        {
+          "type": "paragraph",
+          "text": "Identity is stronger than a filename. A file called measurements.csv can change while retaining its name. A recorded content identifier, such as a verified hash, helps distinguish its exact bytes, while metadata explains the units and collection meaning. A matching hash supports byte identity, not scientific truth: the same incorrectly labeled dataset can be copied perfectly. Both data identity and semantic documentation matter."
+        },
+        {
+          "type": "paragraph",
+          "text": "Separate repeatability of computation from validation of the experiment. Repeating the same transformations can reproduce a biased sample or an incorrect unit conversion. Known-input checks target implementation errors; measurement and sampling evidence target whether the observations answer the scientific question. A transparent record makes these distinctions inspectable but cannot supply missing experimental justification."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Data-A contains distances [2,4,6] mm and data-B contains [2,4,9] mm. Analysis-v1 converts millimetres to metres and averages. Write the run information needed to distinguish the two computations. What does source-code identity alone omit?",
+          "explanation": "Record the exact input identity and units, procedure version, conversion factor, dependency/environment information relevant to execution, and the output with units. Source-code identity alone omits which observations were supplied and any external configuration. The two means legitimately differ despite identical procedure identity because one input observation changed."
         }
       ]
     },
     {
       "id": "scientific_computing_experiment_provenance_part_trace",
-      "title": "Work through an example",
+      "title": "Trace a result and a reproducible unit error",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "An output file containing only 0.004 would omit both the units and the origin of the result. The run record makes the conversion and input identity visible. R2 does not contradict R1 because it analyzes different observations. Preserving data-A allows the original calculation to be reconstructed after data-B arrives. Overwriting the raw values in place and keeping only the latest mean would erase that explanation."
+        },
+        {
+          "type": "paragraph",
+          "text": "The conversion factor is 0.001 metre per millimetre. Multiplying each observation cancels the millimetre unit, giving 0.002, 0.004 and 0.006 metres. Their sum is 0.012 metres, and dividing by the three observations yields 0.004 metre. Averaging before conversion gives four millimetres, then 0.004 metre, which independently checks the linear conversion arithmetic."
+        },
+        {
+          "type": "paragraph",
+          "text": "R2 uses a different third observation: nine instead of six millimetres. Its converted sum is 0.015 metres and its mean is 0.005 metre. The one-millimetre increase in the mean follows from a three-millimetre change spread across three observations. Recording both data identities explains the difference without declaring one run nondeterministic or assuming the program changed."
+        },
+        {
+          "type": "callout",
+          "title": "Trace a result and a reproducible unit error",
+          "text": "Contrasting reproducible error: keep data-A=[2,4,6] millimetres but mistakenly use conversion factor one metre per millimetre."
+        },
+        {
+          "type": "paragraph",
+          "text": "The derived values become [2,4,6] metres and the mean becomes four metres, one thousand times the intended 0.004 metre. Another person following that exact recorded procedure can reproduce the same wrong answer. Reproduction establishes agreement with the procedure, while a known conversion check such as 1000 millimetres→1 metre reveals the unit error."
+        },
+        {
+          "type": "paragraph",
+          "text": "Correct the procedure as analysis-v2 while preserving the erroneous run record as historical evidence. Rerun from the preserved raw values rather than attempting to infer them from a rounded output. Record why v2 differs and which published result it supersedes. This is an original example of an auditable correction workflow; the cited Perspective supplies scholarly practice guidance rather than an experimental proof that a particular organization is universally optimal."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A randomized analysis reproduces its result after recording a seed. Does the seed alone establish reproducibility across arbitrary software versions and hardware?",
+          "explanation": "No. The random-number implementation, data ordering, numerical operations and parallel execution can also affect results. Record the relevant environment and define whether the comparison requires exact bytes, a numerical tolerance or agreement in a statistical quantity. The seed is one input to the computation, not a universal description of its complete behavior."
         }
       ]
     },
     {
       "id": "scientific_computing_experiment_provenance_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice run records and comparison criteria",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "If another researcher repeats R1 and also obtains 0.004, does that establish that the measured distances and the averaging model are scientifically appropriate?",
           "explanation": "No. Repeating the calculation checks a computational relationship under the recorded assumptions. Measurement quality, sampling design and whether the mean answers the scientific question require separate evidence. A transparent workflow makes those assumptions easier to inspect; it does not transform an unsuitable experiment into a valid one."
+        },
+        {
+          "type": "paragraph",
+          "text": "A reproducible result should be traceable through preserved inputs, explicit transformations, environment information and an interpretable output. Test a known case before trusting a large run, and retain the history of corrections. Then evaluate scientific validity separately through the assumptions and evidence appropriate to the measurement and model. This division makes computational disagreement easier to diagnose without confusing repeatable mistakes with reliable science."
         }
       ]
     }
@@ -79,5 +130,6 @@
       "locator": "Scholarly guidance (journal Perspective): Data management, Software and Keeping track of changes; raw data, processing records, dependencies and version tracking; consulted 2026-09-11",
       "publicationYear": 2017
     }
-  ]
+  ],
+  "version": 2
 }

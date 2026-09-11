@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "embedded_realtime_task_timing_module",
-  "versionId": "embedded_realtime_task_timing_version_1",
+  "versionId": "embedded_realtime_task_timing_version_2",
   "slug": "release-and-deadline",
   "title": "Separate release time from completion deadline",
   "summary": "Evaluate a small periodic schedule using explicit timing assumptions.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "embedded_realtime_task_timing_part_concepts",
-      "title": "Understand the model",
+      "title": "Name jobs, release times, and deadlines",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "A task can be ready to run without currently occupying a processor. In Zephyr, waiting for a timeout or an unavailable kernel object makes a thread unready; expiration of a sleep makes it eligible again, rather than promising immediate execution. For timing analysis, write down a release time, an execution demand and a deadline. The deadline is the latest acceptable completion time, not simply the time at which the task wakes. Priority and other work can delay execution. A measured average duration is not a worst-case bound. Keep the scheduling model explicit before interpreting a timeline, especially when interrupt handling, blocking or multiple processors are involved."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use a separate name for each invocation of a periodic task: a job. Its release r is when it becomes eligible, its start s is when it first executes, and its finish f is when the required work completes. A relative deadline D becomes an absolute deadline r+D. Response time is f-r, whereas initial dispatch delay is s-r. Execution demand counts processor time actually spent on the job, excluding time displaced by other work."
+        },
+        {
+          "type": "paragraph",
+          "text": "The period describes the spacing between nominal releases. It does not have to equal the relative deadline. In this example releases are ten milliseconds apart but each job must finish within six milliseconds. Thus completion before the next release would be too weak a check: a job finishing eight milliseconds after release misses the six-millisecond requirement even though it finishes before the next job is released."
+        },
+        {
+          "type": "paragraph",
+          "text": "A ready job can be delayed by higher-priority work; a blocked job is waiting for something else before it can compete for the processor. Keep these reasons distinct on a timeline. The total response can include initial waiting, execution, preemption after execution has begun, and resource-related blocking. Adding measured body time to a period does not model these intervals correctly."
+        },
+        {
+          "type": "paragraph",
+          "text": "This lesson prescribes one finite single-processor schedule rather than deriving every possible schedule. Real schedulability analysis needs bounds and a scheduling policy, including interrupt costs and resource sharing. Observing three successful jobs is useful for checking arithmetic and instrumentation, but does not establish the maximum interference a future job can encounter. Treat any claimed bound as an assumption to justify separately."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A job releases at 30 ms, has relative deadline 5 ms, waits 2 ms, and executes for 2 ms without further interruption. Compute finish, response and slack.",
+          "explanation": "It starts at 32 and finishes at 34. Its absolute deadline is 35, response time is 34-30=4, and slack is 35-34=1 ms. The period is unnecessary for this individual calculation unless it constrains interference or later releases. Keeping release and deadline separate prevents mistakenly comparing the finish time with an unrelated period."
         }
       ]
     },
     {
       "id": "embedded_realtime_task_timing_part_trace",
-      "title": "Work through an example",
+      "title": "Trace interference and preemption",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The second job is ready at ten but begins at thirteen. Its response time is five milliseconds, including three milliseconds of waiting and two of execution. The alternate interference interval changes the result even though the sampling code itself takes exactly the same time. This is why benchmarking only the task body cannot establish the end-to-end deadline. Half-open intervals keep adjacent events unambiguous: one job can finish at the exact instant another begins."
+        },
+        {
+          "type": "paragraph",
+          "text": "For Job 1, r=10, s=13 and f=15. The deadline is 10+6=16. Initial delay is 13-10=3, execution demand is two, and response is 15-10=5. Slack at completion is 16-15=1. These quantities describe different questions, so write the subtraction explicitly rather than calling each of them the task's duration."
+        },
+        {
+          "type": "paragraph",
+          "text": "Under the alternative interference ending at 15, the job starts at 15 and finishes at 17. Response is seven and the deadline is still 16. It misses by one millisecond. Neither its release nor its execution demand changed. This isolates the role of interference and explains why a timing improvement must target the responsible interval rather than automatically optimizing the task body."
+        },
+        {
+          "type": "callout",
+          "title": "Trace interference and preemption",
+          "text": "Contrasting preemption: release Job 1 at 10, let it execute during [10,11), preempt it during [11,14), and then resume it during [14,15)."
+        },
+        {
+          "type": "paragraph",
+          "text": "The job receives one millisecond before preemption and one afterward, totaling its required two milliseconds. It still finishes at 15, giving response five and meeting deadline 16. Measuring only the initial dispatch delay would report zero and miss the three-millisecond interruption. A timeline that records start and finish but not execution intervals can likewise confuse response time with processor demand."
+        },
+        {
+          "type": "paragraph",
+          "text": "Add a stipulated one-millisecond blocking interval before the resumed execution, shifting the final interval to [15,16). The job now finishes exactly at its deadline. Under this model, completion at or before the deadline is accepted, so it meets the requirement with zero slack. An implementation must state its clock precision and comparison convention rather than silently changing this boundary."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A trace reports a 2 ms body time for every observed job. What evidence is still missing before claiming every job meets a 6 ms relative deadline?",
+          "explanation": "You still need justified bounds on release jitter if relevant, dispatch delay, preemption, blocking, interrupt work and other accounted costs, under the configured scheduler and hardware. You also need to know whether 2 ms is a bound or merely the largest observation. The finite trace supplies neither all future schedules nor a formal worst-case execution bound."
         }
       ]
     },
     {
       "id": "embedded_realtime_task_timing_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice response-time accounting",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Does waking every ten milliseconds prove that a job with a six-millisecond deadline always completes in time?",
           "explanation": "No. The period controls when work becomes eligible, while the deadline constrains when it must finish. Waiting for processor time, execution and blocking all contribute to response time. In the alternate trace the releases remain perfectly periodic but Job 1 misses its deadline."
+        },
+        {
+          "type": "paragraph",
+          "text": "Analyze deadlines by drawing jobs on a shared time axis and separating eligibility from execution. Compute absolute deadlines and response times first, then identify which intervals consume the margin. This transfers to control loops, communication handlers and audio tasks, but each platform supplies different scheduling and timing contracts. Use measurements to test the model and investigate violations, while keeping measured observations distinct from guaranteed bounds."
         }
       ]
     }
@@ -73,5 +124,6 @@
       "url": "https://docs.zephyrproject.org/latest/kernel/services/threads/index.html",
       "locator": "Primary documentation: Thread States, Thread Priorities and Thread Suspension; readiness and execution eligibility; consulted 2026-09-11"
     }
-  ]
+  ],
+  "version": 2
 }

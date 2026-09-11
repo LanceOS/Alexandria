@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "network_distributed_systems_stream_protocols_module",
-  "versionId": "network_distributed_systems_stream_protocols_version_1",
+  "versionId": "network_distributed_systems_stream_protocols_version_2",
   "slug": "message-framing",
   "title": "Recover messages from a byte stream",
   "summary": "Design a bounded parser that handles arbitrary receive chunk boundaries.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "network_distributed_systems_stream_protocols_part_concepts",
-      "title": "Understand the model",
+      "title": "Specify the framing state machine",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "TCP specifies a reliable, ordered byte-stream service. An application therefore needs its own rule for finding messages within that stream. A send call and a receive call are not a shared record boundary. A length prefix is one possible framing rule: collect the header, validate its length, then collect exactly that many payload bytes. Delimiters and fixed-size records are alternatives with different escaping or size requirements. The protocol should also define encoding, maximum length and what an incomplete record means when the connection ends. Transport delivery does not by itself prove that a remote application has processed a request."
+        },
+        {
+          "type": "paragraph",
+          "text": "A byte stream has order but no application message separators. Your framing parser turns that sequence into records according to a protocol you specify. Its state includes whether it needs a header, the validated payload length and the number of payload bytes already collected. Receive calls only supply more input to that state machine; they do not reset it."
+        },
+        {
+          "type": "paragraph",
+          "text": "In the toy protocol, a header is one octet interpreted as an unsigned length from one through eight. Header validation happens before allocating or accepting that payload. The ASCII payload rule concerns interpretation after framing: a well-framed sequence can still violate the payload's permitted characters or meaning. Keep transport success, record completeness and semantic validity separate in the result model."
+        },
+        {
+          "type": "paragraph",
+          "text": "At each parsing step, either consume available bytes, emit a completed record or wait for more input when the current state is incomplete. A receive chunk may contain several headers and payloads. Continue processing its unconsumed suffix instead of assuming one receive produces exactly one event. This progress rule avoids losing the second message when records arrive together."
+        },
+        {
+          "type": "paragraph",
+          "text": "Bound both individual records and accumulated work. Eight bytes per payload limits a record but does not limit a backlog of millions of already complete records. If application processing falls behind, the system needs a bounded delivery queue and a backpressure or rejection policy appropriate to the protocol. A length check alone does not provide a complete memory-use bound."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A toy protocol uses one unsigned octet for payload length, accepts lengths 1 through 8, and then reads exactly that many ASCII payload bytes. Starting in header state, trace chunks [02,O], [K,03,C,A], [T]. State the parser state after each chunk.",
+          "explanation": "After the first, length is two and collected payload is O. The second contributes K, completing and emitting OK; then header 03 starts a new payload and C,A leave it incomplete at two of three bytes. The third contributes T and emits CAT. Final state expects a header. Both the emission order and partial states follow the stream order."
         }
       ]
     },
     {
       "id": "network_distributed_systems_stream_protocols_part_trace",
-      "title": "Work through an example",
+      "title": "Trace coalesced, fragmented, and truncated records",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The second receive both completes one record and begins another. A correct parser may emit zero, one or several messages for a chunk; it must keep consuming until the available bytes no longer complete its current state. Interpreting each chunk as one message would turn CAT into unrelated fragments. The toy one-byte header avoids endianness details, which a multi-byte length field would need to specify explicitly."
+        },
+        {
+          "type": "paragraph",
+          "text": "Chunk one supplies the header 03 and one payload byte C. The parser records length three and collected count one. Chunk two contributes A and T, bringing the count to three; it emits CAT and returns to header state. The remaining 02 in that same chunk is then consumed as the next header. Chunk three supplies O and K and completes the second record."
+        },
+        {
+          "type": "paragraph",
+          "text": "No step uses the receive boundary as a message delimiter. The first record spans two chunks, and the second starts in a chunk that also finished the first. Once a record is emitted, the parser must ensure its returned data remains valid for the consumer, whether by transferring an owned value or by enforcing an explicit buffer-lifetime contract."
+        },
+        {
+          "type": "callout",
+          "title": "Trace coalesced, fragmented, and truncated records",
+          "text": "Contrasting receive partitions: feed [03,C,A,T,02,O,K] as one chunk, then feed the same seven octets one at a time."
+        },
+        {
+          "type": "paragraph",
+          "text": "For the single chunk, the parser consumes the first header and three payload bytes, emits CAT, then immediately consumes the second header and two bytes and emits OK. For one-byte chunks, it alternates between partial states and progress until exactly the same two payloads emerge. The parser's output is a property of the byte sequence under the grammar, not of the transport partition."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now end the stream after [03,C,A]. The header is valid, but only two of the required three payload bytes exist. The parser reports truncation and does not emit CA as a completed record. By contrast, EOF immediately after the completed CAT is a clean framing boundary, although the application may still have requirements about session completion or acknowledged requests."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A valid header promises eight bytes, but only one arrives and the peer remains connected forever. Has a maximum-length check solved the resource problem?",
+          "explanation": "No. It bounds this payload's size but not how long the connection occupies resources. The application needs an explicit timeout or cancellation policy and connection limits if bounded resource use matters. That policy must distinguish temporary lack of data from malformed framing. TCP's ordered transport does not establish an application-level completion deadline."
         }
       ]
     },
     {
       "id": "network_distributed_systems_stream_protocols_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice parser state and limits",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "If the peer closes after sending the length two and the byte O, can the parser emit O as a complete record?",
           "explanation": "No. The header promised two payload bytes, so the record is truncated. Emitting O changes the protocol and hides an incomplete message. The parser may report earlier complete records, but must report this unfinished record according to its explicit EOF policy."
+        },
+        {
+          "type": "paragraph",
+          "text": "Build a framing implementation around state and progress, then test every partition of short representative streams along with invalid lengths and EOF positions. Add payload validation, backlog bounds and response semantics as separate layers. Receiving all bytes establishes neither that the peer's application accepted a request nor that a lost response can safely be ignored; those are protocol-level decisions beyond framing."
         }
       ]
     }
@@ -74,5 +125,6 @@
       "locator": "Primary specification: Section 2.2 Key TCP Concepts and section 3.9 interfaces; reliable ordered byte-stream semantics; consulted 2026-09-11",
       "publicationYear": 2022
     }
-  ]
+  ],
+  "version": 2
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_starter_module_first_program",
-  "versionId": "cpp_starter_version_1_r2",
+  "versionId": "cpp_starter_version_1_r3",
   "slug": "first-cpp-program",
   "title": "Your first C++ program",
   "summary": "Read a complete program, understand its output, and make one small change.",
@@ -44,6 +44,19 @@
           "type": "callout",
           "title": "A regular desktop program",
           "text": "These examples use a hosted C++ environment, such as a compiler and standard library on a desktop operating system. Specialized freestanding environments, including some embedded systems, can have different startup rules."
+        },
+        {
+          "type": "paragraph",
+          "text": "There are two descriptions to keep separate as you read: the structure of the source and the actions of the running program. The compiler needs a declaration of the stream, a function definition, and a correctly formed statement. The running program writes characters. Neither the word include nor the spelling int is printed, because those tokens describe how to build the program rather than text to send to the stream. Start a trace at the first statement inside main, not at the first line of the file."
+        },
+        {
+          "type": "paragraph",
+          "text": "A useful first trace has three checkpoints. Before the output statement, this program has written no greeting characters. After the insertion, it has requested the greeting followed by one newline. After main finishes normally, its success status is returned to the environment. That status and the greeting travel through different interfaces: a program may print a sentence and still report failure, or print nothing and report success. Here the normal fall-through of main reports success; it does not cause a visible zero to appear."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Predict what is written if the string becomes \"Hello!\" and main explicitly returns 0. Would the return add either a zero or a newline?",
+          "explanation": "Only Hello! is written by that insertion. The returned zero is a termination status, not a stream insertion, and no newline is present in the new string. To produce a visible zero or newline you would need an output operation that requests those characters. This separates a function result from a side effect such as writing output."
         }
       ]
     },
@@ -76,6 +89,29 @@
         {
           "type": "paragraph",
           "text": "The newline moves subsequent text to a new line on a typical terminal. It does not, by itself, guarantee that an output buffer is flushed immediately. That distinction will matter when you learn more about streams; for this short program, focus on the characters being written."
+        },
+        {
+          "type": "paragraph",
+          "text": "Read punctuation in pairs before memorizing it individually. The parentheses belong to the function interface, the braces enclose its body, and the quotation marks delimit literal text. The backslash is meaningful inside that text: together with n it forms an escape for a newline. A literal backslash followed by an n would require escaping the backslash itself. This is why copying the visual appearance of source characters is not enough to predict output; you must interpret the string-literal rules."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Second worked example — conceptual output trace, not a complete program",
+          "code": "Two consecutive insertions inside main:\n    std::cout << \"Hello, \";\n    std::cout << \"reader!\\n\";\nCharacters from the first: H e l l o , space\nCharacters from the second: r e a d e r ! newline\nCombined line: Hello, reader!"
+        },
+        {
+          "type": "paragraph",
+          "text": "The two statements contribute to one continuous stream of characters. C++ does not insert a separator merely because the source has a new statement or a new source line. The space after the comma must therefore be part of the first string. Conversely, putting a newline in that first string would split the visible greeting even if both statements were written on one source line. Source formatting helps people read the program; explicit characters determine this output formatting."
+        },
+        {
+          "type": "paragraph",
+          "text": "Keep std::cout qualified while learning. The qualification tells you where the declared name comes from and avoids introducing another name-lookup rule just to shorten a line. Likewise, keep the explicit include even if a larger project happens to make the declaration available indirectly. A small program should explain its own dependencies so that removing unrelated code does not unexpectedly break it."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Design a two-line greeting for a reader named Ada. What characters and line endings should its two output statements request, and which source punctuation should be absent from the result?",
+          "explanation": "For example, request Hello, Ada! followed by a newline, then Welcome to C++. followed by another newline. The combined output has exactly two line endings and no quotation marks or semicolons. Each newline must be requested by an insertion; neither starting a second statement nor placing it on a new source line inserts that character. Predicting the character sequence gives you a precise result to compare when you build and run the changed program in the next part."
         }
       ]
     },
@@ -111,6 +147,18 @@
         {
           "type": "paragraph",
           "text": "If the build reports an error, compare the first reported location with the example. Check paired quotes and braces, the spelling of std::cout, and the final semicolon. Fix one difference, then rebuild. You have finished this first reading when you can explain the greeting and predict the effect of changing it."
+        },
+        {
+          "type": "paragraph",
+          "text": "Treat a build failure and a wrong result as different investigations. An unmatched quote or a misspelled declared name prevents the source from being translated successfully; there is no new executable to judge. A successfully built greeting containing the wrong words is instead a mismatch between the requested behavior and your source. The compiler can check many language rules, but it cannot know the greeting you intended. Write down the expected characters before comparing them with the actual result."
+        },
+        {
+          "type": "paragraph",
+          "text": "A common editing mistake is to run an old executable after a failed build. The earlier executable may still exist and print the earlier greeting. The shell example uses && so the run step is attempted only after a successful build command. Also check the directory and output filename: building one file and running a differently named executable can produce a perfectly consistent result from the wrong source. These are toolchain checks, not changes to the C++ language."
+        },
+        {
+          "type": "paragraph",
+          "text": "Before moving to variables, explain each dependency in your own words: a header supplies declarations, main supplies the starting function, the body contains executable statements, and string insertion requests output. You do not need to memorize compiler internals to use this model. You do need to distinguish changing the recipe, successfully building it, and observing the resulting program."
         }
       ]
     }
@@ -183,7 +231,25 @@
       "locator": "Primary standards draft, [cpp.include], paragraphs 1 and 2: header inclusion with angle brackets. Pinned N4861 text; consulted 2026-09-11. Draft wording is not the published ISO edition.",
       "publicationYear": 2020,
       "edition": "N4861 (C++20 working draft)"
+    },
+    {
+      "id": "cpp_starter_module_first_program_depth_gcc_overall",
+      "title": "GCC: Options Controlling the Kind of Output",
+      "authors": [
+        "GNU Project"
+      ],
+      "url": "https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html",
+      "locator": "Official GCC documentation, compilation stages and -o output selection; consulted 2026-09-11. The shell example assumes a GCC installation and a shell supporting &&."
+    },
+    {
+      "id": "cpp_starter_module_first_program_depth_gcc_warnings",
+      "title": "GCC: Warning Options",
+      "authors": [
+        "GNU Project"
+      ],
+      "url": "https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html",
+      "locator": "Official GCC documentation, -Wall and -Wextra option descriptions; consulted 2026-09-11. Warnings do not establish application correctness."
     }
   ],
-  "version": 2
+  "version": 3
 }

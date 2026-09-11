@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "graphics_gpu_resource_dependencies_module",
-  "versionId": "graphics_gpu_resource_dependencies_version_1_r2",
+  "versionId": "graphics_gpu_resource_dependencies_version_1_r3",
   "slug": "producer-consumer",
   "title": "Make GPU producer and consumer dependencies explicit",
   "summary": "Identify execution and memory dependencies before selecting synchronization.",
@@ -14,7 +14,7 @@
   "parts": [
     {
       "id": "graphics_gpu_resource_dependencies_part_concepts",
-      "title": "Understand the model",
+      "title": "Access hazards, visibility, and lifetime",
       "blocks": [
         {
           "type": "callout",
@@ -24,12 +24,33 @@
         {
           "type": "paragraph",
           "text": "Vulkan makes application synchronization an explicit responsibility. Pipeline barriers constrain relevant earlier and later stages, while synchronization validation can help identify mistakes. Begin with the resource dependency rather than memorizing a blanket wait command. Name the producer operation, the bytes or image subresource it writes, and the consumer access that requires those writes. An execution order alone is not a complete explanation of when data becomes available and visible. Resource lifetime is another obligation: a host-side wrapper must keep an allocation valid while submitted work can still use it. Avoid assuming that the end of a C++ scope means a GPU command has finished."
+        },
+        {
+          "type": "paragraph",
+          "text": "A resource hazard exists when accesses to overlapping storage require an order that has not been established. A read after a write needs the intended value to be available and visible to the consumer. Reusing storage for a new write may also need to wait until earlier readers have finished. Begin by naming the actual accesses and overlap; two unrelated buffer regions do not acquire a dependency merely because the same wrapper class represents them."
+        },
+        {
+          "type": "paragraph",
+          "text": "Vulkan synchronization separates execution scopes from access scopes. Execution scopes identify relevant work that must be ordered. Access scopes identify the memory accesses covered by availability and visibility operations. A dependency that names compute work but omits the relevant write access does not automatically communicate the intended values to vertex-input reads. This is why a producer-to-consumer description must contain both roles."
+        },
+        {
+          "type": "paragraph",
+          "text": "Submission, device completion and host object destruction are three moments. Recording describes future commands; submission makes them available to execute; completion establishes that their use has ended. A local recording function can return while a device command still depends on the buffer. A resource manager must associate storage with completion evidence or a suitable deferred reclamation scheme rather than reclaiming it based solely on host scope."
+        },
+        {
+          "type": "paragraph",
+          "text": "Correct synchronization need not stop all device work. A narrow dependency can allow unrelated work to proceed, whereas a broad wait may serialize it. Optimization starts after the required dependency is established. The goal is to cover every relevant access without accidentally turning the entire device into a sequence of host waits. More queues, image layouts and ownership transfers require additional specification rules beyond this one-queue buffer example."
+        },
+        {
+          "type": "reflection",
+          "prompt": "W writes bytes [0,64) and D reads [32,96). What overlap must the dependency analysis consider, and what else must be established?",
+          "explanation": "The overlapping range is [32,64). Those bytes need the appropriate write-to-read ordering and visibility. The reader also accesses [64,96), so the application must establish where those values came from and that the whole read range is valid. Synchronizing the overlap cannot initialize the remaining bytes or fix an out-of-bounds read."
         }
       ]
     },
     {
       "id": "graphics_gpu_resource_dependencies_part_trace",
-      "title": "Work through an example",
+      "title": "Trace a producer and later storage reuse",
       "blocks": [
         {
           "type": "paragraph",
@@ -44,12 +65,38 @@
         {
           "type": "paragraph",
           "text": "The arrow names both access roles. A barrier aimed at unrelated stages or the wrong resource range would not express this dependency. The host can submit commands long before their device work completes, so returning from a recording function is insufficient evidence for deletion. This example has one queue to isolate the write/read hazard. Adding queue transfers or host mapping introduces additional contracts that must be checked against the specification. Later device-side reuse can instead be ordered with suitable execution and memory dependencies; it does not require a host wait between every use. The completion check in this trace governs host-side recycling and destruction."
+        },
+        {
+          "type": "paragraph",
+          "text": "In the original trace, W is the last writer of R and D is its next consumer. Before D reads vertex records, the dependency must order the appropriate compute writes and make those values visible to the relevant vertex-input access. Merely listing W first in host source code does not describe this memory dependency. Likewise a barrier for a different range would leave R's hazard unaddressed."
+        },
+        {
+          "type": "paragraph",
+          "text": "After D is submitted, the host still owns the allocation but cannot recycle it for an incompatible use while D may access it. Once the stipulated completion evidence covers all submitted users, the host can reclaim or destroy the buffer. This completion boundary concerns host reclamation. A later device command can instead reuse storage after suitable device-side dependencies; the example does not require a host wait after every draw."
+        },
+        {
+          "type": "callout",
+          "title": "Trace a producer and later storage reuse",
+          "text": "Contrasting reuse: a later compute dispatch W2 will overwrite R for a second draw. The first draw D1 still reads the earlier records."
+        },
+        {
+          "type": "paragraph",
+          "text": "The application now needs to preserve D1's reads before W2 overwrites overlapping storage, then make W2's writes visible to D2's reads. The dependency chain is W1→D1→W2→D2 for this single region. A dependency only from W2 to D2 addresses the new values but leaves the destruction of D1's inputs unordered. Draw the readers as well as the writers when analyzing reuse."
+        },
+        {
+          "type": "paragraph",
+          "text": "An alternative design gives the second batch a distinct region S. If the ranges are truly disjoint and there are no other shared dependencies, D1's read of R does not itself require W2's write of S to wait. This can permit overlap, at a storage cost. Each region still requires its own producer-to-consumer dependency and a valid lifetime until its users complete."
+        },
+        {
+          "type": "reflection",
+          "prompt": "The host waits for completion covering W but not the later submitted draw D. May it destroy R because the writer is finished?",
+          "explanation": "No. D is still a submitted user of R. Reclamation evidence must cover every relevant outstanding use, including readers. The writer's completion establishes that one access ended, not that the allocation has no future users. Track resource use through the last dependent command and use the documented destruction validity requirements."
         }
       ]
     },
     {
       "id": "graphics_gpu_resource_dependencies_part_practice",
-      "title": "Apply and explain",
+      "title": "Practice ranges and completion evidence",
       "blocks": [
         {
           "type": "paragraph",
@@ -59,6 +106,10 @@
           "type": "reflection",
           "prompt": "Would putting a C++ mutex around the two host submission calls automatically make the GPU buffer safe to read and destroy?",
           "explanation": "No. The mutex controls participating host threads. It does not replace the device execution, memory-visibility or completion requirements. The application still needs Vulkan synchronization that covers the intended accesses and evidence that all device users have finished before host-side recycling or destruction."
+        },
+        {
+          "type": "paragraph",
+          "text": "A resource table should now answer who last wrote each range, who reads or overwrites it next, which dependency covers those accesses and which event permits reclamation. Validate that reasoning with Vulkan synchronization validation, while recognizing that validation is supporting evidence. Extend to additional queues and images by adding their specific contracts, not by reusing a vague rule that commands appearing later are automatically safe."
         }
       ]
     }
@@ -92,5 +143,5 @@
       "locator": "Primary specification: Valid Usage VUID-vkDestroyBuffer-buffer-00922; completion of submitted buffer users; consulted 2026-09-11"
     }
   ],
-  "version": 2
+  "version": 3
 }

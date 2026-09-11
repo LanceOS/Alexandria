@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "foundations_decompose_a_task_module",
-  "versionId": "foundations_decompose_a_task_v2",
+  "versionId": "foundations_decompose_a_task_v3",
   "slug": "decompose-a-task",
   "title": "Decompose a task before choosing syntax",
   "summary": "Translate a small requirement into a testable sequence of responsibilities.",
@@ -23,11 +23,28 @@
         },
         {
           "type": "paragraph",
+          "text": "The planner is useful because a seemingly simple question contains several decisions that code cannot settle for us. A page count measures completed pages, not the number printed on the last page: introductions, unnumbered pages, and different editions would otherwise make subtraction ambiguous. In this model all three inputs are whole numbers, total and completed refer to the same edition, and every future reading day has the same target. We are estimating sessions of effort, not a calendar finish date. Weekends and missed days would require a separate scheduling rule."
+        },
+        {
+          "type": "paragraph",
+          "text": "A specification describes accepted inputs and the result they should produce. A precondition is an assumption required before an operation starts; a postcondition is the promise after it finishes successfully. Here calculation requires 0 <= completed <= total and target > 0. Its postcondition is that days is the smallest nonnegative integer whose capacity, days multiplied by target, covers the remaining pages. Stating “smallest” matters: returning a million days would cover the pages but would not answer the question. For zero remaining pages the answer must be zero."
+        },
+        {
+          "type": "paragraph",
+          "text": "Decomposition is useful when each step produces the facts needed by the next. Validation establishes the calculation's preconditions; calculation produces a day count; presentation adds a readable label. A user interface may ask again after rejection, but that is a decision around the calculation. Keeping the calculation independent makes a test such as accepted(94, 31, 15) -> 5 meaningful without simulating a keyboard or a window."
+        },
+        {
+          "type": "paragraph",
           "text": "A reading planner accepts a book length, a completed page count, and a positive daily target. Its job is to report how many whole reading days remain. Before selecting a loop or writing a function, decide what each input means. Completed pages cannot exceed the book length; a daily target of zero must produce a validation error. These decisions form the problem specification, not implementation details."
         },
         {
           "type": "paragraph",
           "text": "Separate three responsibilities: validate the inputs, calculate a result, and present it. The calculation should consume accepted values and return a day count. It should not quietly ask for replacement input halfway through. That division gives a person reading the program a clear place to check each requirement and makes the arithmetic reusable in a terminal or graphical interface."
+        },
+        {
+          "type": "reflection",
+          "prompt": "A product request says “never show an error; clamp completed to total and turn target zero into one.” Is that an implementation cleanup? Explain what must change.",
+          "explanation": "It changes the accepted-input contract and can conceal inaccurate data. A target of zero originally meant rejection; silently substituting one invents a reading plan. If the product deliberately adopts those rules, document them in validation and update its acceptance examples. Do not hide them inside arithmetic, where callers would continue relying on the old meaning."
         }
       ]
     },
@@ -43,11 +60,34 @@
         },
         {
           "type": "paragraph",
+          "text": "For 94 total pages and 31 completed pages, subtraction gives 63 because those 31 are already accounted for. Four days at 15 pages cover 60, leaving three pages uncovered. A fifth day covers those three, so five is sufficient. Four is insufficient, which proves minimality for this case. The general quotient/remainder relation is remaining = quotient * target + remainder, with 0 <= remainder < target. When remainder is zero, quotient days are sufficient; otherwise quotient days fail and one extra day suffices. This reasoning explains the branch instead of merely memorizing a rounding expression."
+        },
+        {
+          "type": "paragraph",
           "text": "The remainder tells us whether a partially filled final day exists. For these small nonnegative numbers, the required day count is the integer quotient plus one when the remainder is nonzero. This avoids inventing a floating-point rounding policy for a problem expressed entirely in whole pages. The displayed trace uses mathematical arithmetic; an implementation must also keep its intermediate results representable."
         },
         {
           "type": "paragraph",
           "text": "Each responsibility has its own promise. Validation either produces accepted inputs or a reason for rejection. Calculation receives accepted inputs and returns a nonnegative number. Presentation labels that number with its unit. If calculation assumes a positive target, validation must establish that fact before calling it. Hoare’s composition rule provides a formal foundation for connecting such assumptions and results; this particular planner is an original teaching example."
+        },
+        {
+          "type": "paragraph",
+          "text": "Compare an exact-multiple case with a near-boundary case. A 100-page book with 40 pages completed leaves 60. At 15 pages per day, four days finish it exactly. If only 39 pages have been completed, 61 remain and the result jumps to five. A one-page change can therefore cause a whole-day change without being a bug: the output counts indivisible days. A common shortcut always adds one to the quotient; it would incorrectly return five for the first case and one for an already completed book."
+        },
+        {
+          "type": "paragraph",
+          "text": "Another familiar formula adds target minus one before dividing. Over mathematical nonnegative integers it gives the same ceiling, but the addition may exceed a machine type's range even when the answer fits. The quotient/remainder method avoids that particular large intermediate. It still needs a defined accepted range and representable output. Validation must reject completed greater than total before subtraction; otherwise a language's finite arithmetic can turn an invalid negative remainder into an unrelated value."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "Hypothetical comparison, mathematical whole-page arithmetic\n(total 100, completed 40, target 15): 60 = 4*15 + 0 -> 4 days\n(total 100, completed 39, target 15): 61 = 4*15 + 1 -> 5 days\n(total 100, completed 100, target 15): 0 = 0*15 + 0 -> 0 days",
+          "caption": "Second worked scenario — hypothetical trace under the stated assumptions"
+        },
+        {
+          "type": "reflection",
+          "prompt": "A learner has completed 12 of 77 pages and can read 13 pages per day. Derive the answer and show why one fewer day fails.",
+          "explanation": "There are 65 pages left, and 65 = 5 * 13 + 0. Five days cover exactly 65 pages. Four cover 52 and leave 13 unread, so five is the minimum. The remainder is zero, so adding an unconditional extra day would be incorrect."
         }
       ]
     },
@@ -63,6 +103,10 @@
         {
           "type": "paragraph",
           "text": "Write these examples beside the requirement before coding. Include an exact multiple, a remainder of one, and an invalid completed count. A few traces do not prove every implementation correct, but they make ambiguous requirements visible. If someone instead wants only full days, that is a different specification and should be resolved before implementation. Naming a small calculation helps only when its promised behavior is equally clear."
+        },
+        {
+          "type": "paragraph",
+          "text": "To transfer this method to shipping boxes or image tiles, identify what is being counted, what one container can hold, and what a partial final container means. Reuse the quotient/remainder argument only after checking those assumptions. Before writing syntax, a learner should be able to explain one normal case, one exact multiple, and one rejection. That gives functions and conditionals a purpose: each represents a responsibility already justified by the problem."
         }
       ]
     }
@@ -90,5 +134,5 @@
       "locator": "Expert guidance, not the ISO standard or a peer-reviewed experiment: I.1, I.4, I.5, I.7 and F.2; page dated 2026-06-14, consulted 2026-09-11."
     }
   ],
-  "version": 2
+  "version": 3
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/module.schema.json",
   "id": "cpp_basics_module_functions",
-  "versionId": "cpp_basics_functions_v2",
+  "versionId": "cpp_basics_functions_v3",
   "slug": "functions",
   "title": "Functions",
   "summary": "Give a calculation a name, supply its inputs, and use the result it returns.",
@@ -39,6 +39,25 @@
         {
           "type": "paragraph",
           "text": "The expression pagesAfterSession(pages, 8) is a call. Its arguments are pages and 8, matched to the parameters in that order. For these int parameters, the values initialize separate parameter objects. The body computes 20, and return total makes that value the result of the call. The initializer then stores it in updatedPages."
+        },
+        {
+          "type": "paragraph",
+          "text": "A function call lets you temporarily reason at two levels. From main, pagesAfterSession is an operation taking two counts and producing a count. Inside the helper, it is a sequence that initializes parameters, adds their values, and returns a result. The caller need not repeat the addition logic each time. The implementation must still satisfy the promise for every accepted input, so the name and signature are a starting point for understanding, not a replacement for a contract."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Worked call trace — values and control",
+          "code": "main: pages = 12\nArgument mapping: startingPages receives the value of pages; sessionPages receives 8\nHelper parameters: startingPages = 12, sessionPages = 8\nHelper local: total = 20\nReturn: call expression produces 20\nmain: updatedPages initialized to 20; pages still 12\nOutput observes the two distinct stored values."
+        },
+        {
+          "type": "paragraph",
+          "text": "The argument positions matter even though addition happens to be commutative in this small example. The first argument initializes the first parameter and the second initializes the second. A later helper that subtracts completed work from a goal would produce a different result if arguments were exchanged. Use meaningful call-site values and read the parameter roles; matching all arguments to int does not prove that their meanings are in the intended order."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If the caller changes pages to 20 before calling pagesAfterSession(pages, 5), what values enter the helper and what remains in pages afterward?",
+          "explanation": "The argument read supplies 20, so the parameters begin at 20 and 5 and the returned result is 25. The caller’s pages remains 20 unless main explicitly stores the returned value back into it. The helper receives the value at this call, not a remembered value from an earlier call."
         }
       ]
     },
@@ -62,6 +81,29 @@
         {
           "type": "paragraph",
           "text": "A return statement ends the current function call and hands control back to its caller. It does not end the whole program when used in an ordinary helper function. Here main continues with its output statements. Code placed after return in the same straight-line path of the helper would not run."
+        },
+        {
+          "type": "paragraph",
+          "text": "A parameter is a local name for an input object, not a textual substitution of the caller’s identifier. With these by-value integers, changing startingPages inside the helper changes its own parameter. This makes a calculation easier to isolate: the helper can use local intermediate names without unexpectedly changing main’s count. It also explains why passing the literal 8 is possible even though there is no caller variable named sessionPages."
+        },
+        {
+          "type": "paragraph",
+          "text": "Returning an int by value gives the caller a result that does not depend on keeping the helper’s local total alive. The result is obtained as the call finishes; the ordinary local object then ceases to exist. Returning a reference to a local would be a different, dangerous design, taught later in the ownership units. Do not infer that a useful local name must be made permanent just because its value is needed by the caller."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Second worked case — keep each returned result for the next session",
+          "code": "Initial caller state: pages = 12\nAssign pages = pagesAfterSession(pages, 8) -> pages = 20\nAssign pages = pagesAfterSession(pages, 5) -> pages = 25\nIf both return values were ignored instead, this helper would leave pages = 12."
+        },
+        {
+          "type": "paragraph",
+          "text": "The difference between the two cases is in the caller’s use of the returned value. The helper itself has no persistent count and performs no output. A call can compute a perfectly correct result that is immediately discarded. When debugging a missing update, check whether the result was stored, which object received it, and whether a later statement overwrote it before observation."
+        },
+        {
+          "type": "reflection",
+          "prompt": "How could you check the two-session example without inspecting any output statements inside the helper?",
+          "explanation": "Compute the expected sequence independently: 12 plus 8 is 20, then 20 plus 5 is 25. Observe the caller’s stored value after each assignment and compare it with those expectations. Keeping the helper free of printing lets the same calculation be checked by a caller, a test, or a future interface without changing the computation itself."
         }
       ]
     },
@@ -86,6 +128,22 @@
           "type": "callout",
           "title": "Return the promised value",
           "text": "Every normal path through this helper returns an int. Reaching its closing brace without a return value would be undefined behavior. The special rule that lets main finish without an explicit return does not apply to this helper. A function declared void, by contrast, does not return a value."
+        },
+        {
+          "type": "paragraph",
+          "text": "A function contract describes accepted inputs, results, and effects. For this helper the accepted inputs are nonnegative counts with a representable sum, the result is their sum, and there is no change to the caller’s integers through these parameters. The type system checks the declared forms of arguments and result, but it cannot infer every domain rule from their names. A robust public interface would need a deliberate policy for negative counts and overflow."
+        },
+        {
+          "type": "paragraph",
+          "text": "A boundary test should target the promise. Adding zero should preserve the starting count; starting at zero should return the session count; two small positive counts should combine as expected. A negative input is not automatically a useful correctness test when the current contract excludes it: first decide whether the revised interface will reject it, report an error, or represent a different operation such as undoing progress."
+        },
+        {
+          "type": "paragraph",
+          "text": "Separate ordinary helper return from program termination. A return inside pagesAfterSession resumes main at the call site, allowing initialization and later output to continue. Returning from main reports the overall termination status. Both use the return keyword, but their callers and contracts differ. Likewise, the permission to omit a final return in main cannot be copied into an ordinary int-returning helper."
+        },
+        {
+          "type": "paragraph",
+          "text": "The next step is to design parameters that deliberately permit borrowing or mutation when needed. Before adding those mechanisms, be able to trace this by-value case: identify argument values, initialize parameter objects, follow the local calculation, obtain the result, and account for any explicit caller assignment. That model is the foundation for understanding more elaborate function interfaces."
         }
       ]
     }
@@ -127,5 +185,5 @@
       "edition": "N4861 (C++20 working draft)"
     }
   ],
-  "version": 2
+  "version": 3
 }
