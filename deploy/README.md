@@ -32,7 +32,7 @@ sudo systemctl enable --now alexandria
 sudo systemctl status alexandria
 ```
 
-Open [Alexandria](http://localhost:3000) on the host. The example binds to loopback for this initial application, which has no accounts or authentication. View logs with `journalctl -u alexandria`; stop the service with `sudo systemctl stop alexandria`.
+Open [Alexandria](http://localhost:3000) on the host. The example binds to loopback. Create accounts with the compiled `account-create.js` command under the same service account and environment. For HTTPS behind a reverse proxy, set `APP_ORIGIN` to the public HTTPS origin so session cookies are Secure. View logs with `journalctl -u alexandria`; stop the service with `sudo systemctl stop alexandria`.
 
 Before replacing a release, stop the service and run the compiled `backup.js` maintenance command using the same account and `--env-file`. Apply the new release's compiled `migrate.js` command before restarting. Keep the prior release and backup until the updated application passes a local check. Startup rejects a missing database or incompatible schema.
 

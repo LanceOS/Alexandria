@@ -1,6 +1,6 @@
 # Getting started
 
-Alexandria's first implementation is a local application shell: a main page, library browsing, reusable UI components, and a server backed by SQLite. Initialization creates Software, AI, and Mathematics categories; the topic catalog is empty. There are no units, modules, accounts, content uploads, or learner records yet.
+Alexandria's first implementation is a local application shell: a main page, library browsing, reusable UI components, and a server backed by SQLite. Initialization creates Software, AI, and Mathematics categories; the topic catalog is empty. The server also provides local authentication, per-user settings, and administrator catalog APIs. Curriculum and progress tables exist but contain no seeded lessons or learner activity. Login screens, lesson rendering, progress APIs, uploads, and graders remain future work.
 
 ## Requirements and rationale
 
@@ -42,7 +42,7 @@ The development and database commands read `.env` from the working directory. `n
 
 Configured storage paths must be absolute. `$HOME` above describes the default; `.env` does not expand shell variables or `~`. Data and backup directories must be outside the checkout and separate from each other, with neither containing the other. Database paths must remain inside the data directory, including when resolving symbolic links.
 
-The account running Alexandria needs access to its data directory and write access for initialization, migrations, backups, and SQLite sidecar files. Keep the default loopback listener for this initial application, which has no authentication. The example environment leaves optional paths commented out so local setup works without creating system directories.
+The account running Alexandria needs access to its data directory and write access for initialization, migrations, backups, and SQLite sidecar files. Keep the default loopback listener for local development. For a reverse proxy, terminate HTTPS at the proxy and set APP_ORIGIN to the exact public HTTPS origin; this enables Secure session cookies. The proxy must preserve the expected host and must not expose the backend directly. Forwarded client IP headers are not trusted, so sign-in IP limits apply to the proxy address. The example environment leaves optional paths commented out so local setup works without creating system directories.
 
 No source-book directory is configured or accessed. The runtime and backup command need only Alexandria's application database.
 
@@ -76,6 +76,8 @@ The [optional systemd example](../deploy/README.md) runs the compiled server und
 | `npm run db:init` | Creates a new database, applies migrations, and seeds the three categories |
 | `npm run db:migrate` | Checks an existing database, backs it up before pending migrations, then applies them; does nothing when already current |
 | `npm run db:backup` | Creates a verified SQLite snapshot and a JSON checksum manifest in `BACKUP_DIR` |
+| `npm run account:create -- --username lanceos` | Creates a local administrator using a hidden password prompt |
+| `npm run account:password -- --username lanceos` | Resets a password and revokes all sessions for that user |
 
 Commands report their result in structured logs. A maintenance lock prevents overlapping local maintenance commands. If an interrupted command leaves `.maintenance.lock` in the data directory, confirm no maintenance process is running before removing that stale file.
 
@@ -83,4 +85,19 @@ The snapshot uses SQLite's backup API; do not copy the live database file as a s
 
 For an upgrade, stop the application, run `db:backup`, retain the current release, install/build the new release, run `db:migrate`, and restart. For a prepared release without development dependencies, invoke `dist/server/commands/init.js`, `migrate.js`, or `backup.js` directly with Node and the same environment used by the server.
 
-The [self-hosting plan](self-hosting-plan.md) covers the broader architecture and future operational work. Its account, curriculum, file-storage, and recovery phases are outside this initial scaffold.
+The [self-hosting plan](self-hosting-plan.md) covers the broader architecture and future operational work. The implemented boundaries are documented in [Server architecture](server-architecture.md) and [Database schema](database-schema.md). File storage, curriculum APIs, execution workers, and automated recovery remain future work.
+
+
+## Local accounts
+
+After initialization or migration, create your own administrator account:
+
+```sh
+npm run account:create -- --username lanceos --display-name LanceOS
+```
+
+The command asks for a password and confirmation without echoing it. Passwords require 12–256 characters, at most 1,024 UTF-8 bytes. Usernames are case-insensitive ASCII names of 3–40 characters. To create a regular learner account, add `--role member`. Account creation is an operator command, with no public registration endpoint. No default account or password is installed.
+
+Use `npm run account:password -- --username lanceos` to reset a password; this invalidates all existing sessions for that account. Automation can use `--password-stdin` with a single password line from a protected input source. Never pass a password as a command-line argument. For a prepared production release, use `dist/server/commands/account-create.js` or `account-password.js` with Node and the same environment as the service.
+
+These commands prepare API access. The current library screen still uses its existing local theme preference; a sign-in interface and account-synced UI settings have not been added.

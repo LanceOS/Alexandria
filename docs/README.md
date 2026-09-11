@@ -1,6 +1,8 @@
 # Alexandria documentation
 
 - [Getting started](getting-started.md): run the current application, configure local storage, build, and maintain the database.
+- [Server architecture](server-architecture.md): implemented routes, services, repositories, authentication, and API conventions.
+- [Database schema](database-schema.md): migrations, curriculum versioning, learner progress, and integrity rules.
 - [Direct service example](../deploy/README.md): optional Linux systemd setup for the compiled application.
 - [Self-hosting implementation plan](self-hosting-plan.md): cloud-free architecture, local SQLite storage, deployment, operations, and phased acceptance criteria.
 
