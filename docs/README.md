@@ -1,6 +1,7 @@
 # Alexandria documentation
 
 - [Getting started](getting-started.md): run the current application, configure local storage, build, and maintain the database.
+- [Client architecture](client-architecture.md): application composition, shared UI, feature modules, import boundaries, and client tests.
 - [Server architecture](server-architecture.md): implemented routes, services, repositories, authentication, and API conventions.
 - [Content authoring](../content/README.md): unit folders, JSON modules, validation, and explicit imports.
 - [C++ Basics content](cpp-basics-content.md): six original introductory modules, documentation/book references, and explicit installation.

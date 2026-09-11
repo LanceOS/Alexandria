@@ -1,8 +1,5 @@
 import { forwardRef, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react';
-
-function classes(...values: (string | undefined | false)[]) {
-  return values.filter(Boolean).join(' ');
-}
+import { classes } from '../../utils/classes';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost';

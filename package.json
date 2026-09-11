@@ -20,7 +20,9 @@
     "content:check": "node --import tsx server/commands/content-check.ts",
     "content:import": "node --env-file-if-exists=.env --import tsx server/commands/content-import.ts",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test server/**/*.test.ts",
+    "test": "node scripts/test.mjs",
+    "test:client": "node scripts/test.mjs client",
+    "test:server": "node scripts/test.mjs server",
     "build": "npm run typecheck && npm run content:check && node scripts/clean-build.mjs && vite build && tsc -p tsconfig.server.json && node scripts/copy-content.mjs",
     "start": "node --env-file-if-exists=.env dist/server/index.js"
   },

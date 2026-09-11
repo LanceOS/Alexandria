@@ -32,8 +32,10 @@ The production server serves the frontend and API together at [localhost:3000](h
 
 | Directory | Purpose |
 | --- | --- |
-| `client/` | Main application pages |
-| `library/` | Reusable UI components and design tokens |
+| `client/src/` | Application composition, shared client code, and feature modules |
+| `client/src/modules/` | Library browsing and curriculum features, each with its own implementation and tests |
+| `client/src/components/ui/` | Reusable UI components; design tokens live in `client/src/styles/` |
+| `client/public/` | Public assets and the initial theme bootstrap |
 | `shared/` | Frontend and server contracts |
 | `server/` | API, SQLite database, migrations, and maintenance commands |
 | `content/` | Curriculum JSON, validation schemas, and authoring instructions |
@@ -41,7 +43,9 @@ The production server serves the frontend and API together at [localhost:3000](h
 | `docs/` | Setup instructions and architecture plans |
 | `notes/` | Future product and data-model design |
 
-See [Getting started](docs/getting-started.md) for configuration, accounts, and database commands. [Server architecture](docs/server-architecture.md) documents the implemented API and boundaries; [Database schema](docs/database-schema.md) describes the tables and integrity rules. The [self-hosting plan](docs/self-hosting-plan.md) remains the broader roadmap.
+See [Getting started](docs/getting-started.md) for configuration, accounts, and database commands. [Client architecture](docs/client-architecture.md) explains the feature boundaries and shared client code. [Server architecture](docs/server-architecture.md) documents the implemented API and boundaries; [Database schema](docs/database-schema.md) describes the tables and integrity rules. The [self-hosting plan](docs/self-hosting-plan.md) remains the broader roadmap.
+
+`npm test` discovers client and server tests recursively. Use `npm run test:client` or `npm run test:server` for a focused run. Vite still uses `client/` as its root, with `client/src/main.tsx` as the React entry and `dist/client/` as the production output.
 
 For an existing installation, stop the server and run `npm run db:migrate` before restarting. The command creates a verified backup before applying pending migrations.
 

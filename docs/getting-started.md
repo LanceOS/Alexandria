@@ -27,6 +27,22 @@ Open [localhost:5173](http://localhost:5173). Vite serves the client and proxies
 
 `db:init` creates a fresh database and applies the current schema. It refuses to replace an existing database. On later starts, run only `npm run dev`; use `npm run db:migrate` when upgrading a database to a new schema.
 
+Client code lives under `client/src/`. Shared layout, UI, hooks, utilities, and application pages sit beside the `modules/library/` and `modules/curriculum/` features. Each feature keeps its own pages, components, hooks, utilities, types, styles, and tests together. See [Client architecture](client-architecture.md) for the import boundaries and where to add new behavior.
+
+Vite still uses `client/` as its root. `client/index.html` loads `client/src/main.tsx`; `client/public/theme.js` applies the initial color theme before React starts. The reusable UI formerly in the root `library/` directory now lives in `client/src/components/ui/`.
+
+## Tests
+
+```sh
+npm test
+npm run test:client
+npm run test:server
+```
+
+`npm test` runs both scopes. The focused commands select just client or server tests. The shared runner discovers `.test.ts` and `.test.tsx` files recursively, including tests inside feature folders, and uses Node's test runner with the existing TypeScript runtime. There is no separate test dependency to install.
+
+Client tests cover navigation, feature data and reader behavior, rendered component output, and import boundaries. They do not replace browser checks for responsive layouts, keyboard focus, native dialogs, and theme appearance. Run `npm run typecheck` for TypeScript checks and `npm run build` to verify the production build.
+
 ## Configuration
 
 The development and database commands read `.env` from the working directory. `npm start` loads it through Node's `--env-file-if-exists` option. Shell environment variables take precedence. `.env` is local configuration and is excluded from Git.

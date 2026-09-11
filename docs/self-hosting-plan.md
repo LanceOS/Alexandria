@@ -56,8 +56,9 @@ No-internet operation does not imply that a browser can save progress while disc
 Planned repository structure:
 
 ```text
-client/                 Frontend and learning interfaces
-library/                Reusable UI components and design tokens
+client/src/             Application composition and feature modules
+client/src/components/ui/ Reusable UI components
+client/src/styles/      Shared design tokens and application styles
 shared/                 Public contracts and validated content schemas
 server/
   db/                   Connection setup, repositories, migrations
