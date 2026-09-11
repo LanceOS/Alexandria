@@ -1,6 +1,6 @@
 # Server architecture
 
-Alexandria runs one Fastify process and one local SQLite database. The production process serves the built React client and API at the same origin; Vite proxies `/api` and `/health` during development. This implementation establishes accounts, catalog management, and empty curriculum/progress storage without creating lesson content.
+Alexandria runs one Fastify process and one local SQLite database. The production process serves the built React client and API at the same origin; Vite proxies `/api` and `/health` during development. This implementation establishes accounts, catalog management, published curriculum reads, and sparse progress storage. An explicit content command installs a small C++ starter lesson for the unit overview and reader.
 
 ```mermaid
 flowchart LR
@@ -37,6 +37,8 @@ Request bodies are bounded to 16 KiB, validated without type coercion, and rejec
 | `GET /health/live` | Public | Process liveness |
 | `GET /health/ready` | Public | Migration compatibility and library read check |
 | `GET /api/library` | Public | Published categories and placed published topics |
+| `GET /api/topics/:slug/outline` | Public | Published unit hierarchy and module summaries; every ancestor must be visible |
+| `GET /api/modules/:id` | Public | Latest published module version, structured lesson parts, objectives, and bibliographic citations |
 | `POST /api/auth/login` | Public | Authenticate username/password; set session cookie; return user and CSRF token |
 | `GET /api/auth/session` | Public | Current user and CSRF token, or `{ "user": null }` |
 | `POST /api/auth/logout` | Signed in | Revoke current session and expire cookie |
@@ -86,4 +88,8 @@ Settings support `theme: system | light | dark`, `textSize: small | medium | lar
 
 SQLite runs with WAL, foreign keys, recursive triggers, FULL synchronous durability, and a five-second busy timeout. Startup checks the existing database, integrity, and checksummed migration history; it never initializes or silently upgrades storage. Runtime writes require a fully migrated schema. `db:migrate` creates a verified pre-upgrade backup and applies each pending migration transactionally. See [Getting started](getting-started.md) for setup, upgrades, and account commands, and [Database schema](database-schema.md) for constraints and relationships.
 
-Empty units, module versions, lesson parts, exercises, private grading specifications, citations, drafts, attempts/results, and progress tables establish future storage. Curriculum authoring/reading APIs, content-block validation/rendering, learner progress APIs, completion policy, account UI, and exercise graders/runners are not implemented. No learner code executes in the API process. Unit/topic progress will be derived from module records; no per-user curriculum rows are preallocated. Bibliographic citations contain no source-file paths. Private source books remain outside runtime storage and backups.
+Public curriculum repositories return only published content belonging to a published topic with a published category placement. Every ancestor unit must be published. Lesson JSON is validated against bounded, explicit paragraph, code, list, callout, and reflection shapes. The client renders plain text without stored HTML or executable content. Protected exercise tables are not queried or serialized.
+
+The optional `content:cpp-basics` command installs original, cited lesson content in one transaction, after a verified backup. Matching records are left unchanged; conflicting data is rejected. Module versions and their sources remain immutable after publication. See [C++ starter content](cpp-basics-content.md).
+
+Curriculum authoring APIs, learner progress APIs, completion policy, account UI, and exercise graders/runners are not implemented. The reader’s section counter describes location, not completion. Reflections reveal explanations without grading or saving attempts. No learner code executes in the API process. Unit/topic progress will be derived from module records; no per-user curriculum rows are preallocated. Bibliographic citations contain no source-file paths. Private source books remain outside runtime storage and backups.

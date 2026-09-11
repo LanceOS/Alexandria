@@ -2,7 +2,7 @@
 
 A local, self-hosted learning library. This first implementation provides the application home page, library browsing shell, shared UI components, and a small server with SQLite persistence.
 
-The catalog starts with Software, AI, and Mathematics categories and no topics. The server includes local accounts, sessions, per-user settings, and administrator catalog APIs. Empty curriculum and progress schemas are ready for future lesson features; no lessons or learner records are seeded. Source books stay outside the application.
+The catalog starts with Software, AI, and Mathematics categories and no topics. The server includes local accounts, sessions, per-user settings, and administrator catalog APIs. A small C++ starter path can be installed explicitly: C++ → Basics → Your first C++ program. The unit overview and section-based reader support both themes; learner progress and grading remain future work. Source books stay outside the application.
 
 ## Start locally
 
@@ -12,6 +12,7 @@ Use Node.js **24.8 or newer**; the latest Node 24 LTS patch is recommended.
 npm ci
 cp .env.example .env
 npm run db:init
+npm run content:cpp-basics
 npm run dev
 ```
 
@@ -41,3 +42,5 @@ The production server serves the frontend and API together at [localhost:3000](h
 See [Getting started](docs/getting-started.md) for configuration, accounts, and database commands. [Server architecture](docs/server-architecture.md) documents the implemented API and boundaries; [Database schema](docs/database-schema.md) describes the tables and integrity rules. The [self-hosting plan](docs/self-hosting-plan.md) remains the broader roadmap.
 
 For an existing installation, stop the server and run `npm run db:migrate` before restarting. The command creates a verified backup before applying pending migrations.
+
+The starter content is optional and backed by verified C++ references. See [C++ starter content](docs/cpp-basics-content.md) for its sources, installation behavior, and scope.

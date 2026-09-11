@@ -2,7 +2,7 @@
 
 Alexandria uses one local SQLite database with foreign keys, strict tables, WAL journaling, full synchronous writes, and a busy timeout. Schema changes run through explicit, checksummed migrations. Application startup verifies migration history; it does not initialize or upgrade storage implicitly. See [Getting started](getting-started.md) for initialization, backup, and migration commands.
 
-The schema supports accounts, the library catalog, versioned curriculum, and sparse learner progress. Only the three library categories and instance metadata are initialized. There are no seeded accounts, topics, units, modules, lessons, exercises, attempts, or progress records.
+The schema supports accounts, the library catalog, versioned curriculum, and sparse learner progress. Only the three library categories and instance metadata are initialized. Database initialization does not seed accounts, topics, units, modules, lessons, exercises, attempts, or progress records. The separate optional `content:cpp-basics` command installs one cited introductory module and its catalog hierarchy; see [C++ starter content](cpp-basics-content.md).
 
 ## Migration history
 
@@ -124,11 +124,11 @@ All new curriculum/progress timestamps are validated date-time text; chronologic
 
 ## Deferred interfaces and decisions
 
-The curriculum and learner tables are empty storage foundations. This pass does not add lesson pages, authoring or publishing endpoints, curriculum seeds, progress endpoints, grading workers, or a code runner.
+Published curriculum reading and a small C++ unit/module UI are implemented. An explicit optional content command installs the starter lesson. Authoring/publishing endpoints, progress endpoints, grading workers, and a code runner remain deferred.
 
-Before those interfaces are added, define the concrete structured-content format and completion policy, validate private grading specifications, and authorize all learner operations from the authenticated account. Authoring changes to draft child rows should run in a transaction that checks and advances the parent version revision. Public content serializers must explicitly omit protected grading specifications and solutions.
+The reader currently supports validated paragraph, code, list, callout, and reflection blocks. Before authoring and learner interfaces are added, define the completion policy, validate private grading specifications, and authorize all learner operations from the authenticated account. Authoring changes to draft child rows should run in a transaction that checks and advances the parent version revision. Public content serializers must explicitly omit protected grading specifications and solutions.
 
-Public module discovery must require a published topic and every ancestor unit to be published. The current library endpoint only lists topics and does not expose module outlines. A future outline repository should fetch units and module summaries in bounded queries and apply that visibility rule.
+The public outline and module repositories require a published topic with a published category placement, a published module version, and every ancestor unit to be published. The library endpoint lists topics; the curriculum endpoints provide outlines and validated lesson content.
 
 Unit and topic coverage should be derived from applicable required modules, including descendants, counting each module once. Untouched modules remain in the denominator; empty curricula have no required modules rather than automatic completion. Historical completion is retained separately from current coverage when required content changes. No per-user unit/topic totals, topic enrollment, prerequisites, achievement snapshots, or separate assistance-event tracking are added yet.
 

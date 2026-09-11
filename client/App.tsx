@@ -1,9 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { animate, stagger } from 'animejs';
 import { Badge, Button, EmptyState, Icon, IconButton, TextField } from '../library';
 import type { IconName } from '../library';
 import type { LibraryResponse } from '../shared/library';
 import { useTheme } from './useTheme';
+import { Curriculum } from './Curriculum';
+
+function readCurriculumLocation() {
+  const params = new URLSearchParams(window.location.search);
+  return { topicSlug: params.get('topic'), moduleId: params.get('module'), partId: params.get('part') };
+}
 
 const subjectStyles: Record<string, { icon: IconName; label: string; className: string }> = {
   software: { icon: 'code', label: 'Software & Computing', className: 'software' },
@@ -44,6 +50,7 @@ function LibraryIllustration() {
 export function App() {
   const { theme, chooseTheme } = useTheme();
   const [filters, setFilters] = useState(readFilters);
+  const [curriculum, setCurriculum] = useState(readCurriculumLocation);
   const [data, setData] = useState<LibraryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -125,10 +132,20 @@ export function App() {
   }, [request]);
 
   useEffect(() => {
-    const onPopState = () => setFilters(readFilters());
+    const onPopState = () => { setFilters(readFilters()); setCurriculum(readCurriculumLocation()); setMenuOpen(false); };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
+
+  useEffect(() => {
+    document.title = curriculum.topicSlug ? `${data?.topics.find((topic) => topic.slug === curriculum.topicSlug)?.name ?? 'Learning'} · Alexandria` : 'Library · Alexandria';
+  }, [curriculum.topicSlug, data]);
+
+  useEffect(() => {
+    if (curriculum.topicSlug) return;
+    mainRef.current?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0 });
+  }, [curriculum.topicSlug, curriculum.moduleId, curriculum.partId]);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !mainRef.current) return;
@@ -159,8 +176,34 @@ export function App() {
   }
 
   function chooseSubject(category: string) {
-    updateFilters({ category });
+    const url = new URL(window.location.href);
+    for (const key of ['topic', 'module', 'part']) url.searchParams.delete(key);
+    if (category === 'all') url.searchParams.delete('subject');
+    else url.searchParams.set('subject', category);
+    window.history.pushState({}, '', url);
+    setCurriculum(readCurriculumLocation());
+    setFilters(readFilters());
     setMenuOpen(false);
+  }
+
+  function navigateCurriculum(next: { topicSlug: string; moduleId?: string | null; partId?: string | null } | null) {
+    const url = new URL(window.location.href);
+    for (const key of ['topic', 'module', 'part']) url.searchParams.delete(key);
+    url.hash = '';
+    if (next) {
+      url.searchParams.set('topic', next.topicSlug);
+      if (next.moduleId) url.searchParams.set('module', next.moduleId);
+      if (next.partId) url.searchParams.set('part', next.partId);
+    }
+    window.history.pushState({}, '', url);
+    setCurriculum(readCurriculumLocation());
+    setMenuOpen(false);
+  }
+
+  function openTopic(event: MouseEvent<HTMLAnchorElement>, topicSlug: string) {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    navigateCurriculum({ topicSlug });
   }
 
   return (
@@ -174,7 +217,7 @@ export function App() {
         </a>
         <div className="sidebar-content">
           <div className="nav-label">YOUR WORKSPACE</div>
-          <button className="nav-item nav-primary" onClick={() => chooseSubject('all')} aria-current={!selected ? 'page' : undefined}>
+          <button className="nav-item nav-primary" onClick={() => chooseSubject('all')} aria-current={!selected && !curriculum.topicSlug ? 'page' : undefined}>
             <Icon name="grid" size={19} /><span>Library</span><Icon name="chevron-right" size={15} />
           </button>
           <div className="nav-label subjects-label">SUBJECTS</div>
@@ -202,7 +245,7 @@ export function App() {
       <div className="workspace" inert={menuOpen}>
         <header className="topbar">
           <IconButton ref={menuButtonRef} className="mobile-menu" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-controls="library-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}><Icon name={menuOpen ? 'x' : 'menu'} /></IconButton>
-          <div className="breadcrumb"><span>Your workspace</span><span className="breadcrumb-slash">/</span><span>Library</span></div>
+          <div className="breadcrumb"><span>Your workspace</span><span className="breadcrumb-slash">/</span>{curriculum.topicSlug ? <><button className="breadcrumb-link" onClick={() => navigateCurriculum(null)}>Library</button><span aria-hidden="true">/</span><span>{data?.topics.find((topic) => topic.slug === curriculum.topicSlug)?.name ?? 'Learning'}</span></> : <span>Library</span>}</div>
           <div className="topbar-actions">
             <span className={`connection-status ${error ? 'is-offline' : ''}`} role="status"><span className="connection-dot" /><span className="connection-label">{loading ? 'Connecting' : error ? 'Server unavailable' : 'Connected to your server'}</span></span>
             <div className="theme-switch" role="group" aria-label="Color theme">
@@ -213,6 +256,7 @@ export function App() {
         </header>
 
         <main id="main-content" className="main-content" ref={mainRef} tabIndex={-1}>
+          {curriculum.topicSlug ? <Curriculum topicSlug={curriculum.topicSlug} moduleId={curriculum.moduleId} partId={curriculum.partId} onNavigate={navigateCurriculum} /> : <>
           <section className="welcome" aria-labelledby="welcome-heading" data-entrance>
             <div className="welcome-copy">
               <div className="eyebrow"><span />A SPACE FOR CURIOUS MINDS</div>
@@ -251,7 +295,7 @@ export function App() {
                   <Button variant="secondary" onClick={() => setRequest((current) => current + 1)}><Icon name="refresh" size={16} />Try again</Button>
                 </EmptyState>
               ) : topics.length ? (
-                <div className="topic-grid">{topics.map((topic) => <article className="topic-card" key={topic.id}><Icon name="book" size={22} /><h3>{topic.name}</h3><p>{topic.description}</p><Badge>Topic overview</Badge></article>)}</div>
+                <div className="topic-grid">{topics.map((topic) => <a className="topic-card topic-card-link" key={topic.id} href={`/?topic=${encodeURIComponent(topic.slug)}`} onClick={(event) => openTopic(event, topic.slug)}><div className="topic-card-symbol"><Icon name={topic.slug === 'cpp' ? 'code' : 'book'} size={22} /><Icon name="arrow-up-right" size={18} /></div><h3>{topic.name}</h3><p>{topic.description}</p><span className="topic-card-action">Explore topic<Icon name="arrow-right" size={16} /></span></a>)}</div>
               ) : query ? (
                 <EmptyState icon={<Icon name="search" size={27} />} title="No topics found" description={`No topics match “${filters.query.trim()}”${selected ? ` in ${selected.name}` : ''}. Try another search.`}>
                   <Button variant="secondary" onClick={() => updateFilters({ query: '', category: 'all' })}>Clear filters</Button>
@@ -263,6 +307,7 @@ export function App() {
               )}
             </div>
           </section>
+          </>}
           <footer className="page-footer"><span>Alexandria<span className="footer-dot">·</span>Built for understanding.</span><span>Your library. Your pace.</span></footer>
         </main>
       </div>

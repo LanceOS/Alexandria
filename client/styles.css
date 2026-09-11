@@ -24,6 +24,13 @@
 .topbar { height: 71px; padding: 0 46px; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; background: var(--color-topbar); }
 .breadcrumb { display: flex; align-items: center; gap: 17px; font-size: 11px; color: var(--color-muted); }
 .breadcrumb > span:last-child { color: var(--color-ink); }.breadcrumb-slash { color: var(--color-border-strong); }
+.breadcrumb-link { border: 0; padding: 8px 0; background: transparent; color: var(--color-muted); font: inherit; }
+.breadcrumb-link:hover { color: var(--color-ink); text-decoration: underline; }
+.topic-card-link { display: block; text-decoration: none; transition: border-color var(--transition), background-color var(--transition); }
+.topic-card-link:hover { border-color: var(--color-border-strong); background: var(--color-surface-soft); }
+.topic-card-symbol, .topic-card-action { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.topic-card-symbol { color: var(--color-emphasis); }
+.topic-card-action { margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--color-border); font-size: 12px; font-weight: 600; }
 .connection-status { display: flex; align-items: center; gap: 7px; font-size: 10px; color: var(--color-muted); }
 .connection-status > .connection-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--color-border-strong); }
 .connection-status.is-offline { color: var(--color-warning); }.connection-status.is-offline > .connection-dot { background: var(--color-warning); }
