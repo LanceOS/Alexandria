@@ -1,0 +1,25 @@
+# Optional Linux systemd example. See deploy/README.md before installation.
+[Unit]
+Description=Alexandria local library
+After=network.target
+
+[Service]
+Type=simple
+User=alexandria
+Group=alexandria
+WorkingDirectory=/opt/alexandria
+EnvironmentFile=/etc/alexandria.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node /opt/alexandria/dist/server/index.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/alexandria/data /srv/alexandria/backups
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

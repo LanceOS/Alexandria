@@ -1,0 +1,55 @@
+# Dependencies and generated builds
+node_modules/
+dist/
+.vite/
+.cache/
+*.tsbuildinfo
+
+# Local configuration and secrets; keep the documented example
+.env
+.env.*
+!.env.example
+secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Runtime storage and SQLite journals, WAL, and shared-memory files
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+data/
+backups/
+.maintenance.lock
+
+# Test output, logs, and temporary process files
+coverage/
+.nyc_output/
+logs/
+*.log
+*.pid
+*.pid.lock
+tmp/
+*.tmp
+
+# Private source books are never application or release content
+*.pdf
+*.epub
+*.mobi
+*.azw
+*.azw3
+*.djvu
+
+# Local editor and operating-system files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
