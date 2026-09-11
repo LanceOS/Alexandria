@@ -2,7 +2,7 @@
 
 Alexandria uses one local SQLite database with foreign keys, strict tables, WAL journaling, full synchronous writes, and a busy timeout. Schema changes run through explicit, checksummed migrations. Application startup verifies migration history; it does not initialize or upgrade storage implicitly. See [Getting started](getting-started.md) for initialization, backup, and migration commands.
 
-The schema supports accounts, the library catalog, versioned curriculum, and sparse learner progress. Only the three library categories and instance metadata are initialized. Database initialization does not seed accounts, topics, units, modules, lessons, exercises, attempts, or progress records. The separate optional `content:cpp-basics` command installs one cited introductory module and its catalog hierarchy; see [C++ starter content](cpp-basics-content.md).
+The schema supports accounts, the library catalog, versioned curriculum, and sparse learner progress. Only the three library categories and instance metadata are initialized. Database initialization does not seed accounts, topics, units, modules, lessons, exercises, attempts, or progress records. The separate `content:import -- cpp` command imports six cited introductory modules and their catalog hierarchy from JSON; `content:cpp-basics` remains a compatibility alias. See [C++ Basics content](cpp-basics-content.md).
 
 ## Migration history
 
@@ -120,11 +120,13 @@ A submission without grading events is pending. The most recent sequence supplie
 
 Normal database connections enable recursive triggers. Additional insertion guards prevent SQLite `INSERT OR REPLACE` from bypassing immutable attempts, lesson completions, completion state, or draft revisions even if a caller disables recursive triggers.
 
-All new curriculum/progress timestamps are validated date-time text; chronological comparisons use SQLite date functions. Objects and arrays are checked for valid JSON and top-level shape. These checks do not replace future typed content validators, grading validation, or server authorization.
+All new curriculum/progress timestamps are validated date-time text; chronological comparisons use SQLite date functions. Objects and arrays are checked for valid JSON and top-level shape. These checks complement content-file and public-reader validation; they do not replace grading validation or server authorization.
 
 ## Deferred interfaces and decisions
 
-Published curriculum reading and a small C++ unit/module UI are implemented. An explicit optional content command installs the starter lesson. Authoring/publishing endpoints, progress endpoints, grading workers, and a code runner remain deferred.
+Published curriculum reading, a small C++ unit/module UI, and JSON content import are implemented. Unit folders describe the hierarchy and individual module files contain the structured lessons and citations. `content:check` validates files without database access; `content:import` backs up and adds a named root transactionally. Moving the existing C++ definitions to JSON uses the same IDs and values, requires no migration, and leaves matching database records unchanged.
+
+The database supports multiple releases, but the file importer currently creates version 1 only. Module JSON supplies a stable module ID and first-release `versionId`, not a version-number field. Reimport validates existing records instead of updating published content; additions use new identities. A later-version publishing workflow, authoring/publishing endpoints, progress endpoints, grading workers, and a code runner remain deferred. See [Content authoring](../content/README.md) for the file format and constraints.
 
 The reader currently supports validated paragraph, code, list, callout, and reflection blocks. Before authoring and learner interfaces are added, define the completion policy, validate private grading specifications, and authorize all learner operations from the authenticated account. Authoring changes to draft child rows should run in a transaction that checks and advances the parent version revision. Public content serializers must explicitly omit protected grading specifications and solutions.
 

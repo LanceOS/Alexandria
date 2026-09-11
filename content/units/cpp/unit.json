@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/unit.schema.json",
+  "id": "cpp_starter_unit_cpp",
+  "name": "C++",
+  "slug": "cpp",
+  "description": "A practical introduction to the C++ programming language.",
+  "position": 0,
+  "topic": {
+    "id": "cpp_starter_topic",
+    "slug": "cpp",
+    "name": "C++",
+    "description": "Understand C++ through small programs and carefully explained examples.",
+    "categories": [
+      {
+        "id": "category_software",
+        "position": 0
+      }
+    ]
+  }
+}

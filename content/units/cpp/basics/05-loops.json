@@ -1,0 +1,138 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_basics_module_loops",
+  "versionId": "cpp_basics_loops_v1",
+  "slug": "repeating-work",
+  "title": "Repeating work",
+  "summary": "Trace a small for loop and a while loop, including the test that makes each stop.",
+  "position": 4,
+  "objectives": [
+    "Identify initialization, condition, body, and update in a for loop.",
+    "Trace changing values through a while loop.",
+    "Predict zero iterations and recognize an off-by-one boundary."
+  ],
+  "parts": [
+    {
+      "id": "cpp_basics_loops_part_for",
+      "title": "Count a few repetitions",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A loop repeats a statement while a condition allows it. Instead of copying three nearly identical output statements, describe how a counter changes. This example numbers three steps and keeps a running total of their numbers. The counter tells us which step is being processed; total remembers what earlier iterations contributed. Both roles are visible in the variable names."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "main.cpp — counting and accumulating",
+          "code": "#include <iostream>\n\nint main()\n{\n    int total{0};\n\n    for (int step{1}; step <= 3; ++step) {\n        std::cout << \"Step \" << step << \"\\n\";\n        total += step;\n    }\n\n    std::cout << \"Total: \" << total << \"\\n\";\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Step 1\nStep 2\nStep 3\nTotal: 6\n"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Initialize once: int step{1} creates the counter at the start of this loop.",
+            "Test before each iteration: step <= 3 decides whether the body runs.",
+            "Run the body: print the step and add its value to total.",
+            "Update after the body: ++step increases this integer counter by one, then the condition is checked again."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The body sees step values 1, 2, and 3. After the third update, step is 4 and the next test fails. There is no fourth execution of the body. The declaration in the for header limits the name step to the loop. The name total remains available afterward because its declaration belongs to the surrounding main body."
+        }
+      ]
+    },
+    {
+      "id": "cpp_basics_loops_part_while",
+      "title": "Repeat while a condition holds",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A while loop puts the condition directly beside the keyword. Initialization and updates appear as ordinary statements around or inside it. That can read naturally when a changing state, rather than a numbered sequence of steps, controls the work. Here the state is a small countdown. As with for, the condition is checked before the body runs."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "main.cpp — a countdown",
+          "code": "#include <iostream>\n\nint main()\n{\n    int remaining{3};\n\n    while (remaining > 0) {\n        std::cout << remaining << \"\\n\";\n        --remaining;\n    }\n\n    std::cout << \"Go!\\n\";\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "3\n2\n1\nGo!\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The --remaining statement subtracts one from this integer variable. Trace the value before each test: 3, then 2, then 1, and finally 0. Only the first three tests are true. Because the print happens before the decrement, the program prints the positive values and skips zero. Moving the decrement above the print would instead produce 2, 1, and 0."
+        },
+        {
+          "type": "callout",
+          "title": "Name the reason it will stop",
+          "text": "Each iteration moves remaining toward a false condition. If you remove the decrement from this example, remaining stays 3 and the program keeps printing. Before running a changed loop, identify what can make its condition false."
+        }
+      ]
+    },
+    {
+      "id": "cpp_basics_loops_part_trace",
+      "title": "Check the first and last iteration",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A loop is easiest to check with a short trace on paper. Write the tested value, whether the condition is true, the output, and the value after the update. Include the final false test. That last row explains termination and helps prevent an off-by-one mistake: performing one iteration too many or too few."
+        },
+        {
+          "type": "reflection",
+          "prompt": "What does the countdown print if remaining starts at 0 instead of 3?",
+          "explanation": "The first condition is already false, so the body runs zero times. The program still reaches the statement after the loop and prints Go! A while loop does not promise even one execution of its body."
+        },
+        {
+          "type": "paragraph",
+          "text": "Now predict a change in the first program: replacing step <= 3 with step < 3 prints only steps 1 and 2, giving a total of 3. The starting value stayed the same, but the endpoint changed. Review the starting value, comparison, and update together whenever you edit a loop; changing one can alter how the others behave."
+        },
+        {
+          "type": "paragraph",
+          "text": "Keep these experiments small. Our counters and sums remain comfortably within the range of int. A loop is not a reason to ignore numeric limits: increasing a bound dramatically can make arithmetic overflow or make a program run much longer than intended. The useful habit here is tracing a few deliberate values, then checking the output."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_basics_loops_source_book",
+      "title": "The C++ Programming Language",
+      "authors": [
+        "Bjarne Stroustrup"
+      ],
+      "publisher": "Addison-Wesley",
+      "publicationYear": 2013,
+      "edition": "4th edition",
+      "isbn": "9780321563842",
+      "url": "https://www.stroustrup.com/4th.html",
+      "locator": "§9.5.2 for Statements, p. 235; §9.5.3 while Statements, p. 236"
+    },
+    {
+      "id": "cpp_basics_loops_source_for",
+      "title": "C++ working draft: the for statement",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/stmt.for",
+      "locator": "[stmt.for], initialization, condition, and iteration expression; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_basics_loops_source_while",
+      "title": "C++ working draft: the while statement",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/stmt.while",
+      "locator": "[stmt.while], condition tested before each execution; consulted 2026-09-11"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+# Curriculum content
+
+Curriculum is ordinary JSON, separate from server and frontend code. Each unit has a folder with `unit.json`; each module is one JSON file inside its owning unit. Child folders define subunits. The loader discovers these files automatically, so adding a module requires no TypeScript import or registry change.
+
+```text
+content/
+├── schemas/
+│   ├── unit.schema.json
+│   └── module.schema.json
+└── units/
+    └── cpp/
+        ├── unit.json
+        └── basics/
+            ├── unit.json
+            ├── 01-first-program.json
+            ├── 02-variables.json
+            ├── 03-expressions.json
+            ├── 04-decisions.json
+            ├── 05-loops.json
+            └── 06-functions.json
+```
+
+## Add a unit or module
+
+1. Create a folder for the unit under `content/units/`, or inside an existing unit for a subunit. Give it a `unit.json` based on the examples below. A folder's name must equal its unit's slug.
+2. Add one JSON file per module, using an existing module as a format reference. Assign new IDs to the module, first release, lesson parts, and citations. Write original explanations and examples, with documentation or book references in `sources`.
+3. Run `npm run content:check` to validate all roots, or `npm run content:check -- cpp` to validate only C++. This does not open or modify the database.
+4. With the database initialized and current, stop the server, run `npm run content:import -- cpp`, and restart. Import selects the entire named root, including all descendants.
+
+Replace `cpp` with the root folder name when authoring another topic. Import expects the root topic's category IDs to identify existing published categories; it does not create categories.
+
+The root [C++ unit.json](units/cpp/unit.json) includes unit fields and a `topic` object with `id`, `slug`, `name`, `description`, and `categories: [{ "id": "category_software", "position": 0 }]`. Only the root declares a topic. A child inherits its topic and parent from the folder structure; do not add `topic`, `topicId`, or `parentUnitId` to child files.
+
+For example, a new `content/units/cpp/memory/unit.json` could start with:
+
+```json
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_unit_memory",
+  "name": "Memory",
+  "slug": "memory",
+  "description": "Explore object lifetimes and memory in C++.",
+  "position": 1
+}
+```
+
+`$schema` is optional and helps editors validate the file. The command always uses the checked-in [unit schema](schemas/unit.schema.json) and [module schema](schemas/module.schema.json); it does not fetch a schema from that field.
+
+## Module format
+
+[Your first C++ program](units/cpp/basics/01-first-program.json) is a complete example of the format.
+
+| Field | Meaning |
+| --- | --- |
+| `id`, `versionId` | Stable module identity and its first published release identity |
+| `slug`, `title`, `summary` | Module discovery and reader text |
+| `position` | Nonnegative order within its owning unit |
+| `objectives` | An array of learning objective strings |
+| `parts` | Ordered sections, each with `id`, `title`, and `blocks` |
+| `sources` | Ordered references, each with `id`, `title`, `authors`, `url`, and `locator` |
+
+There is no `version` field. The importer currently creates version 1 with content schema version 1 and an empty completion policy. It publishes content explicitly; JSON definitions do not have draft or publication-status switches.
+
+The reader accepts these block shapes:
+
+| `type` | Fields |
+| --- | --- |
+| `paragraph` | `text` |
+| `code` | `language` (`cpp`, `text`, or `shell`), `code`, optional `caption` |
+| `callout` | `title`, `text` |
+| `list` | `items` array of strings |
+| `reflection` | `prompt`, `explanation` |
+
+Text is rendered as text, without HTML or Markdown evaluation. Code is a JSON string: encode line breaks as `\n`, quotation marks as `\"`, and literal backslashes as `\\`. For example, a C++ newline escape inside a string literal needs `\\n` in the JSON source. A `text` code block can show expected output; a `shell` block can show a command. Alexandria does not execute either. Reflections reveal explanations without grading or saving attempts.
+
+References accept optional `publisher`, `publicationYear`, `edition`, and `isbn`. Use a public HTTP(S) URL and a useful `locator`, such as the relevant documentation section or book chapter and printed page numbers. Book URLs may point to the author's edition page; the locator directs a reader to their own copy. Source IDs must be unique even when modules cite the same book, so use module-specific citation IDs. Private book files, extracted pages, and local paths do not belong in curriculum JSON.
+
+## Identity and ordering
+
+- Keep stable IDs unchanged after import. Topic, unit, module, release, part, and source IDs must be unique across the selected topic bundle.
+- Unit slugs are unique across a topic and match their folder names. Module slugs are unique within their owning unit.
+- Sibling unit positions must be distinct; module positions must be distinct within each unit. Positions control display order. Numbered filenames are only a convenience for authors.
+- Section order follows the `parts` array; block and reference order follows their arrays.
+- Use regular files and directories inside the root. Symbolic links are rejected.
+
+Validation checks JSON schemas and semantic rules before import. It catches unsupported fields and blocks, duplicate identities or positions, invalid URLs, and content that exceeds reader limits. It does not establish that a lesson is factually accurate: verify explanations against their references and check code examples before publishing.
+
+## Import and publication
+
+`content:import` acquires the maintenance lock, creates a verified database backup, and imports the selected root in one transaction. New units and modules can be added alongside existing ones. Matching records are preserved, including their timestamps. Conflicting slugs or IDs, partial existing content, or changed published definitions stop the import without replacing existing work. A failure rolls back all additions; unrelated database content is preserved. Each import creates a backup even when all content already matches.
+
+Import is additive, not a synchronization that removes absent records. Deleting a source file does not delete the corresponding published database content. Editing an already published definition is also not an update mechanism. The database supports multiple releases, but importing later versions requires an explicit future workflow; changing only `versionId` will not publish an update.
+
+Published lesson JSON is compared after parsing and serialization. Whitespace is insignificant, but preserve object key order inside existing blocks as well as array order when reorganizing files; changing either can cause a conflict with the stored release.
+
+The included C++ JSON preserves the previously published lesson data and identities exactly. Reimporting a matching installation makes no curriculum writes and requires no database migration. `npm run content:cpp-basics` remains an alias for `npm run content:import -- cpp`.
+
+## Build and runtime
+
+`npm run build` checks curriculum, clears obsolete build output, compiles the application, and copies this directory to `dist/content/`. The compiled operator commands resolve that packaged content independently of the current working directory:
+
+```sh
+node dist/server/commands/content-check.js cpp
+node dist/server/commands/content-import.js cpp
+```
+
+Use the same storage environment as the server for imports. If running from another directory, use the absolute command path and explicitly supply the environment or an absolute `--env-file` path. Source commands select `content/units/`; compiled commands select `dist/content/units/`.
+
+The frontend receives published lessons through the API. Curriculum JSON and schemas are not included in the client bundle or served as static files, and changing a file alone does not change the live library. Keep curriculum JSON in version control; database backups include the imported records rather than the content directory itself.

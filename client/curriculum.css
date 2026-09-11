@@ -111,6 +111,8 @@
 .lesson-pagination small { color: var(--color-muted); font-size: 8px; letter-spacing: 1.2px; font-weight: 500; }
 .lesson-pagination > a > span > span { font: 17px/1.4 var(--font-serif); }
 .lesson-pagination-next { text-align: right; }
+.lesson-unit-end { margin: 29px 0 0; color: var(--color-muted); font-size: 12px; line-height: 1.85; }
+.lesson-unit-end + .lesson-pagination { margin-top: 23px; }
 .lesson-sources { margin-top: 31px; border-top: 1px solid var(--color-border); padding-top: 10px; }
 .lesson-sources > summary, .lesson-mobile-outline > summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 46px; list-style: none; cursor: pointer; font-size: 11px; font-weight: 500; }
 .lesson-sources > summary::-webkit-details-marker, .lesson-mobile-outline > summary::-webkit-details-marker { display: none; }
@@ -126,6 +128,14 @@
 .lesson-sources li > span { display: block; }
 .lesson-sources li > a + span, .lesson-sources .lesson-source-title + span { margin-top: 4px; }
 .lesson-source-locator { font-style: italic; }
+.lesson-sources-expanded { padding: 27px 25px 7px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface); }
+.lesson-sources-expanded h2 { margin: 11px 0 10px; font: 25px/1.3 var(--font-serif); letter-spacing: -.4px; }
+.lesson-sources-expanded .lesson-sources-intro { margin-bottom: 22px; font-size: 12px; }
+.lesson-sources-expanded li { padding: 0 0 17px 5px; margin-bottom: 17px; border-bottom: 1px solid var(--color-border); }
+.lesson-sources-expanded li:last-child { border-bottom: 0; margin-bottom: 0; }
+.lesson-sources-expanded li > a { color: var(--color-accent-strong); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--color-border-strong); }
+.lesson-sources-expanded li > a:hover { text-decoration-color: currentColor; }
+.lesson-sources-expanded .lesson-source-locator { color: var(--color-ink); font-style: normal; }
 .lesson-mobile-outline { display: none; }
 @media (min-width: 1450px) {
   .lesson-layout { grid-template-columns: minmax(0, 1fr) 215px; gap: 56px; }
@@ -181,6 +191,7 @@
   .lesson-part-header h2 { font-size: 29px; }
   .lesson-prose { font-size: 16px; line-height: 1.85; }
   .lesson-reflection { padding: 20px; }
+  .lesson-sources-expanded { padding: 23px 19px 5px; }
   .lesson-code pre { padding: 18px; font-size: 13px; }
   .lesson-callout { padding: 17px; gap: 10px; }
   .lesson-pagination { gap: 13px; }

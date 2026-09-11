@@ -1,6 +1,6 @@
 # Getting started
 
-Alexandria's first implementation is a local application shell: a main page, library browsing, reusable UI components, and a server backed by SQLite. Initialization creates Software, AI, and Mathematics categories; the topic catalog is empty. The server also provides local authentication, per-user settings, and administrator catalog APIs. An optional C++ starter path includes a unit overview and a three-section introductory lesson. Login screens, progress APIs, uploads, and graders remain future work.
+Alexandria's first implementation is a local application shell: a main page, library browsing, reusable UI components, and a server backed by SQLite. Initialization creates Software, AI, and Mathematics categories; the topic catalog is empty. The server also provides local authentication, per-user settings, and administrator catalog APIs. An optional C++ Basics path includes a unit overview and six short introductory modules. Login screens, progress APIs, uploads, and graders remain future work.
 
 ## Requirements and rationale
 
@@ -18,7 +18,8 @@ Run these commands from the checkout using a POSIX shell:
 npm ci
 cp .env.example .env
 npm run db:init
-npm run content:cpp-basics
+npm run content:check
+npm run content:import -- cpp
 npm run dev
 ```
 
@@ -56,7 +57,7 @@ npm run build
 NODE_ENV=production npm start
 ```
 
-Open [localhost:3000](http://localhost:3000). The build emits the frontend in `dist/client/` and compiled server/shared code in `dist/server/` and `dist/shared/`. `npm start` runs the compiled server; it does not build or initialize storage.
+Open [localhost:3000](http://localhost:3000). The build validates curriculum JSON, emits the frontend in `dist/client/` and compiled server/shared code in `dist/server/` and `dist/shared/`, then copies the content directory to `dist/content/`. Curriculum files are used by operator commands and are not bundled into the frontend. `npm start` runs the compiled server; it does not build, initialize storage, or import curriculum.
 
 Check the running server with:
 
@@ -76,7 +77,9 @@ The [optional systemd example](../deploy/README.md) runs the compiled server und
 | --- | --- |
 | `npm run db:init` | Creates a new database, applies migrations, and seeds the three categories |
 | `npm run db:migrate` | Checks an existing database, backs it up before pending migrations, then applies them; does nothing when already current |
-| `npm run content:cpp-basics` | Backs up the database and installs the optional C++ unit, Basics subunit, and one introductory module; refuses conflicting existing content |
+| `npm run content:check` | Validates every curriculum root without opening the database; add `-- cpp` to check only C++ |
+| `npm run content:import -- cpp` | Backs up the database and imports the `content/units/cpp/` hierarchy; adds new content, preserves matching records, and refuses conflicts |
+| `npm run content:cpp-basics` | Compatibility alias for importing the C++ hierarchy |
 | `npm run db:backup` | Creates a verified SQLite snapshot and a JSON checksum manifest in `BACKUP_DIR` |
 | `npm run account:create -- --username lanceos` | Creates a local administrator using a hidden password prompt |
 | `npm run account:password -- --username lanceos` | Resets a password and revokes all sessions for that user |
@@ -105,8 +108,19 @@ Use `npm run account:password -- --username lanceos` to reset a password; this i
 These commands prepare API access. The current library screen still uses its existing local theme preference; a sign-in interface and account-synced UI settings have not been added.
 
 
-## C++ starter path
+## C++ Basics path
 
-On an initialized, current database, stop the server and run `npm run content:cpp-basics`, then restart it. Open the library and choose C++, then open **Your first C++ program** under **C++ → Basics**. The command creates one published topic, two unit records (parent and child), and one module with three sections. Running it again leaves matching content untouched; conflicts stop the operation instead of overwriting authored material. It creates a verified backup before installation.
+On an initialized, current database, validate the files with `npm run content:check -- cpp`, stop the server, and run `npm run content:import -- cpp`, then restart it. Open the library and choose C++, then open **Your first C++ program** under **C++ → Basics**. The path contains one published topic, two unit records (parent and child), and six modules with three sections each. On an existing starter installation, import adds five modules and preserves the published first lesson. Reimporting the complete path leaves matching content untouched; conflicts stop the operation instead of overwriting authored material. Import creates a verified backup before installation.
 
-The reader provides section navigation, copyable code examples, ungraded reflection prompts, and source citations. Section position is represented in the URL, so direct links, reloads, and browser history work. It does not record completion, execute code, or create learner records. For a prepared release, use `dist/server/commands/content-cpp-basics.js` with the same environment as the server. See [content provenance](cpp-basics-content.md) for the documentation and book references.
+The reader provides section and next-module navigation, copyable code examples, ungraded reflection prompts, and module-specific further reading. Reading links are always visible at the bottom of each module's final section and expandable in earlier sections. Section position is represented in the URL, so direct links, reloads, and browser history work. It does not record completion, execute code, or create learner records. See [content provenance](cpp-basics-content.md) for the documentation and book references.
+
+Add curriculum with a unit folder, its `unit.json`, and one JSON file per module; see [Content authoring](../content/README.md). File validation is independent of the database. Import publishes new version-1 content and preserves matching records; editing an already published JSON definition does not update the database. A workflow for publishing later versions is future work.
+
+For a prepared release, use the same storage environment as the server:
+
+```sh
+node dist/server/commands/content-check.js cpp
+node dist/server/commands/content-import.js cpp
+```
+
+Compiled commands resolve curriculum from `dist/content/` relative to their own installation, independently of the working directory. When invoking them from elsewhere, use the absolute command path and explicitly supply the service environment or an absolute `--env-file` path. The `cpp` argument names a root inside the packaged `content/units/` directory.

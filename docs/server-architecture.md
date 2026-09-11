@@ -1,6 +1,6 @@
 # Server architecture
 
-Alexandria runs one Fastify process and one local SQLite database. The production process serves the built React client and API at the same origin; Vite proxies `/api` and `/health` during development. This implementation establishes accounts, catalog management, published curriculum reads, and sparse progress storage. An explicit content command installs a small C++ starter lesson for the unit overview and reader.
+Alexandria runs one Fastify process and one local SQLite database. The production process serves the built React client and API at the same origin; Vite proxies `/api` and `/health` during development. This implementation establishes accounts, catalog management, published curriculum reads, and sparse progress storage. Explicit content commands validate and import curriculum JSON; the included C++ Basics root contains six short modules.
 
 ```mermaid
 flowchart LR
@@ -10,6 +10,8 @@ flowchart LR
     Services --> Repositories[Prepared SQL repositories]
     Repositories --> SQLite[(Local SQLite)]
     Commands[Local maintenance commands] --> SQLite
+    Content[Curriculum JSON] --> Validation[Schema and semantic validation]
+    Validation --> Commands
     SQLite --> Backups[Verified snapshots]
 ```
 
@@ -26,6 +28,9 @@ flowchart LR
 | `server/db/` | Connection policy, public library read model, migrations, transactions, backups |
 | `server/db/schema/` | Additive identity, curriculum, progress, and catalog SQL migrations |
 | `server/commands/` | Explicit initialization, upgrades, backups, account creation/password reset |
+| `server/content/` | Curriculum file discovery, validation, and transactional import |
+| `content/units/` | Unit folders and module JSON, independent of application code |
+| `content/schemas/` | JSON schemas for unit metadata and module definitions |
 | `shared/` | Public TypeScript contracts and request validation schemas |
 
 Request bodies are bounded to 16 KiB, validated without type coercion, and reject unknown fields. Each request receives a server-generated `X-Request-Id`. Errors include `error`, `code`, `message`, and `requestId`; internal database details stay out of client responses. SQL is parameterized. Related writes use synchronous `BEGIN IMMEDIATE` transactions; nested work uses savepoints.
@@ -90,6 +95,10 @@ SQLite runs with WAL, foreign keys, recursive triggers, FULL synchronous durabil
 
 Public curriculum repositories return only published content belonging to a published topic with a published category placement. Every ancestor unit must be published. Lesson JSON is validated against bounded, explicit paragraph, code, list, callout, and reflection shapes. The client renders plain text without stored HTML or executable content. Protected exercise tables are not queried or serialized.
 
-The optional `content:cpp-basics` command installs original, cited lesson content in one transaction, after a verified backup. Matching records are left unchanged; conflicting data is rejected. Module versions and their sources remain immutable after publication. See [C++ starter content](cpp-basics-content.md).
+The content loader recursively discovers `unit.json` metadata, child unit folders, and module JSON under `content/units/`. It validates file shapes with Ajv against the checked-in JSON schemas, then checks semantic rules such as stable identities, ownership, and ordering. `content:check` validates all roots by default, or a named root, without opening the database.
+
+`content:import -- cpp` imports one root after a verified backup, using a single transaction. It adds new units and version-1 modules, leaves exact matching records unchanged, and rejects conflicts without replacing published work. The compatibility command `content:cpp-basics` imports the C++ root through the same path. The source files contain no version-number field: the current importer only creates first releases. Publishing later releases needs an explicit future workflow; changing `versionId` alone is not an update mechanism. See [Content authoring](../content/README.md) and [C++ Basics content](cpp-basics-content.md).
+
+Builds validate curriculum and copy the content tree to `dist/content/`. Compiled content commands locate that packaged directory relative to their own files, not the current working directory. The HTTP server reads published curriculum from SQLite. JSON source files and schemas are not bundled into the frontend or exposed as static assets.
 
 Curriculum authoring APIs, learner progress APIs, completion policy, account UI, and exercise graders/runners are not implemented. The reader’s section counter describes location, not completion. Reflections reveal explanations without grading or saving attempts. No learner code executes in the API process. Unit/topic progress will be derived from module records; no per-user curriculum rows are preallocated. Bibliographic citations contain no source-file paths. Private source books remain outside runtime storage and backups.

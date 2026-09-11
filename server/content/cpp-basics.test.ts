@@ -109,6 +109,6 @@ test('a failure during publication rolls back every content record', async (t) =
 test('the installer requires the published Software category', async (t) => {
   const db = await fixture(t);
   db.exec("UPDATE categories SET status = 'archived' WHERE id = 'category_software'");
-  assert.throws(() => installCppBasics(db), /published Software category/);
+  assert.throws(() => installCppBasics(db), /published category.*category_software/);
   assert.equal(count(db, 'topics'), 0);
 });

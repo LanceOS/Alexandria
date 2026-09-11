@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../schemas/unit.schema.json",
+  "id": "cpp_starter_unit_basics",
+  "name": "Basics",
+  "slug": "basics",
+  "description": "Start with a small program and learn how its pieces fit together.",
+  "position": 0
+}

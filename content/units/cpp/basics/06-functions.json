@@ -1,0 +1,126 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_basics_module_functions",
+  "versionId": "cpp_basics_functions_v1",
+  "slug": "functions",
+  "title": "Functions",
+  "summary": "Give a calculation a name, supply its inputs, and use the result it returns.",
+  "position": 5,
+  "objectives": [
+    "Recognize a function definition, its parameters, and a call with arguments.",
+    "Trace a returned value back to the calling code.",
+    "Explain why an int parameter passed by value does not change the caller’s variable."
+  ],
+  "parts": [
+    {
+      "id": "cpp_basics_functions_part_definition",
+      "title": "Name a small calculation",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "You already know main as the starting function of these programs. You can define other functions to give particular operations their own names. Imagine keeping a count of pages read. The next program names the calculation that combines an existing count with a new session. Its function makes the inputs and result explicit, while main decides which values to supply and what to print."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "main.cpp — calculating a new page count",
+          "code": "#include <iostream>\n\nint pagesAfterSession(int startingPages, int sessionPages)\n{\n    int total{startingPages + sessionPages};\n    return total;\n}\n\nint main()\n{\n    int pages{12};\n    int updatedPages{pagesAfterSession(pages, 8)};\n\n    std::cout << \"Before: \" << pages << \"\\n\";\n    std::cout << \"After: \" << updatedPages << \"\\n\";\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Before: 12\nAfter: 20\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The definition above main gives the compiler the function’s name, parameter types, return type, and body before the call is encountered. The leading int says that the function returns an integer value. The parentheses contain two parameters: startingPages and sessionPages. Parameters are names used inside the function to work with inputs supplied by a caller."
+        },
+        {
+          "type": "paragraph",
+          "text": "The expression pagesAfterSession(pages, 8) is a call. Its arguments are pages and 8, matched to the parameters in that order. For these int parameters, the values initialize separate parameter objects. The body computes 20, and return total makes that value the result of the call. The initializer then stores it in updatedPages."
+        }
+      ]
+    },
+    {
+      "id": "cpp_basics_functions_part_values",
+      "title": "Follow the values across the call",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The names in the caller and the function do not need to match. The caller uses pages; the function uses startingPages. What connects them is the argument value at the time of the call. The function cannot use main’s local name pages simply because main called it. Keeping each function’s local names separate makes it easier to reason about one calculation at a time."
+        },
+        {
+          "type": "callout",
+          "title": "Returning a result does not assign it everywhere",
+          "text": "The original pages variable is still 12 after the call. Passing an int by value gives the function its own parameter object; assigning to that parameter would not change pages. To keep the new count in pages, the caller would explicitly assign the returned result to pages."
+        },
+        {
+          "type": "paragraph",
+          "text": "The local variable total belongs to this call of pagesAfterSession. Each call creates its own ordinary local variables and parameters. Calling the function again with 20 and 5 computes 25 independently of the first call. There is no remembered page count hidden in this function. The inputs determine the result, which makes small examples easy to check."
+        },
+        {
+          "type": "paragraph",
+          "text": "A return statement ends the current function call and hands control back to its caller. It does not end the whole program when used in an ordinary helper function. Here main continues with its output statements. Code placed after return in the same straight-line path of the helper would not run."
+        }
+      ]
+    },
+    {
+      "id": "cpp_basics_functions_part_contract",
+      "title": "Make the job clear to a caller",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Read a function’s name, inputs, and result as a small promise. This helper adds two page counts; it does not print them, ask for input, or update a saved record. Separating calculation from output lets main choose how to use the result. A useful name describes that job without requiring the reader to inspect every statement in the body."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If the call becomes pagesAfterSession(pages, 0), what will the two output lines contain?",
+          "explanation": "Before remains 12 because pages was not changed. After also becomes 12 because the function adds zero and returns the result. A zero-sized session is a useful boundary case for checking this calculation."
+        },
+        {
+          "type": "paragraph",
+          "text": "For this example, assume nonnegative page counts whose sum fits in int. The parameter types check that arguments can supply integer values, but they do not enforce that application rule. Try another small pair and predict the result. Understanding those assumptions is part of understanding what the function promises."
+        },
+        {
+          "type": "callout",
+          "title": "Return the promised value",
+          "text": "Every normal path through this helper returns an int. Reaching its closing brace without a return value would be undefined behavior. The special rule that lets main finish without an explicit return does not apply to this helper. A function declared void, by contrast, does not return a value."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_basics_functions_source_book",
+      "title": "The C++ Programming Language",
+      "authors": [
+        "Bjarne Stroustrup"
+      ],
+      "publisher": "Addison-Wesley",
+      "publicationYear": 2013,
+      "edition": "4th edition",
+      "isbn": "9780321563842",
+      "url": "https://www.stroustrup.com/4th.html",
+      "locator": "§12.1.1 Why Functions?, p. 306; §12.1.3 Function Definitions, pp. 307–308; §12.1.4 Returning Values, pp. 308–310; §12.2 Argument Passing, p. 315"
+    },
+    {
+      "id": "cpp_basics_functions_source_call",
+      "title": "C++ working draft: function call",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/expr.call",
+      "locator": "[expr.call], declarations, parameter initialization, and the call result; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_basics_functions_source_return",
+      "title": "C++ working draft: the return statement",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/stmt.return",
+      "locator": "[stmt.return], returning control and values; reaching the end of a function; consulted 2026-09-11"
+    }
+  ]
+}

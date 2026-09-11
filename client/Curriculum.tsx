@@ -194,21 +194,33 @@ function webLink(url: string | null): string | null {
   } catch { return null; }
 }
 
-function Sources({ sources, expanded }: { sources: ModuleDetail['sources']; expanded: boolean }) {
+function Sources({ sources, expanded, moduleTitle }: {
+  sources: ModuleDetail['sources']; expanded: boolean; moduleTitle: string;
+}) {
   if (!sources.length) return null;
-  return <details className="lesson-sources" open={expanded || undefined}>
-    <summary><span><Icon name="book" size={17} />Sources & further reading<span className="lesson-source-count">{sources.length}</span></span><Icon name="chevron-down" size={17} /></summary>
-    <p className="lesson-sources-intro">References behind this module, and places to explore further.</p>
-    <ol>{sources.map((source) => {
+  const sourceList = <ol>{sources.map((source) => {
       const url = webLink(source.url);
       const publication = [source.edition, source.publicationYear].filter(Boolean).join(' · ');
       return <li key={source.id}>
         {url ? <a href={url} target="_blank" rel="noreferrer">{source.title}<Icon name="external" size={13} /><span className="sr-only"> (opens in a new tab)</span></a> : <span className="lesson-source-title">{source.title}</span>}
+        {source.locator && <span className="lesson-source-locator">{source.locator}</span>}
         {source.authors.length > 0 && <span>{source.authors.join(', ')}</span>}
         {publication && <span>{publication}</span>}
-        {source.locator && <span className="lesson-source-locator">{source.locator}</span>}
       </li>;
-    })}</ol>
+    })}</ol>;
+  const introduction = <p className="lesson-sources-intro">Explore the ideas in “{moduleTitle}” through these documentation and book references.</p>;
+
+  if (expanded) return <section className="lesson-sources lesson-sources-expanded" aria-labelledby="lesson-further-reading-heading">
+    <div className="curriculum-label"><Icon name="book" size={15} />KEEP EXPLORING</div>
+    <h2 id="lesson-further-reading-heading">Further reading</h2>
+    {introduction}
+    {sourceList}
+  </section>;
+
+  return <details className="lesson-sources">
+    <summary><span><Icon name="book" size={17} />Sources & further reading<span className="lesson-source-count">{sources.length}</span></span><Icon name="chevron-down" size={17} /></summary>
+    {introduction}
+    {sourceList}
   </details>;
 }
 
@@ -287,6 +299,11 @@ export function Curriculum({ topicSlug, moduleId, partId, onNavigate }: Curricul
   const previous = detail.parts[partIndex - 1];
   const next = detail.parts[partIndex + 1];
   const finalSection = partIndex === detail.parts.length - 1;
+  const owningUnit = outline.units.find((unit) => unit.id === detail.module.unitId);
+  const moduleIndex = owningUnit?.modules.findIndex((module) => module.id === moduleId) ?? -1;
+  const nextModule = moduleIndex >= 0 ? owningUnit?.modules[moduleIndex + 1] : undefined;
+  const nextDestination = next ? { topicSlug, moduleId, partId: next.id }
+    : nextModule ? { topicSlug, moduleId: nextModule.id } : overview;
 
   const sectionLinks = <ol>{detail.parts.map((section, index) => <li key={section.id}>
     <CurriculumLink destination={{ topicSlug, moduleId, partId: section.id }} navigate={onNavigate} className="lesson-section-link" current={section.id === part.id}>
@@ -316,15 +333,16 @@ export function Curriculum({ topicSlug, moduleId, partId, onNavigate }: Curricul
         </section>}
         <div className="lesson-part-header"><span className="curriculum-label">SECTION {String(partIndex + 1).padStart(2, '0')}</span><h2 id="lesson-section-heading" ref={headingRef} tabIndex={-1}>{part.title}</h2></div>
         <div className="lesson-prose">{part.blocks.map((block, index) => <ContentBlock key={index} block={block} />)}</div>
-        <nav className="lesson-pagination" aria-label="Section navigation">
+        {finalSection && !nextModule && <p className="lesson-unit-end">This is the last module currently available{owningUnit ? ` in ${owningUnit.name}` : ''}. You can revisit any module from the learning path.</p>}
+        <nav className="lesson-pagination" aria-label="Lesson navigation">
           <CurriculumLink destination={previous ? { topicSlug, moduleId, partId: previous.id } : overview} navigate={onNavigate} className="lesson-pagination-previous">
             <Icon name="arrow-left" size={17} /><span><small>{previous ? 'PREVIOUS SECTION' : 'LEARNING PATH'}</small><span>{previous?.title ?? `Back to ${detail.topic.name}`}</span></span>
           </CurriculumLink>
-          <CurriculumLink destination={next ? { topicSlug, moduleId, partId: next.id } : overview} navigate={onNavigate} className="lesson-pagination-next">
-            <span><small>{next ? 'UP NEXT' : 'END OF MODULE'}</small><span>{next?.title ?? 'Return to learning path'}</span></span><Icon name="arrow-right" size={18} />
+          <CurriculumLink destination={nextDestination} navigate={onNavigate} className="lesson-pagination-next">
+            <span><small>{next ? 'UP NEXT' : nextModule ? 'NEXT MODULE' : 'END OF UNIT'}</small><span>{next?.title ?? nextModule?.title ?? 'Return to learning path'}</span></span><Icon name="arrow-right" size={18} />
           </CurriculumLink>
         </nav>
-        <Sources sources={detail.sources} expanded={finalSection} />
+        <Sources sources={detail.sources} expanded={finalSection} moduleTitle={detail.module.title} />
       </article>
       <aside className="lesson-outline" aria-label="Module outline">
         <div className="lesson-outline-sticky">

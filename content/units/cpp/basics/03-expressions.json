@@ -1,0 +1,160 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_basics_module_expressions",
+  "versionId": "cpp_basics_expressions_v1",
+  "slug": "expressions-arithmetic",
+  "title": "Expressions and arithmetic",
+  "summary": "Combine values, make grouping clear, and understand why the operand types matter.",
+  "position": 2,
+  "objectives": [
+    "Predict small arithmetic expressions using precedence and parentheses.",
+    "Distinguish integer division from floating-point division and calculate a remainder.",
+    "Explain assignment updates and recognize the limits of built-in arithmetic."
+  ],
+  "parts": [
+    {
+      "id": "cpp_basics_expressions_part_calculate",
+      "title": "Build a calculation from values",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "An expression combines values and operations to perform a computation. A literal such as 5 is an expression; so is a variable name used to read its value. With two small integers, 5 + 2 computes another integer. The values an operator works on are its operands. For + in that expression, the operands are 5 and 2."
+        },
+        {
+          "type": "paragraph",
+          "text": "The familiar arithmetic operators are + for addition, - for subtraction, * for multiplication, and / for division. C++ uses % for an integer remainder, which you will examine next. A calculation can initialize a named result or appear directly in an output statement. Giving an intermediate result a name can make its purpose easier to explain."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "arithmetic.cpp — a complete C++20 program",
+          "code": "#include <iostream>\n\nint main()\n{\n    const int pagesPerDay{5};\n    const int days{3};\n    const int totalPages{pagesPerDay * days};\n\n    std::cout << \"Total pages: \" << totalPages << '\\n';\n    std::cout << \"Without grouping: \" << 2 + 3 * 4 << '\\n';\n    std::cout << \"With grouping: \" << (2 + 3) * 4 << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Total pages: 15\nWithout grouping: 14\nWith grouping: 20\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "Multiplication has higher precedence than addition, so 2 + 3 * 4 groups as 2 + (3 * 4). Parentheses change the grouping in (2 + 3) * 4. Operators such as subtraction group left to right at the same precedence: 10 - 3 - 2 means (10 - 3) - 2. Use parentheses when they make your intention easier to see."
+        },
+        {
+          "type": "callout",
+          "title": "Grouping is one question",
+          "text": "Precedence describes how an expression is grouped. It is not a general rule for the order in which every part of a more complicated expression executes. These examples only read values. Keep updates in separate statements while learning to reason about expressions."
+        }
+      ]
+    },
+    {
+      "id": "cpp_basics_expressions_part_division",
+      "title": "Division depends on the operands",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "When both operands are integers, division produces an integer quotient with the fractional part discarded toward zero. Therefore 7 / 2 is 3, and -7 / 2 is -3. This is not rounding to the nearest integer. The % operator supplies the remainder: 7 % 2 is 1 because three groups of two leave one."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "division.cpp — a complete C++20 program",
+          "code": "#include <iostream>\n\nint main()\n{\n    const int wholeGroups{7 / 2};\n    const int leftOver{7 % 2};\n    const double fractional{7.0 / 2};\n    const double convertedAfter{7 / 2};\n\n    std::cout << \"Whole groups: \" << wholeGroups << '\\n';\n    std::cout << \"Left over: \" << leftOver << '\\n';\n    std::cout << \"Fractional: \" << fractional << '\\n';\n    std::cout << \"Converted after: \" << convertedAfter << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Whole groups: 3\nLeft over: 1\nFractional: 3.5\nConverted after: 3\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The literal 7.0 has type double. In 7.0 / 2, the integer operand is converted to double before the division, so the calculation can produce 3.5. In contrast, convertedAfter receives the result of integer division. Storing that result in a double cannot recover the discarded fraction. First examine the expression’s operands, then the destination type."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If both 7s in the integer calculations became 8, what would wholeGroups and leftOver contain?",
+          "explanation": "wholeGroups would contain 4 and leftOver would contain 0: four groups of two use all eight items. Predict both values together. The quotient counts complete groups and the remainder tells you what remains, for these nonnegative integers and this positive divisor."
+        }
+      ]
+    },
+    {
+      "id": "cpp_basics_expressions_part_updates",
+      "title": "Update values deliberately",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Assignment stores a computed result. With an ordinary int variable pages already initialized to 5, the statement pages = pages + 2; reads the old value, adds two, then stores seven. For this simple variable, pages += 2; expresses the same update more compactly. The single = means assignment; it is not the equality comparison operator ==."
+        },
+        {
+          "type": "paragraph",
+          "text": "Built-in arithmetic has limits. An int has a finite range, and overflowing a signed integer does not promise a wrapped result. Integer division or remainder with a zero divisor has undefined behavior. Neither situation has a portable result you can rely on. The small, nonzero examples here stay within their types’ ranges; larger programs must check the values they accept and calculate."
+        },
+        {
+          "type": "paragraph",
+          "text": "Floating-point values also have finite precision. Many familiar decimal fractions, such as 0.1 on common binary floating-point implementations, cannot be represented exactly. Our example uses 3.5 to keep the result simple. For now, practice with small values: predict the type, add parentheses to show the grouping, calculate the result, and only then compile and compare the output."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_basics_expressions_source_book",
+      "title": "The C++ Programming Language — arithmetic and updates",
+      "authors": [
+        "Bjarne Stroustrup"
+      ],
+      "publisher": "Addison-Wesley",
+      "publicationYear": 2013,
+      "edition": "4th edition",
+      "isbn": "9780321563842",
+      "url": "https://www.stroustrup.com/4th.html",
+      "locator": "§2.2.2, printed pp. 40–42: arithmetic operators, conversions, assignment, and compound updates. The link opens the author’s book page."
+    },
+    {
+      "id": "cpp_basics_expressions_source_division",
+      "title": "C++ working draft — multiplication, division, and remainder",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/expr.mul",
+      "locator": "[expr.mul]: integer division toward zero, remainder, and invalid divisors."
+    },
+    {
+      "id": "cpp_basics_expressions_source_addition",
+      "title": "C++ working draft — addition and subtraction",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/expr.add",
+      "locator": "[expr.add]: additive-expression grammar and its relationship to multiplicative expressions."
+    },
+    {
+      "id": "cpp_basics_expressions_source_conversions",
+      "title": "C++ working draft — arithmetic conversions",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/expr.arith.conv",
+      "locator": "[expr.arith.conv]: how arithmetic operands acquire a common type, including the int and double case."
+    },
+    {
+      "id": "cpp_basics_expressions_source_limits",
+      "title": "C++ working draft — numeric types and limits",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/basic.fundamental",
+      "locator": "[basic.fundamental]: finite integer ranges, signed overflow, and floating-point representation."
+    },
+    {
+      "id": "cpp_basics_expressions_source_assignment",
+      "title": "C++ working draft — assignment and compound assignment",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/expr.assign",
+      "locator": "[expr.assign]: storing a result with = and the behavior of compound updates such as +=."
+    }
+  ]
+}

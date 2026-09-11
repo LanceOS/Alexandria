@@ -1,0 +1,161 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_basics_module_variables",
+  "versionId": "cpp_basics_variables_v1",
+  "slug": "variables-types-initialization",
+  "title": "Variables, types, and initialization",
+  "summary": "Give values useful names, choose simple types, and begin with a known value.",
+  "position": 1,
+  "objectives": [
+    "Identify the type, name, and initial value in a variable definition.",
+    "Distinguish initialization from assignment and recognize narrowing conversions.",
+    "Use const for a fixed value and explain basic auto type deduction."
+  ],
+  "parts": [
+    {
+      "id": "cpp_basics_variables_part_names",
+      "title": "Give a value a name",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A greeting program can print text directly. A slightly larger program needs to remember things: a chapter number, a reading time, or whether a book is ready. For the simple values in this lesson, a variable is a named object that holds a value. Its type tells the compiler what kind of value it holds and which operations make sense."
+        },
+        {
+          "type": "paragraph",
+          "text": "Read int chapter{3}; in three pieces: int is the type, chapter is the name, and {3} supplies the initial value. This definition creates the object and initializes it. The semicolon finishes the declaration. Choose names that describe the information; chapter is easier to understand than x. Names are case-sensitive, so chapter and Chapter are different names."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "variables.cpp — a complete C++20 program",
+          "code": "#include <iostream>\n\nint main()\n{\n    int chapter{3};\n    double minutes{12.5};\n    char shelf{'B'};\n    bool ready{true};\n\n    std::cout << \"Chapter: \" << chapter << '\\n';\n    std::cout << \"Minutes: \" << minutes << '\\n';\n    std::cout << \"Shelf: \" << shelf << '\\n';\n    std::cout << \"Ready: \" << ready << '\\n';\n\n    chapter = 4;\n    std::cout << \"Next chapter: \" << chapter << '\\n';\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Chapter: 3\nMinutes: 12.5\nShelf: B\nReady: 1\nNext chapter: 4\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The output statements read the stored values. Later, chapter = 4; assigns a new value to an object that already exists. Initialization gives that object its first value; assignment replaces its current value. Nothing changes the earlier line of output. The quoted labels are fixed text, while the unquoted names ask the program to use their current values."
+        }
+      ]
+    },
+    {
+      "id": "cpp_basics_variables_part_types",
+      "title": "Choose a type and initialize it",
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "int holds whole numbers within a limited range. It is suitable for the small chapter numbers here; its exact size is not the same on every implementation.",
+            "double is a floating-point type, useful for quantities with fractional values. Its precision is finite, and many decimal fractions are only approximated.",
+            "char holds one character code unit. The simple ordinary character literal 'B' uses single quotes; it is different from the string literal \"B\".",
+            "bool has the values true and false. By default, std::cout displays them as 1 and 0, which explains Ready: 1 in the example."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The braces in these definitions use list-initialization. They help catch narrowing conversions: for example, int chapter{3.5}; is rejected because it tries to initialize an integer from a floating-point value. Decide whether you intended a whole number or a fractional quantity. Changing the type or the value should express that decision, rather than just silence the diagnostic."
+        },
+        {
+          "type": "callout",
+          "title": "Start from a known value",
+          "text": "Inside main, int chapter; alone does not initialize chapter to zero. Do not read it before giving it a value. Write int chapter{3}; when you know the starting chapter, or int chapter{}; when zero is the appropriate starting value. Braces do not validate the meaning of your data: a valid integer can still be the wrong chapter."
+        }
+      ]
+    },
+    {
+      "id": "cpp_basics_variables_part_const_auto",
+      "title": "Express what can change",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Some values should stay fixed for this run of the program. Adding const to a simple variable definition prevents ordinary assignment to that variable. Here, the reading goal stays four while the completed count changes. This makes the intended difference visible to both the reader and the compiler."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "reading-goal.cpp — a complete C++20 program",
+          "code": "#include <iostream>\n\nint main()\n{\n    const int readingGoal{4};\n    auto completed = 2;\n\n    completed = 3;\n    std::cout << completed << \" of \" << readingGoal << \" chapters\\n\";\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "3 of 4 chapters\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "auto asks the compiler to deduce a type from the initializer. In auto completed = 2;, the integer literal 2 leads to int. The type is determined when the program is compiled; it does not change when a later assignment happens. auto is also not a promise of immutability. You can combine it with const when that matches your intent."
+        },
+        {
+          "type": "reflection",
+          "prompt": "Would replacing completed = 3; with readingGoal = 3; be another way to produce the same output?",
+          "explanation": "No. readingGoal was defined as const, so that assignment is rejected. The two names describe different information: work completed and the fixed goal. Keep the goal unchanged and update completed. A useful name and a suitable type help protect the meaning of a program, not just its syntax."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_basics_variables_source_book",
+      "title": "The C++ Programming Language — types, variables, and constants",
+      "authors": [
+        "Bjarne Stroustrup"
+      ],
+      "publisher": "Addison-Wesley",
+      "publicationYear": 2013,
+      "edition": "4th edition",
+      "isbn": "9780321563842",
+      "url": "https://www.stroustrup.com/4th.html",
+      "locator": "§2.2.2, printed pp. 40–42: types, initialization, and auto; §2.2.3, printed p. 42: const. The link opens the author’s book page."
+    },
+    {
+      "id": "cpp_basics_variables_source_initialization",
+      "title": "C++ working draft — list-initialization",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/dcl.init.list",
+      "locator": "[dcl.init.list]: brace initialization, empty initializers, and the definition of narrowing conversions."
+    },
+    {
+      "id": "cpp_basics_variables_source_types",
+      "title": "C++ working draft — fundamental types",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/basic.fundamental",
+      "locator": "[basic.fundamental]: integer ranges, character types, bool, and floating-point types."
+    },
+    {
+      "id": "cpp_basics_variables_source_auto",
+      "title": "C++ working draft — auto and type deduction",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/dcl.spec.auto",
+      "locator": "[dcl.spec.auto.general] and [dcl.type.auto.deduct]: deriving a variable’s type from its initializer."
+    },
+    {
+      "id": "cpp_basics_variables_source_const",
+      "title": "C++ working draft — const qualification",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/dcl.type.cv",
+      "locator": "[dcl.type.cv]: const-qualified objects and restrictions on modification."
+    },
+    {
+      "id": "cpp_basics_variables_source_bool_output",
+      "title": "C++ working draft — numeric and Boolean output",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/facet.num.put.virtuals",
+      "locator": "[facet.num.put.virtuals], Boolean overload: numeric output when boolalpha is unset. Compare the default stream flags in [basic.ios.cons]."
+    }
+  ]
+}

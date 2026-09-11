@@ -2,7 +2,7 @@
 
 A local, self-hosted learning library. This first implementation provides the application home page, library browsing shell, shared UI components, and a small server with SQLite persistence.
 
-The catalog starts with Software, AI, and Mathematics categories and no topics. The server includes local accounts, sessions, per-user settings, and administrator catalog APIs. A small C++ starter path can be installed explicitly: C++ → Basics → Your first C++ program. The unit overview and section-based reader support both themes; learner progress and grading remain future work. Source books stay outside the application.
+The catalog starts with Software, AI, and Mathematics categories and no topics. The server includes local accounts, sessions, per-user settings, and administrator catalog APIs. An optional C++ → Basics path contains six short modules, from a first program through variables, expressions, decisions, loops, and functions. The unit overview and section-based reader support both themes, next-module navigation, and further-reading links; learner progress and grading remain future work. Source books stay outside the application.
 
 ## Start locally
 
@@ -12,7 +12,8 @@ Use Node.js **24.8 or newer**; the latest Node 24 LTS patch is recommended.
 npm ci
 cp .env.example .env
 npm run db:init
-npm run content:cpp-basics
+npm run content:check
+npm run content:import -- cpp
 npm run dev
 ```
 
@@ -35,6 +36,7 @@ The production server serves the frontend and API together at [localhost:3000](h
 | `library/` | Reusable UI components and design tokens |
 | `shared/` | Frontend and server contracts |
 | `server/` | API, SQLite database, migrations, and maintenance commands |
+| `content/` | Curriculum JSON, validation schemas, and authoring instructions |
 | `deploy/` | Optional direct-service deployment example |
 | `docs/` | Setup instructions and architecture plans |
 | `notes/` | Future product and data-model design |
@@ -43,4 +45,6 @@ See [Getting started](docs/getting-started.md) for configuration, accounts, and 
 
 For an existing installation, stop the server and run `npm run db:migrate` before restarting. The command creates a verified backup before applying pending migrations.
 
-The starter content is optional and backed by verified C++ references. See [C++ starter content](docs/cpp-basics-content.md) for its sources, installation behavior, and scope.
+The lesson content is optional and backed by verified C++ references. See [C++ Basics content](docs/cpp-basics-content.md) for its sources and scope. Add curriculum through unit folders and one JSON file per module; [Content authoring](content/README.md) explains the format and import workflow. `content:check` validates files without opening the database. `content:import -- cpp` adds matching C++ content transactionally after a verified backup; existing published lessons remain unchanged. The original `content:cpp-basics` command remains an alias for importing C++.
+
+The build validates curriculum and copies it to `dist/content/` for operator commands. The browser receives published lessons through the API; curriculum files are not bundled into the frontend.

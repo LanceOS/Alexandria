@@ -1,0 +1,134 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "cpp_basics_module_decisions",
+  "versionId": "cpp_basics_decisions_v1",
+  "slug": "making-decisions",
+  "title": "Making decisions",
+  "summary": "Choose a path with conditions, then check the values where that choice changes.",
+  "position": 3,
+  "objectives": [
+    "Trace the selected branch of an if, else if, and else chain.",
+    "Combine Boolean conditions with logical operators.",
+    "Check a decision at, above, and below its boundary."
+  ],
+  "parts": [
+    {
+      "id": "cpp_basics_decisions_part_branches",
+      "title": "Choose one path",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Variables let a program represent a situation. A condition lets it respond to that situation. Suppose you want to choose a study activity from the number of minutes available. The rule is simple: at least thirty minutes allows a longer session; ten or more allows a short session; less time calls for a quick review. Write the rule down before translating it into C++."
+        },
+        {
+          "type": "code",
+          "language": "cpp",
+          "caption": "main.cpp — choosing a study activity",
+          "code": "#include <iostream>\n\nint main()\n{\n    int minutes{25};\n\n    if (minutes >= 30) {\n        std::cout << \"Study a new section.\\n\";\n    } else if (minutes >= 10) {\n        std::cout << \"Try a short practice session.\\n\";\n    } else {\n        std::cout << \"Review one idea.\\n\";\n    }\n\n    std::cout << \"Plan ready.\\n\";\n}\n"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption": "Expected standard output",
+          "code": "Try a short practice session.\nPlan ready.\n"
+        },
+        {
+          "type": "paragraph",
+          "text": "The first comparison is false because twenty-five is below thirty. The second comparison is true, so its block runs. The final else is skipped. Execution then continues after the whole chain, which is why Plan ready appears regardless of the chosen activity. An else if is another if nested in the previous else; the familiar layout makes this sequence of alternatives easier to follow."
+        },
+        {
+          "type": "callout",
+          "title": "Keep the boundaries visible",
+          "text": "Parentheses surround the condition, and braces group the statements controlled by it. Use braces even for a single output statement. Do not put a semicolon immediately after the condition: that would make an empty statement the controlled statement."
+        }
+      ]
+    },
+    {
+      "id": "cpp_basics_decisions_part_conditions",
+      "title": "Describe the question precisely",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "For integer values, comparisons such as minutes >= 10 and minutes == 10 produce a bool: true or false. The first includes ten and every larger value; the second includes only ten. Be careful with punctuation. A single = assigns a value, while == compares values. A condition should express the question you intend to ask, rather than quietly changing the data being tested."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Use && when both conditions must hold: minutes >= 10 && hasNotebook.",
+            "Use || when at least one condition is enough: hasNotebook || hasComputer.",
+            "Use ! to reverse a Boolean value: !hasNotebook means the notebook is unavailable."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Here hasNotebook and hasComputer stand for bool variables you would declare and initialize. These built-in logical operators avoid unnecessary work: && skips its right operand when the left is false, and || skips its right operand when the left is true. This behavior is called short-circuit evaluation. Keep the questions simple enough to read aloud, and add parentheses when combining several questions would otherwise be unclear."
+        },
+        {
+          "type": "paragraph",
+          "text": "A chain chooses the first matching branch. Several independent if statements ask separate questions, so several bodies can run. That distinction matters when the same value satisfies more than one comparison. In the program, thirty-five satisfies both numerical thresholds, but the else if chain deliberately chooses only the longer session."
+        }
+      ]
+    },
+    {
+      "id": "cpp_basics_decisions_part_boundaries",
+      "title": "Test where the answer changes",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Try values near each threshold before trying many arbitrary values. With 9, the program chooses a review. With 10, it chooses short practice. With 29, it still chooses short practice, and with 30 it chooses a new section. These small checks make the difference between > and >= observable. Change only the initializer, save, rebuild, and compare the output with your prediction."
+        },
+        {
+          "type": "reflection",
+          "prompt": "If you move the short-practice test and its output before the thirty-minute branch, what happens when minutes is 35?",
+          "explanation": "The minutes >= 10 test now matches first, so the program chooses short practice and never reaches the thirty-minute check. When a more general condition comes first, it can hide a later, more specific condition."
+        },
+        {
+          "type": "paragraph",
+          "text": "A correct condition also depends on your intended input range. This example assumes a nonnegative number of available minutes. A negative initializer still compiles and reaches the review branch; the compiler cannot decide whether that matches your planning rules. You could add a separate invalid-value branch later. For this reading, focus on explaining which branch runs and why."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "cpp_basics_decisions_source_book",
+      "title": "The C++ Programming Language",
+      "authors": [
+        "Bjarne Stroustrup"
+      ],
+      "publisher": "Addison-Wesley",
+      "publicationYear": 2013,
+      "edition": "4th edition",
+      "isbn": "9780321563842",
+      "url": "https://www.stroustrup.com/4th.html",
+      "locator": "§9.4.1 if Statements, pp. 228–229"
+    },
+    {
+      "id": "cpp_basics_decisions_source_if",
+      "title": "C++ working draft: the if statement",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/stmt.if",
+      "locator": "[stmt.if], branch selection and else association; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_basics_decisions_source_and",
+      "title": "C++ working draft: logical AND",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/expr.log.and",
+      "locator": "[expr.log.and], Boolean result and short-circuit evaluation; consulted 2026-09-11"
+    },
+    {
+      "id": "cpp_basics_decisions_source_or",
+      "title": "C++ working draft: logical OR",
+      "authors": [
+        "ISO/IEC JTC1/SC22/WG21"
+      ],
+      "url": "https://eel.is/c++draft/expr.log.or",
+      "locator": "[expr.log.or], Boolean result and short-circuit evaluation; consulted 2026-09-11"
+    }
+  ]
+}
