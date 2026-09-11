@@ -5,8 +5,10 @@ import type { Config } from './config.js';
 import { openDatabase } from './db/database.js';
 import { readLibrary } from './db/library.js';
 import { createAuthService } from './auth/service.js';
+import { createCatalogService } from './services/catalog.js';
 import { registerAuthRoutes } from './routes/auth.js';
 import { registerSettingsRoutes } from './routes/settings.js';
+import { registerCatalogRoutes } from './routes/catalog.js';
 import { registerHealthRoutes } from './routes/health.js';
 import { registerErrors } from './http/errors.js';
 import { registerSecurity } from './http/security.js';
@@ -45,6 +47,7 @@ export async function buildApp(config: Config, options: AppOptions = {}) {
     registerHealthRoutes(app, connection);
     registerAuthRoutes(app, auth);
     registerSettingsRoutes(app, auth, connection);
+    registerCatalogRoutes(app, auth, createCatalogService(connection));
     app.get('/api/library', async () => readLibrary(connection));
     await registerClient(app, config, options.requireClient);
     await app.ready();
